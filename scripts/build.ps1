@@ -14,7 +14,15 @@ $Exclude = @($Exclude | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 $spiral = Ensure-SpiralCompiler | Select-Object -Last 1
 Write-Output "build.ps1 / compiler / $($spiral.Compiler)"
 $runNotebook = (Resolve-Path (Join-Path $root 'deps/spiral/apps/cells/spi/run_notebook.ps1')).Path
-$notebooks = (New-Item -ItemType Directory -Force (Join-Path $root 'notebooks')).FullName
+if (-not $Files) {
+    foreach ($product in 'generated', 'samples', 'notebooks', 'target/ci-metrics') {
+        $path = Join-Path $root $product
+        if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
+    }
+    Write-Output 'build.ps1 / build products cleared: generated, samples, notebooks, target/ci-metrics'
+}
+New-Item -ItemType Directory -Force (Join-Path $root 'samples') | Out-Null
+$notebooks =(New-Item -ItemType Directory -Force (Join-Path $root 'notebooks')).FullName
 $metrics = (New-Item -ItemType Directory -Force (Join-Path $root 'target/ci-metrics')).FullName
 $labelSuffix = if ($Label -eq 'all') { '' } else { "-$Label" }
 

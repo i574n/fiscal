@@ -25,8 +25,34 @@ function Read-Sequence {
     $sb.ToString()
 }
 
+$script:blockExamples = @{
+    'IsBasicLatin' = @('A', '~')
+    'IsLatin-1Supplement' = @('À', 'ÿ')
+    'IsLatinExtended-A' = @('Ā', 'ſ')
+    'IsLatinExtended-B' = @('ƀ', 'ɏ')
+}
+
+function Test-Property {
+    $script:p[$script:i] -eq '\' -and $script:p[$script:i + 1] -cin 'p', 'P' -and $script:p[$script:i + 2] -eq '{'
+}
+
+function Read-Property {
+    $negated = $script:p[$script:i + 1] -ceq 'P'
+    $close = $script:p.IndexOf('}', $script:i)
+    $name = $script:p.Substring($script:i + 3, $close - $script:i - 3)
+    $script:i = $close + 1
+    if ($negated) { return @('Ж', 'Ж') }
+    $range = $script:blockExamples[$name]
+    if (-not $range) { throw "no example characters for the block $name" }
+    $range
+}
+
 function Read-Atom {
     $c = $script:p[$script:i]
+    if (Test-Property) {
+        $range = Read-Property
+        if ($script:last) { return [string]$range[1] } else { return [string]$range[0] }
+    }
     if ($c -eq '(') {
         $script:i++
         $inner = Read-Alternation
@@ -39,6 +65,7 @@ function Read-Atom {
         if ($script:p[$script:i] -eq '^') { $negated = $true; $script:i++ }
         $ranges = [Collections.Generic.List[object]]::new()
         while ($script:p[$script:i] -ne ']') {
+            if (Test-Property) { $ranges.Add((Read-Property)); continue }
             $low = $script:p[$script:i]
             if ($low -eq '\') {
                 $script:i++

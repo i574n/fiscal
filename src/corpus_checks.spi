@@ -123,7 +123,7 @@ test resolves_the_corpus_like_dotnet =
 test every_corpus_pattern_compiles =
     := ok, failed = count_compiled (file_system.read_all_text (fiscal_paths.under "src/patterns.txt")) 0i32 (0i32, 0i32)
     ? failed <> 0i32 ?> failwith "a corpus pattern did not parse"
-    ? ok <> 196i32 ?> failwith "196 distinct patterns"
+    ? ok <> 271i32 ?> failwith "271 distinct patterns"
 
 ///> rust
 test matches_like_dotnet_on_every_probe =
@@ -169,7 +169,7 @@ test every_corpus_pattern_has_a_finite_dfa =
             largest_pattern = ""
             lines = ""
         }
-    ? census.patterns <> 196i32 ?> failwith "196 distinct patterns"
+    ? census.patterns <> 271i32 ?> failwith "271 distinct patterns"
     ? census.without_dfa <> 0i32 ?> failwith "a pattern has no DFA within the state limit"
 
 ///> rust
@@ -189,26 +189,20 @@ test en16931_rules_parse_completely =
     ? totals.invalid <> 0i32 ?> failwith "every context and test parses"
     ? totals.members <> 23i32 ?> failwith "23 code-list tests become member tests"
 
-:~ ^ enumerated (facets : list xsd_facet) (acc : list string) : list string =
-    ?= facets ?|
-    | Enumeration value :: rest => enumerated rest (value :: acc)
-    | _ :: rest => enumerated rest acc
-    | Nil => listm.rev acc
-
 :~ ^ catalog_states (types : list xsd) (acc : list (string * i32)) : list (string * i32) =
     ?= types ?|
     | Simple (name, _, facets) :: rest =>
-        := values = enumerated facets Nil
+        := values = xsd_emit.enumeration_values facets Nil
         ? count_list values > 256i32 ?>
             catalog_states rest ((name, states_in (dfa_of_values values) 0i32) :: acc)
         |: catalog_states rest acc
     | _ :: rest => catalog_states rest acc
     | Nil => listm.rev acc
 
-:~ ^ states_named (target : string) (rows : list (string * i32)) : i32 =
-    ?= rows ?|
-    | (name, states) :: rest => ? name = target ?> states |: states_named target rest
-    | Nil => -1i32
+:= states_named (target : string) (rows : list (string * i32)) : i32 =
+    ?= listm'.try_find (\ (name, _) => name = target) rows ?|
+    | Some (_, states) => states
+    | None => -1i32
 
 ///> rust
 test cfdi_catalogs_become_minimal_dfas =
@@ -220,6 +214,7 @@ test cfdi_catalogs_become_minimal_dfas =
     ? states_named "c_ClaveUnidad" rows <> 188i32 ?> failwith "c_ClaveUnidad 188 states"
     ? states_named "c_Colonia" rows <> 8i32 ?> failwith "c_Colonia 8 states"
     ? states_named "c_Municipio" rows <> 8i32 ?> failwith "c_Municipio 8 states"
+
 :~ ^ examples_fatal
     (rules : list schematron.pattern) (names : list string) (acc : list (string * i32))
     : list (string * i32)
@@ -240,11 +235,17 @@ test cen_examples_pass_the_en16931_rules =
         file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch")
         |> schematron.read_schematron
     := names =
-        Cons ("ubl-tc434-example1.xml", Cons ("ubl-tc434-example2.xml", Cons ("ubl-tc434-example3.xml",
-            "ubl-tc434-example4.xml" :: "ubl-tc434-creditnote1.xml" :: Nil)))
+        [
+            "ubl-tc434-example1.xml"
+            "ubl-tc434-example2.xml"
+            "ubl-tc434-example3.xml"
+            "ubl-tc434-example4.xml"
+            "ubl-tc434-creditnote1.xml"
+        ]
     ?= examples_fatal rules names Nil ?|
     | Nil => ()
-    | (name, fatal) :: _ => failwith (name ++# " has fatal findings: " ++# xsd_regex.count_text fatal "")
+    | (name, fatal) :: _ => failwith (name ++# " has fatal findings: " ++# sm'.obj_to_string fatal)
+
 :~ ^ failure_ids (failures : list schematron_run.failure) (acc : list string) : list string =
     ?= failures ?|
     | f :: rest => failure_ids rest (f.id :: acc)

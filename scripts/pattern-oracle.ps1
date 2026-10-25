@@ -1,7 +1,14 @@
 param([switch] $Write)
 $root = Split-Path $PSScriptRoot
 $d = Join-Path $root 'src'
-$patterns = @(Get-Content "$d\patterns.txt" -Encoding utf8 | Where-Object { $_.Trim() -ne '' })
+$brazil = @(Get-Content "$d\corpus.txt" | ForEach-Object { Join-Path $root $_ })
+$families = @(Get-ChildItem (Join-Path $root 'deps/corpus') -Directory | Where-Object Name -ne 'DFe.NET' |
+    ForEach-Object { Get-ChildItem $_.FullName -Recurse -Filter *.xsd | Sort-Object FullName | ForEach-Object FullName })
+$distinct = [Collections.Generic.HashSet[string]]::new()
+$patterns = @(foreach ($schema in $brazil + $families) {
+    ([xml](Get-Content $schema -Raw -Encoding utf8)).SelectNodes("//*[local-name()='pattern']") | ForEach-Object value |
+        Where-Object { $_ -ne '' -and $_ -notmatch '[\r\n]' -and $distinct.Add($_) }
+})
 $generic = [Collections.Generic.List[string]]::new()
 foreach ($n in 1..20) { $generic.Add(('1234567890' * 2).Substring(0, $n)); $generic.Add('0' * $n); $generic.Add('9' * $n) }
 foreach ($s in @('', ' ', 'a', 'A', 'ABC', 'abc', 'Ação Ltda', ' leading', 'trailing ', 'two  spaces', ('x' * 61), 'Rua das Flores, 123',
@@ -34,10 +41,11 @@ $rows = foreach ($r in $compiled) { -join ($probes | ForEach-Object { if ($r.IsM
 $withPositive = @($rows | Where-Object { $_.Contains('1') }).Count
 $withNegative = @($rows | Where-Object { $_.Contains('0') }).Count
 $ones = ($rows | ForEach-Object { ($_.ToCharArray() | Where-Object { $_ -eq '1' }).Count } | Measure-Object -Sum).Sum
-"patterns $($patterns.Count), probes $($probes.Count) ($($generic.Count) generic, $($sampled.Count) of $($enumerations.Count) enumeration values, $($examples.Count) generated examples and near misses), pairs $($patterns.Count * $probes.Count)"
+"patterns $($patterns.Count) ($($brazil.Count) Brazilian schemas, $($families.Count) other family schemas), probes $($probes.Count) ($($generic.Count) generic, $($sampled.Count) of $($enumerations.Count) enumeration values, $($examples.Count) generated examples and near misses), pairs $($patterns.Count * $probes.Count)"
 "patterns with a positive probe $withPositive, with a negative probe $withNegative, positive pairs $ones"
 if ($Write) {
+    [IO.File]::WriteAllText("$d\patterns.txt", ($patterns -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText("$d\pattern_probes.txt", ($probes -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText("$d\pattern_expected.txt", ($rows -join "`n") + "`n")
-    "wrote pattern_probes.txt and pattern_expected.txt"
+    "wrote patterns.txt, pattern_probes.txt and pattern_expected.txt"
 }

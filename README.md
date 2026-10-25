@@ -121,7 +121,8 @@ deps/corpus/*.xsd ──xml.read_xml──▶ xsd.read_schema ──xsd_resolve�
   then validates every example against the official XSD with .NET's `XmlSchemaSet`.
 - `src/corpus_checks.spi` pins the reader and the regex engine to independent oracles over the whole corpus: element
   and attribute counts against .NET's XML DOM, include resolution against `XmlSchemaSet` (`scripts/resolve-check.ps1`),
-  and every corpus pattern against .NET regex on generated probes (`scripts/pattern-oracle.ps1`).
+  and every distinct pattern of every corpus schema against .NET regex on generated probes: 271, of which 196 are
+  Brazilian and 75 come from the other families (`scripts/pattern-oracle.ps1` derives the list into `src/patterns.txt`).
 
 ## Building
 
@@ -145,12 +146,13 @@ rebuilt by `build.ps1`, which regenerates everything before it tests.
 | `generated/<module>/` | one generated module and its one-module package (a build product, ignored) |
 | `src/corpus.spi`, `src/corpus_checks.spi` | corpus census and oracle checks |
 | `src/fiscal_paths.spi` | repository root (`FISCAL_ROOT`, or the folder above that holds `src/generator.spi`) |
-| `src/corpus.txt`, `src/patterns.txt` | the corpus file list and the distinct corpus patterns |
+| `src/corpus.txt` | the Brazilian corpus file list |
 | `scripts/` | init, build, publish, the example validator and the .NET oracles |
 
 ## Known limits
 
-- FatturaPA generation does not finish within the test budget yet.
+- FatturaPA takes about 96 minutes to generate: `xsd_regex` unrolls bounded repeats such as `{1,1000}`, which makes
+  its DFA build cubic in the bound. A counted-repeat node fixes this in `lib/spiral`.
 - EU coverage is UBL only; CII and Factur-X are not generated.
 - Facet-constrained values are plain string aliases with a validator beside them; unforgeable nominal types whose only
   constructor is the validator are planned.

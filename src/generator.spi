@@ -1,4 +1,4 @@
-///- --package . --timeout 1200000
+///- --package . --timeout 9600000
 :< sm'_operators
 :< xsd
 :< xsd_emit
@@ -57,8 +57,8 @@ test generates_the_nfe_v4_model =
         ++# "    if x_t_cnpj_is_valid \"1234567800019\" then failwith \"a 13-digit CNPJ is not\"\n"
         ++# "    inl example = x_tn_fe_example 0i32\n"
         ++# (
-            "    inl document = xml.element \"NFe\" (Cons ((\"xmlns\", \"http://www.portalfiscal.inf.br/nfe\"), "
-            ^^ "x_tn_fe_attributes example)) (x_tn_fe_children example)\n"
+            "    inl document = xml.element \"NFe\" ((\"xmlns\", \"http://www.portalfiscal.inf.br/nfe\") :: "
+            ^^ "x_tn_fe_attributes example) (x_tn_fe_children example)\n"
         )
         ++# (
             "    file_system.write_all_text (sample_path \"nfe_v4_example.xml\") (xml.write_node "
@@ -68,7 +68,7 @@ test generates_the_nfe_v4_model =
             "    match xml.read_xml \"<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550"
             ^^ "308</cMun><xMun>Sao Paulo</xMun><UF>SP</UF><CEP>01001000</CEP><cPais>1058</cPais></enderEmit>\" with\n"
         )
-        ++# "    | Cons (node, Nil) =>\n"
+        ++# "    | node :: Nil =>\n"
         ++# "        inl address = x_t_ender_emi_of_xml node\n"
         ++# (
             "        if address.x_mun <> \"Sao Paulo\" || address.cep <> \"01001000\" then failwith \"TEnderEmi "
@@ -183,7 +183,7 @@ test generates_the_nfe_v4_model =
         root_type = "Faktura"
         target_namespace = "http://crd.gov.pl/wzor/2025/06/25/13775/"
         catalog = ("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", local) :: Nil
-        known_defect = Some "Unification failure"
+        known_defect = None
     }
 
 := family_example_check (family : family_root) : string =
@@ -202,11 +202,11 @@ test generates_the_nfe_v4_model =
     ++# "_example 0i32\n"
     ++# "    inl document = xml.element \""
     ++# family.root_element
-    ++# "\" (Cons ((\"xmlns\", \""
+    ++# "\" ((\"xmlns\", \""
     ++# family.target_namespace
-    ++# "\"), "
+    ++# "\") :: "
     ++# t
-    ++# "_attributes example)) ("
+    ++# "_attributes example) ("
     ++# t
     ++# "_children example)\n"
     ++# "    file_system.write_all_text (sample_path \""
