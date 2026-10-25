@@ -1,0 +1,246 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xsd
+:< xsd_emit
+
+:= module_package (module_name : string) : string =
+    "packageDir: ../../deps/spiral/lib\npackages:\n    |core-\n    spiral-\nmodules:\n    " ++# module_name ++# "\n"
+
+:= sample_helper () : string =
+    "\ninl sample_path (name : string) : string =\n"
+    ++# "    inl from_env = env.get_environment_variable \"FISCAL_ROOT\"\n"
+    ++# "    inl root =\n"
+    ++# "        if from_env <> \"\" then from_env\n"
+    ++# "        else\n"
+    ++# "            inl here = file_system.get_current_directory ()\n"
+    ++# "            match here |> file_system.find_parent file_system.File \"src/generator.spi\" with\n"
+    ++# "            | Ok dir => dir\n"
+    ++# "            | Error message => failwith message\n"
+    ++# "    root ++# \"/samples/\" ++# name\n"
+
+:= ensure_folder (folder : string) : () =
+    ?= file_system.create_dir_all folder |> resultm.unbox ?|
+    | Ok _ => ()
+    | Error _ => failwith ("generator: cannot create " ++# folder)
+
+:= write_generated_module (module_name : string) (text : string) : () =
+    := folder = fiscal_paths.under ("generated/" ++# module_name)
+    ensure_folder folder
+    file_system.write_all_text (folder ++# "/package.spiproj") (module_package module_name)
+    file_system.write_all_text
+        (folder ++# "/" ++# module_name ++# ".spi")
+        ("///- --package . --timeout 1200000\n" ++# text)
+
+///> rust
+test generates_the_uf_code_union =
+    := schema =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/tiposBasico_v4.00.xsd")
+        |> read_schema
+    := text = generate_enumerations schema
+    ? sm'.contains "union x_t_cod_uf_ibge =" text = !- ?> failwith "TCodUfIBGE union"
+    ? sm'.contains "    | TCodUfIBGE_35" text = !- ?> failwith "case TCodUfIBGE_35"
+    ? sm'.contains "elif s = \"35\" then Some TCodUfIBGE_35" text = !- ?> failwith "parser arm"
+
+///> rust
+test generates_the_nfe_v4_model =
+    := tree = xsd_resolve.load_schema_tree (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
+    := text = generate_module tree.schema
+    := self_check =
+        "///> rust\ntest generated_nfe_model_type_checks =\n"
+        ++# "    match x_t_cod_uf_ibge_of_string \"35\" with\n"
+        ++# (
+            "    | Some code => if x_t_cod_uf_ibge_to_string code <> \"35\" then failwith \"TCodUfIBGE 35 round "
+            ^^ "trip\"\n"
+        )
+        ++# "    | None => failwith \"35 parses as TCodUfIBGE\"\n"
+        ++# "    if x_t_cnpj_is_valid \"12345678000195\" = false then failwith \"a 14-digit CNPJ is valid\"\n"
+        ++# "    if x_t_cnpj_is_valid \"1234567800019\" then failwith \"a 13-digit CNPJ is not\"\n"
+        ++# "    inl example = x_tn_fe_example 0i32\n"
+        ++# (
+            "    inl document = xml.element \"NFe\" (Cons ((\"xmlns\", \"http://www.portalfiscal.inf.br/nfe\"), "
+            ^^ "x_tn_fe_attributes example)) (x_tn_fe_children example)\n"
+        )
+        ++# (
+            "    file_system.write_all_text (sample_path \"nfe_v4_example.xml\") (xml.write_node "
+            ^^ "(xml.with_namespace \"Signature\" \"http://www.w3.org/2000/09/xmldsig#\" document))\n"
+        )
+        ++# (
+            "    match xml.read_xml \"<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550"
+            ^^ "308</cMun><xMun>Sao Paulo</xMun><UF>SP</UF><CEP>01001000</CEP><cPais>1058</cPais></enderEmit>\" with\n"
+        )
+        ++# "    | Cons (node, Nil) =>\n"
+        ++# "        inl address = x_t_ender_emi_of_xml node\n"
+        ++# (
+            "        if address.x_mun <> \"Sao Paulo\" || address.cep <> \"01001000\" then failwith \"TEnderEmi "
+            ^^ "text fields\"\n"
+        )
+        ++# "        if x_t_uf_emi_to_string address.uf <> \"SP\" then failwith \"TEnderEmi UF enumeration\"\n"
+        ++# (
+            "        if xml.same_node node (x_t_ender_emi_to_xml \"enderEmit\" address) = false then failwith "
+            ^^ "\"TEnderEmi XML round trip\"\n"
+        )
+        ++# "        match address.c_pais with\n"
+        ++# "        | Some _ => ()\n"
+        ++# "        | None => failwith \"TEnderEmi optional cPais\"\n"
+        ++# "    | _ => failwith \"one enderEmit element\"\n"
+    write_generated_module "generated_nfe_v4" (text ++# sample_helper () ++# self_check)
+    ? sm'.contains "inl x_t_cnpj_is_valid (s : string) : bool = " text = !- ?> failwith "TCnpj validator"
+    ? sm'.contains "union x_t_cod_uf_ibge =" text = !- ?> failwith "TCodUfIBGE union"
+    ? sm'.contains "type x_tn_fe =" text = !- ?> failwith "TNFe record"
+    ? sm'.contains "        signature : x_signature_type" text = !-
+    ?> failwith "the ds:Signature reference takes its root element type"
+
+:== family_root =
+    {
+        module_name : string
+        schema_path : string
+        root_element : string
+        root_type : string
+        target_namespace : string
+        catalog : xsd_resolve.schema_catalog
+        known_defect : option string
+    }
+
+:= cfdi_v4_0 () : family_root =
+    := local = (fiscal_paths.under "deps/corpus/mx/cfdi/")
+    := sat = "http://www.sat.gob.mx/sitio_internet/cfd/"
+    {
+        module_name = "generated_cfdi_v4_0"
+        schema_path = local ++# "cfdv40.xsd"
+        root_element = "Comprobante"
+        root_type = "Comprobante"
+        target_namespace = "http://www.sat.gob.mx/cfd/4"
+        catalog =
+            (sat ++# "catalogos/catCFDI.xsd", local ++# "catCFDI.xsd")
+            :: (sat ++# "tipoDatos/tdCFDI/tdCFDI.xsd", local ++# "tdCFDI.xsd") :: Nil
+        known_defect = None
+    }
+
+:= family_roots () : list family_root =
+    := root = (fiscal_paths.under "deps/corpus/DFe.NET/")
+    := nfe = "http://www.portalfiscal.inf.br/nfe"
+    := cte = "http://www.portalfiscal.inf.br/cte"
+    := mdfe = "http://www.portalfiscal.inf.br/mdfe"
+    := family module_name schema_path root_element root_type target_namespace : family_root =
+        {
+            module_name = module_name
+            schema_path = root ++# schema_path
+            root_element = root_element
+            root_type = root_type
+            target_namespace = target_namespace
+            catalog = Nil
+            known_defect = None
+        }
+    [
+        family "generated_nfe_v2_00" "NFe.AppTeste/Schemas/nfe_v2.00.xsd" "NFe" "TNFe" nfe;
+        family "generated_nfe_v3_10" "NFe.AppTeste/Schemas/nfe_v3.10.xsd" "NFe" "TNFe" nfe;
+        family "generated_cte_v2_00" "CTe.AppTeste/schemas/cte_v2.00.xsd" "CTe" "TCTe" cte;
+        family "generated_cte_v3_00" "CTe.AppTeste/schemas/cte_v3.00.xsd" "CTe" "TCTe" cte;
+        family "generated_cte_v4_00" "CTe.AppTeste/schemas/cte_v4.00.xsd" "CTe" "TCTe" cte;
+        family "generated_cte_os_v3_00" "CTe.AppTeste/schemas/cteOS_v3.00.xsd" "CTeOS" "TCTeOS" cte;
+        family "generated_cte_os_v4_00" "CTe.AppTeste/schemas/cteOS_v4.00.xsd" "CTeOS" "TCTeOS" cte;
+        family "generated_cte_simp_v4_00" "CTe.AppTeste/schemas/cteSimp_v4.00.xsd" "CTeSimp" "TCTeSimp" cte;
+        family "generated_gtve_v3_00" "CTe.AppTeste/schemas/GTVe_v3.00.xsd" "GTVe" "TGTVe" cte;
+        family "generated_gtve_v4_00" "CTe.AppTeste/schemas/GTVe_v4.00.xsd" "GTVe" "TGTVe" cte;
+        family "generated_mdfe_v1_00" "MDFe.AppTeste/Schemas/mdfe_v1.00.xsd" "MDFe" "TMDFe" mdfe;
+        family "generated_mdfe_v3_00" "MDFe.AppTeste/Schemas/mdfe_v3.00.xsd" "MDFe" "TMDFe" mdfe
+    ]
+
+:= ubl_invoice_2_1 () : family_root =
+    {
+        module_name = "generated_ubl_invoice_2_1"
+        schema_path = (fiscal_paths.under "deps/corpus/eu/ubl21/maindoc/UBL-Invoice-2.1.xsd")
+        root_element = "Invoice"
+        root_type = "InvoiceType"
+        target_namespace = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+        catalog = Nil
+        known_defect = None
+    }
+
+:= fatturapa_1_2_3 () : family_root =
+    := local = (fiscal_paths.under "deps/corpus/")
+    {
+        module_name = "generated_fatturapa_1_2_3"
+        schema_path = local ++# "it/fatturapa/Schema_VFPR12_v1.2.3.xsd"
+        root_element = "FatturaElettronica"
+        root_type = "FatturaElettronicaType"
+        target_namespace = "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"
+        catalog =
+            (
+                "http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/xmldsig-core-schema.xsd",
+                local ++# "DFe.NET/CTe.AppTeste/schemas/xmldsig-core-schema_v1.01.xsd"
+            )
+            :: Nil
+        known_defect = None
+    }
+
+:= ksef_fa_3 () : family_root =
+    := local = (fiscal_paths.under "deps/corpus/pl/ksef/")
+    {
+        module_name = "generated_ksef_fa_3"
+        schema_path = local ++# "schemat_FA3.xsd"
+        root_element = "Faktura"
+        root_type = "Faktura"
+        target_namespace = "http://crd.gov.pl/wzor/2025/06/25/13775/"
+        catalog = ("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", local) :: Nil
+        known_defect = Some "Unification failure"
+    }
+
+:= family_example_check (family : family_root) : string =
+    := t = type_name family.root_type
+    := pinned =
+        ?= family.known_defect ?|
+        | Some defect => " fails \"" ++# defect ++# "\""
+        | None => ""
+    "///> rust\ntest "
+    ++# family.module_name
+    ++# "_writes_its_example"
+    ++# pinned
+    ++# " =\n"
+    ++# "    inl example = "
+    ++# t
+    ++# "_example 0i32\n"
+    ++# "    inl document = xml.element \""
+    ++# family.root_element
+    ++# "\" (Cons ((\"xmlns\", \""
+    ++# family.target_namespace
+    ++# "\"), "
+    ++# t
+    ++# "_attributes example)) ("
+    ++# t
+    ++# "_children example)\n"
+    ++# "    file_system.write_all_text (sample_path \""
+    ++# family.module_name
+    ++# (
+        "_example.xml\") (xml.write_node (xml.with_namespace \"Signature\" \"http://www.w3.org/2000/09/xmldsig#\" "
+        ^^ "document))\n"
+    )
+
+:~ ^ write_family_modules (roots : list family_root) (count : i32) : i32 =
+    ?= roots ?|
+    | family :: rest =>
+        := tree = xsd_resolve.load_schema_tree_with family.catalog family.schema_path
+        write_generated_module family.module_name
+            (generate_module tree.schema ++# sample_helper () ++# family_example_check family)
+        write_family_modules rest (count + 1i32)
+    | Nil => count
+
+///> rust
+test generates_every_family_version =
+    ? write_family_modules (family_roots ()) 0i32 <> 12i32 ?> failwith "every family root is written"
+
+///> rust
+test generates_cfdi_4_0 =
+    ? write_family_modules (cfdi_v4_0 () :: Nil) 0i32 <> 1i32 ?> failwith "CFDI 4.0 is written"
+
+///> rust
+test generates_ubl_invoice_2_1 =
+    ? write_family_modules (ubl_invoice_2_1 () :: Nil) 0i32 <> 1i32 ?> failwith "UBL Invoice 2.1 is written"
+
+///> rust
+test generates_fatturapa_1_2_3 =
+    ? write_family_modules (fatturapa_1_2_3 () :: Nil) 0i32 <> 1i32 ?> failwith "FatturaPA 1.2.3 is written"
+
+///> rust
+test generates_ksef_fa_3 =
+    ? write_family_modules (ksef_fa_3 () :: Nil) 0i32 <> 1i32 ?> failwith "KSeF FA(3) is written"

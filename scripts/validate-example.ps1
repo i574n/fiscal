@@ -1,0 +1,26 @@
+param(
+    [string] $Document = (Join-Path $PSScriptRoot '..\samples\nfe_v4_example.xml'),
+    [string] $Schema = (Join-Path $PSScriptRoot '..\deps\corpus\DFe.NET\NFe.AppTeste\Schemas\nfe_v4.00.xsd'),
+    [int] $Show = 12,
+    [string[]] $Preload = @()
+)
+$set = [System.Xml.Schema.XmlSchemaSet]::new()
+$set.XmlResolver = if ($Preload.Count) { $null } else { [System.Xml.XmlUrlResolver]::new() }
+foreach ($path in $Preload) {
+    $preloaded = [System.Xml.XmlReader]::Create((Resolve-Path $path).Path)
+    $null = $set.Add([NullString]::Value, $preloaded)
+    $preloaded.Close()
+}
+$reader = [System.Xml.XmlReader]::Create((Resolve-Path $Schema).Path)
+$null = $set.Add([NullString]::Value, $reader)
+$reader.Close()
+$set.Compile()
+$settings = [System.Xml.XmlReaderSettings]::new()
+$settings.ValidationType = [System.Xml.ValidationType]::Schema
+$settings.Schemas = $set
+$errors = [Collections.Generic.List[string]]::new()
+$settings.add_ValidationEventHandler({ param($s, $e) $errors.Add("$($e.Severity) line $($e.Exception.LineNumber): $($e.Message)") })
+$validating = [System.Xml.XmlReader]::Create((Resolve-Path $Document).Path, $settings)
+try { while ($validating.Read()) { } } catch { $errors.Add("fatal: $($_.Exception.Message)") } finally { $validating.Close() }
+"document $((Get-Item $Document).Length) bytes; validation messages $($errors.Count)"
+$errors | Group-Object { ($_ -replace "'[^']*'", "'x'") -replace 'line \d+', 'line n' } | Sort-Object Count -Descending | Select-Object -First $Show | ForEach-Object { "  x$($_.Count): $($_.Group[0].Substring(0, [Math]::Min(220, $_.Group[0].Length)))" }

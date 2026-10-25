@@ -1,0 +1,100 @@
+name: gh-pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    timeout-minutes: 420
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: moonrepo/setup-rust@v1.3.0
+        with:
+          channel: "nightly-2026-10-18"
+          components: "rust-src"
+          cache: false
+
+      - uses: erlef/setup-beam@v1.24.1
+        with:
+          otp-version: "29"
+          elixir-version: "1.20"
+          gleam-version: "1.19.2"
+          rebar3-version: "3.27.3"
+
+      - uses: actions/setup-dotnet@v6.0.0
+        with:
+          dotnet-version: "9.0.202"
+
+      - id: init
+        run: pwsh scripts/init.ps1
+
+      - id: build
+        run: pwsh scripts/build.ps1
+
+      - run: pwsh scripts/publish.ps1
+        if: ${{ !cancelled() && contains(matrix.os, 'ubuntu') }}
+
+      - uses: actions/upload-artifact@v7.0.2
+        if: failure()
+        with:
+          name: notebooks-${{ matrix.os }}
+          path: notebooks
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: ci-metrics-${{ matrix.os }}
+          path: target/ci-metrics
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v7.0.2
+        if: ${{ !cancelled() && contains(matrix.os, 'ubuntu') }}
+        with:
+          name: gh-pages
+          path: dist
+          retention-days: 30
+
+  push:
+    needs: build
+    if: ${{ !cancelled() && github.event_name == 'push' }}
+    timeout-minutes: 180
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: gh-pages
+          path: gh-pages
+
+      - run: echo "$GITHUB_SHA" > gh-pages/_deploy.txt
+
+      - uses: peaceiris/actions-gh-pages@v4.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: gh-pages
+          force_orphan: true
+
+      - name: verify the deploy is live
+        shell: pwsh
+        run: |
+          $url = 'https://i574n.github.io/${{ github.event.repository.name }}/'
+          $deadline = (Get-Date).AddMinutes(6)
+          do {
+              $live = try { (Invoke-WebRequest "${url}_deploy.txt?t=$([DateTime]::UtcNow.Ticks)" -SkipHttpErrorCheck).Content.Trim() } catch { '' }
+              if ($live -ne $env:GITHUB_SHA) { Start-Sleep 15 }
+          } while ($live -ne $env:GITHUB_SHA -and (Get-Date) -lt $deadline)
+          if ($live -ne $env:GITHUB_SHA) { throw "pages serve '$live', expected $env:GITHUB_SHA" }
+          $html = (Invoke-WebRequest "${url}?t=$([DateTime]::UtcNow.Ticks)").Content
+          foreach ($mark in 'id="readme"|class="readme', 'name="viewport"') { if ($html -notmatch $mark) { throw "index lacks $mark" } }

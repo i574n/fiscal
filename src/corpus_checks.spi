@@ -1,0 +1,271 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xml
+:< xsd
+:< xsd_resolve
+:< xsd_regex
+
+///> rust
+test reads_the_real_tipos_basico_schema =
+    := nodes =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/tiposBasico_v4.00.xsd")
+        |> read_xml
+    ? count_named "enumeration" nodes <> 116i32 ?> failwith "enumeration 116"
+    ? count_named "simpleType" nodes <> 53i32 ?> failwith "simpleType 53"
+    ? count_named "documentation" nodes <> 53i32 ?> failwith "documentation 53"
+    ? count_named "whiteSpace" nodes <> 49i32 ?> failwith "whiteSpace 49"
+    ? count_named "pattern" nodes <> 43i32 ?> failwith "pattern 43"
+    ? count_named "maxLength" nodes <> 16i32 ?> failwith "maxLength 16"
+    ? count_named "element" nodes <> 2i32 ?> failwith "element 2"
+    ? count_named "schema" nodes <> 1i32 ?> failwith "schema 1"
+
+///> rust
+test measures_the_shape_of_the_nfe_layout =
+    := nodes =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/leiauteNFe_v4.00.xsd")
+        |> read_xml
+    ? count_list (element_names nodes Nil) <> 21i32 ?> failwith "21 element kinds"
+    ? count_named "documentation" nodes <> 915i32 ?> failwith "documentation 915"
+    ? count_named "element" nodes <> 900i32 ?> failwith "element 900"
+    ? count_attribute "minOccurs" nodes <> 333i32 ?> failwith "minOccurs 333"
+    ? depth nodes <> 25i32 ?> failwith "depth 25"
+
+///> rust
+test models_the_real_tipos_basico_schema =
+    := schema =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/tiposBasico_v4.00.xsd")
+        |> read_schema
+    ? count_list schema.simple_types <> 53i32 ?> failwith "53 named simpleTypes"
+    ? count_list schema.complex_types <> 1i32 ?> failwith "1 complexType"
+    ? enumeration_count schema.simple_types <> 116i32 ?> failwith "116 enumeration facets"
+    ? schema.target_namespace <> "http://www.portalfiscal.inf.br/nfe" ?> failwith "target namespace"
+
+:~ ^ census_item (counts : i32 * i32 * i32) (item : xsd) : i32 * i32 * i32 =
+    := element, complex_type, simple_type = counts
+    ?= item ?|
+    | Simple _ => element, complex_type, simple_type + 1i32
+    | Complex (_, content, attributes) =>
+        census_items (census_item (element, complex_type + 1i32, simple_type) content) attributes
+    | Derived (_, _, content, attributes) =>
+        census_items (census_item (element, complex_type + 1i32, simple_type) content) attributes
+    | Sequence (_, _, items) => census_items counts items
+    | Choice (_, _, items) => census_items counts items
+    | Element (_, _, _, _, Some inner) => census_item (element + 1i32, complex_type, simple_type) inner
+    | Element (_, _, _, _, None) => element + 1i32, complex_type, simple_type
+    | Attribute (_, _, _, _, Some inner) => census_item counts inner
+    | _ => counts
+
+:& :~ census_items (counts : i32 * i32 * i32) (items : list xsd) : i32 * i32 * i32 =
+    ?= items ?|
+    | item :: rest => census_items (census_item counts item) rest
+    | Nil => counts
+
+:~ ^ census_corpus (paths : list string) (files : i32) (counts : i32 * i32 * i32) : i32 * (i32 * i32 * i32) =
+    ?= paths ?|
+    | path :: rest =>
+        := schema = xml.read_text_replacing_invalid_utf8 (fiscal_paths.under path) |> read_schema
+        := counts =
+            census_items (census_items (census_items counts schema.simple_types) schema.complex_types) schema.elements
+        census_corpus rest (files + 1i32) counts
+    | Nil => files, counts
+
+///> rust
+test models_the_corpus_census =
+    := files, (element, complex_type, simple_type) =
+        census_corpus (corpus.manifest_files ()) 0i32 (0i32, 0i32, 0i32)
+    ? files <> 580i32 ?> failwith "580 files"
+    ? element <> 12077i32 ?> failwith ("12077 modeled elements, got " ++# sm'.obj_to_string element)
+    ? complex_type <> 2238i32 ?> failwith ("2238 modeled complexTypes, got " ++# sm'.obj_to_string complex_type)
+    ? simple_type <> 5389i32 ?> failwith ("5389 modeled simpleTypes, got " ++# sm'.obj_to_string simple_type)
+
+:== corpus_resolution =
+    {
+        files : i32
+        with_missing_include : i32
+        with_unresolved : i32
+        unresolved_beside_missing : i32
+    }
+
+:~ ^ resolve_corpus (paths : list string) (totals : corpus_resolution) : corpus_resolution =
+    ?= paths ?|
+    | path :: rest =>
+        := tree = load_schema_tree (fiscal_paths.under path)
+        := has_missing = ?= tree.missing ?| _ :: _ => !+ | Nil => !-
+        := unresolved = unresolved_count tree
+        := next =
+            {
+                files = totals.files + 1i32
+                with_missing_include = totals.with_missing_include + (? has_missing ?> 1i32 |: 0i32)
+                with_unresolved = totals.with_unresolved + (? unresolved > 0i32 && has_missing = !- ?> 1i32 |: 0i32)
+                unresolved_beside_missing =
+                    totals.unresolved_beside_missing + (? unresolved > 0i32 && has_missing ?> 1i32 |: 0i32)
+            }
+        resolve_corpus rest next
+    | Nil => totals
+
+///> rust
+test resolves_the_nfe_tree =
+    := tree = load_schema_tree (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
+    ?= tree.missing ?|
+    | _ :: _ => failwith "nfe_v4.00 includes are all present"
+    | Nil => ()
+    ? unresolved_count tree <> 0i32 ?> failwith "every nfe_v4.00 type reference resolves"
+
+///> rust
+test resolves_the_corpus_like_dotnet =
+    := empty = { files = 0i32; with_missing_include = 0i32; with_unresolved = 0i32; unresolved_beside_missing = 0i32 }
+    := totals = resolve_corpus (corpus.manifest_files ()) empty
+    ? totals.files <> 580i32 ?> failwith "580 files"
+    ? totals.with_missing_include <> 5i32 ?> failwith "the 5 files whose include .NET cannot resolve"
+    ? totals.with_unresolved <> 0i32 ?> failwith "no dangling type reference where every include is present"
+
+///> rust
+test every_corpus_pattern_compiles =
+    := ok, failed = count_compiled (file_system.read_all_text (fiscal_paths.under "src/patterns.txt")) 0i32 (0i32, 0i32)
+    ? failed <> 0i32 ?> failwith "a corpus pattern did not parse"
+    ? ok <> 196i32 ?> failwith "196 distinct patterns"
+
+///> rust
+test matches_like_dotnet_on_every_probe =
+    := folder = (fiscal_paths.under "src/")
+    := patterns = lines_of (file_system.read_all_text (folder ++# "patterns.txt")) 0i32 Nil
+    := probes = lines_of (file_system.read_all_text (folder ++# "pattern_probes.txt")) 0i32 Nil
+    := rows = lines_of (file_system.read_all_text (folder ++# "pattern_expected.txt")) 0i32 Nil
+    := result = all_disagreements derivative_disagreements patterns rows probes { count = 0i32; first = "" }
+    ? result.count <> 0i32 ?> failwith ("disagrees with .NET Regex: " ++# result.first)
+
+///> rust
+test dfa_matches_like_dotnet_on_every_probe =
+    := folder = (fiscal_paths.under "src/")
+    := patterns = lines_of (file_system.read_all_text (folder ++# "patterns.txt")) 0i32 Nil
+    := probes = lines_of (file_system.read_all_text (folder ++# "pattern_probes.txt")) 0i32 Nil
+    := rows = lines_of (file_system.read_all_text (folder ++# "pattern_expected.txt")) 0i32 Nil
+    := result = all_disagreements dfa_disagreements patterns rows probes { count = 0i32; first = "" }
+    ? result.count <> 0i32 ?> failwith ("the DFA disagrees with .NET Regex: " ++# result.first)
+
+:= table_disagreements (pattern : string) (row : string) (probes : list string) (acc : disagreement) : disagreement =
+    ?= dfa_of_pattern pattern ?|
+    | Some rows => row_disagreements pattern (table_matches (dfa_table_text rows)) probes row 0i32 acc
+    | None => failed_pattern "no DFA within the state limit: " pattern acc
+
+///> rust
+test table_matches_like_dotnet_on_every_probe =
+    := folder = (fiscal_paths.under "src/")
+    := patterns = lines_of (file_system.read_all_text (folder ++# "patterns.txt")) 0i32 Nil
+    := probes = lines_of (file_system.read_all_text (folder ++# "pattern_probes.txt")) 0i32 Nil
+    := rows = lines_of (file_system.read_all_text (folder ++# "pattern_expected.txt")) 0i32 Nil
+    := result = all_disagreements table_disagreements patterns rows probes { count = 0i32; first = "" }
+    ? result.count <> 0i32 ?> failwith ("the in-place table disagrees with .NET Regex: " ++# result.first)
+
+///> rust
+test every_corpus_pattern_has_a_finite_dfa =
+    := patterns = lines_of (file_system.read_all_text (fiscal_paths.under "src/patterns.txt")) 0i32 Nil
+    := census =
+        census_of patterns {
+            patterns = 0i32
+            without_dfa = 0i32
+            states = 0i32
+            largest = 0i32
+            largest_pattern = ""
+            lines = ""
+        }
+    ? census.patterns <> 196i32 ?> failwith "196 distinct patterns"
+    ? census.without_dfa <> 0i32 ?> failwith "a pattern has no DFA within the state limit"
+
+///> rust
+test en16931_rules_parse_completely =
+    := text =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch")
+    := totals = schematron.schematron_census (schematron.read_schematron text) (schematron.empty_census ())
+    ? totals.rules <> 104i32 || totals.assertions <> 979i32 ?>
+        failwith (
+            "every rule and assertion is read: rules "
+            ++# sm'.obj_to_string totals.rules
+            ++# " of 104, assertions "
+            ++# sm'.obj_to_string totals.assertions
+            ++# " of 979"
+        )
+    ? totals.fatal <> 281i32 ?> failwith ("281 fatal assertions, read " ++# sm'.obj_to_string totals.fatal)
+    ? totals.invalid <> 0i32 ?> failwith "every context and test parses"
+    ? totals.members <> 23i32 ?> failwith "23 code-list tests become member tests"
+
+:~ ^ enumerated (facets : list xsd_facet) (acc : list string) : list string =
+    ?= facets ?|
+    | Enumeration value :: rest => enumerated rest (value :: acc)
+    | _ :: rest => enumerated rest acc
+    | Nil => listm.rev acc
+
+:~ ^ catalog_states (types : list xsd) (acc : list (string * i32)) : list (string * i32) =
+    ?= types ?|
+    | Simple (name, _, facets) :: rest =>
+        := values = enumerated facets Nil
+        ? count_list values > 256i32 ?>
+            catalog_states rest ((name, states_in (dfa_of_values values) 0i32) :: acc)
+        |: catalog_states rest acc
+    | _ :: rest => catalog_states rest acc
+    | Nil => listm.rev acc
+
+:~ ^ states_named (target : string) (rows : list (string * i32)) : i32 =
+    ?= rows ?|
+    | (name, states) :: rest => ? name = target ?> states |: states_named target rest
+    | Nil => -1i32
+
+///> rust
+test cfdi_catalogs_become_minimal_dfas =
+    := schema = file_system.read_all_text (fiscal_paths.under "deps/corpus/mx/cfdi/catCFDI.xsd") |> read_schema
+    := rows = catalog_states schema.simple_types Nil
+    ? count_list rows <> 5i32 ?> failwith "five catalogs over 256 values"
+    ? states_named "c_CodigoPostal" rows <> 37i32 ?> failwith "c_CodigoPostal 37 states"
+    ? states_named "c_ClaveProdServ" rows <> 1783i32 ?> failwith "c_ClaveProdServ 1783 states"
+    ? states_named "c_ClaveUnidad" rows <> 188i32 ?> failwith "c_ClaveUnidad 188 states"
+    ? states_named "c_Colonia" rows <> 8i32 ?> failwith "c_Colonia 8 states"
+    ? states_named "c_Municipio" rows <> 8i32 ?> failwith "c_Municipio 8 states"
+:~ ^ examples_fatal
+    (rules : list schematron.pattern) (names : list string) (acc : list (string * i32))
+    : list (string * i32)
+    =
+    ?= names ?|
+    | name :: rest =>
+        := text = file_system.read_all_text ((fiscal_paths.under "deps/corpus/eu/en16931/examples/") ++# name)
+        := fatal =
+            ?= read_xml text ?|
+            | root :: Nil => schematron_run.fatal_count (schematron_run.validate rules root) 0i32
+            | _ => -1i32
+        examples_fatal rules rest (? fatal = 0i32 ?> acc |: (name, fatal) :: acc)
+    | Nil => acc
+
+///> rust
+test cen_examples_pass_the_en16931_rules =
+    := rules =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch")
+        |> schematron.read_schematron
+    := names =
+        Cons ("ubl-tc434-example1.xml", Cons ("ubl-tc434-example2.xml", Cons ("ubl-tc434-example3.xml",
+            "ubl-tc434-example4.xml" :: "ubl-tc434-creditnote1.xml" :: Nil)))
+    ?= examples_fatal rules names Nil ?|
+    | Nil => ()
+    | (name, fatal) :: _ => failwith (name ++# " has fatal findings: " ++# xsd_regex.count_text fatal "")
+:~ ^ failure_ids (failures : list schematron_run.failure) (acc : list string) : list string =
+    ?= failures ?|
+    | f :: rest => failure_ids rest (f.id :: acc)
+    | Nil => acc
+
+///> rust
+test cen_rules_catch_mutated_invoices =
+    := rules =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch")
+        |> schematron.read_schematron
+    := original =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/examples/ubl-tc434-example1.xml")
+    := ids mutated =
+        ?= read_xml mutated ?|
+        | root :: Nil => failure_ids (schematron_run.validate rules root) Nil
+        | _ => Nil
+    := payable =
+        sm'.replace
+            "<cbc:PayableAmount currencyID=\"EUR\">250.33<"
+            "<cbc:PayableAmount currencyID=\"EUR\">251.33<"
+            original
+    ? listm'.contains "BR-CO-16" (ids payable) = !- ?> failwith "a wrong payable amount breaks BR-CO-16"
+    := unit = sm'.replace "unitCode=\"EA\">2<" "unitCode=\"ZZZZ\">2<" original
+    ? listm'.contains "BR-CL-23" (ids unit) = !- ?> failwith "an unknown unit code breaks BR-CL-23"

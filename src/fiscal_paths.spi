@@ -1,0 +1,13 @@
+///- --package .
+:< sm'_operators
+:< file_system
+
+:= root () : string =
+    := from_env = env.get_environment_variable "FISCAL_ROOT"
+    ? from_env <> "" ?> from_env |> normalize_path
+    |:
+        ?= get_current_directory () |> find_parent File "src/generator.spi" ?|
+        | Ok dir => dir |> normalize_path
+        | Error message => failwith ("fiscal_paths.root: no fiscal checkout above the current directory: " ++# message)
+
+:= under (relative : string) : string = root () ++# "/" ++# relative
