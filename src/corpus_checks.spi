@@ -38,41 +38,75 @@ test models_the_real_tipos_basico_schema =
     ? count_list schema.simple_types <> 53i32 ?> failwith "53 named simpleTypes"
     ? count_list schema.complex_types <> 1i32 ?> failwith "1 complexType"
     ? enumeration_count schema.simple_types <> 116i32 ?> failwith "116 enumeration facets"
-    ? schema.target_namespace <> "http://www.portalfiscal.inf.br/nfe" ?> failwith "target namespace"
+    ? namespace_text schema.target_namespace <> "http://www.portalfiscal.inf.br/nfe" ?> failwith "target namespace"
 
-:~ ^ census_item (counts : i32 * i32 * i32) (item : xsd) : i32 * i32 * i32 =
-    := element, complex_type, simple_type = counts
+:! element_count = i32
+
+:! complex_count = i32
+
+:! simple_count = i32
+
+:== census = { elements : element_count; complex_types : complex_count; simple_types : simple_count }
+
+:= no_census () : census =
+    { elements = element_count 0i32; complex_types = complex_count 0i32; simple_types = simple_count 0i32 }
+
+:= counted_element (element_count n) : element_count = element_count (n + 1i32)
+
+:= counted_complex (complex_count n) : complex_count = complex_count (n + 1i32)
+
+:= counted_simple (simple_count n) : simple_count = simple_count (n + 1i32)
+
+:= element_total (element_count n) : i32 = n
+
+:= complex_total (complex_count n) : i32 = n
+
+:= simple_total (simple_count n) : i32 = n
+
+:~ ^ model_census \* k form. (counts : census) (item : xsd k form) : census =
     ?= item ?|
-    | Simple _ => element, complex_type, simple_type + 1i32
-    | Complex (_, content, attributes) =>
-        census_items (census_item (element, complex_type + 1i32, simple_type) content) attributes
-    | Derived (_, _, content, attributes) =>
-        census_items (census_item (element, complex_type + 1i32, simple_type) content) attributes
-    | Sequence (_, _, items) => census_items counts items
-    | Choice (_, _, items) => census_items counts items
-    | Element (_, _, _, _, Some inner) => census_item (element + 1i32, complex_type, simple_type) inner
-    | Element (_, _, _, _, None) => element + 1i32, complex_type, simple_type
-    | Attribute (_, _, _, _, Some inner) => census_item counts inner
-    | _ => counts
+    | Simple _ => { counts ?| simple_types = counted_simple counts.simple_types }
+    | Complex c =>
+        := counted = { counts ?| complex_types = counted_complex counts.complex_types }
+        model_census_all (model_census counted c.content) c.attributes
+    | Derived d =>
+        := counted = { counts ?| complex_types = counted_complex counts.complex_types }
+        model_census_all (model_census counted d.content) d.attributes
+    | Sequence group => model_census_all counts group.items
+    | Choice group => model_census_all counts group.items
+    | Element e =>
+        := counted = { counts ?| elements = counted_element counts.elements }
+        ?= e.inline ?|
+        | Some inner => model_census counted inner
+        | None => counted
+    | AnyContent () => counts
+    | Empty () => counts
+    | Attribute a =>
+        ?= a.inline ?|
+        | Some inner => model_census counts inner
+        | None => counts
 
-:& :~ census_items (counts : i32 * i32 * i32) (items : list xsd) : i32 * i32 * i32 =
+:& :~ model_census_all \* k form. (counts : census) (items : list (xsd k form)) : census =
     ?= items ?|
-    | item :: rest => census_items (census_item counts item) rest
+    | item :: rest => model_census_all (model_census counts item) rest
     | Nil => counts
 
-:~ ^ census_corpus (paths : list string) (files : i32) (counts : i32 * i32 * i32) : i32 * (i32 * i32 * i32) =
+:~ ^ census_corpus (paths : list string) (files : i32) (counts : census) : i32 * census =
     ?= paths ?|
     | path :: rest =>
         := schema = xml.read_text_replacing_invalid_utf8 (fiscal_paths.under path) |> read_schema
-        := counts =
-            census_items (census_items (census_items counts schema.simple_types) schema.complex_types) schema.elements
+        := counts = model_census_all counts schema.simple_types
+        := counts = model_census_all counts schema.complex_types
+        := counts = model_census_all counts schema.elements
         census_corpus rest (files + 1i32) counts
     | Nil => files, counts
 
 ///> rust
 test models_the_corpus_census =
-    := files, (element, complex_type, simple_type) =
-        census_corpus (corpus.manifest_files ()) 0i32 (0i32, 0i32, 0i32)
+    := files, counts = census_corpus (corpus.manifest_files ()) 0i32 (no_census ())
+    := element = element_total counts.elements
+    := complex_type = complex_total counts.complex_types
+    := simple_type = simple_total counts.simple_types
     ? files <> 580i32 ?> failwith "580 files"
     ? element <> 12077i32 ?> failwith ("12077 modeled elements, got " ++# sm'.obj_to_string element)
     ? complex_type <> 2238i32 ?> failwith ("2238 modeled complexTypes, got " ++# sm'.obj_to_string complex_type)
@@ -189,18 +223,18 @@ test en16931_rules_parse_completely =
     ? totals.invalid <> 0i32 ?> failwith "every context and test parses"
     ? totals.members <> 23i32 ?> failwith "23 code-list tests become member tests"
 
-:~ ^ catalog_states (types : list xsd) (acc : list (string * i32)) : list (string * i32) =
+:~ ^ catalog_states \* form. (types : list (xsd type_def form)) (acc : list (string * i32)) : list (string * i32) =
     ?= types ?|
-    | Simple (name, _, facets) :: rest =>
-        := values = xsd_emit.enumeration_values facets Nil
+    | (Simple s) :: rest =>
+        := values = xsd_emit.enumeration_values s.facets Nil
         ? count_list values > 256i32 ?>
-            catalog_states rest ((name, states_in (dfa_of_values values) 0i32) :: acc)
+            catalog_states rest ((definition_text s.name, states_in (dfa_of_values values) 0i32) :: acc)
         |: catalog_states rest acc
     | _ :: rest => catalog_states rest acc
     | Nil => listm.rev acc
 
 := states_named (target : string) (rows : list (string * i32)) : i32 =
-    ?= listm'.try_find (\ (name, _) => name = target) rows ?|
+    ?= listm'.try_find_ (\ (name, _) => name = target) rows ?|
     | Some (_, states) => states
     | None => -1i32
 
@@ -248,7 +282,7 @@ test cen_examples_pass_the_en16931_rules =
 
 :~ ^ failure_ids (failures : list schematron_run.failure) (acc : list string) : list string =
     ?= failures ?|
-    | f :: rest => failure_ids rest (f.id :: acc)
+    | f :: rest => failure_ids rest (schematron.rule_text f.id :: acc)
     | Nil => acc
 
 ///> rust

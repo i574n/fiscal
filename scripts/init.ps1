@@ -24,6 +24,40 @@ if (-not (Test-Path $corpus)) {
     Remove-Item -LiteralPath $clone -Recurse -Force
     "deps/corpus: $(@(Get-ChildItem $corpus -Recurse -Filter *.xsd).Count) schemas"
 }
+$dfeNet = Join-Path $deps 'bench/DFe.NET'
+if (-not (Test-Path $dfeNet)) {
+    git clone --filter=blob:none --sparse --no-checkout https://github.com/ZeusAutomacao/DFe.NET.git $dfeNet
+    if ($LASTEXITCODE) { throw 'init.ps1 / git clone DFe.NET for the bench failed' }
+    git -C $dfeNet sparse-checkout set --no-cone /DFe.Classes/** /DFe.Utils/** /DFe.Wsdl/** /NFe.Classes/** /NFe.Utils/** /CTe.Classes/** /CTe.Utils/** /MDFe.Classes/** /MDFe.Utils/**
+    git -C $dfeNet checkout 08743cd5f5b82769a26ad9ae0093b1b0ae60c74f
+    if ($LASTEXITCODE) { throw 'init.ps1 / DFe.NET bench checkout failed' }
+    "deps/bench/DFe.NET: $(@(Get-ChildItem $dfeNet -Recurse -Filter *.csproj).Count) projects at 08743cd5"
+}
+$acbr = Join-Path $deps 'bench/ACBr'
+if (-not (Test-Path $acbr)) {
+    if (-not (Get-Command svn -ErrorAction SilentlyContinue)) { throw 'init.ps1 / the ACBr bench source needs an svn client (scoop install svn)' }
+    $trunk = 'svn://svn.code.sf.net/p/acbr/code/trunk2/Fontes'
+    $whole = @('ACBrCapicom', 'ACBrComum', 'ACBrDiversos', 'ACBrIntegrador', 'ACBrLibXML2', 'ACBrOpenSSL', 'ACBrTCP', 'PCNComum') +
+        @('CodeGear', 'FastStringReplace', 'GZIPUtils', 'json4delphi', 'JsonDataObjects', 'LibXmlSec', 'Ole', 'synalist', 'ZLibExGZ' | ForEach-Object { "Terceiros/$_" }) +
+        @('ACBrCIOT', 'ACBrCTe', 'ACBrDI', 'ACBrGTIN', 'ACBrMDFe', 'ACBrNFAg', 'ACBrNFe', 'ACBrNFGas', 'ACBrSATWS', 'Comum' | ForEach-Object { "ACBrDFe/$_" })
+    foreach ($folder in $whole) {
+        New-Item -ItemType Directory -Force (Split-Path (Join-Path $acbr "Fontes/$folder")) | Out-Null
+        svn export --quiet -r 48801 "$trunk/$folder" (Join-Path $acbr "Fontes/$folder")
+        if ($LASTEXITCODE) { throw "init.ps1 / svn export of ACBr Fontes/$folder failed" }
+    }
+    svn export --quiet --force --depth files -r 48801 "$trunk/ACBrDFe" (Join-Path $acbr 'Fontes/ACBrDFe')
+    if ($LASTEXITCODE) { throw 'init.ps1 / svn export of the ACBrDFe root units failed' }
+    "deps/bench/ACBr: $(@(Get-ChildItem $acbr -Recurse -Filter *.pas).Count) units at trunk2 r48801"
+}
+$lazarus = Join-Path $deps 'bench/lazarus'
+if (-not (Test-Path $lazarus)) {
+    git clone --filter=blob:none --sparse --no-checkout https://gitlab.com/freepascal.org/lazarus/lazarus.git $lazarus
+    if ($LASTEXITCODE) { throw 'init.ps1 / git clone Lazarus for the bench failed' }
+    git -C $lazarus sparse-checkout set components/lazutils lcl
+    git -C $lazarus checkout ebadd0b458c682b1fa3144f3c44c0e807d79b550
+    if ($LASTEXITCODE) { throw 'init.ps1 / Lazarus bench checkout failed' }
+    "deps/bench/lazarus: lazutils + lcl at ebadd0b"
+}
 $cfdi = Join-Path $deps 'corpus/mx/cfdi'
 if (-not (Test-Path $cfdi)) {
     New-Item -ItemType Directory -Force $cfdi | Out-Null

@@ -1,5 +1,7 @@
 /deps/
 /target/
+/bench/*/bin/
+/bench/*/obj/
 /notebooks/
 /dist/
 /samples/

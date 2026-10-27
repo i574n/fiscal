@@ -1,4 +1,4 @@
-///- --package . --timeout 9600000
+///- --package . --timeout 1400000
 :< sm'_operators
 :< xsd
 :< xsd_emit
@@ -16,7 +16,7 @@
     ++# "            match here |> file_system.find_parent file_system.File \"src/generator.spi\" with\n"
     ++# "            | Ok dir => dir\n"
     ++# "            | Error message => failwith message\n"
-    ++# "    root ++# \"/samples/\" ++# name\n"
+    ++# "    sm'.(++#) (sm'.(++#) root \"/samples/\") name\n"
 
 := ensure_folder (folder : string) : () =
     ?= file_system.create_dir_all folder |> resultm.unbox ?|
@@ -31,6 +31,22 @@
         (folder ++# "/" ++# module_name ++# ".spi")
         ("///- --package . --timeout 1200000\n" ++# text)
 
+:= remove_generated_module (module_name : string) : () =
+    := folder = fiscal_paths.under ("generated/" ++# module_name)
+    ? file_system.directory_exists folder
+    ?>
+        ?= file_system.remove_dir_all folder |> resultm.unbox ?|
+        | Ok _ => ()
+        | Error _ => failwith ("generator: cannot remove " ++# folder)
+
+///> rust
+test a_family_without_certificates_leaves_no_certificates_unit =
+    write_generated_module "generated_stale_unit_probe" "inl stale () = ()\n"
+    remove_generated_module "generated_stale_unit_probe"
+    remove_generated_module "generated_stale_unit_probe"
+    ? file_system.directory_exists (fiscal_paths.under "generated/generated_stale_unit_probe")
+    ?> failwith "a unit the emitter no longer produces is removed"
+
 ///> rust
 test generates_the_uf_code_union =
     := schema =
@@ -39,7 +55,7 @@ test generates_the_uf_code_union =
     := text = generate_enumerations schema
     ? sm'.contains "union x_t_cod_uf_ibge =" text = !- ?> failwith "TCodUfIBGE union"
     ? sm'.contains "    | TCodUfIBGE_35" text = !- ?> failwith "case TCodUfIBGE_35"
-    ? sm'.contains "elif s = \"35\" then Some TCodUfIBGE_35" text = !- ?> failwith "parser arm"
+    ? sm'.contains "    | \"35\" => Some TCodUfIBGE_35" text = !- ?> failwith "parser arm"
 
 ///> rust
 test generates_the_nfe_v4_model =
@@ -71,8 +87,8 @@ test generates_the_nfe_v4_model =
         ++# "    | node :: Nil =>\n"
         ++# "        inl address = x_t_ender_emi_of_xml node\n"
         ++# (
-            "        if address.x_mun <> \"Sao Paulo\" || address.cep <> \"01001000\" then failwith \"TEnderEmi "
-            ^^ "text fields\"\n"
+            "        if x_t_ender_emi_x_mun_to_string address.x_mun <> \"Sao Paulo\" || x_t_ender_emi_cep_to_string "
+            ^^ "address.cep <> \"01001000\" then failwith \"TEnderEmi text fields\"\n"
         )
         ++# "        if x_t_uf_emi_to_string address.uf <> \"SP\" then failwith \"TEnderEmi UF enumeration\"\n"
         ++# (
@@ -186,6 +202,50 @@ test generates_the_nfe_v4_model =
         known_defect = None
     }
 
+:= qualifies_children (family : family_root) : bool =
+    ?= first_named "schema" (xml.read_xml (xml.read_text_replacing_invalid_utf8 family.schema_path)) ?|
+    | Some (attributes, _) => attribute_or "elementFormDefault" "unqualified" attributes = "qualified"
+    | None => !+
+
+:~ ^ declared_prefixes (target : string) (attributes : list (string * string)) (acc : string) : string =
+    ?= attributes ?|
+    | (key, value) :: rest =>
+        := known =
+            value = target || value = "http://www.w3.org/2001/XMLSchema" || value = "http://www.w3.org/2000/09/xmldsig#"
+        ? sm'.starts_with "xmlns:" key && known = !-
+        ?> declared_prefixes target rest (acc ++# "(\"" ++# key ++# "\", \"" ++# value ++# "\") :: ")
+        |: declared_prefixes target rest acc
+    | [] => acc
+
+:= prefix_declarations (family : family_root) : string =
+    ?= first_named "schema" (xml.read_xml (xml.read_text_replacing_invalid_utf8 family.schema_path)) ?|
+    | Some (attributes, _) => declared_prefixes family.target_namespace attributes ""
+    | None => ""
+
+:= example_document (family : family_root) (value : string) : string =
+    := t = type_name family.root_type
+    := root, declaration =
+        ? qualifies_children family ?> family.root_element, "xmlns" |: "p:" ++# family.root_element, "xmlns:p"
+    "xml.element \""
+    ++# root
+    ++# "\" ((\""
+    ++# declaration
+    ++# "\", \""
+    ++# family.target_namespace
+    ++# "\") :: "
+    ++# prefix_declarations family
+    ++# t
+    ++# "_attributes "
+    ++# value
+    ++# ") ("
+    ++# t
+    ++# "_children "
+    ++# value
+    ++# ")"
+
+:= signed_text (expression : string) : string =
+    "xml.write_node (xml.with_namespace \"Signature\" \"http://www.w3.org/2000/09/xmldsig#\" " ++# expression ++# ")"
+
 := family_example_check (family : family_root) : string =
     := t = type_name family.root_type
     := pinned =
@@ -200,28 +260,111 @@ test generates_the_nfe_v4_model =
     ++# "    inl example = "
     ++# t
     ++# "_example 0i32\n"
-    ++# "    inl document = xml.element \""
-    ++# family.root_element
-    ++# "\" ((\"xmlns\", \""
-    ++# family.target_namespace
-    ++# "\") :: "
-    ++# t
-    ++# "_attributes example) ("
-    ++# t
-    ++# "_children example)\n"
+    ++# "    inl document = "
+    ++# example_document family "example"
+    ++# "\n"
     ++# "    file_system.write_all_text (sample_path \""
     ++# family.module_name
-    ++# (
-        "_example.xml\") (xml.write_node (xml.with_namespace \"Signature\" \"http://www.w3.org/2000/09/xmldsig#\" "
-        ^^ "document))\n"
-    )
+    ++# "_example.xml\") ("
+    ++# signed_text "document"
+    ++# ")\n"
+
+:= family_bench (family : family_root) : string =
+    := t = type_name family.root_type
+    := m = family.module_name
+    := one = "failwith \"one " ++# family.root_element ++# " element\"\n"
+    ?= family.known_defect ?|
+    | Some _ => ""
+    | None =>
+        "\n///> rust\ntest "
+        ++# m
+        ++# "_bench_runs =\n"
+        ++# "    inl text = file_system.read_all_text (sample_path \""
+        ++# m
+        ++# "_example.xml\")\n"
+        ++# "    let rec insert (x : i64) (xs : list i64) : list i64 =\n"
+        ++# "        match xs with\n"
+        ++# "        | y :: rest => if x <= y then x :: xs else y :: insert x rest\n"
+        ++# "        | [] => x :: []\n"
+        ++# "    let rec nth (i : i32) (xs : list i64) : i64 =\n"
+        ++# "        match xs with\n"
+        ++# "        | y :: rest => if i = 0i32 then y else nth (i - 1i32) rest\n"
+        ++# "        | [] => -1i64\n"
+        ++# "    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64)"
+        ++# " : list i64 * list i64 * i64 =\n"
+        ++# "        if left = 0i32 then parses, writes, bytes\n"
+        ++# "        else\n"
+        ++# "            inl watch = date_time.stopwatch ()\n"
+        ++# "            date_time.stopwatch_start watch\n"
+        ++# "            inl start = date_time.stopwatch_elapsed_microseconds watch\n"
+        ++# "            match xml.read_xml text with\n"
+        ++# "            | node :: [] =>\n"
+        ++# "                inl parsed = "
+        ++# t
+        ++# "_of_xml node\n"
+        ++# "                inl parsed_at = date_time.stopwatch_elapsed_microseconds watch\n"
+        ++# "                inl written = xml.write_node ("
+        ++# t
+        ++# "_to_xml \""
+        ++# family.root_element
+        ++# "\" parsed)\n"
+        ++# "                inl written_at = date_time.stopwatch_elapsed_microseconds watch\n"
+        ++# "                inl parses = insert (parsed_at - start) parses\n"
+        ++# "                inl writes = insert (written_at - parsed_at) writes\n"
+        ++# "                runs (left - 1i32) parses writes (bytes + sm'.length written)\n"
+        ++# "            | _ => "
+        ++# one
+        ++# "    inl _ = runs (dyn 5i32) [] [] 0i64\n"
+        ++# "    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64\n"
+        ++# "    inl cell (x : i64) : string = sm'.obj_to_string x\n"
+        ++# "    inl row = sm'.(++#) \""
+        ++# m
+        ++# " parse_us \" (cell (nth 15i32 parses))\n"
+        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" write_us \" (cell (nth 15i32 writes)))\n"
+        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" runs 31 bytes \" (cell bytes))\n"
+        ++# "    console.write_line row\n"
+        ++# "    match xml.read_xml text with\n"
+        ++# "    | node :: [] =>\n"
+        ++# "        inl parsed = "
+        ++# t
+        ++# "_of_xml node\n"
+        ++# "        inl document = "
+        ++# example_document family "parsed"
+        ++# "\n"
+        ++# "        inl folder = sample_path \"../target/bench\"\n"
+        ++# "        match file_system.create_dir_all folder |> resultm.unbox with\n"
+        ++# "        | Ok _ => file_system.write_all_text (sm'.(++#) folder \"/ours-"
+        ++# m
+        ++# "_example.xml\") ("
+        ++# signed_text "document"
+        ++# ")\n"
+        ++# "        | Error _ => failwith \"cannot create target/bench\"\n"
+        ++# "    | _ => "
+        ++# one
+
+:= family_nominal_check \* form. (family : family_root) (schema : xsd_schema form) : string =
+    ?= any_validated_type schema ?|
+    | Some t =>
+        "\n///> rust\ntest "
+        ++# family.module_name
+        ++# "_keeps_raw_strings_out fails \"Unification failure\" =\n    "
+        ++# t
+        ++# "_to_string \"raw\"\n"
+    | None => ""
+
+:= certificate_check (family : family_root) : string =
+    "\n///> rust\ntest " ++# family.module_name ++# "_certificates_hold =\n    certificates_checked () |> ignore\n"
 
 :~ ^ write_family_modules (roots : list family_root) (count : i32) : i32 =
     ?= roots ?|
     | family :: rest =>
         := tree = xsd_resolve.load_schema_tree_with family.catalog family.schema_path
-        write_generated_module family.module_name
-            (generate_module tree.schema ++# sample_helper () ++# family_example_check family)
+        := checks = family_example_check family ++# family_nominal_check family tree.schema ++# family_bench family
+        := main, certificates = generated_units tree.schema
+        write_generated_module family.module_name (main ++# sample_helper () ++# checks)
+        ? certificates <> ""
+        ?> write_generated_module (family.module_name ++# "_certificates") (certificates ++# certificate_check family)
+        |: remove_generated_module (family.module_name ++# "_certificates")
         write_family_modules rest (count + 1i32)
     | Nil => count
 
@@ -244,3 +387,13 @@ test generates_fatturapa_1_2_3 =
 ///> rust
 test generates_ksef_fa_3 =
     ? write_family_modules (ksef_fa_3 () :: Nil) 0i32 <> 1i32 ?> failwith "KSeF FA(3) is written"
+
+///> rust
+test unqualified_schemas_prefix_the_example_root =
+    ? qualifies_children (fatturapa_1_2_3 ()) ?> failwith "FatturaPA leaves its children unqualified"
+    ? qualifies_children (ksef_fa_3 ()) = !- ?> failwith "KSeF qualifies its children"
+    := fattura = family_example_check (fatturapa_1_2_3 ())
+    ? sm'.contains "xml.element \"p:FatturaElettronica\" ((\"xmlns:p\", " fattura = !-
+    ?> failwith "an unqualified root is prefixed so its children stay in no namespace"
+    ? sm'.contains "xml.element \"Faktura\" ((\"xmlns\", " (family_example_check (ksef_fa_3 ())) = !-
+    ?> failwith "a qualified root keeps the default namespace"

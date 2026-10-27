@@ -25,7 +25,7 @@ if (Test-Path $cfdi) {
 $ubl = Join-Path $root 'samples/generated_ubl_invoice_2_1_example.xml'
 if (Test-Path $ubl) {
     '== generated_ubl_invoice_2_1_example.xml'
-    pwsh -NoProfile -File $validate -Document $ubl -Schema (Join-Path $root 'deps/corpus/eu/ubl21/maindoc/UBL-Invoice-2.1.xsd') -Show 8
+    pwsh -NoProfile -File $validate -Document $ubl -Schema (Join-Path $root 'deps/corpus/eu/ubl21/maindoc/UBL-Invoice-2.1.xsd') -Preload (Join-Path $root 'deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd') -Resolve -Show 8
 }
 $it = Join-Path $root 'deps/corpus/it/fatturapa'
 $pl = Join-Path $root 'deps/corpus/pl/ksef'

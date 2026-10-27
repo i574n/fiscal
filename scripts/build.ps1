@@ -63,7 +63,8 @@ function Invoke-TestFile([IO.FileInfo] $Source) {
     Write-Output "build.ps1 / $name / done in $([int]$clock.Elapsed.TotalSeconds) s"
     $seconds = [math]::Round($clock.Elapsed.TotalSeconds, 1)
     $fileRows.Add([pscustomobject]@{ File = $name; Seconds = $seconds; ExitCode = $run.ExitCode })
-    foreach ($row in @(Import-Csv (Join-Path $cellsMetrics 'tests.tsv') -Delimiter "`t" -ErrorAction Ignore)) {
+    $testsTable = Join-Path $cellsMetrics 'tests.tsv'
+    foreach ($row in @(if (Test-Path -LiteralPath $testsTable) { Import-Csv $testsTable -Delimiter "`t" })) {
         $testRows.Add([pscustomobject]@{ File = $name; Test = $row.Test; Target = $row.Target; Status = $row.Status; Ms = [int]$row.Ms })
     }
     $total = $lines | Select-String 'spiral-tests total (\{.*\})' | Select-Object -Last 1

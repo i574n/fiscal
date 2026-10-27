@@ -151,8 +151,9 @@ rebuilt by `build.ps1`, which regenerates everything before it tests.
 
 ## Known limits
 
-- FatturaPA takes about 96 minutes to generate: `xsd_regex` unrolls bounded repeats such as `{1,1000}`, which makes
-  its DFA build cubic in the bound. A counted-repeat node fixes this in `lib/spiral`.
-- EU coverage is UBL only; CII and Factur-X are not generated.
-- Facet-constrained values are plain string aliases with a validator beside them; unforgeable nominal types whose only
-  constructor is the validator are planned.
+- EU coverage is UBL only. CII and its Factur-X / ZUGFeRD profiles (France's 2026 B2B mandate, Germany) are the next
+  system, chosen because their five profiles are restricted XSDs of one document, a dimension the generic model does
+  not express yet.
+- Facet-constrained values are plain string aliases, and the generated readers do not call their validators, so an
+  invalid value reads without error. Each constrained type is planned to become a nominal type built only through its
+  validator, which makes a raw string where a validated value is expected a type error.
