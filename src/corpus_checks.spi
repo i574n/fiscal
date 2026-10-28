@@ -223,6 +223,157 @@ test en16931_rules_parse_completely =
     ? totals.invalid <> 0i32 ?> failwith "every context and test parses"
     ? totals.members <> 23i32 ?> failwith "23 code-list tests become member tests"
 
+///> rust
+test regional_rules_census =
+    := text = file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/peppol-bis3/sch/PEPPOL-EN16931-UBL.sch")
+    := totals = schematron.schematron_census (schematron.read_schematron text) (schematron.empty_census ())
+    console.write_line (
+        "peppol census: rules "
+        ++# sm'.obj_to_string totals.rules
+        ++# " assertions "
+        ++# sm'.obj_to_string totals.assertions
+        ++# " fatal "
+        ++# sm'.obj_to_string totals.fatal
+        ++# " invalid "
+        ++# sm'.obj_to_string totals.invalid
+    )
+    ? totals.rules <> 93i32 || totals.assertions <> 159i32 ?>
+        failwith (
+            "every Peppol rule and assertion is read: rules "
+            ++# sm'.obj_to_string totals.rules
+            ++# " of 93, assertions "
+            ++# sm'.obj_to_string totals.assertions
+            ++# " of 159"
+        )
+    ? totals.fatal <> 135i32 ?> failwith ("135 fatal Peppol assertions, read " ++# sm'.obj_to_string totals.fatal)
+    := romania =
+        file_system.read_all_text (
+            fiscal_paths.under (
+                "deps/corpus/ro/cius/ro16931-ubl-1.0.9/preprocessed/" ++# "ROeFactura-UBL-validation-Invoice_v1.0.8.sch"
+            )
+        )
+    := ro = schematron.schematron_census (schematron.read_schematron romania) (schematron.empty_census ())
+    console.write_line (
+        "ro_cius census: rules "
+        ++# sm'.obj_to_string ro.rules
+        ++# " assertions "
+        ++# sm'.obj_to_string ro.assertions
+        ++# " fatal "
+        ++# sm'.obj_to_string ro.fatal
+        ++# " invalid "
+        ++# sm'.obj_to_string ro.invalid
+    )
+    ? ro.rules <> 19i32 || ro.assertions <> 113i32 || ro.fatal <> 113i32 ?>
+        failwith (
+            "every RO_CIUS 1.0.8 rule is read: rules "
+            ++# sm'.obj_to_string ro.rules
+            ++# " of 19, assertions "
+            ++# sm'.obj_to_string ro.assertions
+            ++# " of 113, fatal "
+            ++# sm'.obj_to_string ro.fatal
+            ++# " of 113"
+        )
+    := turkey =
+        file_system.read_all_text (
+            fiscal_paths.under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Common_Schematron.xml"
+        )
+    := tr = schematron.schematron_census (schematron.read_schematron turkey) (schematron.empty_census ())
+    console.write_line (
+        "ubl_tr census: rules "
+        ++# sm'.obj_to_string tr.rules
+        ++# " assertions "
+        ++# sm'.obj_to_string tr.assertions
+        ++# " fatal "
+        ++# sm'.obj_to_string tr.fatal
+        ++# " invalid "
+        ++# sm'.obj_to_string tr.invalid
+    )
+    := dian_fragment =
+        file_system.read_all_text (
+            fiscal_paths.under (
+                "deps/corpus/co/dian/Caja de herramientas FE_V19_(v2026)/Schemes/" ++# "UBL21/DIAN-UBL21-model.sch"
+            )
+        )
+    := declaration_end = sm'.last_index_of "?>" dian_fragment
+    := dian_body =
+        sm'.substring (declaration_end + 2i32) (sm'.length dian_fragment - declaration_end - 2i32) dian_fragment
+    := dian_schema = "<schema xmlns=\"http://purl.oclc.org/dsdl/schematron\">" ++# dian_body ++# "</schema>"
+    := co = schematron.schematron_census (schematron.read_schematron dian_schema) (schematron.empty_census ())
+    console.write_line (
+        "dian census: rules "
+        ++# sm'.obj_to_string co.rules
+        ++# " assertions "
+        ++# sm'.obj_to_string co.assertions
+        ++# " fatal "
+        ++# sm'.obj_to_string co.fatal
+        ++# " invalid "
+        ++# sm'.obj_to_string co.invalid
+    )
+    ? co.rules <> 36i32 || co.assertions <> 192i32 || co.fatal <> 169i32 ?>
+        failwith (
+            "the DIAN model fragment, wrapped as its include does, reads fully: rules "
+            ++# sm'.obj_to_string co.rules
+            ++# " of 36, assertions "
+            ++# sm'.obj_to_string co.assertions
+            ++# " of 192, fatal "
+            ++# sm'.obj_to_string co.fatal
+            ++# " of 169"
+        )
+    ? tr.rules <> 131i32 || tr.assertions <> 299i32 ?>
+        failwith (
+            "every UBL-TR common rule is read: rules "
+            ++# sm'.obj_to_string tr.rules
+            ++# " of 131, assertions "
+            ++# sm'.obj_to_string tr.assertions
+            ++# " of 299"
+        )
+    := zatca_rules =
+        file_system.read_all_text (
+            fiscal_paths.under (
+                "deps/corpus/sa/zatca/Rules/Schematrons/" ++# "20210819_ZATCA_E-invoice_Validation_Rules.sch"
+            )
+        )
+    := sa = schematron.schematron_census (schematron.read_schematron zatca_rules) (schematron.empty_census ())
+    console.write_line (
+        "zatca census: rules "
+        ++# sm'.obj_to_string sa.rules
+        ++# " assertions "
+        ++# sm'.obj_to_string sa.assertions
+        ++# " fatal "
+        ++# sm'.obj_to_string sa.fatal
+        ++# " invalid "
+        ++# sm'.obj_to_string sa.invalid
+    )
+    ? sa.rules <> 50i32 || sa.assertions <> 152i32 ?>
+        failwith (
+            "every rule rebuilt from ZATCA's compiled XSL is read: rules "
+            ++# sm'.obj_to_string sa.rules
+            ++# " of 50, assertions "
+            ++# sm'.obj_to_string sa.assertions
+            ++# " of 152"
+        )
+    := zatca_cen_rules =
+        file_system.read_all_text (fiscal_paths.under "deps/corpus/sa/zatca/Rules/Schematrons/CEN-EN16931-UBL.sch")
+    := sa_cen = schematron.schematron_census (schematron.read_schematron zatca_cen_rules) (schematron.empty_census ())
+    console.write_line (
+        "zatca cen census: rules "
+        ++# sm'.obj_to_string sa_cen.rules
+        ++# " assertions "
+        ++# sm'.obj_to_string sa_cen.assertions
+        ++# " fatal "
+        ++# sm'.obj_to_string sa_cen.fatal
+        ++# " invalid "
+        ++# sm'.obj_to_string sa_cen.invalid
+    )
+    ? sa_cen.rules <> 35i32 || sa_cen.assertions <> 105i32 ?>
+        failwith (
+            "every rule of ZATCA's modified CEN copy is read: rules "
+            ++# sm'.obj_to_string sa_cen.rules
+            ++# " of 35, assertions "
+            ++# sm'.obj_to_string sa_cen.assertions
+            ++# " of 105"
+        )
+
 :~ ^ catalog_states \* form. (types : list (xsd type_def form)) (acc : list (string * i32)) : list (string * i32) =
     ?= types ?|
     | (Simple s) :: rest =>

@@ -45,3 +45,13 @@ foreach ($name in $examples.Keys) {
     "== $name"
     pwsh -NoProfile -File $validate -Document $document -Schema (Join-Path $schemas $examples[$name]) -Show 8
 }
+$gst = Join-Path $root 'samples/generated_in_gst_inv01_1_1_example.json'
+if (Test-Path $gst) {
+    '== generated_in_gst_inv01_1_1_example.json'
+    $document = Get-Content -Raw -LiteralPath $gst
+    try {
+        $null = Test-Json -Json $document -Schema (Get-Content -Raw -LiteralPath (Join-Path $root 'deps/corpus/in/gst/inv01_1.1.json')) -ErrorAction Stop
+        "document $($document.Length) bytes; validation messages 0"
+    }
+    catch { "document $($document.Length) bytes; validation messages 1"; "  $($_.Exception.Message)" }
+}

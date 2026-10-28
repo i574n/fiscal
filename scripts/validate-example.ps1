@@ -23,7 +23,8 @@ $settings.ValidationType = [System.Xml.ValidationType]::Schema
 $settings.Schemas = $set
 $errors = [Collections.Generic.List[string]]::new()
 $settings.add_ValidationEventHandler({ param($s, $e) $errors.Add("$($e.Severity) line $($e.Exception.LineNumber): $($e.Message)") })
-$validating = [System.Xml.XmlReader]::Create((Resolve-Path $Document).Path, $settings)
-try { while ($validating.Read()) { } } catch { $errors.Add("fatal: $($_.Exception.Message) (at $($_.InvocationInfo.ScriptName):$($_.InvocationInfo.ScriptLineNumber))") } finally { $validating.Close() }
-"document $((Get-Item $Document).Length) bytes; validation messages $($errors.Count)"
+$documentStream = [IO.File]::OpenRead((Resolve-Path -LiteralPath $Document).Path)
+$validating = [System.Xml.XmlReader]::Create($documentStream, $settings)
+try { while ($validating.Read()) { } } catch { $errors.Add("fatal: $($_.Exception.Message) (at $($_.InvocationInfo.ScriptName):$($_.InvocationInfo.ScriptLineNumber))") } finally { $validating.Close(); $documentStream.Dispose() }
+"document $((Get-Item -LiteralPath $Document).Length) bytes; validation messages $($errors.Count)"
 $errors | Group-Object { ($_ -replace "'[^']*'", "'x'") -replace 'line \d+', 'line n' } | Sort-Object Count -Descending | Select-Object -First $Show | ForEach-Object { "  x$($_.Count): $($_.Group[0].Substring(0, [Math]::Min(220, $_.Group[0].Length)))" }
