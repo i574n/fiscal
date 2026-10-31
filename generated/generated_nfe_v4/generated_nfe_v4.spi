@@ -1,4 +1,4 @@
-///- --package . --timeout 3154544
+///- --package . --timeout 3156192
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -9,6 +9,31 @@ inl optional_text_nodes forall t {to_text}. (name : string) (v : option t) : lis
 
 inl repeated_text_nodes forall t {to_text}. (name : string) (vs : list t) : list xml.xml_node =
     listm.map (text_node name) vs
+
+nominal unsigned = ()
+nominal signed = ()
+
+union staged s a =
+    | Pending :: forall a. string -> staged unsigned a
+    | Present :: forall a. a -> staged signed a
+
+union stage s =
+    | Unsigned :: stage unsigned
+    | Signed :: stage signed
+
+inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
+    match witness with
+    | Unsigned => Pending "unsigned"
+    | Signed => Present (read ())
+
+inl signed_value forall a. (x : staged signed a) : a =
+    match x with
+    | Present v => v
+
+inl staged_list forall s a b. (f : a -> b) (x : staged s a) : list b =
+    match x with
+    | Pending _ => []
+    | Present v => [ f v ]
 
 union x_t_transform_uri =
     | TTransformURI_enveloped_signature
@@ -19558,38 +19583,27 @@ type x_tn_fe_inf_n_fe =
         id : x_tn_fe_inf_n_fe_id
     }
 
-type x_tn_fe =
+type x_tn_fe s =
     {
         inf_n_fe : x_tn_fe_inf_n_fe
         inf_n_fe_supl : option (x_tn_fe_inf_n_fe_supl)
-        signature : x_signature_type
+        signature : staged s x_signature_type
     }
 
-type x_t_nfe_proc =
+type x_t_nfe_proc s =
     {
-        n_fe : x_tn_fe
+        n_fe : x_tn_fe s
         prot_n_fe : x_t_prot_n_fe
         versao : x_t_ver_n_fe
     }
 
-type x_t_envi_n_fe =
+type x_t_envi_n_fe s =
     {
         id_lote : x_t_id_lote
         ind_sinc : x_t_envi_n_fe_ind_sinc
-        n_fe : list (x_tn_fe)
+        n_fe : list (x_tn_fe s)
         versao : x_t_ver_n_fe
     }
-
-union x_tn_fe_field r =
-    | TNFe_field_infNFe :: x_tn_fe_field (x_tn_fe_inf_n_fe)
-    | TNFe_field_infNFeSupl :: x_tn_fe_field (option (x_tn_fe_inf_n_fe_supl))
-    | TNFe_field_ds_Signature :: x_tn_fe_field (x_signature_type)
-
-inl x_tn_fe_get forall r. (f : x_tn_fe_field r) (x : x_tn_fe) : r =
-    match f with
-    | TNFe_field_infNFe => x.inf_n_fe
-    | TNFe_field_infNFeSupl => x.inf_n_fe_supl
-    | TNFe_field_ds_Signature => x.signature
 
 union x_tn_fe_inf_n_fe_supl_field r =
     | TNFe_infNFeSupl_field_qrCode :: x_tn_fe_inf_n_fe_supl_field (x_tn_fe_inf_n_fe_supl_qr_code)
@@ -22726,17 +22740,6 @@ inl x_t_prot_n_fe_inf_prot_get forall r. (f : x_t_prot_n_fe_inf_prot_field r) (x
     | TProtNFe_infProt_field_cMsg => x.c_msg
     | TProtNFe_infProt_field_xMsg => x.x_msg
 
-union x_t_envi_n_fe_field r =
-    | TEnviNFe_field_idLote :: x_t_envi_n_fe_field (x_t_id_lote)
-    | TEnviNFe_field_indSinc :: x_t_envi_n_fe_field (x_t_envi_n_fe_ind_sinc)
-    | TEnviNFe_field_NFe :: x_t_envi_n_fe_field (list (x_tn_fe))
-
-inl x_t_envi_n_fe_get forall r. (f : x_t_envi_n_fe_field r) (x : x_t_envi_n_fe) : r =
-    match f with
-    | TEnviNFe_field_idLote => x.id_lote
-    | TEnviNFe_field_indSinc => x.ind_sinc
-    | TEnviNFe_field_NFe => x.n_fe
-
 union x_t_ret_envi_n_fe_field r =
     | TRetEnviNFe_field_tpAmb :: x_t_ret_envi_n_fe_field (x_t_amb)
     | TRetEnviNFe_field_verAplic :: x_t_ret_envi_n_fe_field (x_t_ver_aplic)
@@ -22801,15 +22804,6 @@ inl x_t_ret_cons_reci_n_fe_get forall r. (f : x_t_ret_cons_reci_n_fe_field r) (x
     | TRetConsReciNFe_field_cMsg => x.c_msg
     | TRetConsReciNFe_field_xMsg => x.x_msg
     | TRetConsReciNFe_field_protNFe => x.prot_n_fe
-
-union x_t_nfe_proc_field r =
-    | TNfeProc_field_NFe :: x_t_nfe_proc_field (x_tn_fe)
-    | TNfeProc_field_protNFe :: x_t_nfe_proc_field (x_t_prot_n_fe)
-
-inl x_t_nfe_proc_get forall r. (f : x_t_nfe_proc_field r) (x : x_t_nfe_proc) : r =
-    match f with
-    | TNfeProc_field_NFe => x.n_fe
-    | TNfeProc_field_protNFe => x.prot_n_fe
 
 union x_t_endereco_field r =
     | TEndereco_field_xLgr :: x_t_endereco_field (x_t_endereco_x_lgr)
@@ -23793,15 +23787,20 @@ inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_da
     match f with
     | X509DataType_field_X509Certificate => x.x509_certificate
 
-let rec x_tn_fe_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_tn_fe =
+let rec x_tn_fe_of_children forall s.
+    (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_tn_fe s
+    =
     {
         inf_n_fe = (fun c => x_tn_fe_inf_n_fe_of_xml c) (xml.required_child "infNFe" children)
         inf_n_fe_supl = optionm.map (fun c => x_tn_fe_inf_n_fe_supl_of_xml c) (xml.first_child "infNFeSupl" children)
-        signature = (fun c => x_signature_type_of_xml c) (xml.required_child "ds:Signature" children)
+        signature =
+            staged_of witness fun () =>
+                (fun c => x_signature_type_of_xml c) (xml.required_child "ds:Signature" children)
     }
 
-and let x_tn_fe_of_xml (c : xml.xml_node) : x_tn_fe =
-    x_tn_fe_of_children (xml.element_attributes c) (xml.element_children c)
+and let x_tn_fe_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_tn_fe s =
+    x_tn_fe_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_tn_fe_inf_n_fe_supl_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
@@ -27945,18 +27944,21 @@ and let x_t_prot_n_fe_inf_prot_of_children
 and let x_t_prot_n_fe_inf_prot_of_xml (c : xml.xml_node) : x_t_prot_n_fe_inf_prot =
     x_t_prot_n_fe_inf_prot_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_envi_n_fe_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_envi_n_fe =
+and let x_t_envi_n_fe_of_children forall s.
+    (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_t_envi_n_fe s
+    =
     {
         id_lote =
             (fun c => xml.required_value "x_t_id_lote" (x_t_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
         ind_sinc =
             (fun c => xml.required_value "x_t_envi_n_fe_ind_sinc" (x_t_envi_n_fe_ind_sinc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "indSinc" children)
-        n_fe = listm.map (fun c => x_tn_fe_of_xml c) (xml.children_named "NFe" children)
+        n_fe = listm.map (fun c => x_tn_fe_of_xml witness c) (xml.children_named "NFe" children)
         versao = xml.required_value "x_t_ver_n_fe" (x_t_ver_n_fe_of_string (xml.required_attribute "versao" attributes))
     }
 
-and let x_t_envi_n_fe_of_xml (c : xml.xml_node) : x_t_envi_n_fe =
-    x_t_envi_n_fe_of_children (xml.element_attributes c) (xml.element_children c)
+and let x_t_envi_n_fe_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_t_envi_n_fe s =
+    x_t_envi_n_fe_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_ret_envi_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
@@ -28059,15 +28061,18 @@ and let x_t_ret_cons_reci_n_fe_of_children
 and let x_t_ret_cons_reci_n_fe_of_xml (c : xml.xml_node) : x_t_ret_cons_reci_n_fe =
     x_t_ret_cons_reci_n_fe_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_nfe_proc_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_nfe_proc =
+and let x_t_nfe_proc_of_children forall s.
+    (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_t_nfe_proc s
+    =
     {
-        n_fe = (fun c => x_tn_fe_of_xml c) (xml.required_child "NFe" children)
+        n_fe = (fun c => x_tn_fe_of_xml witness c) (xml.required_child "NFe" children)
         prot_n_fe = (fun c => x_t_prot_n_fe_of_xml c) (xml.required_child "protNFe" children)
         versao = xml.required_value "x_t_ver_n_fe" (x_t_ver_n_fe_of_string (xml.required_attribute "versao" attributes))
     }
 
-and let x_t_nfe_proc_of_xml (c : xml.xml_node) : x_t_nfe_proc =
-    x_t_nfe_proc_of_children (xml.element_attributes c) (xml.element_children c)
+and let x_t_nfe_proc_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_t_nfe_proc s =
+    x_t_nfe_proc_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_endereco_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_endereco =
     {
@@ -29559,24 +29564,16 @@ and let x_x509_data_type_of_children
 and let x_x509_data_type_of_xml (c : xml.xml_node) : x_x509_data_type =
     x_x509_data_type_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_tn_fe_children (x : x_tn_fe) : list xml.xml_node =
-    inl nodes forall r. (f : x_tn_fe_field r) (v : r) : list xml.xml_node =
-        match f with
-        | TNFe_field_infNFe => [ x_tn_fe_inf_n_fe_to_xml "infNFe" v ]
-        | TNFe_field_infNFeSupl =>
-            xml.option_list (optionm.map (fun v => x_tn_fe_inf_n_fe_supl_to_xml "infNFeSupl" v) v)
-        | TNFe_field_ds_Signature => [ x_signature_type_to_xml "ds:Signature" v ]
-    inl rec walk (fields : list (exists r. x_tn_fe_field r)) : list xml.xml_node =
-        match fields with
-        | packed :: rest =>
-            inl exists r. f = packed
-            listm.append (nodes f (x_tn_fe_get f x)) (walk rest)
-        | [] => []
-    walk [ exists TNFe_field_infNFe; exists TNFe_field_infNFeSupl; exists TNFe_field_ds_Signature ]
+and let x_tn_fe_children forall s. (x : x_tn_fe s) : list xml.xml_node =
+    listm.concat [
+        [ x_tn_fe_inf_n_fe_to_xml "infNFe" x.inf_n_fe ]
+        xml.option_list (optionm.map (fun v => x_tn_fe_inf_n_fe_supl_to_xml "infNFeSupl" v) x.inf_n_fe_supl)
+        staged_list (fun v => x_signature_type_to_xml "ds:Signature" v) x.signature
+    ]
 
-and let x_tn_fe_attributes (x : x_tn_fe) : list (string * string) = []
+and let x_tn_fe_attributes forall s. (x : x_tn_fe s) : list (string * string) = []
 
-and let x_tn_fe_to_xml (name : string) (x : x_tn_fe) : xml.xml_node =
+and let x_tn_fe_to_xml forall s. (name : string) (x : x_tn_fe s) : xml.xml_node =
     xml.element name (x_tn_fe_attributes x) (x_tn_fe_children x)
 
 and let x_tn_fe_inf_n_fe_supl_children (x : x_tn_fe_inf_n_fe_supl) : list xml.xml_node =
@@ -34761,23 +34758,17 @@ and let x_t_prot_n_fe_inf_prot_attributes (x : x_t_prot_n_fe_inf_prot) : list (s
 and let x_t_prot_n_fe_inf_prot_to_xml (name : string) (x : x_t_prot_n_fe_inf_prot) : xml.xml_node =
     xml.element name (x_t_prot_n_fe_inf_prot_attributes x) (x_t_prot_n_fe_inf_prot_children x)
 
-and let x_t_envi_n_fe_children (x : x_t_envi_n_fe) : list xml.xml_node =
-    inl nodes forall r. (f : x_t_envi_n_fe_field r) (v : r) : list xml.xml_node =
-        match f with
-        | TEnviNFe_field_idLote => [ text_node "idLote" v ]
-        | TEnviNFe_field_indSinc => [ text_node "indSinc" v ]
-        | TEnviNFe_field_NFe => listm.map (fun v => x_tn_fe_to_xml "NFe" v) v
-    inl rec walk (fields : list (exists r. x_t_envi_n_fe_field r)) : list xml.xml_node =
-        match fields with
-        | packed :: rest =>
-            inl exists r. f = packed
-            listm.append (nodes f (x_t_envi_n_fe_get f x)) (walk rest)
-        | [] => []
-    walk [ exists TEnviNFe_field_idLote; exists TEnviNFe_field_indSinc; exists TEnviNFe_field_NFe ]
+and let x_t_envi_n_fe_children forall s. (x : x_t_envi_n_fe s) : list xml.xml_node =
+    listm.concat [
+        [ text_node "idLote" x.id_lote ]
+        [ text_node "indSinc" x.ind_sinc ]
+        listm.map (fun v => x_tn_fe_to_xml "NFe" v) x.n_fe
+    ]
 
-and let x_t_envi_n_fe_attributes (x : x_t_envi_n_fe) : list (string * string) = [ ("versao", to_text x.versao) ]
+and let x_t_envi_n_fe_attributes forall s. (x : x_t_envi_n_fe s) : list (string * string) =
+    [ ("versao", to_text x.versao) ]
 
-and let x_t_envi_n_fe_to_xml (name : string) (x : x_t_envi_n_fe) : xml.xml_node =
+and let x_t_envi_n_fe_to_xml forall s. (name : string) (x : x_t_envi_n_fe s) : xml.xml_node =
     xml.element name (x_t_envi_n_fe_attributes x) (x_t_envi_n_fe_children x)
 
 and let x_t_ret_envi_n_fe_children (x : x_t_ret_envi_n_fe) : list xml.xml_node =
@@ -34904,22 +34895,13 @@ and let x_t_ret_cons_reci_n_fe_attributes (x : x_t_ret_cons_reci_n_fe) : list (s
 and let x_t_ret_cons_reci_n_fe_to_xml (name : string) (x : x_t_ret_cons_reci_n_fe) : xml.xml_node =
     xml.element name (x_t_ret_cons_reci_n_fe_attributes x) (x_t_ret_cons_reci_n_fe_children x)
 
-and let x_t_nfe_proc_children (x : x_t_nfe_proc) : list xml.xml_node =
-    inl nodes forall r. (f : x_t_nfe_proc_field r) (v : r) : list xml.xml_node =
-        match f with
-        | TNfeProc_field_NFe => [ x_tn_fe_to_xml "NFe" v ]
-        | TNfeProc_field_protNFe => [ x_t_prot_n_fe_to_xml "protNFe" v ]
-    inl rec walk (fields : list (exists r. x_t_nfe_proc_field r)) : list xml.xml_node =
-        match fields with
-        | packed :: rest =>
-            inl exists r. f = packed
-            listm.append (nodes f (x_t_nfe_proc_get f x)) (walk rest)
-        | [] => []
-    walk [ exists TNfeProc_field_NFe; exists TNfeProc_field_protNFe ]
+and let x_t_nfe_proc_children forall s. (x : x_t_nfe_proc s) : list xml.xml_node =
+    listm.concat [ [ x_tn_fe_to_xml "NFe" x.n_fe ]; [ x_t_prot_n_fe_to_xml "protNFe" x.prot_n_fe ] ]
 
-and let x_t_nfe_proc_attributes (x : x_t_nfe_proc) : list (string * string) = [ ("versao", to_text x.versao) ]
+and let x_t_nfe_proc_attributes forall s. (x : x_t_nfe_proc s) : list (string * string) =
+    [ ("versao", to_text x.versao) ]
 
-and let x_t_nfe_proc_to_xml (name : string) (x : x_t_nfe_proc) : xml.xml_node =
+and let x_t_nfe_proc_to_xml forall s. (name : string) (x : x_t_nfe_proc s) : xml.xml_node =
     xml.element name (x_t_nfe_proc_attributes x) (x_t_nfe_proc_children x)
 
 and let x_t_endereco_children (x : x_t_endereco) : list xml.xml_node =
@@ -36802,11 +36784,11 @@ and let x_x509_data_type_attributes (x : x_x509_data_type) : list (string * stri
 and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml_node =
     xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
 
-and let x_tn_fe_example (k : i32) : x_tn_fe =
+and let x_tn_fe_example (k : i32) : x_tn_fe unsigned =
     {
         inf_n_fe = x_tn_fe_inf_n_fe_example k
         inf_n_fe_supl = None
-        signature = x_signature_type_example k
+        signature = Pending "an unsigned example"
     }
 
 and let x_tn_fe_inf_n_fe_supl_example (k : i32) : x_tn_fe_inf_n_fe_supl =
@@ -37628,7 +37610,7 @@ and let x_t_prot_n_fe_inf_prot_example (k : i32) : x_t_prot_n_fe_inf_prot =
         id = None
     }
 
-and let x_t_envi_n_fe_example (k : i32) : x_t_envi_n_fe =
+and let x_t_envi_n_fe_example (k : i32) : x_t_envi_n_fe unsigned =
     {
         id_lote = x_t_id_lote_example k
         ind_sinc = x_t_envi_n_fe_ind_sinc_example k
@@ -37679,7 +37661,7 @@ and let x_t_ret_cons_reci_n_fe_example (k : i32) : x_t_ret_cons_reci_n_fe =
         versao = x_t_ver_n_fe_example k
     }
 
-and let x_t_nfe_proc_example (k : i32) : x_t_nfe_proc =
+and let x_t_nfe_proc_example (k : i32) : x_t_nfe_proc unsigned =
     {
         n_fe = x_tn_fe_example k
         prot_n_fe = x_t_prot_n_fe_example k
@@ -38311,12 +38293,7 @@ inl sample_path (name : string) : string =
             | Error message => failwith message
     sm'.(++#) (sm'.(++#) root "/samples/") name
 ///> rust
-test generated_nfe_model_type_checks =
-    match x_t_cod_uf_ibge_of_string "35" with
-    | Some code => if x_t_cod_uf_ibge_to_string code <> "35" then failwith "TCodUfIBGE 35 round trip"
-    | None => failwith "35 parses as TCodUfIBGE"
-    if x_t_cnpj_is_valid "12345678000195" = false then failwith "a 14-digit CNPJ is valid"
-    if x_t_cnpj_is_valid "1234567800019" then failwith "a 13-digit CNPJ is not"
+test generated_nfe_v4_writes_its_example =
     inl example = x_tn_fe_example 0i32
     inl document =
         xml.element
@@ -38324,8 +38301,68 @@ test generated_nfe_model_type_checks =
             (("xmlns", "http://www.portalfiscal.inf.br/nfe") :: x_tn_fe_attributes example)
             (x_tn_fe_children example)
     file_system.write_all_text
-        (sample_path "nfe_v4_example.xml")
+        (sample_path "generated_nfe_v4_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+    inl text = file_system.read_all_text (sample_path "generated_nfe_v4_example.xml")
+    let rec insert (x : i64) (xs : list i64) : list i64 =
+        match xs with
+        | y :: rest => if x <= y then x :: xs else y :: insert x rest
+        | [] => x :: []
+    let rec nth (i : i32) (xs : list i64) : i64 =
+        match xs with
+        | y :: rest => if i = 0i32 then y else nth (i - 1i32) rest
+        | [] => -1i64
+    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64) : list i64 * list i64 * i64 =
+        if left = 0i32 then parses, writes, bytes
+        else
+            inl watch = date_time.stopwatch ()
+            date_time.stopwatch_start watch
+            inl start = date_time.stopwatch_elapsed_microseconds watch
+            match xml.read_xml text with
+            | node :: [] =>
+                inl parsed = x_tn_fe_of_xml Unsigned node
+                inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
+                inl written = xml.write_node (x_tn_fe_to_xml "NFe" parsed)
+                inl written_at = date_time.stopwatch_elapsed_microseconds watch
+                inl parses = insert (parsed_at - start) parses
+                inl writes = insert (written_at - parsed_at) writes
+                runs (left - 1i32) parses writes (bytes + sm'.length written)
+            | _ => failwith "one NFe element"
+    inl _ = runs (dyn 5i32) [] [] 0i64
+    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64
+    inl cell (x : i64) : string = sm'.obj_to_string x
+    inl row = sm'.(++#) "generated_nfe_v4 parse_us " (cell (nth 15i32 parses))
+    inl row = sm'.(++#) row (sm'.(++#) " write_us " (cell (nth 15i32 writes)))
+    inl row = sm'.(++#) row (sm'.(++#) " runs 31 bytes " (cell bytes))
+    console.write_line row
+    match xml.read_xml text with
+    | node :: [] =>
+        inl parsed = x_tn_fe_of_xml Unsigned node
+        inl document =
+            xml.element
+                "NFe"
+                (("xmlns", "http://www.portalfiscal.inf.br/nfe") :: x_tn_fe_attributes parsed)
+                (x_tn_fe_children parsed)
+        inl folder = sample_path "../target/bench"
+        match file_system.create_dir_all folder |> resultm.unbox with
+        | Ok _ =>
+            file_system.write_all_text
+                (sm'.(++#) folder "/ours-generated_nfe_v4_example.xml")
+                (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+        | Error _ => failwith "cannot create target/bench"
+    | _ => failwith "one NFe element"
+
+///> rust
+test generated_nfe_v4_keeps_raw_strings_out fails "Unification failure" =
+    x_tc_list_serv_to_string "raw"
+
+///> rust
+test generated_nfe_model_type_checks =
+    match x_t_cod_uf_ibge_of_string "35" with
+    | Some code => if x_t_cod_uf_ibge_to_string code <> "35" then failwith "TCodUfIBGE 35 round trip"
+    | None => failwith "35 parses as TCodUfIBGE"
+    if x_t_cnpj_is_valid "12345678000195" = false then failwith "a 14-digit CNPJ is valid"
+    if x_t_cnpj_is_valid "1234567800019" then failwith "a 13-digit CNPJ is not"
     match
         xml.read_xml (
             "<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550308</cMun><xMun>Sao "

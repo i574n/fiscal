@@ -4948,7 +4948,9 @@ let rec x_tiquete_electronico_of_children forall s.
                 fun c => x_tiquete_electronico_informacion_referencia_of_xml c
                 (xml.children_named "InformacionReferencia" children)
         otros = optionm.map (fun c => x_tiquete_electronico_otros_of_xml c) (xml.first_child "Otros" children)
-        signature = listm.map (fun c => x_signature_type_of_xml c) (xml.children_named "ds:Signature" children)
+        signature =
+            staged_of witness fun () =>
+                listm.map (fun c => x_signature_type_of_xml c) (xml.children_named "ds:Signature" children)
     }
 
 and let x_tiquete_electronico_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_tiquete_electronico s =
@@ -5932,7 +5934,9 @@ and let x_tiquete_electronico_children forall s. (x : x_tiquete_electronico s) :
             fun v => x_tiquete_electronico_informacion_referencia_to_xml "InformacionReferencia" v
             x.informacion_referencia
         xml.option_list (optionm.map (fun v => x_tiquete_electronico_otros_to_xml "Otros" v) x.otros)
-        listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) x.signature
+        listm.concat (
+            staged_list (fun vs => listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) vs) x.signature
+        )
     ]
 
 and let x_tiquete_electronico_attributes forall s. (x : x_tiquete_electronico s) : list (string * string) = []
@@ -7333,7 +7337,7 @@ and let x_tiquete_electronico_example (k : i32) : x_tiquete_electronico unsigned
         resumen_factura = x_tiquete_electronico_resumen_factura_example k
         informacion_referencia = []
         otros = None
-        signature = [ x_signature_type_example (k + 0i32) ]
+        signature = Pending "an unsigned example"
     }
 
 and let x_tiquete_electronico_otros_example (k : i32) : x_tiquete_electronico_otros =

@@ -1,5 +1,7 @@
 # fiscal
 
+[![깃허브 코드스페이스](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=1429627019)
+
 Typed e-invoice models generated from the official XML schemas, written in [Spiral](https://github.com/i574n/spiral).
 
 Governments that mandate electronic invoicing publish their invoice formats as XSD schemas. `fiscal` reads those schemas
@@ -21,13 +23,21 @@ schema families it targets.
 | Brazil | NF-e (goods; NFC-e, model 65, uses the same schema) | 2.00, 3.10, 4.00 | SEFAZ packages, as mirrored by [DFe.NET](https://github.com/ZeusAutomacao/DFe.NET) | generated |
 | Brazil | CT-e (cargo transport), CT-e OS (other transport services), CT-e Simplificado | 2.00, 3.00, 4.00 | SEFAZ via DFe.NET | generated |
 | Brazil | GTV-e (cash-in-transit), MDF-e (cargo manifest) | 3.00/4.00, 1.00/3.00 | SEFAZ via DFe.NET | generated |
-| Mexico | CFDI | 4.0 | [SAT](http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd) (with its catalogs and data types) | generated |
-| European Union | UBL 2.1 Invoice, the EN 16931 syntax used by Peppol BIS Billing 3.0 | 2.1 | [OASIS](https://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/); EN16931-UBL schematron 1.3.16 from [CEN](https://github.com/ConnectingEurope/eInvoicing-EN16931) | generated |
+| Mexico | CFDI, with the TimbreFiscalDigital and Pagos complements as typed content | 4.0 (TFD 1.1, Pagos 2.0) | [SAT](http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd) (with its catalogs and data types) | generated |
+| Chile | DTE and EnvioDTE | v10 | [SII](https://www.sii.cl/servicios_online/docs/xml/schema_dte.zip) | generated |
+| Costa Rica | Factura, Factura de compra, Factura de exportación, Nota de crédito, Nota de débito, Tiquete, Recibo de pago, Mensaje Receptor, Mensaje Hacienda | 4.4 | Hacienda's v4.4 XSDs, from a pinned [mirror](https://github.com/BoltbitCR/API_Hacienda_Laravel) | generated |
+| Spain | Facturae; VeriFactu | 3.2.2 | [facturae.gob.es](https://www.facturae.gob.es/); [AEAT](https://www2.agenciatributaria.gob.es/) | generated |
+| Italy | FatturaPA (SdI) | 1.2.3 | [fatturapa.gov.it](https://www.fatturapa.gov.it/) | generated |
+| Greece | myDATA invoices | 2.0.2 | AADE's XSDs, from a pinned [mirror](https://github.com/firebed/aade-mydata) | generated |
+| Hungary | NAV Online Számla | 3.0 | [NAV](https://github.com/nav-gov-hu/Online-Invoice) | generated |
+| India | GST e-invoice INV-01 (JSON schema) | 1.1 | NIC e-invoice sandbox (archived 2024-10-05) | generated |
+| Portugal | SAF-T (PT) AuditFile | 1.04_01 | [Portal das Finanças](https://info.portaldasfinancas.gov.pt/apps/saft-pt04/saftpt1.04_01.xsd) | generated |
+| European Union | UBL 2.1 Invoice, CreditNote, DebitNote, ApplicationResponse, DespatchAdvice, ReceiptAdvice; Invoice is the EN 16931 syntax used by Peppol BIS Billing 3.0 | 2.1 | [OASIS](https://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/); EN16931-UBL schematron 1.3.17 from [CEN](https://github.com/ConnectingEurope/eInvoicing-EN16931) | generated |
 | Poland | KSeF FA(3) | FA(3) | [Ministry of Finance (CRD)](http://crd.gov.pl/wzor/2025/06/25/13775/schemat.xsd) | generated |
-| Italy | FatturaPA (SdI) | 1.2.3 | [fatturapa.gov.it](https://www.fatturapa.gov.it/) | schema read; generation does not finish yet |
 
-That is 16 generated modules (13 Brazilian document versions, CFDI, UBL and KSeF). The largest Brazilian one,
-`generated_nfe_v4.spi`, has 20,820 lines: 91 unions, 504 types, 252 validators and 198 parser/printer pairs.
+`generated/` commits 75 units, one Spiral package each. The largest Brazilian one, `generated_nfe_v4.spi`, has 38,384
+lines with 284 unions, 255 `type` declarations (aliases included), 249 validators and 369 `_of_string`/`_to_string`
+pairs; the CT-e 4.00 family units have 33,518 lines each.
 
 ## Reach today
 

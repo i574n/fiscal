@@ -67,55 +67,6 @@ test generates_the_uf_code_union =
     ? sm'.contains "    | TCodUfIBGE_35" text = !- ?> failwith "case TCodUfIBGE_35"
     ? sm'.contains "    | \"35\" => Some TCodUfIBGE_35" text = !- ?> failwith "parser arm"
 
-///> rust
-test generates_the_nfe_v4_model =
-    := tree = xsd_resolve.load_schema_tree (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
-    := text = generate_module tree.schema
-    := self_check =
-        "///> rust\ntest generated_nfe_model_type_checks =\n"
-        ++# "    match x_t_cod_uf_ibge_of_string \"35\" with\n"
-        ++# (
-            "    | Some code => if x_t_cod_uf_ibge_to_string code <> \"35\" then failwith \"TCodUfIBGE 35 round "
-            ^^ "trip\"\n"
-        )
-        ++# "    | None => failwith \"35 parses as TCodUfIBGE\"\n"
-        ++# "    if x_t_cnpj_is_valid \"12345678000195\" = false then failwith \"a 14-digit CNPJ is valid\"\n"
-        ++# "    if x_t_cnpj_is_valid \"1234567800019\" then failwith \"a 13-digit CNPJ is not\"\n"
-        ++# "    inl example = x_tn_fe_example 0i32\n"
-        ++# (
-            "    inl document = xml.element \"NFe\" ((\"xmlns\", \"http://www.portalfiscal.inf.br/nfe\") :: "
-            ^^ "x_tn_fe_attributes example) (x_tn_fe_children example)\n"
-        )
-        ++# (
-            "    file_system.write_all_text (sample_path \"nfe_v4_example.xml\") (xml.write_node "
-            ^^ "(xml.with_namespace \"Signature\" \"http://www.w3.org/2000/09/xmldsig#\" document))\n"
-        )
-        ++# (
-            "    match xml.read_xml \"<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550"
-            ^^ "308</cMun><xMun>Sao Paulo</xMun><UF>SP</UF><CEP>01001000</CEP><cPais>1058</cPais></enderEmit>\" with\n"
-        )
-        ++# "    | node :: [] =>\n"
-        ++# "        inl address = x_t_ender_emi_of_xml node\n"
-        ++# (
-            "        if x_t_ender_emi_x_mun_to_string address.x_mun <> \"Sao Paulo\" || x_t_ender_emi_cep_to_string "
-            ^^ "address.cep <> \"01001000\" then failwith \"TEnderEmi text fields\"\n"
-        )
-        ++# "        if x_t_uf_emi_to_string address.uf <> \"SP\" then failwith \"TEnderEmi UF enumeration\"\n"
-        ++# (
-            "        if xml.same_node node (x_t_ender_emi_to_xml \"enderEmit\" address) = false then failwith "
-            ^^ "\"TEnderEmi XML round trip\"\n"
-        )
-        ++# "        match address.c_pais with\n"
-        ++# "        | Some _ => ()\n"
-        ++# "        | None => failwith \"TEnderEmi optional cPais\"\n"
-        ++# "    | _ => failwith \"one enderEmit element\"\n"
-    write_generated_module "generated_nfe_v4" (text ++# sample_helper () ++# self_check)
-    ? sm'.contains "inl x_t_cnpj_is_valid (s : string) : bool = " text = !- ?> failwith "TCnpj validator"
-    ? sm'.contains "union x_t_cod_uf_ibge =" text = !- ?> failwith "TCodUfIBGE union"
-    ? sm'.contains "type x_tn_fe =" text = !- ?> failwith "TNFe record"
-    ? sm'.contains "        signature : x_signature_type" text = !-
-    ?> failwith "the ds:Signature reference takes its root element type"
-
 :| schema_source =
     | Xsd : xsd_resolve.schema_catalog
     | JsonSchema
@@ -226,6 +177,38 @@ test generates_the_nfe_v4_model =
         family "generated_gtve_v4_00" "CTe.AppTeste/schemas/GTVe_v4.00.xsd" "GTVe" "TGTVe" cte;
         family "generated_mdfe_v1_00" "MDFe.AppTeste/Schemas/mdfe_v1.00.xsd" "MDFe" "TMDFe" mdfe;
         family "generated_mdfe_v3_00" "MDFe.AppTeste/Schemas/mdfe_v3.00.xsd" "MDFe" "TMDFe" mdfe
+    ]
+
+:= nfe_v4_00 () : family_root =
+    {
+        module_name = "generated_nfe_v4"
+        schema_path = fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd"
+        root_element = "NFe"
+        root_type = "TNFe"
+        target_namespace = "http://www.portalfiscal.inf.br/nfe"
+        source = Xsd []
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+    }
+
+:= nfe_events () : list family_root =
+    := event module_name schema : family_root =
+        {
+            module_name = module_name
+            schema_path = fiscal_paths.under ("deps/corpus/DFe.NET/NFe.AppTeste/Schemas/" ++# schema)
+            root_element = "procEventoNFe"
+            root_type = "TProcEvento"
+            target_namespace = "http://www.portalfiscal.inf.br/nfe"
+            source = Xsd []
+            known_defect = None
+            documents = []
+            ubl_json_documents = []
+        }
+    [
+        event "generated_nfe_evento_canc_v1_00" "procEventoCancNFe_v1.00.xsd";
+        event "generated_nfe_evento_cce_v1_00" "procCCeNFe_v1.00.xsd";
+        event "generated_nfe_evento_conf_recebto_v1_00" "procConfRecebtoNFe_v1.00.xsd"
     ]
 
 :~ ^ manifest_entries (prefix : string) (entries : list string) (acc : list string) : list string =
@@ -642,16 +625,29 @@ test generates_the_nfe_v4_model =
     ++# "        match nodes with\n"
     ++# "        | n :: rest => xml_size n + xml_sizes rest\n"
     ++# "        | [] => 0i32\n"
-    ++# "    let rec size_drift (a : list xml.xml_node) (b : list xml.xml_node) : string =\n"
-    ++# "        match a, b with\n"
-    ++# "        | (x :: xs), (y :: ys) =>\n"
-    ++# "            if xml_size x = xml_size y then size_drift xs ys\n"
+    ++# "    let rec take_named (name : string) (nodes : list xml.xml_node) : option (xml.xml_node * list xml.xml_node) =\n"
+    ++# "        match nodes with\n"
+    ++# "        | n :: rest =>\n"
+    ++# "            if xml.node_name n = name then Some (n, rest)\n"
     ++# "            else\n"
-    ++# "                inl inner = size_drift (xml.element_children x) (xml.element_children y)\n"
-    ++# "                sm'.(++#) (xml.node_name x) (sm'.(++#) \"/\" inner)\n"
-    ++# "        | (x :: _), [] => sm'.(++#) (xml.node_name x) \" dropped\"\n"
-    ++# "        | [], (y :: _) => sm'.(++#) (xml.node_name y) \" added\"\n"
-    ++# "        | [], [] => \"here\"\n"
+    ++# "                match take_named name rest with\n"
+    ++# "                | Some (m, others) => Some (m, n :: others)\n"
+    ++# "                | None => None\n"
+    ++# "        | [] => None\n"
+    ++# "    let rec size_drift (a : list xml.xml_node) (b : list xml.xml_node) : string =\n"
+    ++# "        match a with\n"
+    ++# "        | x :: xs =>\n"
+    ++# "            match take_named (xml.node_name x) b with\n"
+    ++# "            | Some (y, others) =>\n"
+    ++# "                if xml_size x = xml_size y then size_drift xs others\n"
+    ++# "                else\n"
+    ++# "                    inl inner = size_drift (xml.element_children x) (xml.element_children y)\n"
+    ++# "                    sm'.(++#) (xml.node_name x) (sm'.(++#) \"/\" inner)\n"
+    ++# "            | None => sm'.(++#) (xml.node_name x) \" dropped\"\n"
+    ++# "        | [] =>\n"
+    ++# "            match b with\n"
+    ++# "            | y :: _ => sm'.(++#) (xml.node_name y) \" added\"\n"
+    ++# "            | [] => \"here\"\n"
     ++# "    inl "
     ++# name
     ++# " (path : string) : list string =\n"
@@ -868,6 +864,38 @@ test generates_the_nfe_v4_model =
         [ "generated_nfe_"; "generated_cte_"; "generated_mdfe_"; "generated_gtve_"; "generated_cl_"; "generated_cr_" ]
     ? starts_with_any signed family.module_name ?> [ "Signature" ] |: []
 
+:= unit_checks_of (family : family_root) : string =
+    ? family.module_name <> "generated_nfe_v4" ?> ""
+    |:
+        "\n///> rust\ntest generated_nfe_model_type_checks =\n"
+        ++# "    match x_t_cod_uf_ibge_of_string \"35\" with\n"
+        ++# (
+            "    | Some code => if x_t_cod_uf_ibge_to_string code <> \"35\" then failwith \"TCodUfIBGE 35 round "
+            ^^ "trip\"\n"
+        )
+        ++# "    | None => failwith \"35 parses as TCodUfIBGE\"\n"
+        ++# "    if x_t_cnpj_is_valid \"12345678000195\" = false then failwith \"a 14-digit CNPJ is valid\"\n"
+        ++# "    if x_t_cnpj_is_valid \"1234567800019\" then failwith \"a 13-digit CNPJ is not\"\n"
+        ++# (
+            "    match xml.read_xml \"<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550"
+            ^^ "308</cMun><xMun>Sao Paulo</xMun><UF>SP</UF><CEP>01001000</CEP><cPais>1058</cPais></enderEmit>\" with\n"
+        )
+        ++# "    | node :: [] =>\n"
+        ++# "        inl address = x_t_ender_emi_of_xml node\n"
+        ++# (
+            "        if x_t_ender_emi_x_mun_to_string address.x_mun <> \"Sao Paulo\" || x_t_ender_emi_cep_to_string "
+            ^^ "address.cep <> \"01001000\" then failwith \"TEnderEmi text fields\"\n"
+        )
+        ++# "        if x_t_uf_emi_to_string address.uf <> \"SP\" then failwith \"TEnderEmi UF enumeration\"\n"
+        ++# (
+            "        if xml.same_node node (x_t_ender_emi_to_xml \"enderEmit\" address) = false then failwith "
+            ^^ "\"TEnderEmi XML round trip\"\n"
+        )
+        ++# "        match address.c_pais with\n"
+        ++# "        | Some _ => ()\n"
+        ++# "        | None => failwith \"TEnderEmi optional cPais\"\n"
+        ++# "    | _ => failwith \"one enderEmit element\"\n"
+
 :~ ^ write_family_modules (roots : list family_root) (count : i32) : i32 =
     ?= roots ?|
     | family :: rest =>
@@ -878,7 +906,8 @@ test generates_the_nfe_v4_model =
         := example_witness = ? root_staged ?> " Unsigned" |: ""
         := xml_documents = ? is_json_family family ?> "" |: document_checks family documents_witness
         := one_cell = family_example_check family ++# xml_documents ++# family_bench family example_witness
-        := checks = one_cell ++# family_nominal_check family schema ++# json_document_checks family
+        := checks =
+            one_cell ++# family_nominal_check family schema ++# json_document_checks family ++# unit_checks_of family
         := complements = complements_of family
         := any_content =
             ?= complements ?|
@@ -900,6 +929,28 @@ test generates_the_nfe_v4_model =
 ///> rust
 test generates_every_family_version =
     ? write_family_modules (family_roots ()) 0i32 <> 12i32 ?> failwith "every family root is written"
+
+///> rust
+test generates_nfe_v4_with_a_staged_signature =
+    ? write_family_modules [ nfe_v4_00 () ] 0i32 <> 1i32 ?> failwith "NF-e 4.00 is written as a family"
+    := text = file_system.read_all_text (fiscal_paths.under "generated/generated_nfe_v4/generated_nfe_v4.spi")
+    ? sm'.contains "inl x_t_cnpj_is_valid (s : string) : bool = " text = !- ?> failwith "TCnpj validator"
+    ? sm'.contains "union x_t_cod_uf_ibge =" text = !- ?> failwith "TCodUfIBGE union"
+    ? sm'.contains "type x_tn_fe s =" text = !- ?> failwith "TNFe takes the signing stage"
+    ? sm'.contains "        signature : staged s x_signature_type" text = !-
+    ?> failwith "a signer's unsigned NF-e 4.00 leaves its signature pending"
+    ? sm'.contains "x_tn_fe_example (k : i32) : x_tn_fe unsigned" text = !- ?> failwith "the example is unsigned"
+
+///> rust
+test generates_nfe_events_with_a_staged_author_signature =
+    ? write_family_modules (nfe_events ()) 0i32 <> 3i32 ?> failwith "the three NF-e event proofs are written"
+    := unit = "generated/generated_nfe_evento_canc_v1_00/generated_nfe_evento_canc_v1_00.spi"
+    := text = file_system.read_all_text (fiscal_paths.under unit)
+    ? sm'.contains "type x_t_evento s =" text = !- ?> failwith "the signed event takes the signing stage"
+    ? sm'.contains "        signature : staged s x_signature_type" text = !-
+    ?> failwith "the author's required event signature is staged"
+    ? sm'.contains "signature : option (x_signature_type)" text = !-
+    ?> failwith "the authority's optional verdict signature stays an option"
 
 ///> rust
 test generates_cfdi_4_0 =

@@ -1,5 +1,5 @@
 param(
-    [string] $Document = (Join-Path $PSScriptRoot '..\samples\nfe_v4_example.xml'),
+    [string] $Document = (Join-Path $PSScriptRoot '..\samples\generated_nfe_v4_example.xml'),
     [string] $Schema = (Join-Path $PSScriptRoot '..\deps\corpus\DFe.NET\NFe.AppTeste\Schemas\nfe_v4.00.xsd'),
     [int] $Show = 12,
     [string[]] $Preload = @(),

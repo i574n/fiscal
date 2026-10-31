@@ -1,4 +1,4 @@
-///- --package . --timeout 5108672
+///- --package . --timeout 5109504
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -66757,16 +66757,29 @@ test generated_ubl_invoice_2_1_writes_its_example =
         match nodes with
         | n :: rest => xml_size n + xml_sizes rest
         | [] => 0i32
-    let rec size_drift (a : list xml.xml_node) (b : list xml.xml_node) : string =
-        match a, b with
-        | (x :: xs), (y :: ys) =>
-            if xml_size x = xml_size y then size_drift xs ys
+    let rec take_named (name : string) (nodes : list xml.xml_node) : option (xml.xml_node * list xml.xml_node) =
+        match nodes with
+        | n :: rest =>
+            if xml.node_name n = name then Some (n, rest)
             else
-                inl inner = size_drift (xml.element_children x) (xml.element_children y)
-                sm'.(++#) (xml.node_name x) (sm'.(++#) "/" inner)
-        | (x :: _), [] => sm'.(++#) (xml.node_name x) " dropped"
-        | [], (y :: _) => sm'.(++#) (xml.node_name y) " added"
-        | [], [] => "here"
+                match take_named name rest with
+                | Some (m, others) => Some (m, n :: others)
+                | None => None
+        | [] => None
+    let rec size_drift (a : list xml.xml_node) (b : list xml.xml_node) : string =
+        match a with
+        | x :: xs =>
+            match take_named (xml.node_name x) b with
+            | Some (y, others) =>
+                if xml_size x = xml_size y then size_drift xs others
+                else
+                    inl inner = size_drift (xml.element_children x) (xml.element_children y)
+                    sm'.(++#) (xml.node_name x) (sm'.(++#) "/" inner)
+            | None => sm'.(++#) (xml.node_name x) " dropped"
+        | [] =>
+            match b with
+            | y :: _ => sm'.(++#) (xml.node_name y) " added"
+            | [] => "here"
     inl check_json (path : string) : list string =
         inl text = file_system.read_all_text (sample_path (sm'.(++#) "../" path))
         match json_schema.ubl_json_document text with

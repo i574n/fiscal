@@ -863,7 +863,9 @@ let rec x_mensaje_receptor_of_children forall s.
             (fun c => xml.required_value "x_mensaje_receptor_numero_cedula_receptor" (x_mensaje_receptor_numero_cedula_receptor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NumeroCedulaReceptor" children)
         numero_consecutivo_receptor =
             (fun c => xml.required_value "x_mensaje_receptor_numero_consecutivo_receptor" (x_mensaje_receptor_numero_consecutivo_receptor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NumeroConsecutivoReceptor" children)
-        signature = listm.map (fun c => x_signature_type_of_xml c) (xml.children_named "ds:Signature" children)
+        signature =
+            staged_of witness fun () =>
+                listm.map (fun c => x_signature_type_of_xml c) (xml.children_named "ds:Signature" children)
     }
 
 and let x_mensaje_receptor_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_mensaje_receptor s =
@@ -1047,7 +1049,9 @@ and let x_mensaje_receptor_children forall s. (x : x_mensaje_receptor s) : list 
         [ xml.element "TotalFactura" [] (xml.text_children x.total_factura) ]
         [ text_node "NumeroCedulaReceptor" x.numero_cedula_receptor ]
         [ text_node "NumeroConsecutivoReceptor" x.numero_consecutivo_receptor ]
-        listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) x.signature
+        listm.concat (
+            staged_list (fun vs => listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) vs) x.signature
+        )
     ]
 
 and let x_mensaje_receptor_attributes forall s. (x : x_mensaje_receptor s) : list (string * string) = []
@@ -1264,7 +1268,7 @@ and let x_mensaje_receptor_example (k : i32) : x_mensaje_receptor unsigned =
         total_factura = x_mensaje_receptor_total_factura_example k
         numero_cedula_receptor = x_mensaje_receptor_numero_cedula_receptor_example k
         numero_consecutivo_receptor = x_mensaje_receptor_numero_consecutivo_receptor_example k
-        signature = [ x_signature_type_example (k + 0i32) ]
+        signature = Pending "an unsigned example"
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =

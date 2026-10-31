@@ -1,0 +1,121 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:! issued = ()
+:! authorized = ()
+:! rejected = ()
+:! cancelled = ()
+
+:| document s =
+    | Issued :: string -> document issued
+    | Authorized :: string * string -> document authorized
+    | Rejected :: string * string -> document rejected
+    | Cancelled :: string * string * string -> document cancelled
+
+:= key_of \* s. (doc : document s) : string =
+    ?= doc ?|
+    | Issued key => key
+    | Authorized (key, _) => key
+    | Rejected (key, _) => key
+    | Cancelled (key, _, _) => key
+
+:= authorize (doc : document issued) (protocol : string) : document authorized =
+    ?= doc ?|
+    | Issued key => Authorized (key, protocol)
+
+:= reject (doc : document issued) (reason : string) : document rejected =
+    ?= doc ?|
+    | Issued key => Rejected (key, reason)
+
+:= cancel (doc : document authorized) (event_protocol : string) : document cancelled =
+    ?= doc ?|
+    | Authorized (key, protocol) => Cancelled (key, protocol, event_protocol)
+
+:= authorization_protocol (doc : document cancelled) : string =
+    ?= doc ?|
+    | Cancelled (_, protocol, _) => protocol
+
+:| actor =
+    | Issuer
+    | Recipient
+    | Fisco
+    | LinkedDocument
+    | Export
+    | OtherAgency
+
+:= actor_of_event_code (code : i32) : option actor =
+    ?= code / 100000i32 ?|
+    | 1i32 => Some Issuer
+    | 2i32 => Some Recipient
+    | 4i32 => Some Fisco
+    | 6i32 => Some LinkedDocument
+    | 7i32 => Some Export
+    | 9i32 => Some OtherAgency
+    | _ => None
+
+:| recipient_event =
+    | Awareness
+    | Confirmation
+    | Disownment : string
+    | NonPerformance : string
+
+:= recipient_event_of_code (code : i32) (justification : string) : option recipient_event =
+    ?= code ?|
+    | 210210i32 => Some Awareness
+    | 210200i32 => Some Confirmation
+    | 210220i32 => Some (Disownment justification)
+    | 210240i32 => Some (NonPerformance justification)
+    | _ => None
+
+///> rust
+test event_codes_name_their_author =
+    := author (code : i32) : string =
+        ?= actor_of_event_code code ?|
+        | Some actor =>
+            ?= actor ?|
+            | Issuer => "issuer"
+            | Recipient => "recipient"
+            | Fisco => "fisco"
+            | LinkedDocument => "linked document"
+            | Export => "export"
+            | OtherAgency => "other agency"
+        | None => "none"
+    ? author 110111i32 <> "issuer" ?> failwith "110111 cancellation is the issuer's"
+    ? author 110110i32 <> "issuer" ?> failwith "110110 correction is the issuer's"
+    ? author 210200i32 <> "recipient" ?> failwith "210200 confirmation is the recipient's"
+    ? author 411500i32 <> "fisco" ?> failwith "411500 is the fisco's"
+    ? author 610130i32 <> "linked document" ?> failwith "610130 comes from a CT-e"
+    ? author 790700i32 <> "export" ?> failwith "790700 is an export endorsement"
+    ? author 990900i32 <> "other agency" ?> failwith "990900 is SUFRAMA's"
+    ? author 310000i32 <> "none" ?> failwith "no observed event starts with 3"
+
+///> rust
+test recipient_refusals_carry_their_justification =
+    := name (event : option recipient_event) : string =
+        ?= event ?|
+        | Some value =>
+            ?= value ?|
+            | Awareness => "awareness"
+            | Confirmation => "confirmation"
+            | Disownment reason => "disownment: " ++# reason
+            | NonPerformance reason => "non-performance: " ++# reason
+        | None => "none"
+    ? name (recipient_event_of_code 210220i32 "never ordered") <> "disownment: never ordered"
+    ?> failwith "210220 is a disownment that keeps its xJust"
+    ? name (recipient_event_of_code 210240i32 "goods refused") <> "non-performance: goods refused"
+    ?> failwith "210240 is a non-performance that keeps its xJust"
+    ? name (recipient_event_of_code 210210i32 "") <> "awareness" ?> failwith "210210 is awareness"
+    ? name (recipient_event_of_code 210200i32 "") <> "confirmation" ?> failwith "210200 is confirmation"
+    ? name (recipient_event_of_code 110111i32 "") <> "none" ?> failwith "110111 is not a recipient event"
+
+///> rust
+test a_cancellation_keeps_the_authorization_protocol =
+    := key = "35260112345678000195550010000000011000000019"
+    := closed = cancel (authorize (Issued key) "135260000000001") "135260000000002"
+    ? key_of closed <> key ?> failwith "the key survives every step"
+    ? authorization_protocol closed <> "135260000000001" ?> failwith "a cancellation quotes the authorization (nProt)"
+    ? key_of (reject (Issued "k") "duplicate") <> "k" ?> failwith "a rejection keeps the key"
+
+///> rust
+test cancelling_an_unauthorized_document_does_not_type fails "Unification failure" =
+    cancel (Issued "k") "p" |> ignore

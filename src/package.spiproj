@@ -7,3 +7,4 @@ modules:
     corpus
     corpus_checks
     generator
+    lifecycle

@@ -4635,7 +4635,9 @@ let rec x_factura_electronica_exportacion_of_children forall s.
                 (xml.children_named "InformacionReferencia" children)
         otros =
             optionm.map (fun c => x_factura_electronica_exportacion_otros_of_xml c) (xml.first_child "Otros" children)
-        signature = listm.map (fun c => x_signature_type_of_xml c) (xml.children_named "ds:Signature" children)
+        signature =
+            staged_of witness fun () =>
+                listm.map (fun c => x_signature_type_of_xml c) (xml.children_named "ds:Signature" children)
     }
 
 and let x_factura_electronica_exportacion_of_xml forall s.
@@ -5566,7 +5568,9 @@ and let x_factura_electronica_exportacion_children forall s. (x : x_factura_elec
             fun v => x_factura_electronica_exportacion_informacion_referencia_to_xml "InformacionReferencia" v
             x.informacion_referencia
         xml.option_list (optionm.map (fun v => x_factura_electronica_exportacion_otros_to_xml "Otros" v) x.otros)
-        listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) x.signature
+        listm.concat (
+            staged_list (fun vs => listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) vs) x.signature
+        )
     ]
 
 and let x_factura_electronica_exportacion_attributes forall s.
@@ -6867,7 +6871,7 @@ and let x_factura_electronica_exportacion_example (k : i32) : x_factura_electron
         resumen_factura = x_factura_electronica_exportacion_resumen_factura_example k
         informacion_referencia = []
         otros = None
-        signature = [ x_signature_type_example (k + 0i32) ]
+        signature = Pending "an unsigned example"
     }
 
 and let x_factura_electronica_exportacion_otros_example (k : i32) : x_factura_electronica_exportacion_otros =
