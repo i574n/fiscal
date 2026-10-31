@@ -1,0 +1,3053 @@
+///- --package . --timeout 2400000
+inl xsd_pattern_779c5194_11_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (47u32, 47u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_8845c4a4_9_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (80u32, 80u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    65u32,
+                    75u32,
+                    2i32,
+                    xsd_certificate.MovesNext (77u32, 90u32, 2i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_7960fa80_13_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    65u32,
+                    79u32,
+                    1i32,
+                    xsd_certificate.MovesNext (81u32, 90u32, 1i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_7c70bc5f_8_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (65u32, 90u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_f8ceadd2_6_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_f67586d5_14_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (65u32, 90u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 12i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_2c5aeaf4_5_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_f8d93b2e_6_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 12i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 14i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_f4cc68ef_6_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_1ab89d42_31_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (49u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (49u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_baf58987_9_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 9u32, 1i32, xsd_certificate.MovesNext (11u32, 12u32, 1i32,
+                    xsd_certificate.MovesNext (14u32, 1114111u32, 1i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 9u32, 1i32, xsd_certificate.MovesNext (11u32, 12u32, 1i32,
+                    xsd_certificate.MovesNext (14u32, 63u32, 1i32, xsd_certificate.MovesNext (64u32, 64u32, 2i32,
+                    xsd_certificate.MovesNext (65u32, 1114111u32, 1i32, xsd_certificate.MovesEnd)))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 9u32, 3i32, xsd_certificate.MovesNext (11u32, 12u32, 3i32,
+                    xsd_certificate.MovesNext (14u32, 63u32, 3i32, xsd_certificate.MovesNext (64u32, 64u32, 4i32,
+                    xsd_certificate.MovesNext (65u32, 1114111u32, 3i32, xsd_certificate.MovesEnd)))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 9u32, 3i32, xsd_certificate.MovesNext (11u32, 12u32, 3i32,
+                    xsd_certificate.MovesNext (14u32, 63u32, 3i32, xsd_certificate.MovesNext (64u32, 64u32, 4i32,
+                    xsd_certificate.MovesNext (65u32, 1114111u32, 3i32, xsd_certificate.MovesEnd)))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 9u32, 3i32, xsd_certificate.MovesNext (11u32, 12u32, 3i32,
+                    xsd_certificate.MovesNext (14u32, 63u32, 3i32, xsd_certificate.MovesNext (64u32, 64u32, 4i32,
+                    xsd_certificate.MovesNext (65u32, 1114111u32, 3i32, xsd_certificate.MovesEnd)))))
+            )
+        )
+    )
+    :: []
+
+inl xsd_pattern_d1fa11eb_25_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (45u32, 45u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (45u32, 45u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_92233e5e_37_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (65u32, 90u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    7i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 7i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    8i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 8i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    9i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 9i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    10i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 10i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    11i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 11i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_8fc29b70_37_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (49u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (49u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (45u32, 45u32, 12i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 14i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 15i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 16i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 17i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_3a7227c1_22_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 1i32, xsd_certificate.MovesNext (48u32, 57u32, 1i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 1i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 2i32, xsd_certificate.MovesNext (48u32, 57u32, 2i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 2i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 3i32, xsd_certificate.MovesNext (48u32, 57u32, 3i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 3i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 4i32, xsd_certificate.MovesNext (48u32, 57u32, 4i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 4i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 5i32, xsd_certificate.MovesNext (48u32, 57u32, 5i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 5i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 6i32, xsd_certificate.MovesNext (48u32, 57u32, 6i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 6i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 7i32, xsd_certificate.MovesNext (48u32, 57u32, 7i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 7i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 8i32, xsd_certificate.MovesNext (48u32, 57u32, 8i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 8i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 9i32, xsd_certificate.MovesNext (48u32, 57u32, 9i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 9i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 10i32, xsd_certificate.MovesNext (48u32, 57u32, 10i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 10i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 11i32, xsd_certificate.MovesNext (48u32, 57u32, 11i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 11i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (42u32, 43u32, 12i32, xsd_certificate.MovesNext (48u32, 57u32, 12i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 12i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_c733710a_31_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (45u32, 45u32, 1i32, xsd_certificate.MovesNext (48u32, 48u32, 2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (46u32, 46u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 12i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 14i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 15i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 16i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 17i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 18i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 19i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 20i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 21i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 22i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 23i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 24i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: []
+
+inl xsd_pattern_a87013e8_182_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (49u32, 57u32, 1i32, xsd_certificate.MovesNext (65u32, 76u32, 2i32,
+                    xsd_certificate.MovesNext (77u32, 77u32, 3i32, xsd_certificate.MovesNext (78u32, 90u32, 2i32,
+                    xsd_certificate.MovesEnd))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    4i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 5i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    7i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 6i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (49u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (65u32, 90u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 12i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 14i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 15i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (45u32, 45u32, 16i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    50u32,
+                    50u32,
+                    17i32,
+                    xsd_certificate.MovesNext (51u32, 57u32, 18i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    19i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 20i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 20i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (50u32, 57u32, 21i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 21i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 22i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    23i32,
+                    xsd_certificate.MovesNext (49u32, 49u32, 24i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (49u32, 57u32, 25i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 50u32, 25i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 48u32, 26i32, xsd_certificate.MovesNext (49u32, 50u32, 27i32,
+                    xsd_certificate.MovesNext (51u32, 51u32, 28i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (49u32, 57u32, 29i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 29i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 49u32, 29i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (45u32, 45u32, 30i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    31i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 31i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    32i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 32i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    33i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 33i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    34i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 34i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    35i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 35i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    36i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 36i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (45u32, 45u32, 37i32, xsd_certificate.MovesNext (48u32, 57u32, 38i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 38i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    38i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 38i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    39i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 39i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    40i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 40i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    41i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 41i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    42i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 42i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    43i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 43i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (45u32, 45u32, 44i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    45i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 45i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    46i32,
+                    xsd_certificate.MovesNext (65u32, 70u32, 46i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+inl xsd_pattern_9b36df8a_31_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (45u32, 45u32, 1i32, xsd_certificate.MovesNext (48u32, 48u32, 2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (46u32, 46u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 12i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 14i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 15i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 16i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 17i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 18i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 19i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 20i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 21i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 22i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 23i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 24i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: []
+
+inl xsd_pattern_6d75f55e_31_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (45u32, 45u32, 1i32, xsd_certificate.MovesNext (48u32, 48u32, 2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    48u32,
+                    2i32,
+                    xsd_certificate.MovesNext (49u32, 57u32, 3i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (46u32, 46u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 12i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 14i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 15i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 16i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 17i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 18i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 19i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 20i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    46u32,
+                    46u32,
+                    4i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: []
+
+inl xsd_pattern_097ab1a4_138_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (104u32, 104u32, 1i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (116u32, 116u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (116u32, 116u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (112u32, 112u32, 4i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    58u32,
+                    58u32,
+                    5i32,
+                    xsd_certificate.MovesNext (115u32, 115u32, 6i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (47u32, 47u32, 7i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (58u32, 58u32, 5i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (47u32, 47u32, 8i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesNext (65u32, 90u32, 9i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 9i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (45u32, 45u32, 9i32, xsd_certificate.MovesNext (46u32, 46u32, 10i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesNext (65u32, 90u32, 9i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 9i32, xsd_certificate.MovesEnd)))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesNext (65u32, 90u32, 11i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 11i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (45u32, 45u32, 9i32, xsd_certificate.MovesNext (46u32, 46u32, 10i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesNext (65u32, 90u32, 12i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 12i32, xsd_certificate.MovesEnd)))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (45u32, 45u32, 9i32, xsd_certificate.MovesNext (46u32, 46u32, 10i32,
+                    xsd_certificate.MovesNext (47u32, 47u32, 13i32, xsd_certificate.MovesNext (48u32, 57u32, 9i32,
+                    xsd_certificate.MovesNext (58u32, 58u32, 14i32, xsd_certificate.MovesNext (63u32, 63u32, 15i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 12i32, xsd_certificate.MovesNext (97u32, 122u32, 12i32,
+                    xsd_certificate.MovesEnd))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 13i32, xsd_certificate.MovesNext (11u32, 12u32, 13i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 13i32, xsd_certificate.MovesNext (33u32, 34u32, 13i32,
+                    xsd_certificate.MovesNext (36u32, 62u32, 13i32, xsd_certificate.MovesNext (63u32, 63u32, 15i32,
+                    xsd_certificate.MovesNext (64u32, 1114111u32, 13i32, xsd_certificate.MovesEnd)))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 16i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 15i32,
+                    xsd_certificate.MovesNext (39u32, 72u32, 17i32, xsd_certificate.MovesNext (73u32, 73u32, 18i32,
+                    xsd_certificate.MovesNext (74u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (47u32, 47u32, 13i32, xsd_certificate.MovesNext (48u32, 57u32, 19i32,
+                    xsd_certificate.MovesNext (63u32, 63u32, 15i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 79u32, 17i32, xsd_certificate.MovesNext (80u32, 80u32, 21i32,
+                    xsd_certificate.MovesNext (81u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (47u32, 47u32, 13i32, xsd_certificate.MovesNext (48u32, 57u32, 22i32,
+                    xsd_certificate.MovesNext (63u32, 63u32, 15i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 72u32, 17i32, xsd_certificate.MovesNext (73u32, 73u32, 18i32,
+                    xsd_certificate.MovesNext (74u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 74u32, 17i32, xsd_certificate.MovesNext (75u32, 75u32, 23i32,
+                    xsd_certificate.MovesNext (76u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (47u32, 47u32, 13i32, xsd_certificate.MovesNext (48u32, 57u32, 24i32,
+                    xsd_certificate.MovesNext (63u32, 63u32, 15i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 82u32, 17i32, xsd_certificate.MovesNext (83u32, 83u32, 25i32,
+                    xsd_certificate.MovesNext (84u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (47u32, 47u32, 13i32, xsd_certificate.MovesNext (48u32, 57u32, 26i32,
+                    xsd_certificate.MovesNext (63u32, 63u32, 15i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 100u32, 17i32,
+                    xsd_certificate.MovesNext (101u32, 101u32, 27i32,
+                    xsd_certificate.MovesNext (102u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    47u32,
+                    47u32,
+                    13i32,
+                    xsd_certificate.MovesNext (63u32, 63u32, 15i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 69u32, 17i32, xsd_certificate.MovesNext (70u32, 70u32, 28i32,
+                    xsd_certificate.MovesNext (71u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 60u32, 17i32, xsd_certificate.MovesNext (61u32, 61u32, 29i32,
+                    xsd_certificate.MovesNext (62u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 30i32,
+                    xsd_certificate.MovesNext (58u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 31i32,
+                    xsd_certificate.MovesNext (58u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 32i32,
+                    xsd_certificate.MovesNext (58u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 33i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 33i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 33i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 34i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 34i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 34i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 35i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 35i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 35i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 36i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 36i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 36i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 37i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 37i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 37i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 38i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 38i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 38i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 39i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 39i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 39i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 40i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 40i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 40i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 41i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 41i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 41i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (36u32, 37u32, 17i32, xsd_certificate.MovesNext (38u32, 38u32, 20i32,
+                    xsd_certificate.MovesNext (39u32, 47u32, 17i32, xsd_certificate.MovesNext (48u32, 57u32, 42i32,
+                    xsd_certificate.MovesNext (58u32, 64u32, 17i32, xsd_certificate.MovesNext (65u32, 90u32, 42i32,
+                    xsd_certificate.MovesNext (91u32, 96u32, 17i32, xsd_certificate.MovesNext (97u32, 122u32, 42i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 17i32, xsd_certificate.MovesEnd)))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 17i32, xsd_certificate.MovesNext (11u32, 12u32, 17i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 17i32, xsd_certificate.MovesNext (33u32, 34u32, 17i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 17i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32,
+                    xsd_certificate.MovesNext (39u32, 1114111u32, 17i32, xsd_certificate.MovesEnd))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 9u32, 43i32, xsd_certificate.MovesNext (11u32, 12u32, 43i32,
+                    xsd_certificate.MovesNext (14u32, 1114111u32, 43i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 72u32, 45i32,
+                    xsd_certificate.MovesNext (73u32, 73u32, 46i32,
+                    xsd_certificate.MovesNext (74u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32,
+                    xsd_certificate.MovesNext (39u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 79u32, 45i32,
+                    xsd_certificate.MovesNext (80u32, 80u32, 47i32,
+                    xsd_certificate.MovesNext (81u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 74u32, 45i32,
+                    xsd_certificate.MovesNext (75u32, 75u32, 48i32,
+                    xsd_certificate.MovesNext (76u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 82u32, 45i32,
+                    xsd_certificate.MovesNext (83u32, 83u32, 49i32,
+                    xsd_certificate.MovesNext (84u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 100u32, 45i32,
+                    xsd_certificate.MovesNext (101u32, 101u32, 50i32,
+                    xsd_certificate.MovesNext (102u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 69u32, 45i32,
+                    xsd_certificate.MovesNext (70u32, 70u32, 51i32,
+                    xsd_certificate.MovesNext (71u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 60u32, 45i32,
+                    xsd_certificate.MovesNext (61u32, 61u32, 52i32,
+                    xsd_certificate.MovesNext (62u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 53i32,
+                    xsd_certificate.MovesNext (58u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 54i32,
+                    xsd_certificate.MovesNext (58u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 55i32,
+                    xsd_certificate.MovesNext (58u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 56i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 56i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 56i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 57i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 57i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 57i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 58i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 58i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 58i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 59i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 59i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 59i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 60i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 60i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 60i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 61i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 61i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 61i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 62i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 62i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 62i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 63i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 63i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 63i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 64i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 64i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 64i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32, xsd_certificate.MovesNext (39u32, 47u32, 45i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 65i32, xsd_certificate.MovesNext (58u32, 64u32, 45i32,
+                    xsd_certificate.MovesNext (65u32, 90u32, 65i32, xsd_certificate.MovesNext (91u32, 96u32, 45i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 65i32,
+                    xsd_certificate.MovesNext (123u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))))))))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        true,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (0u32, 8u32, 45i32, xsd_certificate.MovesNext (11u32, 12u32, 45i32,
+                    xsd_certificate.MovesNext (14u32, 31u32, 45i32, xsd_certificate.MovesNext (33u32, 34u32, 45i32,
+                    xsd_certificate.MovesNext (35u32, 35u32, 43i32, xsd_certificate.MovesNext (36u32, 37u32, 45i32,
+                    xsd_certificate.MovesNext (38u32, 38u32, 44i32,
+                    xsd_certificate.MovesNext (39u32, 1114111u32, 45i32, xsd_certificate.MovesEnd))))))))
+            )
+        )
+    )
+    :: []
+
+inl xsd_pattern_c7402eff_23_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 2i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (xsd_certificate.MovesNext (48u32, 57u32, 3i32, xsd_certificate.MovesEnd))
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 4i32, xsd_certificate.MovesNext (65u32, 90u32, 4i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 4i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 5i32, xsd_certificate.MovesNext (65u32, 90u32, 5i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 5i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 6i32, xsd_certificate.MovesNext (65u32, 90u32, 6i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 6i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 7i32, xsd_certificate.MovesNext (65u32, 90u32, 7i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 7i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 8i32, xsd_certificate.MovesNext (65u32, 90u32, 8i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 8i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 9i32, xsd_certificate.MovesNext (65u32, 90u32, 9i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 9i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 10i32, xsd_certificate.MovesNext (65u32, 90u32, 10i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 10i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 11i32, xsd_certificate.MovesNext (65u32, 90u32, 11i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 11i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 12i32, xsd_certificate.MovesNext (65u32, 90u32, 12i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 12i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (48u32, 57u32, 13i32, xsd_certificate.MovesNext (65u32, 90u32, 13i32,
+                    xsd_certificate.MovesNext (97u32, 122u32, 13i32, xsd_certificate.MovesEnd)))
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+
+inl certificates_checked () : i32 =
+    0i32
+    + xsd_certificate.certified_table (xsd_pattern_779c5194_11_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_8845c4a4_9_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_7960fa80_13_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_7c70bc5f_8_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_f8ceadd2_6_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_f67586d5_14_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_2c5aeaf4_5_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_f8d93b2e_6_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_f4cc68ef_6_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_1ab89d42_31_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_baf58987_9_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_d1fa11eb_25_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_92233e5e_37_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_8fc29b70_37_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_3a7227c1_22_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_c733710a_31_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_a87013e8_182_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_9b36df8a_31_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_6d75f55e_31_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_097ab1a4_138_certificate ())
+    + xsd_certificate.certified_table (xsd_pattern_c7402eff_23_certificate ())
+
+///> rust
+test generated_ksef_fa_3_certificates_hold =
+    certificates_checked () |> ignore

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ApplicationResponse xmlns="urn:oasis:names:specification:ubl:schema:xsd:ApplicationResponse-2"
+		xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+		xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+		xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+		xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+		xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1"
+		xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"
+		xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:ApplicationResponse-2 http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/maindoc/UBL-ApplicationResponse-2.1.xsd">
+<ext:UBLExtensions>
+		<ext:UBLExtension>
+			<ext:ExtensionContent>
+				<sts:DianExtensions>
+					<sts:InvoiceSource>
+						<cbc:IdentificationCode listAgencyID="6" listAgencyName="United Nations Economic Commission for Europe" listSchemeURI="urn:oasis:names:specification:ubl:codelist:gc:CountryIdentificationCode-2.1">CO</cbc:IdentificationCode>
+					</sts:InvoiceSource>
+					<sts:SoftwareProvider>
+						<sts:ProviderID schemeID="9" schemeName="31" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">900373979</sts:ProviderID>
+						<sts:SoftwareID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">fa326ca7-c1f8-40d3-a6fc-24d7c1040607</sts:SoftwareID>
+					</sts:SoftwareProvider>
+					<sts:SoftwareSecurityCode schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">55dfb0384c1d47d41568fbf9b5a5b92151b13490ea4d6cfc45d6b6b4256b81cd1987b188daa53d5f7211fd758eaa4a14</sts:SoftwareSecurityCode>
+					<sts:AuthorizationProvider>
+						<sts:AuthorizationProviderID schemeID="4" schemeName="31" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">800197268</sts:AuthorizationProviderID>
+					</sts:AuthorizationProvider>
+					<sts:QRCode>
+					https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=f2a09fc9a83fbc7b2a14e4adc89ef5917c96f375a3d102ce4e2d20d5cf64e1ca6ff8a618e3c14bb43a783a1595e8fc09
+					</sts:QRCode>
+				</sts:DianExtensions>
+			</ext:ExtensionContent>
+		</ext:UBLExtension>
+	</ext:UBLExtensions>
+	<cbc:UBLVersionID>UBL 2.1</cbc:UBLVersionID>
+	<cbc:CustomizationID>1</cbc:CustomizationID>
+	<cbc:ProfileID>DIAN 2.1: ApplicationResponse de la Factura Electrónica de Venta</cbc:ProfileID>			   
+	<cbc:ProfileExecutionID>2</cbc:ProfileExecutionID>
+	<cbc:ID>ACR0021</cbc:ID>
+	<cbc:UUID schemeID="2" schemeName="CUDE-SHA384">38e5e41cb74e974e9b1e5b51a5fdaa767cfeb0df033e354d651b2738dd625957ac4c639450bcbb9f63e0ae944b4b33be</cbc:UUID>
+	<cbc:IssueDate>2020-12-12</cbc:IssueDate>
+	<cbc:IssueTime>18:30:37-05:00</cbc:IssueTime>
+	<cbc:Note>ACR00212020-12-1218:30:37-05:00900373987900373981030SETG9800003580120191</cbc:Note>
+	<cbc:Note>fa326ca7-c1f8-40d3-a6fc-24d7c104060720191ACR0021</cbc:Note>	
+	<cac:SenderParty>
+		<cac:PartyTaxScheme>
+			<cbc:RegistrationName>Pruebas</cbc:RegistrationName>
+			<cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="9" schemeName="31" schemeVersionID="1" >900373979</cbc:CompanyID>
+			<cac:TaxScheme>						                 
+				<cbc:ID>01</cbc:ID>
+				<cbc:Name>IVA</cbc:Name>
+			</cac:TaxScheme>
+		</cac:PartyTaxScheme>
+	</cac:SenderParty>
+	<cac:ReceiverParty>
+		<cac:PartyTaxScheme>
+			<cbc:RegistrationName>FACTURA ELECTRONICA USUARIO PRUEBAS MIGRACION</cbc:RegistrationName>
+			<cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="5" schemeName="31" schemeVersionID="1" >900373972</cbc:CompanyID>
+			<cac:TaxScheme>
+				<cbc:ID>01</cbc:ID>
+				<cbc:Name>IVA</cbc:Name>
+			</cac:TaxScheme>
+		</cac:PartyTaxScheme>
+	</cac:ReceiverParty>
+	<cac:DocumentResponse>
+		<cac:Response>
+			<cbc:ResponseCode>030</cbc:ResponseCode>
+			<cbc:Description>Acuse de recibo de Factura Electrónica de Venta</cbc:Description>
+		</cac:Response>
+		<cac:DocumentReference>
+			<cbc:ID>SETG980000358</cbc:ID>
+			<cbc:UUID schemeName="CUFE-SHA384">f2a09fc9a83fbc7b2a14e4adc89ef5917c96f375a3d102ce4e2d20d5cf64e1ca6ff8a618e3c14bb43a783a1595e8fc09</cbc:UUID>
+			<cbc:DocumentTypeCode>01</cbc:DocumentTypeCode>
+		</cac:DocumentReference>
+		<cac:IssuerParty>
+			<cac:Person>
+				<cbc:ID schemeID="4" schemeName="13" >2589846132</cbc:ID>
+				<cbc:FirstName>solo</cbc:FirstName>
+				<cbc:FamilyName>Pruebas </cbc:FamilyName>
+				<cbc:JobTitle>Revisor Fiscal </cbc:JobTitle>
+				<cbc:OrganizationDepartment>Juridica</cbc:OrganizationDepartment>
+			</cac:Person>
+		</cac:IssuerParty>
+	</cac:DocumentResponse>
+</ApplicationResponse>
+

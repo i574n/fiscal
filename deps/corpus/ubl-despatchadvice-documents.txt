@@ -1,0 +1,5 @@
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IDIS_Irsaliye.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/Irsaliye-Matbudan.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/Irsaliye-Ornek1.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/Irsaliye-Ornek2.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/Irsaliye-Ornek3.xml

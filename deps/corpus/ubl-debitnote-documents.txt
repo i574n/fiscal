@@ -1,0 +1,18 @@
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/DebitNote impuestos salidables.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/DebitNote.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion nota debito sin referencia a factura.xml
+pe/sunat-homologacion/Group1Test/notaDeDebitoDeFactura2.xml
+pe/sunat-homologacion/Group1Test/notaDeDebitoDeFactura3.xml
+pe/sunat-homologacion/Group1Test/notaDeDebitoDeFactura4.xml
+pe/sunat-homologacion/Group2ExoneradoTest/notaDeDebitoDeFactura1.xml
+pe/sunat-homologacion/Group2ExoneradoTest/notaDeDebitoDeFactura3.xml
+pe/sunat-homologacion/Group2ExoneradoTest/notaDeDebitoDeFactura5.xml
+pe/sunat-homologacion/Group2InafectoTest/notaDeDebitoDeFactura1.xml
+pe/sunat-homologacion/Group2InafectoTest/notaDeDebitoDeFactura3.xml
+pe/sunat-homologacion/Group2InafectoTest/notaDeDebitoDeFactura5.xml
+pe/sunat-homologacion/Group4Test/notaDeDebitoDeFactura2.xml
+pe/sunat-homologacion/Group4Test/notaDeDebitoDeFactura3.xml
+pe/sunat-homologacion/Group4Test/notaDeDebitoDeFactura5.xml
+pe/sunat-homologacion/Group5Test/notaDeDebitoDeFactura2.xml
+pe/sunat-homologacion/Group6Test/notaDeDebitoDeFactura1.xml
+pe/sunat-homologacion/Group7Test/notaDeDebitoDeFactura2.xml

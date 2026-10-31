@@ -1,0 +1,4 @@
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek1.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek2.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek3.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek4.xml

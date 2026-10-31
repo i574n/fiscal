@@ -1,0 +1,30 @@
+hu/nav-samples/Belfoldi devizas szamla.xml
+hu/nav-samples/Belfoldi devizas vegszamla tobb eloleg tetel.xml
+hu/nav-samples/Belfoldi egyszerusitett szamla.xml
+hu/nav-samples/Belfoldi elolegszamla egysegar nelkul .xml
+hu/nav-samples/Belfoldi elolegszamla.xml
+hu/nav-samples/Belfoldi ertekesites tobb AFA tipus.xml
+hu/nav-samples/Belfoldi termekertekesites AFA csoportok kozott.xml
+hu/nav-samples/Belfoldi termekertekesites maganszemelynek.xml
+hu/nav-samples/Belfoldi termekertekesites tetelbol adott engedmennyel.xml
+hu/nav-samples/Belfoldi termekertekesites.xml
+hu/nav-samples/Belfoldi vegszamla.xml
+hu/nav-samples/Eredeti szamla modositasokhoz.xml
+hu/nav-samples/Gyujtoszamla 1.xml
+hu/nav-samples/Gyujtoszamla 2.xml
+hu/nav-samples/Harmadik orszagbeli devizas szamla.xml
+hu/nav-samples/Modositas es ervenytelenites 1.xml
+hu/nav-samples/Modositas es ervenytelenites 2.xml
+hu/nav-samples/Tagorszagi devizas szamla.xml
+hu/nav-samples/Termekdijas szamla.xml
+hu/nav-samples/Teteladatok modositasa.xml
+hu/nav-samples/Teves termek helyesbitese 20.xml
+hu/nav-samples/Teves termek helyesbitese 21.xml
+hu/nav-samples/Teves termek helyesbitese.xml
+hu/nav-samples/Tobb szamla modositasa egy okirattal alap 1.xml
+hu/nav-samples/Tobb szamla modositasa egy okirattal alap 2.xml
+hu/nav-samples/Tobb szamla modositasa egy okirattal alap 3.xml
+hu/nav-samples/Tobb szamla modositasa egy okirattal.xml
+hu/nav-samples/Tobbszoros modositas 1.xml
+hu/nav-samples/Tobbszoros modositas 2.xml
+hu/nav-samples/Uj kozlekedesi eszkoz export.xml

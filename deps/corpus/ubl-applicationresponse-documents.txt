@@ -1,0 +1,14 @@
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Eventos RADIAN/030 - Acuse_ReciboFEV.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Eventos RADIAN/031 - Reclamo de la factura Electronica de Venta.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Eventos RADIAN/032 - Recibo_B&S.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Eventos RADIAN/033 - Aceptacion Expresa.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Eventos RADIAN/034 - Aceptacion_Tacita_FEV.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/1_SISTEM_YANITI_GTB_POSTA_KUTUSU.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/2_UYGULAMA_YANITI_KABUL.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/3_UYGULAMA_YANITI_RED.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IadeUygulamaYanitiOrnegi.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IHRACAT_GTB_UygulamaYaniti_KABUL.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IHRACAT_GTB_UygulamaYaniti_RED.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/KabulUygulamaYanitiOrnegi.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/RedUygulamaYanitiOrnegi.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YOLCUBERABER_UygulamaYaniti.xml

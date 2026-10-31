@@ -1,0 +1,41 @@
+///- --package . --timeout 2400000
+inl xsd_pattern_68c18fd1_16_certificate () =
+    xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (exists (xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)))
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    45u32,
+                    45u32,
+                    2i32,
+                    xsd_certificate.MovesNext (48u32, 57u32, 1i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (
+        false,
+        xsd_certificate.PackedMoves (
+            exists (
+                xsd_certificate.MovesNext (
+                    48u32,
+                    57u32,
+                    3i32,
+                    xsd_certificate.MovesNext (75u32, 75u32, 3i32, xsd_certificate.MovesEnd)
+                )
+            )
+        )
+    )
+    :: xsd_certificate.CertifiedRow (true, xsd_certificate.PackedMoves (exists (xsd_certificate.MovesEnd)))
+    :: []
+
+
+inl certificates_checked () : i32 = 0i32 + xsd_certificate.certified_table (xsd_pattern_68c18fd1_16_certificate ())
+
+///> rust
+test generated_cl_dte_v10_certificates_hold =
+    certificates_checked () |> ignore

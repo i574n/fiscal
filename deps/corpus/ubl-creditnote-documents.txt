@@ -1,0 +1,21 @@
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/CreditNote impuestos salidables.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/CreditNote.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion nota credito sin referencia a factura.xml
+eu/en16931/examples/ubl-tc434-creditnote1.xml
+eu/peppol-bis3/examples/base-creditnote-correction.xml
+pe/sunat-homologacion/Group1Test/notaDeCreditoDeFactura2.xml
+pe/sunat-homologacion/Group1Test/notaDeCreditoDeFactura3.xml
+pe/sunat-homologacion/Group1Test/notaDeCreditoDeFactura4.xml
+pe/sunat-homologacion/Group2ExoneradoTest/notaDeCreditoDeFactura1.xml
+pe/sunat-homologacion/Group2ExoneradoTest/notaDeCreditoDeFactura3.xml
+pe/sunat-homologacion/Group2ExoneradoTest/notaDeCreditoDeFactura5.xml
+pe/sunat-homologacion/Group2InafectoTest/notaDeCreditoDeFactura1.xml
+pe/sunat-homologacion/Group2InafectoTest/notaDeCreditoDeFactura3.xml
+pe/sunat-homologacion/Group2InafectoTest/notaDeCreditoDeFactura5.xml
+pe/sunat-homologacion/Group4Test/notaDeCreditoDeFactura2.xml
+pe/sunat-homologacion/Group4Test/notaDeCreditoDeFactura3.xml
+pe/sunat-homologacion/Group4Test/notaDeCreditoDeFactura5.xml
+pe/sunat-homologacion/Group5Test/notaDeCreditoDeFactura1.xml
+pe/sunat-homologacion/Group6Test/notaDeCreditoDeFactura1.xml
+pe/sunat-homologacion/Group7Test/notaDeCreditoDeFactura1.xml
+ro/cius/examples/exemple_Invoice_CreditNote/creditNote_ex.xml

@@ -1,0 +1,51 @@
+///- --package . --timeout 1200000
+
+:== corpus_totals =
+    {
+        files : i32
+        element : i32
+        complex_type : i32
+        simple_type : i32
+        enumeration : i32
+        pattern : i32
+    }
+
+:= add_file (totals : corpus_totals) (nodes : list xml.xml_node) : corpus_totals =
+    {
+        files = totals.files + 1i32
+        element = totals.element + xml.count_named "element" nodes
+        complex_type = totals.complex_type + xml.count_named "complexType" nodes
+        simple_type = totals.simple_type + xml.count_named "simpleType" nodes
+        enumeration = totals.enumeration + xml.count_named "enumeration" nodes
+        pattern = totals.pattern + xml.count_named "pattern" nodes
+    }
+
+:~ ^ manifest_paths (lines : list string) (acc : list string) : list string =
+    ?= lines ?|
+    | line :: rest =>
+        := path = sm'.trim line
+        manifest_paths rest (? path = "" ?> acc |: path :: acc)
+    | [] => listm.rev acc
+
+:= manifest_files () : list string =
+    := manifest = file_system.read_all_text (fiscal_paths.under "src/corpus.txt")
+    manifest_paths (xsd_regex.lines_of manifest 0i32 []) []
+
+:~ ^ read_corpus (paths : list string) (totals : corpus_totals) : corpus_totals =
+    ?= paths ?|
+    | path :: rest =>
+        := nodes = xml.read_text_replacing_invalid_utf8 (fiscal_paths.under path) |> xml.read_xml
+        read_corpus rest (add_file totals nodes)
+    | [] => totals
+
+///> rust
+test reads_the_whole_sefaz_corpus_like_dotnet =
+    := empty =
+        { files = 0i32; element = 0i32; complex_type = 0i32; simple_type = 0i32; enumeration = 0i32; pattern = 0i32 }
+    := totals = read_corpus (manifest_files ()) empty
+    ? totals.files <> 580i32 ?> failwith "580 files"
+    ? totals.element <> 12077i32 ?> failwith "12077 elements"
+    ? totals.complex_type <> 2238i32 ?> failwith "2238 complexTypes"
+    ? totals.simple_type <> 5389i32 ?> failwith "5389 simpleTypes"
+    ? totals.enumeration <> 11360i32 ?> failwith "11360 enumerations"
+    ? totals.pattern <> 2055i32 ?> failwith "2055 patterns"

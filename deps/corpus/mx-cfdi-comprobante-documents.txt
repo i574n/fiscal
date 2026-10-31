@@ -1,0 +1,1 @@
+mx/stamped/cfdiutils-cfdi40-valid.xml
