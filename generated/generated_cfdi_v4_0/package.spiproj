@@ -1,0 +1,8 @@
+packageDir: ../../deps/spiral/lib
+packages:
+    |core-
+    spiral-
+    ../generated_cfdi_tfd_1_1-
+    ../generated_cfdi_pagos_2_0-
+modules:
+    generated_cfdi_v4_0

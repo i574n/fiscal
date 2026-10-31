@@ -5,7 +5,7 @@
 /notebooks/
 /dist/
 /samples/
-/generated/
+*.tsv
 /src/pattern_expected.txt
 /src/patterns.txt
 /src/pattern_probes.txt

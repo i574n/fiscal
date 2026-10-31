@@ -25,18 +25,18 @@
     | line :: rest =>
         := path = sm'.trim line
         manifest_paths rest (? path = "" ?> acc |: path :: acc)
-    | Nil => listm.rev acc
+    | [] => listm.rev acc
 
 := manifest_files () : list string =
     := manifest = file_system.read_all_text (fiscal_paths.under "src/corpus.txt")
-    manifest_paths (xsd_regex.lines_of manifest 0i32 Nil) Nil
+    manifest_paths (xsd_regex.lines_of manifest 0i32 []) []
 
 :~ ^ read_corpus (paths : list string) (totals : corpus_totals) : corpus_totals =
     ?= paths ?|
     | path :: rest =>
         := nodes = xml.read_text_replacing_invalid_utf8 (fiscal_paths.under path) |> xml.read_xml
         read_corpus rest (add_file totals nodes)
-    | Nil => totals
+    | [] => totals
 
 ///> rust
 test reads_the_whole_sefaz_corpus_like_dotnet =

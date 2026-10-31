@@ -573,6 +573,15 @@ if (-not (Test-Path $peppol)) {
     }
     "deps/corpus/eu/peppol-bis3: BIS Billing 3.0.20 rules (2 schematron) and 8 official examples"
 }
+$peppolStructure = Join-Path $deps 'corpus/eu/peppol-bis3/structure'
+if (-not (Test-Path $peppolStructure)) {
+    $filling = $peppolStructure
+    New-Item -ItemType Directory -Force $peppolStructure | Out-Null
+    foreach ($file in 'ubl-invoice', 'ubl-creditnote') {
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/OpenPeppol/peppol-bis-invoice-3/v3.0.20/structure/syntax/$file.xml" -OutFile (Join-Path $peppolStructure "$file.xml") -TimeoutSec 120 -UseBasicParsing
+    }
+    "deps/corpus/eu/peppol-bis3/structure: BIS Billing 3.0.20 syntax bindings (UBL element -> EN 16931 BT/BG term, per document)"
+}
 $ubl = Join-Path $deps 'corpus/eu/ubl21'
 if (-not (Test-Path $ubl)) {
     $filling = $ubl
@@ -678,6 +687,21 @@ if (-not (Test-Path $cfdiComplements)) {
     $filling = $null
     "deps/corpus/mx/complements: SAT TimbreFiscalDigital 1.1 and Pagos 2.0 (for typed CFDI complements)"
 }
+$catPagos = Join-Path $cfdiComplements 'catPagos.xsd'
+if (-not (Test-Path $catPagos)) {
+    $filling = $catPagos
+    Save-Pinned 'http://www.sat.gob.mx/sitio_internet/cfd/catalogos/Pagos/catPagos.xsd' $catPagos '72DBAA6E3D6518AC'
+    $filling = $null
+    "deps/corpus/mx/complements: SAT catPagos.xsd (Pagos 2.0 imports it)"
+}
+$cfdiStamped = Join-Path $deps 'corpus/mx/stamped'
+if (-not (Test-Path $cfdiStamped)) {
+    $filling = $cfdiStamped
+    New-Item -ItemType Directory -Force $cfdiStamped | Out-Null
+    Save-Pinned 'https://raw.githubusercontent.com/eclipxe13/CfdiUtils/f2a03dc254348a8fb9e50374ecdbe49e7dd43f9b/tests/assets/cfdi40-valid.xml' (Join-Path $cfdiStamped 'cfdiutils-cfdi40-valid.xml') '66056C12F2FC9DB3'
+    $filling = $null
+    "deps/corpus/mx/stamped: CfdiUtils CFDI 4.0 fixture issued by SAT's test taxpayer EKU9003173C9 with a TimbreFiscalDigital 1.1 stamp"
+}
 $ublKinds = 'Invoice', 'CreditNote', 'DebitNote', 'ApplicationResponse', 'DespatchAdvice', 'ReceiptAdvice'
 foreach ($kind in $ublKinds) {
     $maindoc = Join-Path $ubl "maindoc/UBL-$kind-2.1.xsd"
@@ -694,14 +718,25 @@ foreach ($file in Get-ChildItem $corpusRoot -Recurse -Filter *.xml) {
     $root = try { ([xml][IO.File]::ReadAllText($file.FullName)).DocumentElement } catch { $null }
     if ($root) { $roots[$file.FullName.Substring($corpusRoot.Length + 1).Replace('\', '/')] = "{$($root.NamespaceURI)}$($root.LocalName)" }
 }
+$jsonRoots = @{}
+foreach ($file in Get-ChildItem $corpusRoot -Recurse -Filter *.json) {
+    $text = [IO.File]::ReadAllText($file.FullName)
+    if ($text -notmatch '"_D"\s*:') { continue }
+    $parsed = try { $text | ConvertFrom-Json } catch { $null }
+    $elements = @(if ($parsed) { $parsed.PSObject.Properties.Name | Where-Object { $_ -notmatch '^_' } })
+    if ($elements.Count -eq 1) { $jsonRoots[$file.FullName.Substring($corpusRoot.Length + 1).Replace('\', '/')] = "{$($parsed._D)}$($elements[0])" }
+}
 foreach ($kind in $ublKinds) {
     $wanted = "{urn:oasis:names:specification:ubl:schema:xsd:$kind-2}$kind"
     $documents = @($roots.Keys | Where-Object { $roots[$_] -eq $wanted } | Sort-Object)
     [IO.File]::WriteAllText((Join-Path $corpusRoot "ubl-$($kind.ToLowerInvariant())-documents.txt"), ($documents -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
+    $jsonDocuments = @($jsonRoots.Keys | Where-Object { $jsonRoots[$_] -eq $wanted } | Sort-Object)
+    [IO.File]::WriteAllText((Join-Path $corpusRoot "ubl-$($kind.ToLowerInvariant())-json-documents.txt"), ($jsonDocuments -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
 }
 $manifests = [ordered]@{
     'hu-nav-invoicedata' = '{http://schemas.nav.gov.hu/OSA/3.0/data}InvoiceData'
     'gr-mydata-invoicesdoc' = '{http://www.aade.gr/myDATA/invoice/v1.0}InvoicesDoc'
+    'mx-cfdi-comprobante' = '{http://www.sat.gob.mx/cfd/4}Comprobante'
 }
 foreach ($manifest in $manifests.Keys) {
     $documents = @($roots.Keys | Where-Object { $roots[$_] -eq $manifests[$manifest] } | Sort-Object)

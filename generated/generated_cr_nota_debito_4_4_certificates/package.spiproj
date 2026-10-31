@@ -1,0 +1,6 @@
+packageDir: ../../deps/spiral/lib
+packages:
+    |core-
+    spiral-
+modules:
+    generated_cr_nota_debito_4_4_certificates

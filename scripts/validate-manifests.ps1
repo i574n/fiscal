@@ -14,6 +14,7 @@ $referees = [ordered]@{
     'ubl-receiptadvice' = @{ Schema = "$ubl/maindoc/UBL-ReceiptAdvice-2.1.xsd"; Preload = @($ublSignature); Resolve = $true }
     'hu-nav-invoicedata' = @{ Schema = "$hu/invoiceData.xsd"; Preload = @("$hu/common.xsd", "$hu/invoiceBase.xsd"); Resolve = $false }
     'gr-mydata-invoicesdoc' = @{ Schema = "$corpus/gr/mydata/InvoicesDoc-v2.0.2.xsd"; Preload = @(); Resolve = $false }
+    'mx-cfdi-comprobante' = @{ Schema = "$corpus/mx/cfdi/cfdv40.xsd"; Preload = @("$corpus/mx/complements/TimbreFiscalDigitalv11.xsd"); Resolve = $true }
 }
 $rows = foreach ($name in $referees.Keys) {
     $manifest = Join-Path $corpus "$name-documents.txt"

@@ -1,0 +1,6 @@
+packageDir: ../../deps/spiral/lib
+packages:
+    |core-
+    spiral-
+modules:
+    generated_cr_tiquete_4_4_certificates

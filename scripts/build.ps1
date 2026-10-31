@@ -88,6 +88,16 @@ function Invoke-TestFile([IO.FileInfo] $Source) {
 
 & (Join-Path $PSScriptRoot 'pattern-oracle.ps1') -Write | ForEach-Object { Write-Output "build.ps1 / pattern oracle / $_" }
 foreach ($source in @(Select-TestFiles { $_.BaseName -eq 'generator' })) { Invoke-TestFile $source }
+$formatting = @(& (Join-Path $PSScriptRoot 'format-generated.ps1') -Compiler $spiral.Compiler -Dotnet $spiral.Dotnet -Root $root)
+$formatting | ForEach-Object { Write-Output "build.ps1 / $_" }
+if ($LASTEXITCODE) { $problems.Add("format: $(@($formatting | Where-Object { $_ -match ' / failed ' }).Count) generated units did not format") }
+if (-not $Files) {
+    $drift = @(git -C $root -c core.quotepath=off status --porcelain --untracked-files=all -- generated)
+    if ($LASTEXITCODE) { throw "build.ps1 / git status failed on generated (exit code $LASTEXITCODE)" }
+    $drift | Select-Object -First 20 | ForEach-Object { Write-Output "build.ps1 / generated drift / $_" }
+    if ($drift) { $problems.Add("generated: $($drift.Count) files differ from the committed copy; commit the regenerated generated/") }
+    else { Write-Output 'build.ps1 / generated / matches the committed copy' }
+}
 foreach ($source in @(Select-TestFiles { $_.BaseName -ne 'generator' })) { Invoke-TestFile $source }
 
 if (!$Files -or $Files -contains 'examples') {

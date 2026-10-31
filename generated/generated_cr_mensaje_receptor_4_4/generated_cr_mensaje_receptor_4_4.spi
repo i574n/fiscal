@@ -1,0 +1,1414 @@
+///- --package . --timeout 2400000
+prototype to_text t : t -> string
+
+inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
+    xml.element name [] (xml.text_children (to_text v))
+
+inl optional_text_nodes forall t {to_text}. (name : string) (v : option t) : list xml.xml_node =
+    xml.option_list (optionm.map (text_node name) v)
+
+inl repeated_text_nodes forall t {to_text}. (name : string) (vs : list t) : list xml.xml_node =
+    listm.map (text_node name) vs
+
+nominal unsigned = ()
+nominal signed = ()
+
+union staged s a =
+    | Pending :: forall a. string -> staged unsigned a
+    | Present :: forall a. a -> staged signed a
+
+union stage s =
+    | Unsigned :: stage unsigned
+    | Signed :: stage signed
+
+inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
+    match witness with
+    | Unsigned => Pending "unsigned"
+    | Signed => Present (read ())
+
+inl signed_value forall a. (x : staged signed a) : a =
+    match x with
+    | Present v => v
+
+inl staged_list forall s a b. (f : a -> b) (x : staged s a) : list b =
+    match x with
+    | Pending _ => []
+    | Present v => [ f v ]
+
+union x_t_transform_uri =
+    | TTransformURI_enveloped_signature
+    | TTransformURI_REC_xml_c14n_20010315
+
+inl x_t_transform_uri_of_string (s : string) : option x_t_transform_uri =
+    inl s = xml.collapsed_space s
+    match s with
+    | "http://www.w3.org/2000/09/xmldsig#enveloped-signature" => Some TTransformURI_enveloped_signature
+    | "http://www.w3.org/TR/2001/REC-xml-c14n-20010315" => Some TTransformURI_REC_xml_c14n_20010315
+    | _ => None
+
+inl x_t_transform_uri_to_string (x : x_t_transform_uri) : string =
+    match x with
+    | TTransformURI_enveloped_signature => "http://www.w3.org/2000/09/xmldsig#enveloped-signature"
+    | TTransformURI_REC_xml_c14n_20010315 => "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+
+instance to_text x_t_transform_uri = fun x => x_t_transform_uri_to_string x
+
+inl x_t_transform_uri_example (k : i32) : x_t_transform_uri =
+    inl index = ((k % 2i32) + 2i32) % 2i32
+    if index = 0i32 then TTransformURI_enveloped_signature
+    else TTransformURI_REC_xml_c14n_20010315
+
+inl x_t_transform_uri_example_text (k : i32) : string = x_t_transform_uri_to_string (x_t_transform_uri_example k)
+
+type x_digest_value_type = string
+
+inl x_digest_value_type_is_valid (s : string) : bool = true
+
+inl x_digest_value_type_example (_ : i32) : string = "AAAA"
+
+inl x_digest_value_type_example_text (k : i32) : string = x_digest_value_type_example k
+
+type x_decimal_dinero_type = string
+
+inl x_decimal_dinero_type_is_valid (s : string) : bool = true
+
+inl x_decimal_dinero_type_example (_ : i32) : string = "1"
+
+inl x_decimal_dinero_type_example_text (k : i32) : string = x_decimal_dinero_type_example k
+
+type x_x509_data_type =
+    {
+        x509_certificate : string
+    }
+
+type x_key_info_type =
+    {
+        x509_data : x_x509_data_type
+        id : option (string)
+    }
+
+type x_transform_type =
+    {
+        x_path : string
+        algorithm : x_t_transform_uri
+    }
+
+type x_transforms_type =
+    {
+        transform : list (x_transform_type)
+    }
+
+type x_reference_type_digest_method =
+    {
+        algorithm : string
+    }
+
+nominal private x_reference_type_uri = string
+
+inl x_reference_type_uri_is_valid (s : string) : bool = xml.code_point_count s >= 2
+
+inl x_reference_type_uri_of_string (s : string) : option x_reference_type_uri =
+    match xml.collapsed_space s with
+    | s => if x_reference_type_uri_is_valid s then Some (x_reference_type_uri s) else None
+
+inl x_reference_type_uri_to_string (x : x_reference_type_uri) : string = match x with x_reference_type_uri s => s
+
+instance to_text x_reference_type_uri = fun x => x_reference_type_uri_to_string x
+inl x_reference_type_uri_example (_ : i32) : x_reference_type_uri = x_reference_type_uri "http://example.com"
+
+inl x_reference_type_uri_example_text (k : i32) : string =
+    x_reference_type_uri_to_string (x_reference_type_uri_example k)
+
+type x_reference_type =
+    {
+        transforms : x_transforms_type
+        digest_method : x_reference_type_digest_method
+        digest_value : x_digest_value_type
+        id : option (string)
+        uri : x_reference_type_uri
+        type_value : option (string)
+    }
+
+type x_signed_info_type_canonicalization_method =
+    {
+        algorithm : string
+    }
+
+type x_signed_info_type_signature_method =
+    {
+        algorithm : string
+    }
+
+type x_signed_info_type =
+    {
+        canonicalization_method : x_signed_info_type_canonicalization_method
+        signature_method : x_signed_info_type_signature_method
+        reference : x_reference_type
+        id : option (string)
+    }
+
+type x_signature_value_type =
+    {
+        base : string
+        id : option (string)
+    }
+
+type x_signature_type =
+    {
+        signed_info : x_signed_info_type
+        signature_value : x_signature_value_type
+        key_info : x_key_info_type
+        id : option (string)
+    }
+
+let rec xsd_pattern_447a24f5_18 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s then state = 50i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 1i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 1i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 2i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 2i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 3i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 3i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 4i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 4i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 5i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 5i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 6i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 6i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 7i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 7i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 8i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 8i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 9i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 9i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 9i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 10i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 10i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 10i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 11i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 11i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 12i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 12i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 12i32 s next
+            else false
+        elif state = 12i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 13i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 13i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 13i32 s next
+            else false
+        elif state = 13i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 14i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 14i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 14i32 s next
+            else false
+        elif state = 14i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 15i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 15i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 15i32 s next
+            else false
+        elif state = 15i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 16i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 16i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 16i32 s next
+            else false
+        elif state = 16i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 17i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 17i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 17i32 s next
+            else false
+        elif state = 17i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 18i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 18i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 18i32 s next
+            else false
+        elif state = 18i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 19i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 19i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 19i32 s next
+            else false
+        elif state = 19i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 20i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 20i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 20i32 s next
+            else false
+        elif state = 20i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 21i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 21i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 21i32 s next
+            else false
+        elif state = 21i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 22i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 22i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 22i32 s next
+            else false
+        elif state = 22i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 23i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 23i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 23i32 s next
+            else false
+        elif state = 23i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 24i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 24i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 24i32 s next
+            else false
+        elif state = 24i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 25i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 25i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 25i32 s next
+            else false
+        elif state = 25i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 26i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 26i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 26i32 s next
+            else false
+        elif state = 26i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 27i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 27i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 27i32 s next
+            else false
+        elif state = 27i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 28i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 28i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 28i32 s next
+            else false
+        elif state = 28i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 29i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 29i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 29i32 s next
+            else false
+        elif state = 29i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 30i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 30i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 30i32 s next
+            else false
+        elif state = 30i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 31i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 31i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 31i32 s next
+            else false
+        elif state = 31i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 32i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 32i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 32i32 s next
+            else false
+        elif state = 32i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 33i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 33i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 33i32 s next
+            else false
+        elif state = 33i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 34i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 34i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 34i32 s next
+            else false
+        elif state = 34i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 35i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 35i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 35i32 s next
+            else false
+        elif state = 35i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 36i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 36i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 36i32 s next
+            else false
+        elif state = 36i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 37i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 37i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 37i32 s next
+            else false
+        elif state = 37i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 38i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 38i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 38i32 s next
+            else false
+        elif state = 38i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 39i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 39i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 39i32 s next
+            else false
+        elif state = 39i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 40i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 40i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 40i32 s next
+            else false
+        elif state = 40i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 41i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 41i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 41i32 s next
+            else false
+        elif state = 41i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 42i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 42i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 42i32 s next
+            else false
+        elif state = 42i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 43i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 43i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 43i32 s next
+            else false
+        elif state = 43i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 44i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 44i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 44i32 s next
+            else false
+        elif state = 44i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 45i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 45i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 45i32 s next
+            else false
+        elif state = 45i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 46i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 46i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 46i32 s next
+            else false
+        elif state = 46i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 47i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 47i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 47i32 s next
+            else false
+        elif state = 47i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 48i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 48i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 48i32 s next
+            else false
+        elif state = 48i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 49i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 49i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 49i32 s next
+            else false
+        elif state = 49i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 50i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 50i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 50i32 s next
+            else false
+        elif state = 50i32 then
+            false
+        else false
+
+nominal private x_mensaje_receptor_clave = string
+
+inl x_mensaje_receptor_clave_is_valid (s : string) : bool = (xsd_pattern_447a24f5_18 0i32 s 0i32)
+
+inl x_mensaje_receptor_clave_of_string (s : string) : option x_mensaje_receptor_clave =
+    if x_mensaje_receptor_clave_is_valid s then Some (x_mensaje_receptor_clave s) else None
+
+inl x_mensaje_receptor_clave_to_string (x : x_mensaje_receptor_clave) : string =
+    match x with x_mensaje_receptor_clave s => s
+
+instance to_text x_mensaje_receptor_clave = fun x => x_mensaje_receptor_clave_to_string x
+inl x_mensaje_receptor_clave_example (_ : i32) : x_mensaje_receptor_clave =
+    x_mensaje_receptor_clave "00000000000000000000000000000000000000000000000000"
+
+inl x_mensaje_receptor_clave_example_text (k : i32) : string =
+    x_mensaje_receptor_clave_to_string (x_mensaje_receptor_clave_example k)
+
+nominal private x_mensaje_receptor_numero_cedula_emisor = string
+
+inl x_mensaje_receptor_numero_cedula_emisor_is_valid (s : string) : bool = xml.code_point_count s <= 20
+
+inl x_mensaje_receptor_numero_cedula_emisor_of_string (s : string) : option x_mensaje_receptor_numero_cedula_emisor =
+    if x_mensaje_receptor_numero_cedula_emisor_is_valid s then Some (x_mensaje_receptor_numero_cedula_emisor s)
+    else None
+
+inl x_mensaje_receptor_numero_cedula_emisor_to_string (x : x_mensaje_receptor_numero_cedula_emisor) : string =
+    match x with x_mensaje_receptor_numero_cedula_emisor s => s
+
+instance to_text x_mensaje_receptor_numero_cedula_emisor = fun x => x_mensaje_receptor_numero_cedula_emisor_to_string x
+inl x_mensaje_receptor_numero_cedula_emisor_example (_ : i32) : x_mensaje_receptor_numero_cedula_emisor =
+    x_mensaje_receptor_numero_cedula_emisor "1"
+
+inl x_mensaje_receptor_numero_cedula_emisor_example_text (k : i32) : string =
+    x_mensaje_receptor_numero_cedula_emisor_to_string (x_mensaje_receptor_numero_cedula_emisor_example k)
+
+union x_mensaje_receptor_mensaje =
+    | MensajeReceptor_Mensaje_1
+    | MensajeReceptor_Mensaje_2
+    | MensajeReceptor_Mensaje_3
+
+inl x_mensaje_receptor_mensaje_of_string (s : string) : option x_mensaje_receptor_mensaje =
+    inl s = xml.collapsed_space s
+    match s with
+    | "1" => Some MensajeReceptor_Mensaje_1
+    | "2" => Some MensajeReceptor_Mensaje_2
+    | "3" => Some MensajeReceptor_Mensaje_3
+    | _ => None
+
+inl x_mensaje_receptor_mensaje_to_string (x : x_mensaje_receptor_mensaje) : string =
+    match x with
+    | MensajeReceptor_Mensaje_1 => "1"
+    | MensajeReceptor_Mensaje_2 => "2"
+    | MensajeReceptor_Mensaje_3 => "3"
+
+instance to_text x_mensaje_receptor_mensaje = fun x => x_mensaje_receptor_mensaje_to_string x
+
+inl x_mensaje_receptor_mensaje_example (k : i32) : x_mensaje_receptor_mensaje =
+    inl index = ((k % 3i32) + 3i32) % 3i32
+    if index = 0i32 then MensajeReceptor_Mensaje_1
+    elif index = 1i32 then MensajeReceptor_Mensaje_2
+    else MensajeReceptor_Mensaje_3
+
+inl x_mensaje_receptor_mensaje_example_text (k : i32) : string =
+    x_mensaje_receptor_mensaje_to_string (x_mensaje_receptor_mensaje_example k)
+
+nominal private x_mensaje_receptor_detalle_mensaje = string
+
+inl x_mensaje_receptor_detalle_mensaje_is_valid (s : string) : bool = xml.code_point_count s <= 160
+
+inl x_mensaje_receptor_detalle_mensaje_of_string (s : string) : option x_mensaje_receptor_detalle_mensaje =
+    if x_mensaje_receptor_detalle_mensaje_is_valid s then Some (x_mensaje_receptor_detalle_mensaje s) else None
+
+inl x_mensaje_receptor_detalle_mensaje_to_string (x : x_mensaje_receptor_detalle_mensaje) : string =
+    match x with x_mensaje_receptor_detalle_mensaje s => s
+
+instance to_text x_mensaje_receptor_detalle_mensaje = fun x => x_mensaje_receptor_detalle_mensaje_to_string x
+inl x_mensaje_receptor_detalle_mensaje_example (_ : i32) : x_mensaje_receptor_detalle_mensaje =
+    x_mensaje_receptor_detalle_mensaje "1"
+
+inl x_mensaje_receptor_detalle_mensaje_example_text (k : i32) : string =
+    x_mensaje_receptor_detalle_mensaje_to_string (x_mensaje_receptor_detalle_mensaje_example k)
+
+type x_mensaje_receptor_monto_total_impuesto = string
+
+inl x_mensaje_receptor_monto_total_impuesto_is_valid (s : string) : bool = true
+
+inl x_mensaje_receptor_monto_total_impuesto_example (_ : i32) : string = "1"
+
+inl x_mensaje_receptor_monto_total_impuesto_example_text (k : i32) : string =
+    x_mensaje_receptor_monto_total_impuesto_example k
+
+nominal private x_mensaje_receptor_codigo_actividad = string
+
+inl x_mensaje_receptor_codigo_actividad_is_valid (s : string) : bool = xml.code_point_count s <= 6
+
+inl x_mensaje_receptor_codigo_actividad_of_string (s : string) : option x_mensaje_receptor_codigo_actividad =
+    if x_mensaje_receptor_codigo_actividad_is_valid s then Some (x_mensaje_receptor_codigo_actividad s) else None
+
+inl x_mensaje_receptor_codigo_actividad_to_string (x : x_mensaje_receptor_codigo_actividad) : string =
+    match x with x_mensaje_receptor_codigo_actividad s => s
+
+instance to_text x_mensaje_receptor_codigo_actividad = fun x => x_mensaje_receptor_codigo_actividad_to_string x
+inl x_mensaje_receptor_codigo_actividad_example (_ : i32) : x_mensaje_receptor_codigo_actividad =
+    x_mensaje_receptor_codigo_actividad "1"
+
+inl x_mensaje_receptor_codigo_actividad_example_text (k : i32) : string =
+    x_mensaje_receptor_codigo_actividad_to_string (x_mensaje_receptor_codigo_actividad_example k)
+
+union x_mensaje_receptor_condicion_impuesto =
+    | MensajeReceptor_CondicionImpuesto_01
+    | MensajeReceptor_CondicionImpuesto_02
+    | MensajeReceptor_CondicionImpuesto_03
+    | MensajeReceptor_CondicionImpuesto_04
+    | MensajeReceptor_CondicionImpuesto_05
+
+inl x_mensaje_receptor_condicion_impuesto_of_string (s : string) : option x_mensaje_receptor_condicion_impuesto =
+    match s with
+    | "01" => Some MensajeReceptor_CondicionImpuesto_01
+    | "02" => Some MensajeReceptor_CondicionImpuesto_02
+    | "03" => Some MensajeReceptor_CondicionImpuesto_03
+    | "04" => Some MensajeReceptor_CondicionImpuesto_04
+    | "05" => Some MensajeReceptor_CondicionImpuesto_05
+    | _ => None
+
+inl x_mensaje_receptor_condicion_impuesto_to_string (x : x_mensaje_receptor_condicion_impuesto) : string =
+    match x with
+    | MensajeReceptor_CondicionImpuesto_01 => "01"
+    | MensajeReceptor_CondicionImpuesto_02 => "02"
+    | MensajeReceptor_CondicionImpuesto_03 => "03"
+    | MensajeReceptor_CondicionImpuesto_04 => "04"
+    | MensajeReceptor_CondicionImpuesto_05 => "05"
+
+instance to_text x_mensaje_receptor_condicion_impuesto = fun x => x_mensaje_receptor_condicion_impuesto_to_string x
+
+inl x_mensaje_receptor_condicion_impuesto_example (k : i32) : x_mensaje_receptor_condicion_impuesto =
+    inl index = ((k % 5i32) + 5i32) % 5i32
+    if index = 0i32 then MensajeReceptor_CondicionImpuesto_01
+    elif index = 1i32 then MensajeReceptor_CondicionImpuesto_02
+    elif index = 2i32 then MensajeReceptor_CondicionImpuesto_03
+    elif index = 3i32 then MensajeReceptor_CondicionImpuesto_04
+    else MensajeReceptor_CondicionImpuesto_05
+
+inl x_mensaje_receptor_condicion_impuesto_example_text (k : i32) : string =
+    x_mensaje_receptor_condicion_impuesto_to_string (x_mensaje_receptor_condicion_impuesto_example k)
+
+type x_mensaje_receptor_total_factura = string
+
+inl x_mensaje_receptor_total_factura_is_valid (s : string) : bool = true
+
+inl x_mensaje_receptor_total_factura_example (_ : i32) : string = "1"
+
+inl x_mensaje_receptor_total_factura_example_text (k : i32) : string = x_mensaje_receptor_total_factura_example k
+
+let rec xsd_pattern_194316e7_8 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s then state = 9i32 || state = 10i32 || state = 11i32 || state = 12i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 9i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 10i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 12i32 s next
+            else false
+        elif state = 12i32 then
+            false
+        else false
+
+nominal private x_mensaje_receptor_numero_cedula_receptor = string
+
+inl x_mensaje_receptor_numero_cedula_receptor_is_valid (s : string) : bool =
+    (xsd_pattern_194316e7_8 0i32 s 0i32) && xml.code_point_count s <= 20
+
+inl x_mensaje_receptor_numero_cedula_receptor_of_string
+    (s : string)
+    : option x_mensaje_receptor_numero_cedula_receptor
+    =
+    if x_mensaje_receptor_numero_cedula_receptor_is_valid s then Some (x_mensaje_receptor_numero_cedula_receptor s)
+    else None
+
+inl x_mensaje_receptor_numero_cedula_receptor_to_string (x : x_mensaje_receptor_numero_cedula_receptor) : string =
+    match x with x_mensaje_receptor_numero_cedula_receptor s => s
+
+instance to_text x_mensaje_receptor_numero_cedula_receptor =
+    fun x => x_mensaje_receptor_numero_cedula_receptor_to_string x
+inl x_mensaje_receptor_numero_cedula_receptor_example (_ : i32) : x_mensaje_receptor_numero_cedula_receptor =
+    x_mensaje_receptor_numero_cedula_receptor "000000000"
+
+inl x_mensaje_receptor_numero_cedula_receptor_example_text (k : i32) : string =
+    x_mensaje_receptor_numero_cedula_receptor_to_string (x_mensaje_receptor_numero_cedula_receptor_example k)
+
+let rec xsd_pattern_8421e111_9 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s then state = 20i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 9i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 10i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 12i32 s next
+            else false
+        elif state = 12i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 13i32 s next
+            else false
+        elif state = 13i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 14i32 s next
+            else false
+        elif state = 14i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 15i32 s next
+            else false
+        elif state = 15i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 16i32 s next
+            else false
+        elif state = 16i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 17i32 s next
+            else false
+        elif state = 17i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 18i32 s next
+            else false
+        elif state = 18i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 19i32 s next
+            else false
+        elif state = 19i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 20i32 s next
+            else false
+        elif state = 20i32 then
+            false
+        else false
+
+nominal private x_mensaje_receptor_numero_consecutivo_receptor = string
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_is_valid (s : string) : bool =
+    (xsd_pattern_8421e111_9 0i32 s 0i32) && xml.code_point_count s <= 20
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_of_string
+    (s : string)
+    : option x_mensaje_receptor_numero_consecutivo_receptor
+    =
+    if x_mensaje_receptor_numero_consecutivo_receptor_is_valid s
+    then Some (x_mensaje_receptor_numero_consecutivo_receptor s)
+    else None
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_to_string
+    (x : x_mensaje_receptor_numero_consecutivo_receptor)
+    : string
+    =
+    match x with x_mensaje_receptor_numero_consecutivo_receptor s => s
+
+instance to_text x_mensaje_receptor_numero_consecutivo_receptor =
+    fun x => x_mensaje_receptor_numero_consecutivo_receptor_to_string x
+inl x_mensaje_receptor_numero_consecutivo_receptor_example (_ : i32) : x_mensaje_receptor_numero_consecutivo_receptor =
+    x_mensaje_receptor_numero_consecutivo_receptor "00000000000000000000"
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_example_text (k : i32) : string =
+    x_mensaje_receptor_numero_consecutivo_receptor_to_string (x_mensaje_receptor_numero_consecutivo_receptor_example k)
+
+type x_mensaje_receptor s =
+    {
+        clave : x_mensaje_receptor_clave
+        numero_cedula_emisor : x_mensaje_receptor_numero_cedula_emisor
+        fecha_emision_doc : string
+        mensaje : x_mensaje_receptor_mensaje
+        detalle_mensaje : option (x_mensaje_receptor_detalle_mensaje)
+        monto_total_impuesto : option (x_mensaje_receptor_monto_total_impuesto)
+        codigo_actividad : option (x_mensaje_receptor_codigo_actividad)
+        condicion_impuesto : option (x_mensaje_receptor_condicion_impuesto)
+        monto_total_impuesto_acreditar : option (x_decimal_dinero_type)
+        monto_total_de_gasto_aplicable : option (x_decimal_dinero_type)
+        total_factura : x_mensaje_receptor_total_factura
+        numero_cedula_receptor : x_mensaje_receptor_numero_cedula_receptor
+        numero_consecutivo_receptor : x_mensaje_receptor_numero_consecutivo_receptor
+        signature : staged s (list (x_signature_type))
+    }
+
+union x_signature_type_field r =
+    | SignatureType_field_SignedInfo :: x_signature_type_field (x_signed_info_type)
+    | SignatureType_field_SignatureValue :: x_signature_type_field (x_signature_value_type)
+    | SignatureType_field_KeyInfo :: x_signature_type_field (x_key_info_type)
+
+inl x_signature_type_get forall r. (f : x_signature_type_field r) (x : x_signature_type) : r =
+    match f with
+    | SignatureType_field_SignedInfo => x.signed_info
+    | SignatureType_field_SignatureValue => x.signature_value
+    | SignatureType_field_KeyInfo => x.key_info
+
+union x_signed_info_type_field r =
+    | SignedInfoType_field_CanonicalizationMethod ::
+        x_signed_info_type_field (x_signed_info_type_canonicalization_method)
+    | SignedInfoType_field_SignatureMethod :: x_signed_info_type_field (x_signed_info_type_signature_method)
+    | SignedInfoType_field_Reference :: x_signed_info_type_field (x_reference_type)
+
+inl x_signed_info_type_get forall r. (f : x_signed_info_type_field r) (x : x_signed_info_type) : r =
+    match f with
+    | SignedInfoType_field_CanonicalizationMethod => x.canonicalization_method
+    | SignedInfoType_field_SignatureMethod => x.signature_method
+    | SignedInfoType_field_Reference => x.reference
+
+union x_reference_type_field r =
+    | ReferenceType_field_Transforms :: x_reference_type_field (x_transforms_type)
+    | ReferenceType_field_DigestMethod :: x_reference_type_field (x_reference_type_digest_method)
+    | ReferenceType_field_DigestValue :: x_reference_type_field (x_digest_value_type)
+
+inl x_reference_type_get forall r. (f : x_reference_type_field r) (x : x_reference_type) : r =
+    match f with
+    | ReferenceType_field_Transforms => x.transforms
+    | ReferenceType_field_DigestMethod => x.digest_method
+    | ReferenceType_field_DigestValue => x.digest_value
+
+union x_transforms_type_field r =
+    | TransformsType_field_Transform :: x_transforms_type_field (list (x_transform_type))
+
+inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_transforms_type) : r =
+    match f with
+    | TransformsType_field_Transform => x.transform
+
+union x_transform_type_field r =
+    | TransformType_field_XPath :: x_transform_type_field (string)
+
+inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
+    match f with
+    | TransformType_field_XPath => x.x_path
+
+union x_key_info_type_field r =
+    | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
+
+inl x_key_info_type_get forall r. (f : x_key_info_type_field r) (x : x_key_info_type) : r =
+    match f with
+    | KeyInfoType_field_X509Data => x.x509_data
+
+union x_x509_data_type_field r =
+    | X509DataType_field_X509Certificate :: x_x509_data_type_field (string)
+
+inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_data_type) : r =
+    match f with
+    | X509DataType_field_X509Certificate => x.x509_certificate
+
+let rec x_mensaje_receptor_of_children forall s.
+    (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_mensaje_receptor s
+    =
+    {
+        clave =
+            (fun c => xml.required_value "x_mensaje_receptor_clave" (x_mensaje_receptor_clave_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Clave" children)
+        numero_cedula_emisor =
+            (fun c => xml.required_value "x_mensaje_receptor_numero_cedula_emisor" (x_mensaje_receptor_numero_cedula_emisor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NumeroCedulaEmisor" children)
+        fecha_emision_doc =
+            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "FechaEmisionDoc" children)
+        mensaje =
+            (fun c => xml.required_value "x_mensaje_receptor_mensaje" (x_mensaje_receptor_mensaje_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Mensaje" children)
+        detalle_mensaje =
+            optionm.map
+                fun c =>
+                    xml.required_value "x_mensaje_receptor_detalle_mensaje" (
+                        x_mensaje_receptor_detalle_mensaje_of_string (xml.text_in (xml.element_children c)))
+                (xml.first_child "DetalleMensaje" children)
+        monto_total_impuesto =
+            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "MontoTotalImpuesto" children)
+        codigo_actividad =
+            optionm.map
+                fun c =>
+                    xml.required_value "x_mensaje_receptor_codigo_actividad" (
+                        x_mensaje_receptor_codigo_actividad_of_string (xml.text_in (xml.element_children c)))
+                (xml.first_child "CodigoActividad" children)
+        condicion_impuesto =
+            optionm.map
+                fun c =>
+                    xml.required_value "x_mensaje_receptor_condicion_impuesto" (
+                        x_mensaje_receptor_condicion_impuesto_of_string (xml.text_in (xml.element_children c)))
+                (xml.first_child "CondicionImpuesto" children)
+        monto_total_impuesto_acreditar =
+            optionm.map
+                fun c => xml.text_in (xml.element_children c)
+                (xml.first_child "MontoTotalImpuestoAcreditar" children)
+        monto_total_de_gasto_aplicable =
+            optionm.map
+                fun c => xml.text_in (xml.element_children c)
+                (xml.first_child "MontoTotalDeGastoAplicable" children)
+        total_factura = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalFactura" children)
+        numero_cedula_receptor =
+            (fun c => xml.required_value "x_mensaje_receptor_numero_cedula_receptor" (x_mensaje_receptor_numero_cedula_receptor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NumeroCedulaReceptor" children)
+        numero_consecutivo_receptor =
+            (fun c => xml.required_value "x_mensaje_receptor_numero_consecutivo_receptor" (x_mensaje_receptor_numero_consecutivo_receptor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NumeroConsecutivoReceptor" children)
+        signature = listm.map (fun c => x_signature_type_of_xml c) (xml.children_named "ds:Signature" children)
+    }
+
+and let x_mensaje_receptor_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_mensaje_receptor s =
+    x_mensaje_receptor_of_children witness (xml.element_attributes c) (xml.element_children c)
+
+and let x_signature_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_signature_type
+    =
+    {
+        signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
+        signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
+        key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
+        id = xml.attribute_of "Id" attributes
+    }
+
+and let x_signature_type_of_xml (c : xml.xml_node) : x_signature_type =
+    x_signature_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signature_value_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_signature_value_type
+    =
+    {
+        base = xml.text_in children
+        id = xml.attribute_of "Id" attributes
+    }
+
+and let x_signature_value_type_of_xml (c : xml.xml_node) : x_signature_value_type =
+    x_signature_value_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signed_info_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_signed_info_type
+    =
+    {
+        canonicalization_method =
+            (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
+        signature_method =
+            (fun c => x_signed_info_type_signature_method_of_xml c) (xml.required_child "SignatureMethod" children)
+        reference = (fun c => x_reference_type_of_xml c) (xml.required_child "Reference" children)
+        id = xml.attribute_of "Id" attributes
+    }
+
+and let x_signed_info_type_of_xml (c : xml.xml_node) : x_signed_info_type =
+    x_signed_info_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signed_info_type_signature_method_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_signed_info_type_signature_method
+    =
+    {
+        algorithm =
+            xml.required_attribute
+                "Algorithm"
+                (xml.checked_fixed "Algorithm" "http://www.w3.org/2000/09/xmldsig#rsa-sha1" attributes)
+    }
+
+and let x_signed_info_type_signature_method_of_xml (c : xml.xml_node) : x_signed_info_type_signature_method =
+    x_signed_info_type_signature_method_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signed_info_type_canonicalization_method_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_signed_info_type_canonicalization_method
+    =
+    {
+        algorithm =
+            xml.required_attribute
+                "Algorithm"
+                (xml.checked_fixed "Algorithm" "http://www.w3.org/TR/2001/REC-xml-c14n-20010315" attributes)
+    }
+
+and let x_signed_info_type_canonicalization_method_of_xml (c : xml.xml_node) : x_signed_info_type_canonicalization_method =
+    x_signed_info_type_canonicalization_method_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_reference_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_reference_type
+    =
+    {
+        transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
+        digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
+        digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
+        id = xml.attribute_of "Id" attributes
+        uri =
+            xml.required_value
+                "x_reference_type_uri"
+                (x_reference_type_uri_of_string (xml.required_attribute "URI" attributes))
+        type_value = xml.attribute_of "Type" attributes
+    }
+
+and let x_reference_type_of_xml (c : xml.xml_node) : x_reference_type =
+    x_reference_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_reference_type_digest_method_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_reference_type_digest_method
+    =
+    {
+        algorithm =
+            xml.required_attribute
+                "Algorithm"
+                (xml.checked_fixed "Algorithm" "http://www.w3.org/2000/09/xmldsig#sha1" attributes)
+    }
+
+and let x_reference_type_digest_method_of_xml (c : xml.xml_node) : x_reference_type_digest_method =
+    x_reference_type_digest_method_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_transforms_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transforms_type
+    =
+    {
+        transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
+    }
+
+and let x_transforms_type_of_xml (c : xml.xml_node) : x_transforms_type =
+    x_transforms_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_transform_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transform_type
+    =
+    {
+        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+        algorithm =
+            xml.required_value
+                "x_t_transform_uri"
+                (x_t_transform_uri_of_string (xml.required_attribute "Algorithm" attributes))
+    }
+
+and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
+    x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_key_info_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_key_info_type
+    =
+    {
+        x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
+        id = xml.attribute_of "Id" attributes
+    }
+
+and let x_key_info_type_of_xml (c : xml.xml_node) : x_key_info_type =
+    x_key_info_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_x509_data_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_x509_data_type
+    =
+    {
+        x509_certificate =
+            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
+    }
+
+and let x_x509_data_type_of_xml (c : xml.xml_node) : x_x509_data_type =
+    x_x509_data_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_mensaje_receptor_children forall s. (x : x_mensaje_receptor s) : list xml.xml_node =
+    listm.concat [
+        [ text_node "Clave" x.clave ]
+        [ text_node "NumeroCedulaEmisor" x.numero_cedula_emisor ]
+        [ xml.element "FechaEmisionDoc" [] (xml.text_children x.fecha_emision_doc) ]
+        [ text_node "Mensaje" x.mensaje ]
+        optional_text_nodes "DetalleMensaje" x.detalle_mensaje
+        xml.option_list (
+            optionm.map (fun v => xml.element "MontoTotalImpuesto" [] (xml.text_children v)) x.monto_total_impuesto
+        )
+        optional_text_nodes "CodigoActividad" x.codigo_actividad
+        optional_text_nodes "CondicionImpuesto" x.condicion_impuesto
+        xml.option_list (
+            optionm.map
+                fun v => xml.element "MontoTotalImpuestoAcreditar" [] (xml.text_children v)
+                x.monto_total_impuesto_acreditar
+        )
+        xml.option_list (
+            optionm.map
+                fun v => xml.element "MontoTotalDeGastoAplicable" [] (xml.text_children v)
+                x.monto_total_de_gasto_aplicable
+        )
+        [ xml.element "TotalFactura" [] (xml.text_children x.total_factura) ]
+        [ text_node "NumeroCedulaReceptor" x.numero_cedula_receptor ]
+        [ text_node "NumeroConsecutivoReceptor" x.numero_consecutivo_receptor ]
+        listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) x.signature
+    ]
+
+and let x_mensaje_receptor_attributes forall s. (x : x_mensaje_receptor s) : list (string * string) = []
+
+and let x_mensaje_receptor_to_xml forall s. (name : string) (x : x_mensaje_receptor s) : xml.xml_node =
+    xml.element name (x_mensaje_receptor_attributes x) (x_mensaje_receptor_children x)
+
+and let x_signature_type_children (x : x_signature_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_signature_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SignatureType_field_SignedInfo => [ x_signed_info_type_to_xml "SignedInfo" v ]
+        | SignatureType_field_SignatureValue => [ x_signature_value_type_to_xml "SignatureValue" v ]
+        | SignatureType_field_KeyInfo => [ x_key_info_type_to_xml "KeyInfo" v ]
+    inl rec walk (fields : list (exists r. x_signature_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_signature_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists SignatureType_field_SignedInfo
+        exists SignatureType_field_SignatureValue
+        exists SignatureType_field_KeyInfo
+    ]
+
+and let x_signature_type_attributes (x : x_signature_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_signature_type_to_xml (name : string) (x : x_signature_type) : xml.xml_node =
+    xml.element name (x_signature_type_attributes x) (x_signature_type_children x)
+
+and let x_signature_value_type_children (x : x_signature_value_type) : list xml.xml_node = xml.text_children x.base
+
+and let x_signature_value_type_attributes (x : x_signature_value_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_signature_value_type_to_xml (name : string) (x : x_signature_value_type) : xml.xml_node =
+    xml.element name (x_signature_value_type_attributes x) (x_signature_value_type_children x)
+
+and let x_signed_info_type_children (x : x_signed_info_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_signed_info_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SignedInfoType_field_CanonicalizationMethod =>
+            [ x_signed_info_type_canonicalization_method_to_xml "CanonicalizationMethod" v ]
+        | SignedInfoType_field_SignatureMethod => [ x_signed_info_type_signature_method_to_xml "SignatureMethod" v ]
+        | SignedInfoType_field_Reference => [ x_reference_type_to_xml "Reference" v ]
+    inl rec walk (fields : list (exists r. x_signed_info_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_signed_info_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists SignedInfoType_field_CanonicalizationMethod
+        exists SignedInfoType_field_SignatureMethod
+        exists SignedInfoType_field_Reference
+    ]
+
+and let x_signed_info_type_attributes (x : x_signed_info_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_signed_info_type_to_xml (name : string) (x : x_signed_info_type) : xml.xml_node =
+    xml.element name (x_signed_info_type_attributes x) (x_signed_info_type_children x)
+
+and let x_signed_info_type_signature_method_children (x : x_signed_info_type_signature_method) : list xml.xml_node = []
+
+and let x_signed_info_type_signature_method_attributes (x : x_signed_info_type_signature_method) : list (string * string) =
+    [ ("Algorithm", x.algorithm) ]
+
+and let x_signed_info_type_signature_method_to_xml
+    (name : string) (x : x_signed_info_type_signature_method)
+    : xml.xml_node
+    =
+    xml.element name (x_signed_info_type_signature_method_attributes x) (x_signed_info_type_signature_method_children x)
+
+and let x_signed_info_type_canonicalization_method_children
+    (x : x_signed_info_type_canonicalization_method)
+    : list xml.xml_node
+    =
+    []
+
+and let x_signed_info_type_canonicalization_method_attributes
+    (x : x_signed_info_type_canonicalization_method)
+    : list (string * string)
+    =
+    [ ("Algorithm", x.algorithm) ]
+
+and let x_signed_info_type_canonicalization_method_to_xml
+    (name : string) (x : x_signed_info_type_canonicalization_method)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_signed_info_type_canonicalization_method_attributes x)
+        (x_signed_info_type_canonicalization_method_children x)
+
+and let x_reference_type_children (x : x_reference_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_reference_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | ReferenceType_field_Transforms => [ x_transforms_type_to_xml "Transforms" v ]
+        | ReferenceType_field_DigestMethod => [ x_reference_type_digest_method_to_xml "DigestMethod" v ]
+        | ReferenceType_field_DigestValue => [ xml.element "DigestValue" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_reference_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_reference_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists ReferenceType_field_Transforms
+        exists ReferenceType_field_DigestMethod
+        exists ReferenceType_field_DigestValue
+    ]
+
+and let x_reference_type_attributes (x : x_reference_type) : list (string * string) =
+    listm.concat [
+        xml.option_list (optionm.map (fun v => "Id", v) x.id)
+        [ ("URI", to_text x.uri) ]
+        xml.option_list (optionm.map (fun v => "Type", v) x.type_value)
+    ]
+
+and let x_reference_type_to_xml (name : string) (x : x_reference_type) : xml.xml_node =
+    xml.element name (x_reference_type_attributes x) (x_reference_type_children x)
+
+and let x_reference_type_digest_method_children (x : x_reference_type_digest_method) : list xml.xml_node = []
+
+and let x_reference_type_digest_method_attributes (x : x_reference_type_digest_method) : list (string * string) =
+    [ ("Algorithm", x.algorithm) ]
+
+and let x_reference_type_digest_method_to_xml (name : string) (x : x_reference_type_digest_method) : xml.xml_node =
+    xml.element name (x_reference_type_digest_method_attributes x) (x_reference_type_digest_method_children x)
+
+and let x_transforms_type_children (x : x_transforms_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_transforms_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformsType_field_Transform => listm.map (fun v => x_transform_type_to_xml "Transform" v) v
+    inl rec walk (fields : list (exists r. x_transforms_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transforms_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformsType_field_Transform ]
+
+and let x_transforms_type_attributes (x : x_transforms_type) : list (string * string) = []
+
+and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.xml_node =
+    xml.element name (x_transforms_type_attributes x) (x_transforms_type_children x)
+
+and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_field_XPath ]
+
+and let x_transform_type_attributes (x : x_transform_type) : list (string * string) =
+    [ ("Algorithm", to_text x.algorithm) ]
+
+and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
+    xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | KeyInfoType_field_X509Data => [ x_x509_data_type_to_xml "X509Data" v ]
+    inl rec walk (fields : list (exists r. x_key_info_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_key_info_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists KeyInfoType_field_X509Data ]
+
+and let x_key_info_type_attributes (x : x_key_info_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_key_info_type_to_xml (name : string) (x : x_key_info_type) : xml.xml_node =
+    xml.element name (x_key_info_type_attributes x) (x_key_info_type_children x)
+
+and let x_x509_data_type_children (x : x_x509_data_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_x509_data_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | X509DataType_field_X509Certificate => [ xml.element "X509Certificate" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_x509_data_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_x509_data_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists X509DataType_field_X509Certificate ]
+
+and let x_x509_data_type_attributes (x : x_x509_data_type) : list (string * string) = []
+
+and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml_node =
+    xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
+
+and let x_mensaje_receptor_example (k : i32) : x_mensaje_receptor unsigned =
+    {
+        clave = x_mensaje_receptor_clave_example k
+        numero_cedula_emisor = x_mensaje_receptor_numero_cedula_emisor_example k
+        fecha_emision_doc = "2026-01-01T00:00:00"
+        mensaje = x_mensaje_receptor_mensaje_example k
+        detalle_mensaje = None
+        monto_total_impuesto = None
+        codigo_actividad = None
+        condicion_impuesto = None
+        monto_total_impuesto_acreditar = None
+        monto_total_de_gasto_aplicable = None
+        total_factura = x_mensaje_receptor_total_factura_example k
+        numero_cedula_receptor = x_mensaje_receptor_numero_cedula_receptor_example k
+        numero_consecutivo_receptor = x_mensaje_receptor_numero_consecutivo_receptor_example k
+        signature = [ x_signature_type_example (k + 0i32) ]
+    }
+
+and let x_signature_type_example (k : i32) : x_signature_type =
+    {
+        signed_info = x_signed_info_type_example k
+        signature_value = x_signature_value_type_example k
+        key_info = x_key_info_type_example k
+        id = None
+    }
+
+and let x_signature_value_type_example (k : i32) : x_signature_value_type =
+    {
+        base = "AAAA"
+        id = None
+    }
+
+and let x_signed_info_type_example (k : i32) : x_signed_info_type =
+    {
+        canonicalization_method = x_signed_info_type_canonicalization_method_example k
+        signature_method = x_signed_info_type_signature_method_example k
+        reference = x_reference_type_example k
+        id = None
+    }
+
+and let x_signed_info_type_signature_method_example (k : i32) : x_signed_info_type_signature_method =
+    {
+        algorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
+    }
+
+and let x_signed_info_type_canonicalization_method_example (k : i32) : x_signed_info_type_canonicalization_method =
+    {
+        algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
+    }
+
+and let x_reference_type_example (k : i32) : x_reference_type =
+    {
+        transforms = x_transforms_type_example k
+        digest_method = x_reference_type_digest_method_example k
+        digest_value = x_digest_value_type_example k
+        id = None
+        uri = x_reference_type_uri_example k
+        type_value = None
+    }
+
+and let x_reference_type_digest_method_example (k : i32) : x_reference_type_digest_method =
+    {
+        algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
+    }
+
+and let x_transforms_type_example (k : i32) : x_transforms_type =
+    {
+        transform = [ x_transform_type_example (k + 0i32); x_transform_type_example (k + 1i32) ]
+    }
+
+and let x_transform_type_example (k : i32) : x_transform_type =
+    {
+        x_path = "1"
+        algorithm = x_t_transform_uri_example k
+    }
+
+and let x_key_info_type_example (k : i32) : x_key_info_type =
+    {
+        x509_data = x_x509_data_type_example k
+        id = None
+    }
+
+and let x_x509_data_type_example (k : i32) : x_x509_data_type =
+    {
+        x509_certificate = "AAAA"
+    }
+
+
+inl sample_path (name : string) : string =
+    inl from_env = env.get_environment_variable "FISCAL_ROOT"
+    inl root =
+        if from_env <> "" then from_env
+        else
+            inl here = file_system.get_current_directory ()
+            match here |> file_system.find_parent file_system.File "src/generator.spi" with
+            | Ok dir => dir
+            | Error message => failwith message
+    sm'.(++#) (sm'.(++#) root "/samples/") name
+///> rust
+test generated_cr_mensaje_receptor_4_4_writes_its_example =
+    inl example = x_mensaje_receptor_example 0i32
+    inl document =
+        xml.element
+            "MensajeReceptor"
+            (
+                ("xmlns", "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/mensajeReceptor")
+                :: x_mensaje_receptor_attributes example
+            )
+            (x_mensaje_receptor_children example)
+    file_system.write_all_text
+        (sample_path "generated_cr_mensaje_receptor_4_4_example.xml")
+        (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+    inl text = file_system.read_all_text (sample_path "generated_cr_mensaje_receptor_4_4_example.xml")
+    let rec insert (x : i64) (xs : list i64) : list i64 =
+        match xs with
+        | y :: rest => if x <= y then x :: xs else y :: insert x rest
+        | [] => x :: []
+    let rec nth (i : i32) (xs : list i64) : i64 =
+        match xs with
+        | y :: rest => if i = 0i32 then y else nth (i - 1i32) rest
+        | [] => -1i64
+    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64) : list i64 * list i64 * i64 =
+        if left = 0i32 then parses, writes, bytes
+        else
+            inl watch = date_time.stopwatch ()
+            date_time.stopwatch_start watch
+            inl start = date_time.stopwatch_elapsed_microseconds watch
+            match xml.read_xml text with
+            | node :: [] =>
+                inl parsed = x_mensaje_receptor_of_xml Unsigned node
+                inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
+                inl written = xml.write_node (x_mensaje_receptor_to_xml "MensajeReceptor" parsed)
+                inl written_at = date_time.stopwatch_elapsed_microseconds watch
+                inl parses = insert (parsed_at - start) parses
+                inl writes = insert (written_at - parsed_at) writes
+                runs (left - 1i32) parses writes (bytes + sm'.length written)
+            | _ => failwith "one MensajeReceptor element"
+    inl _ = runs (dyn 5i32) [] [] 0i64
+    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64
+    inl cell (x : i64) : string = sm'.obj_to_string x
+    inl row = sm'.(++#) "generated_cr_mensaje_receptor_4_4 parse_us " (cell (nth 15i32 parses))
+    inl row = sm'.(++#) row (sm'.(++#) " write_us " (cell (nth 15i32 writes)))
+    inl row = sm'.(++#) row (sm'.(++#) " runs 31 bytes " (cell bytes))
+    console.write_line row
+    match xml.read_xml text with
+    | node :: [] =>
+        inl parsed = x_mensaje_receptor_of_xml Unsigned node
+        inl document =
+            xml.element
+                "MensajeReceptor"
+                (
+                    ("xmlns", "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/mensajeReceptor")
+                    :: x_mensaje_receptor_attributes parsed
+                )
+                (x_mensaje_receptor_children parsed)
+        inl folder = sample_path "../target/bench"
+        match file_system.create_dir_all folder |> resultm.unbox with
+        | Ok _ =>
+            file_system.write_all_text
+                (sm'.(++#) folder "/ours-generated_cr_mensaje_receptor_4_4_example.xml")
+                (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+        | Error _ => failwith "cannot create target/bench"
+    | _ => failwith "one MensajeReceptor element"
