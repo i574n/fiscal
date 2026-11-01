@@ -91,6 +91,7 @@ foreach ($source in @(Select-TestFiles { $_.BaseName -eq 'generator' })) { Invok
 $formatting = @(& (Join-Path $PSScriptRoot 'format-generated.ps1') -Compiler $spiral.Compiler -Dotnet $spiral.Dotnet -Root $root)
 $formatting | ForEach-Object { Write-Output "build.ps1 / $_" }
 if ($LASTEXITCODE) { $problems.Add("format: $(@($formatting | Where-Object { $_ -match ' / failed ' }).Count) generated units did not format") }
+& (Join-Path $PSScriptRoot 'en16931-terms.ps1') | ForEach-Object { Write-Output "build.ps1 / $_" }
 if (-not $Files) {
     $drift = @(git -C $root -c core.quotepath=off status --porcelain --untracked-files=all -- generated)
     if ($LASTEXITCODE) { throw "build.ps1 / git status failed on generated (exit code $LASTEXITCODE)" }
@@ -105,7 +106,26 @@ if (!$Files -or $Files -contains 'examples') {
     $validation | ForEach-Object { Write-Output "build.ps1 / examples / $_" }
     $bad = @($validation | Where-Object { $_ -match 'validation messages [1-9]|not written' })
     if ($bad) { $problems.Add("examples: $($bad.Count) documents do not validate against their XSD") }
+    $exampleRows = [Collections.Generic.List[object]]::new()
+    $current = $null
+    foreach ($line in $validation) {
+        if ($line -match '^== (\S+)( :: not written)?') { $current = [pscustomobject]@{ Example = $Matches[1]; Bytes = ''; Messages = ''; SignaturePending = ''; First = $(if ($Matches[2]) { 'not written' } else { '' }) }; $exampleRows.Add($current) }
+        elseif ($current -and $line -match '^document (\d+) bytes; validation messages (\d+)(?:; signature pending (\d+))?') { $current.Bytes = $Matches[1]; $current.Messages = $Matches[2]; $current.SignaturePending = "$($Matches[3])" }
+        elseif ($current -and -not $current.First -and $line -match '^\s+x\d+: (.*)') { $current.First = $Matches[1] }
+    }
+    $exampleRows | ConvertTo-Csv -Delimiter "`t" -UseQuotes Never | Set-Content (Join-Path $metrics "examples$labelSuffix.tsv")
 }
+
+$benchSources = @(Get-ChildItem -LiteralPath $metrics -Filter '*.out' -File) + @(Get-ChildItem -LiteralPath $notebooks -Filter '*.ipynb' -File)
+$benchSeen = [Collections.Generic.HashSet[string]]::new()
+$benchRows = foreach ($source in $benchSources) {
+    foreach ($m in [regex]::Matches([IO.File]::ReadAllText($source.FullName), '(generated_\w+) parse_us (\d+) write_us (\d+) runs (\d+) bytes (\d+)')) {
+        if (-not $benchSeen.Add($m.Groups[1].Value)) { continue }
+        [pscustomobject]@{ Unit = $m.Groups[1].Value; ParseUs = [int]$m.Groups[2].Value; WriteUs = [int]$m.Groups[3].Value; Runs = [int]$m.Groups[4].Value; Bytes = [long]$m.Groups[5].Value; Os = [Runtime.InteropServices.RuntimeInformation]::OSDescription }
+    }
+}
+@($benchRows | Sort-Object Unit) | ConvertTo-Csv -Delimiter "`t" -UseQuotes Never | Set-Content (Join-Path $metrics "bench$labelSuffix.tsv")
+Write-Output "build.ps1 / bench / $(@($benchRows).Count) units measured (median of the runs, microseconds) -> bench$labelSuffix.tsv"
 
 $fileRows | ConvertTo-Csv -Delimiter "`t" -UseQuotes Never | Set-Content (Join-Path $metrics "files$labelSuffix.tsv")
 $testRows | ConvertTo-Csv -Delimiter "`t" -UseQuotes Never | Set-Content (Join-Path $metrics "tests$labelSuffix.tsv")
@@ -113,6 +133,10 @@ if ($env:GITHUB_STEP_SUMMARY) {
     $minutes = [math]::Round(($fileRows | Measure-Object Seconds -Sum).Sum / 60, 1)
     $summary = @("### fiscal $Label", "", "$($fileRows.Count) files in $minutes min", "", "| slowest file | s |", "|---|---|")
     $summary += $fileRows | Sort-Object Seconds -Descending | Select-Object -First 8 | ForEach-Object { "| $($_.File) | $($_.Seconds) |" }
+    if (@($benchRows).Count) {
+        $summary += @('', '| unit | parse µs | write µs | bytes |', '|---|---|---|---|')
+        $summary += @($benchRows | Sort-Object Unit) | ForEach-Object { "| $($_.Unit) | $($_.ParseUs) | $($_.WriteUs) | $($_.Bytes) |" }
+    }
     $summary | Add-Content $env:GITHUB_STEP_SUMMARY
 }
 if (!$tested.Count) { throw "build.ps1 / no test files matched $($Files -join ', ')" }

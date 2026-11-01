@@ -26,5 +26,7 @@ $settings.add_ValidationEventHandler({ param($s, $e) $errors.Add("$($e.Severity)
 $documentStream = [IO.File]::OpenRead((Resolve-Path -LiteralPath $Document).Path)
 $validating = [System.Xml.XmlReader]::Create($documentStream, $settings)
 try { while ($validating.Read()) { } } catch { $errors.Add("fatal: $($_.Exception.Message) (at $($_.InvocationInfo.ScriptName):$($_.InvocationInfo.ScriptLineNumber))") } finally { $validating.Close(); $documentStream.Dispose() }
-"document $((Get-Item -LiteralPath $Document).Length) bytes; validation messages $($errors.Count)"
+$pending = @($errors | Where-Object { $_ -match "incomplete content\. List of possible elements expected: .*'Signature' in namespace 'http://www\.w3\.org/2000/09/xmldsig#'" })
+$errors = @($errors | Where-Object { $_ -notin $pending })
+"document $((Get-Item -LiteralPath $Document).Length) bytes; validation messages $($errors.Count); signature pending $($pending.Count)"
 $errors | Group-Object { ($_ -replace "'[^']*'", "'x'") -replace 'line \d+', 'line n' } | Sort-Object Count -Descending | Select-Object -First $Show | ForEach-Object { "  x$($_.Count): $($_.Group[0].Substring(0, [Math]::Min(220, $_.Group[0].Length)))" }

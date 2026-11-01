@@ -5,6 +5,7 @@
 /notebooks/
 /dist/
 /samples/
+/canon/
 *.tsv
 /src/pattern_expected.txt
 /src/patterns.txt

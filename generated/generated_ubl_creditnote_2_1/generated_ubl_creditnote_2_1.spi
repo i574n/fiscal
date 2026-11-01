@@ -1,4 +1,4 @@
-///- --package . --timeout 5085392
+///- --package . --timeout 5086080
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -35928,7 +35928,10 @@ and let x_x_ad_es_time_stamp_type_children (x : x_x_ad_es_time_stamp_type) : lis
     ]
 
 and let x_x_ad_es_time_stamp_type_attributes (x : x_x_ad_es_time_stamp_type) : list (string * string) =
-    listm.concat [ x_generic_time_stamp_type_attributes x.base; xml.option_list (optionm.map (fun v => "Id", v) x.id) ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "Id") (x_generic_time_stamp_type_attributes x.base)
+        xml.option_list (optionm.map (fun v => "Id", v) x.id)
+    ]
 
 and let x_x_ad_es_time_stamp_type_to_xml (name : string) (x : x_x_ad_es_time_stamp_type) : xml.xml_node =
     xml.element name (x_x_ad_es_time_stamp_type_attributes x) (x_x_ad_es_time_stamp_type_children x)
@@ -35955,7 +35958,10 @@ and let x_other_time_stamp_type_children (x : x_other_time_stamp_type) : list xm
     ]
 
 and let x_other_time_stamp_type_attributes (x : x_other_time_stamp_type) : list (string * string) =
-    listm.concat [ x_generic_time_stamp_type_attributes x.base; xml.option_list (optionm.map (fun v => "Id", v) x.id) ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "Id") (x_generic_time_stamp_type_attributes x.base)
+        xml.option_list (optionm.map (fun v => "Id", v) x.id)
+    ]
 
 and let x_other_time_stamp_type_to_xml (name : string) (x : x_other_time_stamp_type) : xml.xml_node =
     xml.element name (x_other_time_stamp_type_attributes x) (x_other_time_stamp_type_children x)
@@ -46408,7 +46414,10 @@ and let x_unqualified_data_types_2_amount_type_attributes
     (x : x_unqualified_data_types_2_amount_type)
     : list (string * string)
     =
-    listm.concat [ x_2_amount_type_attributes x.base; [ ("currencyID", x.currency_id) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "currencyID") (x_2_amount_type_attributes x.base)
+        [ ("currencyID", x.currency_id) ]
+    ]
 
 and let x_unqualified_data_types_2_amount_type_to_xml
     (name : string) (x : x_unqualified_data_types_2_amount_type)
@@ -46428,7 +46437,10 @@ and let x_unqualified_data_types_2_binary_object_type_attributes
     (x : x_unqualified_data_types_2_binary_object_type)
     : list (string * string)
     =
-    listm.concat [ x_2_binary_object_type_attributes x.base; [ ("mimeCode", x.mime_code) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "mimeCode") (x_2_binary_object_type_attributes x.base)
+        [ ("mimeCode", x.mime_code) ]
+    ]
 
 and let x_unqualified_data_types_2_binary_object_type_to_xml
     (name : string) (x : x_unqualified_data_types_2_binary_object_type)
@@ -46441,7 +46453,10 @@ and let x_unqualified_data_types_2_binary_object_type_to_xml
 and let x_graphic_type_children (x : x_graphic_type) : list xml.xml_node = x_2_binary_object_type_children x.base
 
 and let x_graphic_type_attributes (x : x_graphic_type) : list (string * string) =
-    listm.concat [ x_2_binary_object_type_attributes x.base; [ ("mimeCode", x.mime_code) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "mimeCode") (x_2_binary_object_type_attributes x.base)
+        [ ("mimeCode", x.mime_code) ]
+    ]
 
 and let x_graphic_type_to_xml (name : string) (x : x_graphic_type) : xml.xml_node =
     xml.element name (x_graphic_type_attributes x) (x_graphic_type_children x)
@@ -46449,7 +46464,10 @@ and let x_graphic_type_to_xml (name : string) (x : x_graphic_type) : xml.xml_nod
 and let x_picture_type_children (x : x_picture_type) : list xml.xml_node = x_2_binary_object_type_children x.base
 
 and let x_picture_type_attributes (x : x_picture_type) : list (string * string) =
-    listm.concat [ x_2_binary_object_type_attributes x.base; [ ("mimeCode", x.mime_code) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "mimeCode") (x_2_binary_object_type_attributes x.base)
+        [ ("mimeCode", x.mime_code) ]
+    ]
 
 and let x_picture_type_to_xml (name : string) (x : x_picture_type) : xml.xml_node =
     xml.element name (x_picture_type_attributes x) (x_picture_type_children x)
@@ -46457,7 +46475,10 @@ and let x_picture_type_to_xml (name : string) (x : x_picture_type) : xml.xml_nod
 and let x_sound_type_children (x : x_sound_type) : list xml.xml_node = x_2_binary_object_type_children x.base
 
 and let x_sound_type_attributes (x : x_sound_type) : list (string * string) =
-    listm.concat [ x_2_binary_object_type_attributes x.base; [ ("mimeCode", x.mime_code) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "mimeCode") (x_2_binary_object_type_attributes x.base)
+        [ ("mimeCode", x.mime_code) ]
+    ]
 
 and let x_sound_type_to_xml (name : string) (x : x_sound_type) : xml.xml_node =
     xml.element name (x_sound_type_attributes x) (x_sound_type_children x)
@@ -46465,7 +46486,10 @@ and let x_sound_type_to_xml (name : string) (x : x_sound_type) : xml.xml_node =
 and let x_video_type_children (x : x_video_type) : list xml.xml_node = x_2_binary_object_type_children x.base
 
 and let x_video_type_attributes (x : x_video_type) : list (string * string) =
-    listm.concat [ x_2_binary_object_type_attributes x.base; [ ("mimeCode", x.mime_code) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "mimeCode") (x_2_binary_object_type_attributes x.base)
+        [ ("mimeCode", x.mime_code) ]
+    ]
 
 and let x_video_type_to_xml (name : string) (x : x_video_type) : xml.xml_node =
     xml.element name (x_video_type_attributes x) (x_video_type_children x)
@@ -46578,7 +46602,10 @@ and let x_unqualified_data_types_2_measure_type_attributes
     (x : x_unqualified_data_types_2_measure_type)
     : list (string * string)
     =
-    listm.concat [ x_2_measure_type_attributes x.base; [ ("unitCode", x.unit_code) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "unitCode") (x_2_measure_type_attributes x.base)
+        [ ("unitCode", x.unit_code) ]
+    ]
 
 and let x_unqualified_data_types_2_measure_type_to_xml
     (name : string) (x : x_unqualified_data_types_2_measure_type)

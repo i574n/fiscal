@@ -574,13 +574,24 @@ if (-not (Test-Path $peppol)) {
     "deps/corpus/eu/peppol-bis3: BIS Billing 3.0.20 rules (2 schematron) and 8 official examples"
 }
 $peppolStructure = Join-Path $deps 'corpus/eu/peppol-bis3/structure'
-if (-not (Test-Path $peppolStructure)) {
+if (-not (Test-Path (Join-Path $peppolStructure 'part'))) {
     $filling = $peppolStructure
     New-Item -ItemType Directory -Force $peppolStructure | Out-Null
-    foreach ($file in 'ubl-invoice', 'ubl-creditnote') {
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/OpenPeppol/peppol-bis-invoice-3/v3.0.20/structure/syntax/$file.xml" -OutFile (Join-Path $peppolStructure "$file.xml") -TimeoutSec 120 -UseBasicParsing
+    $syntax = 'https://raw.githubusercontent.com/OpenPeppol/peppol-bis-invoice-3/v3.0.20/structure/syntax/'
+    $pending = [Collections.Generic.Queue[string]]::new([string[]]@('ubl-invoice.xml', 'ubl-creditnote.xml'))
+    $fetched = [Collections.Generic.HashSet[string]]::new()
+    while ($pending.Count) {
+        $file = $pending.Dequeue()
+        if (-not $fetched.Add($file)) { continue }
+        $to = Join-Path $peppolStructure $file
+        New-Item -ItemType Directory -Force (Split-Path $to) | Out-Null
+        Invoke-WebRequest -Uri "$syntax$file" -OutFile $to -TimeoutSec 120 -UseBasicParsing
+        $folder = Split-Path $file
+        foreach ($m in [regex]::Matches([IO.File]::ReadAllText($to), '<Include>([^<]+)</Include>')) {
+            $pending.Enqueue(([IO.Path]::Combine($folder, $m.Groups[1].Value) -replace '\\', '/'))
+        }
     }
-    "deps/corpus/eu/peppol-bis3/structure: BIS Billing 3.0.20 syntax bindings (UBL element -> EN 16931 BT/BG term, per document)"
+    "deps/corpus/eu/peppol-bis3/structure: BIS Billing 3.0.20 syntax bindings with their $($fetched.Count - 2) included parts (UBL element -> EN 16931 BT/BG term, per document)"
 }
 $ubl = Join-Path $deps 'corpus/eu/ubl21'
 if (-not (Test-Path $ubl)) {

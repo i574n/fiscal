@@ -15228,7 +15228,10 @@ and let x_t_osoba_fizyczna_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna_adres_zamieszkania)
@@ -15264,7 +15267,10 @@ and let x_t_osoba_fizyczna1_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna1_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna1_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna1_adres_zamieszkania)
@@ -15300,7 +15306,10 @@ and let x_t_osoba_fizyczna5_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna5_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna5_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna5_adres_zamieszkania)
@@ -15336,7 +15345,10 @@ and let x_t_osoba_fizyczna3_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna3_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna3_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna3_adres_zamieszkania)
@@ -15372,7 +15384,10 @@ and let x_t_osoba_fizyczna2_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna2_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna2_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna2_adres_zamieszkania)
@@ -15408,7 +15423,10 @@ and let x_t_osoba_niefizyczna_adres_siedziby_attributes
     (x : x_t_osoba_niefizyczna_adres_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_niefizyczna_adres_siedziby_to_xml
     (name : string) (x : x_t_osoba_niefizyczna_adres_siedziby)
@@ -15444,7 +15462,10 @@ and let x_t_osoba_niefizyczna1_adres_siedziby_attributes
     (x : x_t_osoba_niefizyczna1_adres_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_niefizyczna1_adres_siedziby_to_xml
     (name : string) (x : x_t_osoba_niefizyczna1_adres_siedziby)
@@ -15480,7 +15501,10 @@ and let x_t_osoba_niefizyczna2_adres_siedziby_attributes
     (x : x_t_osoba_niefizyczna2_adres_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_niefizyczna2_adres_siedziby_to_xml
     (name : string) (x : x_t_osoba_niefizyczna2_adres_siedziby)
@@ -15516,7 +15540,10 @@ and let x_t_osoba_fizyczna4_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna4_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna4_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna4_adres_zamieszkania)
@@ -15552,7 +15579,10 @@ and let x_t_podmiot_dowolny_adres_zamieszkania_siedziby_attributes
     (x : x_t_podmiot_dowolny_adres_zamieszkania_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_podmiot_dowolny_adres_zamieszkania_siedziby_to_xml
     (name : string) (x : x_t_podmiot_dowolny_adres_zamieszkania_siedziby)
@@ -15592,7 +15622,10 @@ and let x_t_osoba_fizyczna_pelna_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna_pelna_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna_pelna_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna_pelna_adres_zamieszkania)
@@ -15632,7 +15665,10 @@ and let x_t_osoba_fizyczna_pelna1_adres_zamieszkania_attributes
     (x : x_t_osoba_fizyczna_pelna1_adres_zamieszkania)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_fizyczna_pelna1_adres_zamieszkania_to_xml
     (name : string) (x : x_t_osoba_fizyczna_pelna1_adres_zamieszkania)
@@ -15668,7 +15704,10 @@ and let x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_attributes
     (x : x_t_podmiot_dowolny1_adres_zamieszkania_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_to_xml
     (name : string) (x : x_t_podmiot_dowolny1_adres_zamieszkania_siedziby)
@@ -15704,7 +15743,10 @@ and let x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_attributes
     (x : x_t_podmiot_dowolny2_adres_zamieszkania_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_to_xml
     (name : string) (x : x_t_podmiot_dowolny2_adres_zamieszkania_siedziby)
@@ -15744,7 +15786,10 @@ and let x_t_osoba_niefizyczna_pelna_adres_siedziby_attributes
     (x : x_t_osoba_niefizyczna_pelna_adres_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_niefizyczna_pelna_adres_siedziby_to_xml
     (name : string) (x : x_t_osoba_niefizyczna_pelna_adres_siedziby)
@@ -15786,7 +15831,10 @@ and let x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_attributes
     (x : x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_definicje_typy_t_adres_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_definicje_typy_t_adres_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_to_xml
     (name : string) (x : x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby)
@@ -15839,7 +15887,10 @@ and let x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_attributes
     (x : x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_to_xml
     (name : string) (x : x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby)
@@ -15889,7 +15940,10 @@ and let x_t_osoba_niefizyczna_pelna1_adres_siedziby_attributes
     (x : x_t_osoba_niefizyczna_pelna1_adres_siedziby)
     : list (string * string)
     =
-    listm.concat [ x_t_adres1_attributes x.base; [ ("rodzajAdresu", x.rodzaj_adresu) ] ]
+    listm.concat [
+        listm'.filter (fun (n, _) => n <> "rodzajAdresu") (x_t_adres1_attributes x.base)
+        [ ("rodzajAdresu", x.rodzaj_adresu) ]
+    ]
 
 and let x_t_osoba_niefizyczna_pelna1_adres_siedziby_to_xml
     (name : string) (x : x_t_osoba_niefizyczna_pelna1_adres_siedziby)
