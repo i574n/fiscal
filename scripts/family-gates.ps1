@@ -48,12 +48,15 @@ $resolved = [ordered]@{
     'generated_cfdi_pagos_2_0_example.xml' = 'deps/corpus/mx/complements/Pagos20.xsd'
     'generated_cfdi_tfd_1_1_example.xml' = 'deps/corpus/mx/complements/TimbreFiscalDigitalv11.xsd'
     'generated_cl_dte_v10_example.xml' = 'deps/corpus/cl/dte/DTE_v10.xsd'
+    'generated_cr_factura_4_4_example.xml' = "${cr}FacturaElectronica_V4.4.xsd"
     'generated_cr_factura_compra_4_4_example.xml' = "${cr}FacturaElectronicaCompra_V4.4.xsd"
+    'generated_cr_factura_exportacion_4_4_example.xml' = "${cr}FacturaElectronicaExportacion_V4.4.xsd"
     'generated_cr_mensaje_hacienda_4_4_example.xml' = "${cr}MensajeHacienda_V4.4.xsd"
     'generated_cr_mensaje_receptor_4_4_example.xml' = "${cr}MensajeReceptor_V4.4.xsd"
     'generated_cr_nota_credito_4_4_example.xml' = "${cr}NotaCreditoElectronica_V4.4.xsd"
     'generated_cr_nota_debito_4_4_example.xml' = "${cr}NotaDebitoElectronica_V4.4.xsd"
     'generated_cr_recibo_pago_4_4_example.xml' = "${cr}ReciboElectronicoPago_V4.4.xsd"
+    'generated_cr_tiquete_4_4_example.xml' = "${cr}TiqueteElectronico_V4.4.xsd"
     'generated_es_facturae_3_2_2_example.xml' = 'deps/corpus/es/facturae/Facturaev3_2_2.xsd'
     'generated_gr_mydata_2_0_2_example.xml' = 'deps/corpus/gr/mydata/InvoicesDoc-v2.0.2.xsd'
 }

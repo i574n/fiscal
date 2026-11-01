@@ -55,14 +55,17 @@ function Invoke-TestFile([IO.FileInfo] $Source) {
     $notebook = Join-Path $notebooks "$name.spi.ipynb"
     $arguments = @('-NoProfile', '-File', $runNotebook, '--path', $Source.FullName, '--output-path', $notebook, '--no-spi',
         '--metrics', $cellsMetrics) | ForEach-Object { "`"$_`"" }
-    foreach ($attempt in 1, 2) {
-        $run = Start-Process pwsh -ArgumentList $arguments -NoNewWindow -PassThru `
-            -RedirectStandardOutput $output -RedirectStandardError "$output.err"
-        $null = $run.Handle
-        while (!$run.WaitForExit(60000)) { Write-Output "build.ps1 / $name / running $([int]$clock.Elapsed.TotalSeconds) s" }
-        $lines = @(Get-Content $output, "$output.err" -ErrorAction Ignore)
-        if ($attempt -eq 2 -or -not ($lines | Select-String 'compiler socket failed' -Quiet)) { break }
-        Write-Output "build.ps1 / $name / compiler socket closed; retrying once"
+    $started = Get-Date
+    $run = Start-Process pwsh -ArgumentList $arguments -NoNewWindow -PassThru `
+        -RedirectStandardOutput $output -RedirectStandardError "$output.err"
+    $null = $run.Handle
+    while (!$run.WaitForExit(60000)) { Write-Output "build.ps1 / $name / running $([int]$clock.Elapsed.TotalSeconds) s" }
+    $lines = @(Get-Content $output, "$output.err" -ErrorAction Ignore)
+    if ($IsWindows -and ($lines | Select-String 'compiler socket failed' -Quiet)) {
+        Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Application Error'; StartTime = $started } -ErrorAction Ignore |
+            Where-Object { $_.Message -match 'Faulting application name: dotnet\.exe' } |
+            ForEach-Object { $_.Message -split "`r?`n" | Where-Object { $_ -match '^(Faulting module name|Exception code|Fault offset):' } } |
+            ForEach-Object { Write-Output "build.ps1 / $name / compiler crash / $($_.Trim())" }
     }
     Write-Output "build.ps1 / $name / done in $([int]$clock.Elapsed.TotalSeconds) s"
     $seconds = [math]::Round($clock.Elapsed.TotalSeconds, 1)
@@ -95,7 +98,6 @@ foreach ($source in @(Select-TestFiles { $_.BaseName -eq 'generator' })) { Invok
 $formatting = @(& (Join-Path $PSScriptRoot 'format-generated.ps1') -Compiler $spiral.Compiler -Dotnet $spiral.Dotnet -Root $root)
 $formatting | ForEach-Object { Write-Output "build.ps1 / $_" }
 if ($LASTEXITCODE) { $problems.Add("format: $(@($formatting | Where-Object { $_ -match ' / failed ' }).Count) generated units did not format") }
-& (Join-Path $PSScriptRoot 'en16931-terms.ps1') | ForEach-Object { Write-Output "build.ps1 / $_" }
 if (-not $Files) {
     $drift = @(git -C $root -c core.quotepath=off status --porcelain --untracked-files=all -- generated)
     if ($LASTEXITCODE) { throw "build.ps1 / git status failed on generated (exit code $LASTEXITCODE)" }

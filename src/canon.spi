@@ -1,0 +1,197 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xml
+:< xsd
+:< json_schema
+
+:| term_id =
+    | BusinessTerm : i32
+    | BusinessGroup : i32
+
+:| ubl_document =
+    | UblInvoice
+    | UblCreditNote
+
+:= ubl_document_name (document : ubl_document) : string =
+    ?= document ?|
+    | UblInvoice => "ubl-invoice"
+    | UblCreditNote => "ubl-creditnote"
+
+:== term_row =
+    {
+        id : term_id
+        name : string
+        data_type : string
+        cardinality : string
+        ubl : list (ubl_document * string)
+    }
+
+:= child_text (name : string) (children : list xml_node) : string =
+    ?= first_named name children ?|
+    | Some (_, inner) => sm'::trim (text_in inner)
+    | None => ""
+
+:~ ^ split_commas (s : string) (acc : list string) : list string =
+    := at = sm'::index_of "," s
+    ? at < 0i32 ?> listm::rev (sm'::trim s :: acc)
+    |:
+        := rest = sm'::substring (at + 1i32) (sm'::length s - at - 1i32) s
+        split_commas rest (sm'::trim (sm'::substring 0i32 at s) :: acc)
+
+:= term_id_of (text : string) : option term_id =
+    ? sm'::length text <= 3i32 ?> None
+    |:
+        ?= sm'::decimal_i32 (sm'::substring 3i32 (sm'::length text - 3i32) text) ?|
+        | Some n =>
+            ? sm'::starts_with "BT-" text ?> Some (BusinessTerm n)
+            |? sm'::starts_with "BG-" text ?> Some (BusinessGroup n)
+            |: None
+        | None => None
+
+:= term_id_text (id : term_id) : string =
+    ?= id ?|
+    | BusinessTerm n => "BT-" ++# sm'::obj_to_string n
+    | BusinessGroup n => "BG-" ++# sm'::obj_to_string n
+
+:= is_group (id : term_id) : bool =
+    ?= id ?|
+    | BusinessGroup _ => !+
+    | BusinessTerm _ => !-
+
+:~ ^ term_ids (texts : list string) (acc : list term_id) : list term_id =
+    ?= texts ?|
+    | text :: rest =>
+        ?= term_id_of text ?|
+        | Some id => term_ids rest (id :: acc)
+        | None => term_ids rest acc
+    | [] => listm::rev acc
+
+:~ ^ business_terms (nodes : list xml_node) (acc : list term_id) : list term_id =
+    ?= nodes ?|
+    | XmlElement (name, attributes, inner) :: rest =>
+        ? local_name name = "Reference" && attribute_or "type" "" attributes = "BUSINESS_TERM"
+        ?> business_terms rest (listm::append acc (term_ids (split_commas (text_in inner) []) []))
+        |: business_terms rest acc
+    | _ :: rest => business_terms rest acc
+    | [] => acc
+
+:~ ^ nth_or_last (i : i32) (items : list string) : string =
+    ?= items ?|
+    | x :: [] => x
+    | x :: rest => ? i = 0i32 ?> x |: nth_or_last (i - 1i32) rest
+    | [] => ""
+
+:~ ^ with_document
+    (document : ubl_document) (path : string) (ubl : list (ubl_document * string))
+    : list (ubl_document * string)
+    =
+    ?= ubl ?|
+    | (d, p) :: rest => ? d = document ?> (d, path) :: rest |: (d, p) :: with_document document path rest
+    | [] => [ (document, path) ]
+
+:~ ^ has_term (id : term_id) (rows : list term_row) : bool =
+    ?= rows ?|
+    | r :: rest => r::id = id || has_term id rest
+    | [] => !-
+
+:= with_term (row : term_row) (document : ubl_document) (path : string) (rows : list term_row) : list term_row =
+    ? has_term row::id rows
+    ?> listm::map (\ (r : term_row) => ? r::id = row::id ?> { r ?| ubl = with_document document path r::ubl } |: r) rows
+    |: listm::append rows [ { row ?| ubl = [ (document, path) ] } ]
+
+:~ ^ add_terms
+    (ids : list term_id) (i : i32) (names : list string) (data_type : string) (cardinality : string)
+    (document : ubl_document) (path : string) (rows : list term_row)
+    : list term_row
+    =
+    ?= ids ?|
+    | id :: rest =>
+        := row = { id = id; name = nth_or_last i names; data_type = data_type; cardinality = cardinality; ubl = [] }
+        add_terms rest (i + 1i32) names data_type cardinality document path (with_term row document path rows)
+    | [] => rows
+
+:~ ^ visit_element
+    (attributes : list (string * string)) (children : list xml_node) (path : string) (folder : string)
+    (document : ubl_document) (rows : list term_row)
+    : list term_row
+    =
+    := here = path ++# "/" ++# child_text "Term" children
+    := ids = business_terms children []
+    := name = child_text "Name" children
+    := split = split_commas name []
+    := names = ? listm::length ids > 1i32 && (listm::length split : i32) = listm::length ids ?> split |: [ name ]
+    := data_type = child_text "DataType" children
+    := cardinality = attribute_or "cardinality" "1..1" attributes
+    read_children children here folder document (add_terms ids 0i32 names data_type cardinality document here rows)
+
+:& :~ read_children
+    (nodes : list xml_node) (path : string) (folder : string) (document : ubl_document) (rows : list term_row)
+    : list term_row
+    =
+    ?= nodes ?|
+    | XmlElement (name, attributes, inner) :: rest =>
+        ? local_name name = "Include" ?>
+            := file = folder ++# "/" ++# sm'::trim (text_in inner)
+            := slash = sm'::last_index_of "/" file
+            := included =
+                ?= first_named "Element" (read_xml (file_system::read_all_text file)) ?|
+                | Some (a, c) => visit_element a c path (sm'::substring 0i32 slash file) document rows
+                | None => rows
+            read_children rest path folder document included
+        |? local_name name = "Element" ?>
+            read_children rest path folder document (visit_element attributes inner path folder document rows)
+        |: read_children rest path folder document rows
+    | _ :: rest => read_children rest path folder document rows
+    | [] => rows
+
+:= structure_terms (structure : string) (document : ubl_document) (rows : list term_row) : list term_row =
+    := file = structure ++# "/" ++# ubl_document_name document ++# ".xml"
+    ?= first_named "Structure" (read_xml (file_system::read_all_text file)) ?|
+    | Some (_, children) =>
+        ?= first_named "Document" children ?|
+        | Some (_, inner) => read_children inner (child_text "Term" inner) structure document rows
+        | None => rows
+    | None => rows
+
+:= term_order (r : term_row) : i32 =
+    ?= r::id ?|
+    | BusinessTerm n => n
+    | BusinessGroup n => 100000i32 + n
+
+:~ ^ insert_ordered (row : term_row) (rows : list term_row) : list term_row =
+    ?= rows ?|
+    | r :: rest => ? term_order row < term_order r ?> row :: rows |: r :: insert_ordered row rest
+    | [] => [ row ]
+
+:~ ^ ordered_terms (rows : list term_row) (acc : list term_row) : list term_row =
+    ?= rows ?|
+    | r :: rest => ordered_terms rest (insert_ordered r acc)
+    | [] => acc
+
+:= term_json (r : term_row) : json_value =
+    JsonObject [
+        ("id", JsonText (term_id_text r::id)); ("kind", JsonText (? is_group r::id ?> "group" |: "term"))
+        ("name", JsonText r::name)
+        ("data_type", JsonText r::data_type); ("cardinality", JsonText r::cardinality)
+        ("ubl", JsonObject (listm::map (\ (d, p) => ubl_document_name d, JsonText p) r::ubl))
+    ]
+
+:= en16931_terms () : list term_row =
+    := structure = fiscal_paths::under "deps/corpus/eu/peppol-bis3/structure"
+    ordered_terms (structure_terms structure UblCreditNote (structure_terms structure UblInvoice [])) []
+
+///> rust
+test en16931_terms_are_written_to_the_canon =
+    := rows = en16931_terms ()
+    := groups = listm::length (listm'::filter (\ (r : term_row) => is_group r::id) rows)
+    := terms = listm::length rows - groups
+    := source = "OpenPeppol peppol-bis-invoice-3 v3.0.20 structure/syntax (EN 16931 UBL binding)"
+    := text = json_text (JsonObject [ ("source", JsonText source); ("terms", JsonArray (listm::map term_json rows)) ])
+    := folder = fiscal_paths::under "canon"
+    file_system::directory_create_all folder |> ignore
+    file_system::write_all_text (folder ++# "/en16931-terms.json") (text ++# "\n")
+    console::write_line (
+        "en16931 terms: " ++# sm'::obj_to_string terms ++# " terms, " ++# sm'::obj_to_string groups ++# " groups"
+    )
+    ? terms <> 160i32 || groups <> 30i32
+    ?> failwith "160 EN 16931 terms and 30 groups, as the PowerShell walker read them"

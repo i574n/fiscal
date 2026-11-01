@@ -5,6 +5,7 @@ packages:
     spiral-
 modules:
     fiscal_paths
+    canon
     corpus
     corpus_checks
     generator
