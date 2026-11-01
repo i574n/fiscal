@@ -5580,6 +5580,7 @@ test generated_in_gst_inv01_1_1_writes_its_example =
     inl document = xml.element "GstInvoice" (x_gst_invoice_attributes example) (x_gst_invoice_children example)
     inl schema = file_system.read_all_text (sample_path "../deps/corpus/in/gst/inv01_1.1.json")
     inl text = json_schema.json_document_text schema document
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text (sample_path "generated_in_gst_inv01_1_1_example.json") text
     match json_schema.json_document "GstInvoice" text with
     | node :: [] =>

@@ -8,7 +8,9 @@
 ///> rust
 test reads_the_real_tipos_basico_schema =
     := nodes =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/tiposBasico_v4.00.xsd")
+        file_system::read_all_text (
+            fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/tiposBasico_v4.00.xsd"
+        )
         |> read_xml
     ? count_named "enumeration" nodes <> 116i32 ?> failwith "enumeration 116"
     ? count_named "simpleType" nodes <> 53i32 ?> failwith "simpleType 53"
@@ -22,7 +24,7 @@ test reads_the_real_tipos_basico_schema =
 ///> rust
 test measures_the_shape_of_the_nfe_layout =
     := nodes =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/leiauteNFe_v4.00.xsd")
+        file_system::read_all_text (fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/leiauteNFe_v4.00.xsd")
         |> read_xml
     ? count_list (element_names nodes []) <> 21i32 ?> failwith "21 element kinds"
     ? count_named "documentation" nodes <> 915i32 ?> failwith "documentation 915"
@@ -33,12 +35,14 @@ test measures_the_shape_of_the_nfe_layout =
 ///> rust
 test models_the_real_tipos_basico_schema =
     := schema =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/tiposBasico_v4.00.xsd")
+        file_system::read_all_text (
+            fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/tiposBasico_v4.00.xsd"
+        )
         |> read_schema
-    ? count_list schema.simple_types <> 53i32 ?> failwith "53 named simpleTypes"
-    ? count_list schema.complex_types <> 1i32 ?> failwith "1 complexType"
-    ? enumeration_count schema.simple_types <> 116i32 ?> failwith "116 enumeration facets"
-    ? namespace_text schema.target_namespace <> "http://www.portalfiscal.inf.br/nfe" ?> failwith "target namespace"
+    ? count_list schema::simple_types <> 53i32 ?> failwith "53 named simpleTypes"
+    ? count_list schema::complex_types <> 1i32 ?> failwith "1 complexType"
+    ? enumeration_count schema::simple_types <> 116i32 ?> failwith "116 enumeration facets"
+    ? namespace_text schema::target_namespace <> "http://www.portalfiscal.inf.br/nfe" ?> failwith "target namespace"
 
 :! element_count = i32
 
@@ -65,24 +69,24 @@ test models_the_real_tipos_basico_schema =
 
 :~ ^ model_census \* k form. (counts : census) (item : xsd k form) : census =
     ?= item ?|
-    | Simple _ => { counts ?| simple_types = counted_simple counts.simple_types }
+    | Simple _ => { counts ?| simple_types = counted_simple counts::simple_types }
     | Complex c =>
-        := counted = { counts ?| complex_types = counted_complex counts.complex_types }
-        model_census_all (model_census counted c.content) c.attributes
+        := counted = { counts ?| complex_types = counted_complex counts::complex_types }
+        model_census_all (model_census counted c::content) c::attributes
     | Derived d =>
-        := counted = { counts ?| complex_types = counted_complex counts.complex_types }
-        model_census_all (model_census counted d.content) d.attributes
-    | Sequence group => model_census_all counts group.items
-    | Choice group => model_census_all counts group.items
+        := counted = { counts ?| complex_types = counted_complex counts::complex_types }
+        model_census_all (model_census counted d::content) d::attributes
+    | Sequence group => model_census_all counts group::items
+    | Choice group => model_census_all counts group::items
     | Element e =>
-        := counted = { counts ?| elements = counted_element counts.elements }
-        ?= e.inline ?|
+        := counted = { counts ?| elements = counted_element counts::elements }
+        ?= e::inline ?|
         | Some inner => model_census counted inner
         | None => counted
     | AnyContent () => counts
     | Empty () => counts
     | Attribute a =>
-        ?= a.inline ?|
+        ?= a::inline ?|
         | Some inner => model_census counts inner
         | None => counts
 
@@ -94,23 +98,23 @@ test models_the_real_tipos_basico_schema =
 :~ ^ census_corpus (paths : list string) (files : i32) (counts : census) : i32 * census =
     ?= paths ?|
     | path :: rest =>
-        := schema = xml.read_text_replacing_invalid_utf8 (fiscal_paths.under path) |> read_schema
-        := counts = model_census_all counts schema.simple_types
-        := counts = model_census_all counts schema.complex_types
-        := counts = model_census_all counts schema.elements
+        := schema = xml::read_text_replacing_invalid_utf8 (fiscal_paths::under path) |> read_schema
+        := counts = model_census_all counts schema::simple_types
+        := counts = model_census_all counts schema::complex_types
+        := counts = model_census_all counts schema::elements
         census_corpus rest (files + 1i32) counts
     | [] => files, counts
 
 ///> rust
 test models_the_corpus_census =
-    := files, counts = census_corpus (corpus.manifest_files ()) 0i32 (no_census ())
-    := element = element_total counts.elements
-    := complex_type = complex_total counts.complex_types
-    := simple_type = simple_total counts.simple_types
+    := files, counts = census_corpus (corpus::manifest_files ()) 0i32 (no_census ())
+    := element = element_total counts::elements
+    := complex_type = complex_total counts::complex_types
+    := simple_type = simple_total counts::simple_types
     ? files <> 580i32 ?> failwith "580 files"
-    ? element <> 12077i32 ?> failwith ("12077 modeled elements, got " ++# sm'.obj_to_string element)
-    ? complex_type <> 2238i32 ?> failwith ("2238 modeled complexTypes, got " ++# sm'.obj_to_string complex_type)
-    ? simple_type <> 5389i32 ?> failwith ("5389 modeled simpleTypes, got " ++# sm'.obj_to_string simple_type)
+    ? element <> 12077i32 ?> failwith ("12077 modeled elements, got " ++# sm'::obj_to_string element)
+    ? complex_type <> 2238i32 ?> failwith ("2238 modeled complexTypes, got " ++# sm'::obj_to_string complex_type)
+    ? simple_type <> 5389i32 ?> failwith ("5389 modeled simpleTypes, got " ++# sm'::obj_to_string simple_type)
 
 :== corpus_resolution =
     {
@@ -123,24 +127,24 @@ test models_the_corpus_census =
 :~ ^ resolve_corpus (paths : list string) (totals : corpus_resolution) : corpus_resolution =
     ?= paths ?|
     | path :: rest =>
-        := tree = load_schema_tree (fiscal_paths.under path)
-        := has_missing = ?= tree.missing ?| _ :: _ => !+ | [] => !-
+        := tree = load_schema_tree (fiscal_paths::under path)
+        := has_missing = ?= tree::missing ?| _ :: _ => !+ | [] => !-
         := unresolved = unresolved_count tree
         := next =
             {
-                files = totals.files + 1i32
-                with_missing_include = totals.with_missing_include + (? has_missing ?> 1i32 |: 0i32)
-                with_unresolved = totals.with_unresolved + (? unresolved > 0i32 && has_missing = !- ?> 1i32 |: 0i32)
+                files = totals::files + 1i32
+                with_missing_include = totals::with_missing_include + (? has_missing ?> 1i32 |: 0i32)
+                with_unresolved = totals::with_unresolved + (? unresolved > 0i32 && has_missing = !- ?> 1i32 |: 0i32)
                 unresolved_beside_missing =
-                    totals.unresolved_beside_missing + (? unresolved > 0i32 && has_missing ?> 1i32 |: 0i32)
+                    totals::unresolved_beside_missing + (? unresolved > 0i32 && has_missing ?> 1i32 |: 0i32)
             }
         resolve_corpus rest next
     | [] => totals
 
 ///> rust
 test resolves_the_nfe_tree =
-    := tree = load_schema_tree (fiscal_paths.under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
-    ?= tree.missing ?|
+    := tree = load_schema_tree (fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
+    ?= tree::missing ?|
     | _ :: _ => failwith "nfe_v4.00 includes are all present"
     | [] => ()
     ? unresolved_count tree <> 0i32 ?> failwith "every nfe_v4.00 type reference resolves"
@@ -148,34 +152,35 @@ test resolves_the_nfe_tree =
 ///> rust
 test resolves_the_corpus_like_dotnet =
     := empty = { files = 0i32; with_missing_include = 0i32; with_unresolved = 0i32; unresolved_beside_missing = 0i32 }
-    := totals = resolve_corpus (corpus.manifest_files ()) empty
-    ? totals.files <> 580i32 ?> failwith "580 files"
-    ? totals.with_missing_include <> 5i32 ?> failwith "the 5 files whose include .NET cannot resolve"
-    ? totals.with_unresolved <> 0i32 ?> failwith "no dangling type reference where every include is present"
+    := totals = resolve_corpus (corpus::manifest_files ()) empty
+    ? totals::files <> 580i32 ?> failwith "580 files"
+    ? totals::with_missing_include <> 5i32 ?> failwith "the 5 files whose include .NET cannot resolve"
+    ? totals::with_unresolved <> 0i32 ?> failwith "no dangling type reference where every include is present"
 
 ///> rust
 test every_corpus_pattern_compiles =
-    := ok, failed = count_compiled (file_system.read_all_text (fiscal_paths.under "src/patterns.txt")) 0i32 (0i32, 0i32)
+    := ok, failed =
+        count_compiled (file_system::read_all_text (fiscal_paths::under "src/patterns.txt")) 0i32 (0i32, 0i32)
     ? failed <> 0i32 ?> failwith "a corpus pattern did not parse"
     ? ok <> 336i32 ?> failwith "336 distinct patterns"
 
 ///> rust
 test matches_like_dotnet_on_every_probe =
-    := folder = (fiscal_paths.under "src/")
-    := patterns = lines_of (file_system.read_all_text (folder ++# "patterns.txt")) 0i32 []
-    := probes = lines_of (file_system.read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
-    := rows = lines_of (file_system.read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
+    := folder = (fiscal_paths::under "src/")
+    := patterns = lines_of (file_system::read_all_text (folder ++# "patterns.txt")) 0i32 []
+    := probes = lines_of (file_system::read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
+    := rows = lines_of (file_system::read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
     := result = all_disagreements derivative_disagreements patterns rows probes { count = 0i32; first = "" }
-    ? result.count <> 0i32 ?> failwith ("disagrees with .NET Regex: " ++# result.first)
+    ? result::count <> 0i32 ?> failwith ("disagrees with .NET Regex: " ++# result::first)
 
 ///> rust
 test dfa_matches_like_dotnet_on_every_probe =
-    := folder = (fiscal_paths.under "src/")
-    := patterns = lines_of (file_system.read_all_text (folder ++# "patterns.txt")) 0i32 []
-    := probes = lines_of (file_system.read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
-    := rows = lines_of (file_system.read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
+    := folder = (fiscal_paths::under "src/")
+    := patterns = lines_of (file_system::read_all_text (folder ++# "patterns.txt")) 0i32 []
+    := probes = lines_of (file_system::read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
+    := rows = lines_of (file_system::read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
     := result = all_disagreements dfa_disagreements patterns rows probes { count = 0i32; first = "" }
-    ? result.count <> 0i32 ?> failwith ("the DFA disagrees with .NET Regex: " ++# result.first)
+    ? result::count <> 0i32 ?> failwith ("the DFA disagrees with .NET Regex: " ++# result::first)
 
 := table_disagreements (pattern : string) (row : string) (probes : list string) (acc : disagreement) : disagreement =
     ?= dfa_of_pattern pattern ?|
@@ -184,16 +189,16 @@ test dfa_matches_like_dotnet_on_every_probe =
 
 ///> rust
 test table_matches_like_dotnet_on_every_probe =
-    := folder = (fiscal_paths.under "src/")
-    := patterns = lines_of (file_system.read_all_text (folder ++# "patterns.txt")) 0i32 []
-    := probes = lines_of (file_system.read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
-    := rows = lines_of (file_system.read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
+    := folder = (fiscal_paths::under "src/")
+    := patterns = lines_of (file_system::read_all_text (folder ++# "patterns.txt")) 0i32 []
+    := probes = lines_of (file_system::read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
+    := rows = lines_of (file_system::read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
     := result = all_disagreements table_disagreements patterns rows probes { count = 0i32; first = "" }
-    ? result.count <> 0i32 ?> failwith ("the in-place table disagrees with .NET Regex: " ++# result.first)
+    ? result::count <> 0i32 ?> failwith ("the in-place table disagrees with .NET Regex: " ++# result::first)
 
 ///> rust
 test every_corpus_pattern_has_a_finite_dfa =
-    := patterns = lines_of (file_system.read_all_text (fiscal_paths.under "src/patterns.txt")) 0i32 []
+    := patterns = lines_of (file_system::read_all_text (fiscal_paths::under "src/patterns.txt")) 0i32 []
     := census =
         census_of patterns {
             patterns = 0i32
@@ -203,252 +208,257 @@ test every_corpus_pattern_has_a_finite_dfa =
             largest_pattern = ""
             lines = ""
         }
-    ? census.patterns <> 336i32 ?> failwith "336 distinct patterns"
-    ? census.without_dfa <> 0i32 ?> failwith "a pattern has no DFA within the state limit"
+    ? census::patterns <> 336i32 ?> failwith "336 distinct patterns"
+    ? census::without_dfa <> 0i32 ?> failwith "a pattern has no DFA within the state limit"
 
 ///> rust
 test en16931_rules_parse_completely =
     := text =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch")
-    := totals = schematron.schematron_census (schematron.read_schematron text) (schematron.empty_census ())
-    ? totals.rules <> 104i32 || totals.assertions <> 981i32 ?>
+        file_system::read_all_text (
+            fiscal_paths::under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch"
+        )
+    := totals = schematron::schematron_census (schematron::read_schematron text) (schematron::empty_census ())
+    ? totals::rules <> 104i32 || totals::assertions <> 981i32 ?>
         failwith (
             "every rule and assertion is read: rules "
-            ++# sm'.obj_to_string totals.rules
+            ++# sm'::obj_to_string totals::rules
             ++# " of 104, assertions "
-            ++# sm'.obj_to_string totals.assertions
+            ++# sm'::obj_to_string totals::assertions
             ++# " of 981"
         )
-    ? totals.fatal <> 281i32 ?> failwith ("281 fatal assertions, read " ++# sm'.obj_to_string totals.fatal)
-    ? totals.invalid <> 0i32 ?> failwith "every context and test parses"
-    ? totals.members <> 23i32 ?> failwith "23 code-list tests become member tests"
+    ? totals::fatal <> 283i32 ?> failwith ("283 fatal assertions, read " ++# sm'::obj_to_string totals::fatal)
+    ? totals::invalid <> 0i32 ?> failwith "every context and test parses"
+    ? totals::members <> 24i32 ?>
+        failwith ("24 code-list tests become member tests, read " ++# sm'::obj_to_string totals::members)
 
 ///> rust
 test regional_rules_census =
-    := text = file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/peppol-bis3/sch/PEPPOL-EN16931-UBL.sch")
-    := totals = schematron.schematron_census (schematron.read_schematron text) (schematron.empty_census ())
-    console.write_line (
+    := text = file_system::read_all_text (fiscal_paths::under "deps/corpus/eu/peppol-bis3/sch/PEPPOL-EN16931-UBL.sch")
+    := totals = schematron::schematron_census (schematron::read_schematron text) (schematron::empty_census ())
+    console::write_line (
         "peppol census: rules "
-        ++# sm'.obj_to_string totals.rules
+        ++# sm'::obj_to_string totals::rules
         ++# " assertions "
-        ++# sm'.obj_to_string totals.assertions
+        ++# sm'::obj_to_string totals::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string totals.fatal
+        ++# sm'::obj_to_string totals::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string totals.invalid
+        ++# sm'::obj_to_string totals::invalid
     )
-    ? totals.rules <> 93i32 || totals.assertions <> 159i32 ?>
+    ? totals::rules <> 93i32 || totals::assertions <> 159i32 ?>
         failwith (
             "every Peppol rule and assertion is read: rules "
-            ++# sm'.obj_to_string totals.rules
+            ++# sm'::obj_to_string totals::rules
             ++# " of 93, assertions "
-            ++# sm'.obj_to_string totals.assertions
+            ++# sm'::obj_to_string totals::assertions
             ++# " of 159"
         )
-    ? totals.fatal <> 135i32 ?> failwith ("135 fatal Peppol assertions, read " ++# sm'.obj_to_string totals.fatal)
+    ? totals::fatal <> 135i32 ?> failwith ("135 fatal Peppol assertions, read " ++# sm'::obj_to_string totals::fatal)
     := romania =
-        file_system.read_all_text (
-            fiscal_paths.under (
+        file_system::read_all_text (
+            fiscal_paths::under (
                 "deps/corpus/ro/cius/ro16931-ubl-1.0.9/preprocessed/" ++# "ROeFactura-UBL-validation-Invoice_v1.0.8.sch"
             )
         )
-    := ro = schematron.schematron_census (schematron.read_schematron romania) (schematron.empty_census ())
-    console.write_line (
+    := ro = schematron::schematron_census (schematron::read_schematron romania) (schematron::empty_census ())
+    console::write_line (
         "ro_cius census: rules "
-        ++# sm'.obj_to_string ro.rules
+        ++# sm'::obj_to_string ro::rules
         ++# " assertions "
-        ++# sm'.obj_to_string ro.assertions
+        ++# sm'::obj_to_string ro::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string ro.fatal
+        ++# sm'::obj_to_string ro::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string ro.invalid
+        ++# sm'::obj_to_string ro::invalid
     )
-    ? ro.rules <> 19i32 || ro.assertions <> 113i32 || ro.fatal <> 113i32 ?>
+    ? ro::rules <> 19i32 || ro::assertions <> 113i32 || ro::fatal <> 113i32 ?>
         failwith (
             "every RO_CIUS 1.0.8 rule is read: rules "
-            ++# sm'.obj_to_string ro.rules
+            ++# sm'::obj_to_string ro::rules
             ++# " of 19, assertions "
-            ++# sm'.obj_to_string ro.assertions
+            ++# sm'::obj_to_string ro::assertions
             ++# " of 113, fatal "
-            ++# sm'.obj_to_string ro.fatal
+            ++# sm'::obj_to_string ro::fatal
             ++# " of 113"
         )
     := turkey =
-        file_system.read_all_text (
-            fiscal_paths.under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Common_Schematron.xml"
+        file_system::read_all_text (
+            fiscal_paths::under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Common_Schematron.xml"
         )
-    := tr = schematron.schematron_census (schematron.read_schematron turkey) (schematron.empty_census ())
-    console.write_line (
+    := tr = schematron::schematron_census (schematron::read_schematron turkey) (schematron::empty_census ())
+    console::write_line (
         "ubl_tr census: rules "
-        ++# sm'.obj_to_string tr.rules
+        ++# sm'::obj_to_string tr::rules
         ++# " assertions "
-        ++# sm'.obj_to_string tr.assertions
+        ++# sm'::obj_to_string tr::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string tr.fatal
+        ++# sm'::obj_to_string tr::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string tr.invalid
+        ++# sm'::obj_to_string tr::invalid
     )
     := dian_fragment =
-        file_system.read_all_text (
-            fiscal_paths.under (
+        file_system::read_all_text (
+            fiscal_paths::under (
                 "deps/corpus/co/dian/Caja de herramientas FE_V19_(v2026)/Schemes/" ++# "UBL21/DIAN-UBL21-model.sch"
             )
         )
-    := declaration_end = sm'.last_index_of "?>" dian_fragment
+    := declaration_end = sm'::last_index_of "?>" dian_fragment
     := dian_body =
-        sm'.substring (declaration_end + 2i32) (sm'.length dian_fragment - declaration_end - 2i32) dian_fragment
+        sm'::substring (declaration_end + 2i32) (sm'::length dian_fragment - declaration_end - 2i32) dian_fragment
     := dian_schema = "<schema xmlns=\"http://purl.oclc.org/dsdl/schematron\">" ++# dian_body ++# "</schema>"
-    := co = schematron.schematron_census (schematron.read_schematron dian_schema) (schematron.empty_census ())
-    console.write_line (
+    := co = schematron::schematron_census (schematron::read_schematron dian_schema) (schematron::empty_census ())
+    console::write_line (
         "dian census: rules "
-        ++# sm'.obj_to_string co.rules
+        ++# sm'::obj_to_string co::rules
         ++# " assertions "
-        ++# sm'.obj_to_string co.assertions
+        ++# sm'::obj_to_string co::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string co.fatal
+        ++# sm'::obj_to_string co::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string co.invalid
+        ++# sm'::obj_to_string co::invalid
     )
-    ? co.rules <> 36i32 || co.assertions <> 192i32 || co.fatal <> 169i32 ?>
+    ? co::rules <> 36i32 || co::assertions <> 192i32 || co::fatal <> 169i32 ?>
         failwith (
             "the DIAN model fragment, wrapped as its include does, reads fully: rules "
-            ++# sm'.obj_to_string co.rules
+            ++# sm'::obj_to_string co::rules
             ++# " of 36, assertions "
-            ++# sm'.obj_to_string co.assertions
+            ++# sm'::obj_to_string co::assertions
             ++# " of 192, fatal "
-            ++# sm'.obj_to_string co.fatal
+            ++# sm'::obj_to_string co::fatal
             ++# " of 169"
         )
-    ? tr.rules <> 0i32 || tr.assertions <> 0i32 ?>
+    ? tr::rules <> 0i32 || tr::assertions <> 0i32 ?>
         failwith (
             "UBL-TR common holds only abstract rules, reached through the main schematron's extends: rules "
-            ++# sm'.obj_to_string tr.rules
+            ++# sm'::obj_to_string tr::rules
             ++# ", assertions "
-            ++# sm'.obj_to_string tr.assertions
+            ++# sm'::obj_to_string tr::assertions
         )
     := zatca_rules =
-        file_system.read_all_text (
-            fiscal_paths.under (
+        file_system::read_all_text (
+            fiscal_paths::under (
                 "deps/corpus/sa/zatca/Rules/Schematrons/" ++# "20210819_ZATCA_E-invoice_Validation_Rules.sch"
             )
         )
-    := sa = schematron.schematron_census (schematron.read_schematron zatca_rules) (schematron.empty_census ())
-    console.write_line (
+    := sa = schematron::schematron_census (schematron::read_schematron zatca_rules) (schematron::empty_census ())
+    console::write_line (
         "zatca census: rules "
-        ++# sm'.obj_to_string sa.rules
+        ++# sm'::obj_to_string sa::rules
         ++# " assertions "
-        ++# sm'.obj_to_string sa.assertions
+        ++# sm'::obj_to_string sa::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string sa.fatal
+        ++# sm'::obj_to_string sa::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string sa.invalid
+        ++# sm'::obj_to_string sa::invalid
     )
-    ? sa.rules <> 50i32 || sa.assertions <> 152i32 ?>
+    ? sa::rules <> 50i32 || sa::assertions <> 152i32 ?>
         failwith (
             "every rule rebuilt from ZATCA's compiled XSL is read: rules "
-            ++# sm'.obj_to_string sa.rules
+            ++# sm'::obj_to_string sa::rules
             ++# " of 50, assertions "
-            ++# sm'.obj_to_string sa.assertions
+            ++# sm'::obj_to_string sa::assertions
             ++# " of 152"
         )
     := zatca_cen_rules =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/sa/zatca/Rules/Schematrons/CEN-EN16931-UBL.sch")
-    := sa_cen = schematron.schematron_census (schematron.read_schematron zatca_cen_rules) (schematron.empty_census ())
-    console.write_line (
+        file_system::read_all_text (fiscal_paths::under "deps/corpus/sa/zatca/Rules/Schematrons/CEN-EN16931-UBL.sch")
+    := sa_cen =
+        schematron::schematron_census (schematron::read_schematron zatca_cen_rules) (schematron::empty_census ())
+    console::write_line (
         "zatca cen census: rules "
-        ++# sm'.obj_to_string sa_cen.rules
+        ++# sm'::obj_to_string sa_cen::rules
         ++# " assertions "
-        ++# sm'.obj_to_string sa_cen.assertions
+        ++# sm'::obj_to_string sa_cen::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string sa_cen.fatal
+        ++# sm'::obj_to_string sa_cen::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string sa_cen.invalid
+        ++# sm'::obj_to_string sa_cen::invalid
     )
-    ? sa_cen.rules <> 35i32 || sa_cen.assertions <> 105i32 ?>
+    ? sa_cen::rules <> 35i32 || sa_cen::assertions <> 105i32 ?>
         failwith (
             "every rule of ZATCA's modified CEN copy is read: rules "
-            ++# sm'.obj_to_string sa_cen.rules
+            ++# sm'::obj_to_string sa_cen::rules
             ++# " of 35, assertions "
-            ++# sm'.obj_to_string sa_cen.assertions
+            ++# sm'::obj_to_string sa_cen::assertions
             ++# " of 105"
         )
 
-:= invalid_assertion_lines (a : schematron.assertion) : list string =
-    ? xpath.invalid_count a.test > 0i32
-    ?> [ schematron.rule_text a.id ++# " test " ++# a.source ++# " parsed as " ++# xpath.xpath_text a.test ]
+:= invalid_assertion_lines (a : schematron::assertion) : list string =
+    ? xpath::invalid_count a::test > 0i32
+    ?> [ schematron::rule_text a::id ++# " test " ++# a::source ++# " parsed as " ++# xpath::xpath_text a::test ]
     |: []
 
-:= invalid_rule_lines (r : schematron.rule) : list string =
+:= invalid_rule_lines (r : schematron::rule) : list string =
     := own =
-        ? xpath.invalid_count r.context > 0i32
-        ?> [ "context " ++# r.context_source ++# " parsed as " ++# xpath.xpath_text r.context ]
+        ? xpath::invalid_count r::context > 0i32
+        ?> [ "context " ++# r::context_source ++# " parsed as " ++# xpath::xpath_text r::context ]
         |: []
-    listm.append own (listm.concat (listm.map invalid_assertion_lines r.assertions))
+    listm::append own (listm::concat (listm::map invalid_assertion_lines r::assertions))
 
-:= invalid_pattern_lines (p : schematron.pattern) : list string = listm.concat (listm.map invalid_rule_lines p.rules)
+:= invalid_pattern_lines (p : schematron::pattern) : list string =
+    listm::concat (listm::map invalid_rule_lines p::rules)
 
 := invalid_lines_of (path : string) : list string =
-    := text = file_system.read_all_text (fiscal_paths.under path)
-    listm.concat (listm.map invalid_pattern_lines (schematron.read_schematron text))
+    := text = file_system::read_all_text (fiscal_paths::under path)
+    listm::concat (listm::map invalid_pattern_lines (schematron::read_schematron text))
 
-:= corpus_text (path : string) : option string = ? xml.is_file path ?> Some (file_system.read_all_text path) |: None
+:= corpus_text (path : string) : option string = ? xml::is_file path ?> Some (file_system::read_all_text path) |: None
 
 ///> rust
 test ubl_tr_main_schematron_runs_its_extended_rules =
-    := folder = fiscal_paths.under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/"
-    := patterns = schematron.read_schematron_resolved corpus_text (folder ++# "UBL-TR_Main_Schematron.xml")
-    := tr = schematron.schematron_census patterns (schematron.empty_census ())
-    console.write_line (
+    := folder = fiscal_paths::under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/"
+    := patterns = schematron::read_schematron_resolved corpus_text (folder ++# "UBL-TR_Main_Schematron.xml")
+    := tr = schematron::schematron_census patterns (schematron::empty_census ())
+    console::write_line (
         "ubl_tr main census: rules "
-        ++# sm'.obj_to_string tr.rules
+        ++# sm'::obj_to_string tr::rules
         ++# " assertions "
-        ++# sm'.obj_to_string tr.assertions
+        ++# sm'::obj_to_string tr::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string tr.fatal
+        ++# sm'::obj_to_string tr::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string tr.invalid
+        ++# sm'::obj_to_string tr::invalid
     )
-    ? tr.rules <> 112i32 ?> failwith ("UBL-TR's 112 concrete rules are read, got " ++# sm'.obj_to_string tr.rules)
-    ? tr.assertions <> 488i32
+    ? tr::rules <> 112i32 ?> failwith ("UBL-TR's 112 concrete rules are read, got " ++# sm'::obj_to_string tr::rules)
+    ? tr::assertions <> 488i32
     ?>
-        := got = sm'.obj_to_string tr.assertions
+        := got = sm'::obj_to_string tr::assertions
         failwith ("the 210 extends bring in 488 assertions from the abstract rules, got " ++# got)
-    ? tr.invalid <> 0i32 ?> failwith "every UBL-TR context and test parses"
+    ? tr::invalid <> 0i32 ?> failwith "every UBL-TR context and test parses"
 
-:~ ^ failure_lines (failures : list schematron_run.failure) (left : i32) (acc : list string) : list string =
+:~ ^ failure_lines (failures : list schematron_run::failure) (left : i32) (acc : list string) : list string =
     ?= failures ?|
     | f :: rest ?& left > 0i32 =>
-        failure_lines rest (left - 1i32) ((schematron.rule_text f.id ++# " " ++# f.detail) :: acc)
-    | _ => listm.rev acc
+        failure_lines rest (left - 1i32) ((schematron::rule_text f::id ++# " " ++# f::detail) :: acc)
+    | _ => listm::rev acc
 
 := evaluated_on () : string = "2026-10-29"
 
 := region_failures
-    (region : string) (folder : string) (patterns : list schematron.pattern) (name : string)
+    (region : string) (folder : string) (patterns : list schematron::pattern) (name : string)
     : option i32
     =
-    ?= read_xml (file_system.read_all_text (folder ++# name)) ?|
+    ?= read_xml (file_system::read_all_text (folder ++# name)) ?|
     | root :: [] =>
-        := failures = schematron_run.validate_on (evaluated_on ()) patterns root
-        := count = (listm.length failures : i32)
-        console.write_line (region ++# " failures: " ++# name ++# " " ++# sm'.obj_to_string count)
-        listm.iter (\ line => console.write_line (region ++# " failure: " ++# line)) (failure_lines failures 3i32 [])
+        := failures = schematron_run::validate_on (evaluated_on ()) patterns root
+        := count = (listm::length failures : i32)
+        console::write_line (region ++# " failures: " ++# name ++# " " ++# sm'::obj_to_string count)
+        listm::iter (\ line => console::write_line (region ++# " failure: " ++# line)) (failure_lines failures 3i32 [])
         Some count
     | _ => None
 
-:= sample_failures (folder : string) (patterns : list schematron.pattern) (name : string) : option i32 =
+:= sample_failures (folder : string) (patterns : list schematron::pattern) (name : string) : option i32 =
     region_failures "ubl_tr" folder patterns name
 
-:= first_failures (rules : list schematron.pattern) (path : string) : string =
-    ?= read_xml (file_system.read_all_text (fiscal_paths.under path)) ?|
+:= first_failures (rules : list schematron::pattern) (path : string) : string =
+    ?= read_xml (file_system::read_all_text (fiscal_paths::under path)) ?|
     | root :: [] =>
-        sm'.concat_balanced " | " (failure_lines (schematron_run.validate_on (evaluated_on ()) rules root) 8i32 [])
+        sm'::concat_balanced " | " (failure_lines (schematron_run::validate_on (evaluated_on ()) rules root) 8i32 [])
     | _ => "not one root element"
 
 ///> rust
 test ubl_tr_samples_keep_their_main_schematron_findings =
-    := main = fiscal_paths.under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Main_Schematron.xml"
-    := patterns = schematron.read_schematron_resolved corpus_text main
+    := main = fiscal_paths::under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Main_Schematron.xml"
+    := patterns = schematron::read_schematron_resolved corpus_text main
     := samples = "deps/corpus/tr/ubltr/UBLTR_1.2.1_Paketi/xml/"
     := expected =
         [
@@ -458,8 +468,8 @@ test ubl_tr_samples_keep_their_main_schematron_findings =
         ]
     := drifted (row : string * i32) =
         := name, count = row
-        ? sample_failures (fiscal_paths.under samples) patterns name = Some count ?> [] |: [ name ]
-    ?= listm.concat (listm.map drifted expected) ?|
+        ? sample_failures (fiscal_paths::under samples) patterns name = Some count ?> [] |: [ name ]
+    ?= listm::concat (listm::map drifted expected) ?|
     | [] => ()
     | first :: _ =>
         := found = first_failures patterns (samples ++# first)
@@ -468,8 +478,8 @@ test ubl_tr_samples_keep_their_main_schematron_findings =
 := named_region (region_path : string * string) : string * i32 =
     := region, path = region_path
     := lines = invalid_lines_of path
-    listm.iter (\ line => console.write_line (region ++# " invalid: " ++# line)) lines
-    region, listm.length lines
+    listm::iter (\ line => console::write_line (region ++# " invalid: " ++# line)) lines
+    region, listm::length lines
 
 ///> rust
 test regional_rules_name_every_test_that_does_not_parse =
@@ -479,8 +489,8 @@ test regional_rules_name_every_test_that_does_not_parse =
             ("zatca", "deps/corpus/sa/zatca/Rules/Schematrons/20210819_ZATCA_E-invoice_Validation_Rules.sch");
             ("ubl_tr", "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Common_Schematron.xml")
         ]
-    := counts = listm.map named_region regions
-    := unparsed = listm.concat (listm.map (\ (region, count) => ? count > 0i32 ?> [ region ] |: []) counts)
+    := counts = listm::map named_region regions
+    := unparsed = listm::concat (listm::map (\ (region, count) => ? count > 0i32 ?> [ region ] |: []) counts)
     ?= unparsed ?|
     | first :: _ => failwith ("every regional schematron test parses; not yet in " ++# first)
     | [] => ()
@@ -488,44 +498,44 @@ test regional_rules_name_every_test_that_does_not_parse =
 ///> rust
 test dian_compiled_rules_read_fully =
     := path = "deps/corpus/co/dian/Caja de herramientas FE_V19_(v2026)/XSL/" ++# "DIAN-UBL21-model-compiled.xsl"
-    := patterns = schematron.read_compiled_schematron (file_system.read_all_text (fiscal_paths.under path))
-    := rules = listm.concat (listm.map (\ (p : schematron.pattern) => p.rules) patterns)
-    := lets = (listm.length (listm.concat (listm.map (\ (r : schematron.rule) => r.lets) rules)) : i32)
-    := co = schematron.schematron_census patterns (schematron.empty_census ())
+    := patterns = schematron::read_compiled_schematron (file_system::read_all_text (fiscal_paths::under path))
+    := rules = listm::concat (listm::map (\ (p : schematron::pattern) => p::rules) patterns)
+    := lets = (listm::length (listm::concat (listm::map (\ (r : schematron::rule) => r::lets) rules)) : i32)
+    := co = schematron::schematron_census patterns (schematron::empty_census ())
     := shape =
         "patterns "
-        ++# sm'.obj_to_string (listm.length patterns : i32)
+        ++# sm'::obj_to_string (listm::length patterns : i32)
         ++# " rules "
-        ++# sm'.obj_to_string co.rules
+        ++# sm'::obj_to_string co::rules
         ++# " assertions "
-        ++# sm'.obj_to_string co.assertions
+        ++# sm'::obj_to_string co::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string co.fatal
+        ++# sm'::obj_to_string co::fatal
         ++# " lets "
-        ++# sm'.obj_to_string lets
-    console.write_line ("dian compiled: " ++# shape ++# " invalid " ++# sm'.obj_to_string co.invalid)
+        ++# sm'::obj_to_string lets
+    console::write_line ("dian compiled: " ++# shape ++# " invalid " ++# sm'::obj_to_string co::invalid)
     ? shape <> "patterns 5 rules 84 assertions 249 fatal 228 lets 201" ?>
         failwith ("DIAN's compiled v1.9 rules read back as the skeleton wrote them: " ++# shape)
 
 :~ ^ catalog_states \* form. (types : list (xsd type_def form)) (acc : list (string * i32)) : list (string * i32) =
     ?= types ?|
     | (Simple s) :: rest =>
-        := values = xsd_emit.enumeration_values s.facets []
+        := values = xsd_emit::enumeration_values s::facets []
         ? count_list values > 256i32 ?>
-            catalog_states rest ((definition_text s.name, states_in (dfa_of_values values) 0i32) :: acc)
+            catalog_states rest ((definition_text s::name, states_in (dfa_of_values values) 0i32) :: acc)
         |: catalog_states rest acc
     | _ :: rest => catalog_states rest acc
-    | [] => listm.rev acc
+    | [] => listm::rev acc
 
 := states_named (target : string) (rows : list (string * i32)) : option i32 =
-    ?= listm'.try_find_ (\ (name, _) => name = target) rows ?|
+    ?= listm'::try_find_ (\ (name, _) => name = target) rows ?|
     | Some (_, states) => Some states
     | None => None
 
 ///> rust
 test cfdi_catalogs_become_minimal_dfas =
-    := schema = file_system.read_all_text (fiscal_paths.under "deps/corpus/mx/cfdi/catCFDI.xsd") |> read_schema
-    := rows = catalog_states schema.simple_types []
+    := schema = file_system::read_all_text (fiscal_paths::under "deps/corpus/mx/cfdi/catCFDI.xsd") |> read_schema
+    := rows = catalog_states schema::simple_types []
     ? count_list rows <> 5i32 ?> failwith "five catalogs over 256 values"
     ? states_named "c_CodigoPostal" rows <> Some 37i32 ?> failwith "c_CodigoPostal 37 states"
     ? states_named "c_ClaveProdServ" rows <> Some 1783i32 ?> failwith "c_ClaveProdServ 1783 states"
@@ -539,7 +549,7 @@ test cfdi_catalogs_become_minimal_dfas =
 
 := fatal_text (check : fatal_check) : string =
     ?= check ?|
-    | FatalFindings count => sm'.obj_to_string count
+    | FatalFindings count => sm'::obj_to_string count
     | NotOneRoot => "not one root element"
 
 := with_finding
@@ -551,15 +561,15 @@ test cfdi_catalogs_become_minimal_dfas =
     | NotOneRoot => (name, check) :: acc
 
 :~ ^ examples_fatal
-    (rules : list schematron.pattern) (names : list string) (acc : list (string * fatal_check))
+    (rules : list schematron::pattern) (names : list string) (acc : list (string * fatal_check))
     : list (string * fatal_check)
     =
     ?= names ?|
     | name :: rest =>
-        := text = file_system.read_all_text ((fiscal_paths.under "deps/corpus/eu/en16931/examples/") ++# name)
+        := text = file_system::read_all_text ((fiscal_paths::under "deps/corpus/eu/en16931/examples/") ++# name)
         := fatal =
             ?= read_xml text ?|
-            | root :: [] => FatalFindings (schematron_run.fatal_count (schematron_run.validate rules root) 0i32)
+            | root :: [] => FatalFindings (schematron_run::fatal_count (schematron_run::validate rules root) 0i32)
             | _ => NotOneRoot
         examples_fatal rules rest (with_finding name fatal acc)
     | [] => acc
@@ -567,8 +577,10 @@ test cfdi_catalogs_become_minimal_dfas =
 ///> rust
 test cen_examples_pass_the_en16931_rules =
     := rules =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch")
-        |> schematron.read_schematron
+        file_system::read_all_text (
+            fiscal_paths::under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch"
+        )
+        |> schematron::read_schematron
     := names =
         [
             "ubl-tc434-example1.xml"
@@ -582,17 +594,17 @@ test cen_examples_pass_the_en16931_rules =
     | (name, fatal) :: _ => failwith (name ++# " has fatal findings: " ++# fatal_text fatal)
 
 :~ ^ examples_fatal_in
-    (folder : string) (rules : list schematron.pattern) (names : list string) (acc : list (string * fatal_check))
+    (folder : string) (rules : list schematron::pattern) (names : list string) (acc : list (string * fatal_check))
     : list (string * fatal_check)
     =
     ?= names ?|
     | name :: rest =>
-        := text = file_system.read_all_text (fiscal_paths.under folder ++# name)
+        := text = file_system::read_all_text (fiscal_paths::under folder ++# name)
         := fatal =
             ?= read_xml text ?|
             | root :: [] =>
                 FatalFindings (
-                    schematron_run.fatal_count (schematron_run.validate_on (evaluated_on ()) rules root) 0i32
+                    schematron_run::fatal_count (schematron_run::validate_on (evaluated_on ()) rules root) 0i32
                 )
             | _ => NotOneRoot
         examples_fatal_in folder rules rest (with_finding name fatal acc)
@@ -613,10 +625,10 @@ test peppol_examples_pass_the_peppol_rules =
             "vat-category-Z.xml"
         ]
     := rules_of (file : string) =
-        file_system.read_all_text (fiscal_paths.under (folder ++# "sch/" ++# file)) |> schematron.read_schematron
+        file_system::read_all_text (fiscal_paths::under (folder ++# "sch/" ++# file)) |> schematron::read_schematron
     := failures (file : string) : list (string * fatal_check) =
         examples_fatal_in (folder ++# "examples/") (rules_of file) names []
-    ?= listm.append (failures "PEPPOL-EN16931-UBL.sch") (failures "CEN-EN16931-UBL.sch") ?|
+    ?= listm::append (failures "PEPPOL-EN16931-UBL.sch") (failures "CEN-EN16931-UBL.sch") ?|
     | [] => ()
     | (name, fatal) :: _ =>
         := path = folder ++# "examples/" ++# name
@@ -651,16 +663,16 @@ test zatca_samples_pass_the_zatca_rules =
             "Standard/Invoice/Third party billing.xml"
         ]
     := rules_of (file : string) =
-        := text = file_system.read_all_text (fiscal_paths.under (folder ++# "Rules/Schematrons/" ++# file))
-        schematron.read_schematron text
+        := text = file_system::read_all_text (fiscal_paths::under (folder ++# "Rules/Schematrons/" ++# file))
+        schematron::read_schematron text
     := failures (file : string) : list (string * fatal_check) =
         examples_fatal_in (folder ++# "Samples/") (rules_of file) names []
     := found =
-        listm.append (failures "20210819_ZATCA_E-invoice_Validation_Rules.sch") (failures "CEN-EN16931-UBL.sch")
+        listm::append (failures "20210819_ZATCA_E-invoice_Validation_Rules.sch") (failures "CEN-EN16931-UBL.sch")
     := report (row : string * fatal_check) =
         := name, fatal = row
-        console.write_line ("zatca fatal: " ++# name ++# " " ++# fatal_text fatal)
-    listm.iter report found
+        console::write_line ("zatca fatal: " ++# name ++# " " ++# fatal_text fatal)
+    listm::iter report found
     ?= found ?|
     | [] => ()
     | (name, fatal) :: _ =>
@@ -675,24 +687,24 @@ test ro_cius_examples_keep_their_ro_findings =
     := bundle = "deps/corpus/ro/cius/ro16931-ubl-1.0.9/"
     := examples = "deps/corpus/ro/cius/examples/exemple_Invoice_CreditNote/"
     := ro =
-        schematron.read_schematron_resolved corpus_text (fiscal_paths.under (bundle ++# "cius-ro/RO16931-rules.sch"))
+        schematron::read_schematron_resolved corpus_text (fiscal_paths::under (bundle ++# "cius-ro/RO16931-rules.sch"))
     := cen =
-        file_system.read_all_text (
-            fiscal_paths.under (bundle ++# "preprocessed/EN16931-UBL-validation-preprocessed.sch")
+        file_system::read_all_text (
+            fiscal_paths::under (bundle ++# "preprocessed/EN16931-UBL-validation-preprocessed.sch")
         )
-        |> schematron.read_schematron
-    := census = schematron.schematron_census ro (schematron.empty_census ())
-    ? census.rules <> 29i32 || census.assertions <> 122i32 || census.fatal <> 122i32 ?>
-        failwith ("RO_CIUS 1.0.9 reads fully: rules " ++# sm'.obj_to_string census.rules ++# " of 29")
+        |> schematron::read_schematron
+    := census = schematron::schematron_census ro (schematron::empty_census ())
+    ? census::rules <> 29i32 || census::assertions <> 122i32 || census::fatal <> 122i32 ?>
+        failwith ("RO_CIUS 1.0.9 reads fully: rules " ++# sm'::obj_to_string census::rules ++# " of 29")
     := expected = [ ("eInvoice_ex.xml", 1i32); ("creditNote_ex.xml", 1i32) ]
-    := cen_fatal = examples_fatal_in examples cen (listm.map (\ (name, _) => name) expected) []
+    := cen_fatal = examples_fatal_in examples cen (listm::map (\ (name, _) => name) expected) []
     ?= cen_fatal ?|
     | (name, fatal) :: _ => failwith (name ++# " has CEN fatal findings: " ++# fatal_text fatal)
     | [] => ()
     := drifted (row : string * i32) =
         := name, count = row
-        ? region_failures "ro_cius" (fiscal_paths.under examples) ro name = Some count ?> [] |: [ name ]
-    ?= listm.concat (listm.map drifted expected) ?|
+        ? region_failures "ro_cius" (fiscal_paths::under examples) ro name = Some count ?> [] |: [ name ]
+    ?= listm::concat (listm::map drifted expected) ?|
     | [] => ()
     | first :: _ =>
         failwith (
@@ -702,20 +714,20 @@ test ro_cius_examples_keep_their_ro_findings =
 ///> rust
 test pint_rules_read_fully =
     := path = "deps/corpus/eu/peppol-pint/trn-invoice/schematron/PINT-UBL-validation-preprocessed.sch"
-    := patterns = schematron.read_schematron (file_system.read_all_text (fiscal_paths.under path))
-    := co = schematron.schematron_census patterns (schematron.empty_census ())
+    := patterns = schematron::read_schematron (file_system::read_all_text (fiscal_paths::under path))
+    := co = schematron::schematron_census patterns (schematron::empty_census ())
     := shape =
         "patterns "
-        ++# sm'.obj_to_string (listm.length patterns : i32)
+        ++# sm'::obj_to_string (listm::length patterns : i32)
         ++# " rules "
-        ++# sm'.obj_to_string co.rules
+        ++# sm'::obj_to_string co::rules
         ++# " assertions "
-        ++# sm'.obj_to_string co.assertions
+        ++# sm'::obj_to_string co::assertions
         ++# " fatal "
-        ++# sm'.obj_to_string co.fatal
+        ++# sm'::obj_to_string co::fatal
         ++# " invalid "
-        ++# sm'.obj_to_string co.invalid
-    console.write_line ("pint: " ++# shape)
+        ++# sm'::obj_to_string co::invalid
+    console::write_line ("pint: " ++# shape)
     ? shape <> "patterns 2 rules 70 assertions 170 fatal 170 invalid 0" ?>
         failwith ("PINT Billing 1.1.3 rules read fully: " ++# shape)
 
@@ -723,8 +735,8 @@ test pint_rules_read_fully =
 test dian_samples_keep_their_compiled_rule_findings =
     := toolkit = "deps/corpus/co/dian/Caja de herramientas FE_V19_(v2026)/"
     := rules =
-        file_system.read_all_text (fiscal_paths.under (toolkit ++# "XSL/DIAN-UBL21-model-compiled.xsl"))
-        |> schematron.read_compiled_schematron
+        file_system::read_all_text (fiscal_paths::under (toolkit ++# "XSL/DIAN-UBL21-model-compiled.xsl"))
+        |> schematron::read_compiled_schematron
     := samples = toolkit ++# "Ejemplificaciones/XMLs de ejemplo/"
     := expected =
         [
@@ -775,42 +787,44 @@ test dian_samples_keep_their_compiled_rule_findings =
         ]
     := drifted (row : string * i32) =
         := name, count = row
-        ? region_failures "dian" (fiscal_paths.under samples) rules name = Some count ?> [] |: [ name ]
-    ?= listm.concat (listm.map drifted expected) ?|
+        ? region_failures "dian" (fiscal_paths::under samples) rules name = Some count ?> [] |: [ name ]
+    ?= listm::concat (listm::map drifted expected) ?|
     | [] => ()
     | first :: _ =>
         := found = first_failures rules (samples ++# first)
         failwith ("DIAN sample " ++# first ++# " changed its compiled-rule findings: " ++# found)
 
-:~ ^ failure_ids (failures : list schematron_run.failure) (acc : list string) : list string =
+:~ ^ failure_ids (failures : list schematron_run::failure) (acc : list string) : list string =
     ?= failures ?|
-    | f :: rest => failure_ids rest (schematron.rule_text f.id :: acc)
+    | f :: rest => failure_ids rest (schematron::rule_text f::id :: acc)
     | [] => acc
 
 ///> rust
 test cen_rules_catch_mutated_invoices =
     := rules =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch")
-        |> schematron.read_schematron
+        file_system::read_all_text (
+            fiscal_paths::under "deps/corpus/eu/en16931/EN16931-UBL-validation-preprocessed.sch"
+        )
+        |> schematron::read_schematron
     := original =
-        file_system.read_all_text (fiscal_paths.under "deps/corpus/eu/en16931/examples/ubl-tc434-example1.xml")
+        file_system::read_all_text (fiscal_paths::under "deps/corpus/eu/en16931/examples/ubl-tc434-example1.xml")
     := ids mutated =
         ?= read_xml mutated ?|
-        | root :: [] => failure_ids (schematron_run.validate rules root) []
+        | root :: [] => failure_ids (schematron_run::validate rules root) []
         | _ => []
     := payable =
-        sm'.replace
+        sm'::replace
             "<cbc:PayableAmount currencyID=\"EUR\">250.33<"
             "<cbc:PayableAmount currencyID=\"EUR\">251.33<"
             original
-    ? listm'.contains "BR-CO-16" (ids payable) = !- ?> failwith "a wrong payable amount breaks BR-CO-16"
-    := unit = sm'.replace "unitCode=\"EA\">2<" "unitCode=\"ZZZZ\">2<" original
-    ? listm'.contains "BR-CL-23" (ids unit) = !- ?> failwith "an unknown unit code breaks BR-CL-23"
+    ? listm'::contains "BR-CO-16" (ids payable) = !- ?> failwith "a wrong payable amount breaks BR-CO-16"
+    := unit = sm'::replace "unitCode=\"EA\">2<" "unitCode=\"ZZZZ\">2<" original
+    ? listm'::contains "BR-CL-23" (ids unit) = !- ?> failwith "an unknown unit code breaks BR-CL-23"
 
 ///> rust
 test ubl_tr_other_documents_keep_their_main_schematron_findings =
-    := main = fiscal_paths.under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Main_Schematron.xml"
-    := patterns = schematron.read_schematron_resolved corpus_text main
+    := main = fiscal_paths::under "deps/corpus/tr/ubltr/efatura/e-FaturaPaketi/schematron/UBL-TR_Main_Schematron.xml"
+    := patterns = schematron::read_schematron_resolved corpus_text main
     := samples = "deps/corpus/tr/ubltr/UBLTR_1.2.1_Paketi/xml/"
     := expected =
         [
@@ -822,8 +836,8 @@ test ubl_tr_other_documents_keep_their_main_schematron_findings =
         ]
     := drifted (row : string * i32) =
         := name, count = row
-        ? sample_failures (fiscal_paths.under samples) patterns name = Some count ?> [] |: [ name ]
-    ?= listm.concat (listm.map drifted expected) ?|
+        ? sample_failures (fiscal_paths::under samples) patterns name = Some count ?> [] |: [ name ]
+    ?= listm::concat (listm::map drifted expected) ?|
     | [] => ()
     | first :: _ =>
         := found = first_failures patterns (samples ++# first)

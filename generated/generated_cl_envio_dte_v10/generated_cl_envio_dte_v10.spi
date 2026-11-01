@@ -21452,8 +21452,13 @@ test generated_cl_envio_dte_v10_writes_its_example =
     inl document =
         xml.element
             "EnvioDTE"
-            (("xmlns", "http://www.sii.cl/SiiDte") :: x_envio_dte_attributes example)
+            (
+                ("xmlns", "http://www.sii.cl/SiiDte")
+                :: ("xmlns:SiiDte", "http://www.sii.cl/SiiDte")
+                :: x_envio_dte_attributes example
+            )
             (x_envio_dte_children example)
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text
         (sample_path "generated_cl_envio_dte_v10_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
@@ -21512,10 +21517,14 @@ test generated_cl_envio_dte_v10_writes_its_example =
         inl document =
             xml.element
                 "EnvioDTE"
-                (("xmlns", "http://www.sii.cl/SiiDte") :: x_envio_dte_attributes parsed)
+                (
+                    ("xmlns", "http://www.sii.cl/SiiDte")
+                    :: ("xmlns:SiiDte", "http://www.sii.cl/SiiDte")
+                    :: x_envio_dte_attributes parsed
+                )
                 (x_envio_dte_children parsed)
         inl folder = sample_path "../target/bench"
-        match file_system.create_dir_all folder |> resultm.unbox with
+        match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text
                 (sm'.(++#) folder "/ours-generated_cl_envio_dte_v10_example.xml")

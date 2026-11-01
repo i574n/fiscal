@@ -1,4 +1,4 @@
-///- --package . --timeout 3156192
+///- --package . --timeout 3156272
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -38300,6 +38300,7 @@ test generated_nfe_v4_writes_its_example =
             "NFe"
             (("xmlns", "http://www.portalfiscal.inf.br/nfe") :: x_tn_fe_attributes example)
             (x_tn_fe_children example)
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text
         (sample_path "generated_nfe_v4_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
@@ -38344,7 +38345,7 @@ test generated_nfe_v4_writes_its_example =
                 (("xmlns", "http://www.portalfiscal.inf.br/nfe") :: x_tn_fe_attributes parsed)
                 (x_tn_fe_children parsed)
         inl folder = sample_path "../target/bench"
-        match file_system.create_dir_all folder |> resultm.unbox with
+        match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text
                 (sm'.(++#) folder "/ours-generated_nfe_v4_example.xml")

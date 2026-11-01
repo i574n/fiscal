@@ -1,4 +1,4 @@
-///- --package . --timeout 5086080
+///- --package . --timeout 5086160
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -66540,6 +66540,7 @@ test generated_ubl_creditnote_2_1_writes_its_example =
                 :: x_credit_note_type_attributes example
             )
             (x_credit_note_type_children example)
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text
         (sample_path "generated_ubl_creditnote_2_1_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
@@ -66634,7 +66635,7 @@ test generated_ubl_creditnote_2_1_writes_its_example =
                 )
                 (x_credit_note_type_children parsed)
         inl folder = sample_path "../target/bench"
-        match file_system.create_dir_all folder |> resultm.unbox with
+        match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text
                 (sm'.(++#) folder "/ours-generated_ubl_creditnote_2_1_example.xml")

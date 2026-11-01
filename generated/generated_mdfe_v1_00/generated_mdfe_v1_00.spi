@@ -9410,6 +9410,7 @@ test generated_mdfe_v1_00_writes_its_example =
             "MDFe"
             (("xmlns", "http://www.portalfiscal.inf.br/mdfe") :: x_tmd_fe_attributes example)
             (x_tmd_fe_children example)
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text
         (sample_path "generated_mdfe_v1_00_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
@@ -9454,7 +9455,7 @@ test generated_mdfe_v1_00_writes_its_example =
                 (("xmlns", "http://www.portalfiscal.inf.br/mdfe") :: x_tmd_fe_attributes parsed)
                 (x_tmd_fe_children parsed)
         inl folder = sample_path "../target/bench"
-        match file_system.create_dir_all folder |> resultm.unbox with
+        match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text
                 (sm'.(++#) folder "/ours-generated_mdfe_v1_00_example.xml")

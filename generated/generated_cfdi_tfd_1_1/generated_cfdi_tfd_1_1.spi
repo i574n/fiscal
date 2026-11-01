@@ -3638,6 +3638,7 @@ test generated_cfdi_tfd_1_1_writes_its_example =
             "TimbreFiscalDigital"
             (("xmlns", "http://www.sat.gob.mx/TimbreFiscalDigital") :: x_timbre_fiscal_digital_attributes example)
             (x_timbre_fiscal_digital_children example)
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text
         (sample_path "generated_cfdi_tfd_1_1_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
@@ -3682,7 +3683,7 @@ test generated_cfdi_tfd_1_1_writes_its_example =
                 (("xmlns", "http://www.sat.gob.mx/TimbreFiscalDigital") :: x_timbre_fiscal_digital_attributes parsed)
                 (x_timbre_fiscal_digital_children parsed)
         inl folder = sample_path "../target/bench"
-        match file_system.create_dir_all folder |> resultm.unbox with
+        match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text
                 (sm'.(++#) folder "/ours-generated_cfdi_tfd_1_1_example.xml")

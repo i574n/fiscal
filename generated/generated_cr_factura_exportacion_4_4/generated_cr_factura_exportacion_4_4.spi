@@ -2254,7 +2254,7 @@ inl x_ubicacion_type_canton_to_string (x : x_ubicacion_type_canton) : string =
     match x with x_ubicacion_type_canton s => s
 
 instance to_text x_ubicacion_type_canton = fun x => x_ubicacion_type_canton_to_string x
-inl x_ubicacion_type_canton_example (_ : i32) : x_ubicacion_type_canton = x_ubicacion_type_canton "00"
+inl x_ubicacion_type_canton_example (_ : i32) : x_ubicacion_type_canton = x_ubicacion_type_canton "01"
 
 inl x_ubicacion_type_canton_example_text (k : i32) : string =
     x_ubicacion_type_canton_to_string (x_ubicacion_type_canton_example k)
@@ -2271,7 +2271,7 @@ inl x_ubicacion_type_distrito_to_string (x : x_ubicacion_type_distrito) : string
     match x with x_ubicacion_type_distrito s => s
 
 instance to_text x_ubicacion_type_distrito = fun x => x_ubicacion_type_distrito_to_string x
-inl x_ubicacion_type_distrito_example (_ : i32) : x_ubicacion_type_distrito = x_ubicacion_type_distrito "00"
+inl x_ubicacion_type_distrito_example (_ : i32) : x_ubicacion_type_distrito = x_ubicacion_type_distrito "01"
 
 inl x_ubicacion_type_distrito_example_text (k : i32) : string =
     x_ubicacion_type_distrito_to_string (x_ubicacion_type_distrito_example k)
@@ -7256,6 +7256,7 @@ test generated_cr_factura_exportacion_4_4_writes_its_example =
                 :: x_factura_electronica_exportacion_attributes example
             )
             (x_factura_electronica_exportacion_children example)
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text
         (sample_path "generated_cr_factura_exportacion_4_4_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
@@ -7307,7 +7308,7 @@ test generated_cr_factura_exportacion_4_4_writes_its_example =
                 )
                 (x_factura_electronica_exportacion_children parsed)
         inl folder = sample_path "../target/bench"
-        match file_system.create_dir_all folder |> resultm.unbox with
+        match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text
                 (sm'.(++#) folder "/ours-generated_cr_factura_exportacion_4_4_example.xml")

@@ -3,7 +3,7 @@
 :< file_system
 
 := root () : string =
-    := from_env = env.get_environment_variable "FISCAL_ROOT"
+    := from_env = env::get_environment_variable "FISCAL_ROOT"
     ? from_env <> "" ?> from_env |> normalize_path
     |:
         ?= get_current_directory () |> find_parent File "src/generator.spi" ?|

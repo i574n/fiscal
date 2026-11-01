@@ -9375,6 +9375,7 @@ test generated_hu_nav_3_0_writes_its_example =
             "InvoiceData"
             (("xmlns", "http://schemas.nav.gov.hu/OSA/3.0/data") :: x_invoice_data_attributes example)
             (x_invoice_data_children example)
+    file_system.directory_create_all (sample_path "") |> ignore
     file_system.write_all_text
         (sample_path "generated_hu_nav_3_0_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
@@ -9468,7 +9469,7 @@ test generated_hu_nav_3_0_writes_its_example =
                 (("xmlns", "http://schemas.nav.gov.hu/OSA/3.0/data") :: x_invoice_data_attributes parsed)
                 (x_invoice_data_children parsed)
         inl folder = sample_path "../target/bench"
-        match file_system.create_dir_all folder |> resultm.unbox with
+        match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text
                 (sm'.(++#) folder "/ours-generated_hu_nav_3_0_example.xml")

@@ -55,11 +55,15 @@ function Invoke-TestFile([IO.FileInfo] $Source) {
     $notebook = Join-Path $notebooks "$name.spi.ipynb"
     $arguments = @('-NoProfile', '-File', $runNotebook, '--path', $Source.FullName, '--output-path', $notebook, '--no-spi',
         '--metrics', $cellsMetrics) | ForEach-Object { "`"$_`"" }
-    $run = Start-Process pwsh -ArgumentList $arguments -NoNewWindow -PassThru `
-        -RedirectStandardOutput $output -RedirectStandardError "$output.err"
-    $null = $run.Handle
-    while (!$run.WaitForExit(60000)) { Write-Output "build.ps1 / $name / running $([int]$clock.Elapsed.TotalSeconds) s" }
-    $lines = @(Get-Content $output, "$output.err" -ErrorAction Ignore)
+    foreach ($attempt in 1, 2) {
+        $run = Start-Process pwsh -ArgumentList $arguments -NoNewWindow -PassThru `
+            -RedirectStandardOutput $output -RedirectStandardError "$output.err"
+        $null = $run.Handle
+        while (!$run.WaitForExit(60000)) { Write-Output "build.ps1 / $name / running $([int]$clock.Elapsed.TotalSeconds) s" }
+        $lines = @(Get-Content $output, "$output.err" -ErrorAction Ignore)
+        if ($attempt -eq 2 -or -not ($lines | Select-String 'compiler socket failed' -Quiet)) { break }
+        Write-Output "build.ps1 / $name / compiler socket closed; retrying once"
+    }
     Write-Output "build.ps1 / $name / done in $([int]$clock.Elapsed.TotalSeconds) s"
     $seconds = [math]::Round($clock.Elapsed.TotalSeconds, 1)
     $fileRows.Add([pscustomobject]@{ File = $name; Seconds = $seconds; ExitCode = $run.ExitCode })
