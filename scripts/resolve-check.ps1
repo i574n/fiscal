@@ -16,7 +16,7 @@ function Get-Tree([string] $Path, [hashtable] $Seen, [Collections.Generic.List[s
     }
 }
 $root = Split-Path $PSScriptRoot
-$files = @(Get-Content (Join-Path $root 'src\corpus.txt') | Where-Object { $_ } | ForEach-Object { Join-Path $root $_ })
+$files = @(Get-ChildItem (Join-Path $root 'deps/corpus/DFe.NET') -Recurse -Filter *.xsd -File | Sort-Object FullName | ForEach-Object FullName)
 $withMissing = 0; $danglingComplete = 0; $danglingWithMissing = 0
 $examples = [Collections.Generic.List[string]]::new()
 foreach ($f in $files) {

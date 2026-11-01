@@ -13,7 +13,7 @@ foreach ($file in $sources) {
         if ($line -match '^(?::=|:~ \^|:& :~|:~|inl) +([A-Za-z_][\w'']*)') {
             if ($current) { $definitions["$moduleName.$current"] = $body.ToString() }
             $current = $Matches[1]; $body = [Text.StringBuilder]::new(); [void]$body.AppendLine($line)
-        } elseif ($line -match '^(test |///)') {
+        } elseif ($line -match '^(test |:# |///)') {
             if ($current) { $definitions["$moduleName.$current"] = $body.ToString() }
             $current = $null
         } elseif ($current) { [void]$body.AppendLine($line) }

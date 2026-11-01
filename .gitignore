@@ -8,5 +8,6 @@
 /canon/
 *.tsv
 /src/pattern_expected.txt
+/src/corpus.txt
 /src/patterns.txt
 /src/pattern_probes.txt

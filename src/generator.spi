@@ -71,6 +71,16 @@ test generates_the_uf_code_union =
     | Xsd : xsd_resolve.schema_catalog
     | JsonSchema
 
+:| family_extra =
+    | Signed
+    | CfdiComplements
+    | NfeModelChecks
+
+:~ ^ has_extra (extra : family_extra) (extras : list family_extra) : bool =
+    ?= extras ?|
+    | x :: rest => x = extra || has_extra extra rest
+    | [] => !-
+
 :== family_root =
     {
         module_name : string
@@ -82,6 +92,7 @@ test generates_the_uf_code_union =
         known_defect : option string
         documents : list string
         ubl_json_documents : list string
+        extras : list family_extra
     }
 
 := cfdi_v4_0 () : family_root =
@@ -101,6 +112,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = [ "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml" ]
         ubl_json_documents = []
+        extras = [ CfdiComplements ]
     }
 
 := cfdi_complement
@@ -117,6 +129,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = []
     }
 
 := cfdi_tfd_1_1 () : family_root =
@@ -143,7 +156,7 @@ test generates_the_uf_code_union =
         ]
 
 := complements_of (family : family_root) : list (string * family_root) =
-    ? family.module_name = "generated_cfdi_v4_0"
+    ? has_extra CfdiComplements family.extras
     ?> [ ("TimbreFiscalDigital11", cfdi_tfd_1_1 ()); ("Pagos20", cfdi_pagos_2_0 ()) ]
     |: []
 
@@ -163,6 +176,7 @@ test generates_the_uf_code_union =
             known_defect = None
             documents = []
             ubl_json_documents = []
+            extras = [ Signed ]
         }
     [
         family "generated_nfe_v2_00" "NFe.AppTeste/Schemas/nfe_v2.00.xsd" "NFe" "TNFe" nfe;
@@ -190,6 +204,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = [ Signed; NfeModelChecks ]
     }
 
 := nfe_events () : list family_root =
@@ -204,6 +219,7 @@ test generates_the_uf_code_union =
             known_defect = None
             documents = []
             ubl_json_documents = []
+            extras = [ Signed ]
         }
     [
         event "generated_nfe_evento_canc_v1_00" "procEventoCancNFe_v1.00.xsd";
@@ -234,6 +250,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-invoice-documents.txt"
         ubl_json_documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-invoice-json-documents.txt"
+        extras = []
     }
 
 := ubl_creditnote_2_1 () : family_root =
@@ -247,6 +264,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-creditnote-documents.txt"
         ubl_json_documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-creditnote-json-documents.txt"
+        extras = []
     }
 
 := ubl_document_2_1 (kind : string) (lower : string) : family_root =
@@ -260,6 +278,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = manifest_documents "deps/corpus/" ("deps/corpus/ubl-" ++# lower ++# "-documents.txt")
         ubl_json_documents = manifest_documents "deps/corpus/" ("deps/corpus/ubl-" ++# lower ++# "-json-documents.txt")
+        extras = []
     }
 
 := ubl_business_documents_2_1 () : list family_root =
@@ -286,6 +305,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = []
     }
 
 := ksef_fa_3 () : family_root =
@@ -300,6 +320,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = []
     }
 
 := local_xmldsig () : string =
@@ -316,6 +337,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = [ Signed ]
     }
 
 := chile_envio_dte_v10 () : family_root =
@@ -329,6 +351,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = [ "deps/corpus/cl/examples/F60T33-ejemplo.xml" ]
         ubl_json_documents = []
+        extras = [ Signed ]
     }
 
 := facturae_3_2_2 () : family_root =
@@ -342,6 +365,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = []
     }
 
 := verifactu_registro () : family_root =
@@ -357,6 +381,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = []
     }
 
 := saft_pt_1_04_01 () : family_root =
@@ -370,6 +395,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = []
     }
 
 := mydata_2_0_2 () : family_root =
@@ -383,6 +409,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = manifest_documents "deps/corpus/" "deps/corpus/gr-mydata-invoicesdoc-documents.txt"
         ubl_json_documents = []
+        extras = []
     }
 
 := hacienda_factura_4_4 () : family_root =
@@ -396,6 +423,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = [ Signed ]
     }
 
 := hacienda_document (root : string) (suffix : string) : family_root =
@@ -412,6 +440,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = []
         ubl_json_documents = []
+        extras = [ Signed ]
     }
 
 := hacienda_documents () : list family_root =
@@ -442,6 +471,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = manifest_documents "deps/corpus/" "deps/corpus/hu-nav-invoicedata-documents.txt"
         ubl_json_documents = []
+        extras = []
     }
 
 := gst_inv01_1_1 () : family_root =
@@ -455,6 +485,7 @@ test generates_the_uf_code_union =
         known_defect = None
         documents = [ "deps/corpus/in/gst/examples/irn-request-example.json" ]
         ubl_json_documents = []
+        extras = []
     }
 
 := qualifies_children (family : family_root) : bool =
@@ -462,24 +493,20 @@ test generates_the_uf_code_union =
     | Some (attributes, _) => attribute_or "elementFormDefault" "unqualified" attributes = "qualified"
     | None => !+
 
-:~ ^ declared_prefixes
-    (target : string) (schema_text : string) (attributes : list (string * string)) (acc : string)
-    : string
-    =
+:~ ^ declared_prefixes (schema_text : string) (attributes : list (string * string)) (acc : string) : string =
     ?= attributes ?|
     | (key, value) :: rest =>
-        := known =
-            value = target || value = "http://www.w3.org/2001/XMLSchema" || value = "http://www.w3.org/2000/09/xmldsig#"
+        := known = value = "http://www.w3.org/2001/XMLSchema" || value = "http://www.w3.org/2000/09/xmldsig#"
         := referenced = sm'.contains ("ref=\"" ++# xml.local_name key ++# ":") schema_text
         ? sm'.starts_with "xmlns:" key && known = !- && referenced
-        ?> declared_prefixes target schema_text rest (acc ++# "(\"" ++# key ++# "\", \"" ++# value ++# "\") :: ")
-        |: declared_prefixes target schema_text rest acc
+        ?> declared_prefixes schema_text rest (acc ++# "(\"" ++# key ++# "\", \"" ++# value ++# "\") :: ")
+        |: declared_prefixes schema_text rest acc
     | [] => acc
 
 := prefix_declarations (family : family_root) : string =
     := schema_text = xml.read_text_replacing_invalid_utf8 family.schema_path
     ?= first_named "schema" (xml.read_xml schema_text) ?|
-    | Some (attributes, _) => declared_prefixes family.target_namespace schema_text attributes ""
+    | Some (attributes, _) => declared_prefixes schema_text attributes ""
     | None => ""
 
 := example_document (family : family_root) (value : string) : string =
@@ -532,6 +559,7 @@ test generates_the_uf_code_union =
     ++# repo_relative family.schema_path
     ++# "\")\n"
     ++# "    inl text = json_schema.json_document_text schema document\n"
+    ++# "    file_system.directory_create_all (sample_path \"\") |> ignore\n"
     ++# "    file_system.write_all_text (sample_path \""
     ++# family.module_name
     ++# "_example.json\") text\n"
@@ -734,6 +762,7 @@ test generates_the_uf_code_union =
     ++# "    inl document = "
     ++# example_document family "example"
     ++# "\n"
+    ++# "    file_system.directory_create_all (sample_path \"\") |> ignore\n"
     ++# "    file_system.write_all_text (sample_path \""
     ++# family.module_name
     ++# "_example.xml\") ("
@@ -815,7 +844,7 @@ test generates_the_uf_code_union =
         ++# example_document family "parsed"
         ++# "\n"
         ++# "        inl folder = sample_path \"../target/bench\"\n"
-        ++# "        match file_system.create_dir_all folder |> resultm.unbox with\n"
+        ++# "        match file_system.directory_create_all folder with\n"
         ++# "        | Ok _ => file_system.write_all_text (sm'.(++#) folder \"/ours-"
         ++# m
         ++# "_example.xml\") ("
@@ -854,18 +883,10 @@ test generates_the_uf_code_union =
     := _, member = complement
     member.module_name
 
-:~ ^ starts_with_any (prefixes : list string) (text : string) : bool =
-    ?= prefixes ?|
-    | prefix :: rest => sm'.starts_with prefix text || starts_with_any rest text
-    | [] => !-
-
-:= signatures_of (family : family_root) : list string =
-    := signed =
-        [ "generated_nfe_"; "generated_cte_"; "generated_mdfe_"; "generated_gtve_"; "generated_cl_"; "generated_cr_" ]
-    ? starts_with_any signed family.module_name ?> [ "Signature" ] |: []
+:= signatures_of (family : family_root) : list string = ? has_extra Signed family.extras ?> [ "Signature" ] |: []
 
 := unit_checks_of (family : family_root) : string =
-    ? family.module_name <> "generated_nfe_v4" ?> ""
+    ? has_extra NfeModelChecks family.extras = !- ?> ""
     |:
         "\n///> rust\ntest generated_nfe_model_type_checks =\n"
         ++# "    match x_t_cod_uf_ibge_of_string \"35\" with\n"

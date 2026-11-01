@@ -13,6 +13,11 @@ if (-not (Test-Path $spiral)) {
     if (Test-Path (Join-Path $sibling '.git')) { New-Item -ItemType Junction -Path $spiral -Target $sibling | Out-Null; "deps/spiral -> $sibling" }
     else { git clone --recurse-submodules https://github.com/i574n/spiral.git $spiral; if ($LASTEXITCODE) { throw 'init.ps1 / git clone spiral failed' } }
 }
+if (-not (Test-Path (Join-Path $spiral 'deps/The-Spiral-Language/.git'))) {
+    pwsh -NoProfile -File (Join-Path $spiral 'scripts/init-app-build.ps1') -fast 1
+    if ($LASTEXITCODE) { throw "init.ps1 / spiral init-app-build failed (exit code $LASTEXITCODE)" }
+    "deps/spiral/deps/The-Spiral-Language: the Spiral fork the Cells packages load core from"
+}
 $corpus = Join-Path $deps 'corpus/DFe.NET'
 if (-not (Test-Path $corpus)) {
     $filling = $corpus
@@ -143,6 +148,17 @@ if (-not (Test-Path $saft)) {
     $text = [Text.Encoding]::GetEncoding(1252).GetString($bytes) -replace 'encoding="(?i:windows-1252)"', 'encoding="utf-8"'
     [IO.File]::WriteAllText((Join-Path $saft 'saftpt1.04_01.xsd'), $text, [Text.UTF8Encoding]::new($false))
     "deps/corpus/pt/saft: SAF-T PT 1.04_01 (transcoded from Windows-1252)"
+}
+$saftSamples = Join-Path $saft 'samples'
+if (-not (Test-Path $saftSamples)) {
+    $filling = $saftSamples
+    New-Item -ItemType Directory -Force $saftSamples | Out-Null
+    $bytes = (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/joaomfrebelo/saft-pt_4_php/051074b646340eac897d240d83e7e28a2fd5cf80/tests/Resources/saft_idemo599999999.xml' -TimeoutSec 120 -UseBasicParsing).RawContentStream.ToArray()
+    $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes))
+    if ($hash -ne 'D05D18AE86239CA9D910F6C746FDBF6C2B9E5849BD1D994422D505931A9DC169') { throw "init.ps1 / SAF-T sample changed (sha256 $hash)" }
+    $text = [Text.Encoding]::GetEncoding(1252).GetString($bytes) -replace 'encoding="(?i:windows-1252)"', 'encoding="utf-8"'
+    [IO.File]::WriteAllText((Join-Path $saftSamples 'saft_idemo599999999.xml'), $text, [Text.UTF8Encoding]::new($false))
+    "deps/corpus/pt/saft/samples: 1 SAF-T PT 1.04_01 AuditFile (AT demo NIF 599999993, 24 invoices; MIT test fixture of joaomfrebelo/saft-pt_4_php, no AT-published sample exists), transcoded from Windows-1252"
 }
 $mydata = Join-Path $deps 'corpus/gr/mydata'
 if (-not (Test-Path $mydata)) {
@@ -592,6 +608,18 @@ if (-not (Test-Path (Join-Path $peppolStructure 'part'))) {
         }
     }
     "deps/corpus/eu/peppol-bis3/structure: BIS Billing 3.0.20 syntax bindings with their $($fetched.Count - 2) included parts (UBL element -> EN 16931 BT/BG term, per document)"
+}
+$pint = Join-Path $deps 'corpus/eu/peppol-pint'
+if (-not (Test-Path $pint)) {
+    $filling = $pint
+    New-Item -ItemType Directory -Force $pint | Out-Null
+    $zip = Join-Path $pint 'resources.zip'
+    Invoke-WebRequest -Uri 'https://docs.peppol.eu/poac/pint/pint/resources.zip' -OutFile $zip -TimeoutSec 120 -UseBasicParsing
+    $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash
+    if ($hash -ne '1C47F68D8EE9682862112A57C9FFE6B73C1AFE668A2DD4BD2B937B848C2408F6') { throw "init.ps1 / PINT resources.zip changed upstream (sha256 $hash); review the new release before re-pinning" }
+    Expand-Archive -LiteralPath $zip -DestinationPath $pint -Force
+    Remove-Item -LiteralPath $zip
+    "deps/corpus/eu/peppol-pint: PINT Billing 1.1.3 resources ($(@(Get-ChildItem $pint -Recurse -Filter *.sch).Count) preprocessed schematron, $(@(Get-ChildItem $pint -Recurse -Filter *.gc).Count) genericode lists)"
 }
 $ubl = Join-Path $deps 'corpus/eu/ubl21'
 if (-not (Test-Path $ubl)) {

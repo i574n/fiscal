@@ -39,6 +39,20 @@ schema families it targets.
 lines with 284 unions, 255 `type` declarations (aliases included), 249 validators and 369 `_of_string`/`_to_string`
 pairs; the CT-e 4.00 family units have 33,518 lines each.
 
+## Reports
+
+Every CI run on `main` rebuilds these from the official sources and publishes them with this page:
+
+- [`target/ci-metrics/bench.tsv`](target/ci-metrics/bench.tsv): parse and write medians (µs) of each generated unit
+  reading back and re-writing its own example, 31 runs per unit.
+- [`target/ci-metrics/examples.tsv`](target/ci-metrics/examples.tsv): every unit's example checked against the official
+  XSD; `SignaturePending` counts the `ds:Signature` an unsigned document is still waiting for.
+- [`target/ci-metrics/tests.tsv`](target/ci-metrics/tests.tsv) and [`files.tsv`](target/ci-metrics/files.tsv): every
+  test row per backend target, and the time each module took.
+- [`samples/`](samples/): the example documents the generated code writes.
+- [`canon/en16931-terms.json`](canon/en16931-terms.json): the EN 16931 business terms and groups with their UBL paths,
+  taken from the OpenPeppol BIS Billing 3.0.20 syntax bindings.
+
 ## Reach today
 
 Every number below comes from an official source unless it is marked otherwise; GDP and population are World Bank
@@ -128,11 +142,13 @@ deps/corpus/*.xsd ──xml.read_xml──▶ xsd.read_schema ──xsd_resolve�
   each beside a one-module `package.spiproj`, so a test cell type-checks only its own module.
 - Each generated module carries its own test, which builds the module's example document and writes it to `samples/`
   (the NF-e 4.00 module also parses an address back and checks the XML round trip). `scripts/family-gates.ps1`
-  then validates every example against the official XSD with .NET's `XmlSchemaSet`.
+  then validates the examples against the official XSDs with .NET's `XmlSchemaSet`. SAF-T PT is left to its typed
+  reader, because its schema is XSD 1.1 (assertions), which `XmlSchemaSet` does not read; five examples with open
+  defects (three Costa Rica `Canton` values, the Chilean `EnvioDTE` and VeriFactu namespaces) join once fixed.
 - `src/corpus_checks.spi` pins the reader and the regex engine to independent oracles over the whole corpus: element
   and attribute counts against .NET's XML DOM, include resolution against `XmlSchemaSet` (`scripts/resolve-check.ps1`),
-  and every distinct pattern of every corpus schema against .NET regex on generated probes: 271, of which 196 are
-  Brazilian and 75 come from the other families (`scripts/pattern-oracle.ps1` derives the list into `src/patterns.txt`).
+  and every distinct pattern of every corpus schema against .NET regex on generated probes: 336, of which 196 are
+  Brazilian and 140 come from the other families (`scripts/pattern-oracle.ps1` derives the list into `src/patterns.txt`).
 
 ## Building
 
@@ -145,18 +161,18 @@ pwsh scripts/publish.ps1   # dist/: the source tree and the example documents as
 `build.ps1 -Files generator,corpus_checks` runs a subset. CI (`.github/workflows/gh-pages.yml`) runs the same three
 steps on Ubuntu and Windows and publishes `dist` to GitHub Pages.
 
-Generated modules, example documents and the pattern oracle's output are build products: they are ignored by git and
-rebuilt by `build.ps1`, which regenerates everything before it tests.
+Generated modules are committed, formatted: `build.ps1` regenerates them before it tests and fails when they differ
+from the committed copy. Example documents and the pattern oracle's output are build products, ignored by git.
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `src/generator.spi` | schema-to-Spiral generator and the family roots it writes |
-| `generated/<module>/` | one generated module and its one-module package (a build product, ignored) |
+| `generated/<module>/` | one generated module and its one-module package (committed; the build checks it for drift) |
 | `src/corpus.spi`, `src/corpus_checks.spi` | corpus census and oracle checks |
 | `src/fiscal_paths.spi` | repository root (`FISCAL_ROOT`, or the folder above that holds `src/generator.spi`) |
-| `src/corpus.txt` | the Brazilian corpus file list |
+| `src/corpus.txt` | the Brazilian corpus file list, written by `scripts/pattern-oracle.ps1 -Write` (ignored) |
 | `scripts/` | init, build, publish, the example validator and the .NET oracles |
 
 ## Known limits

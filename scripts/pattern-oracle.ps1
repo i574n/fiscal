@@ -1,7 +1,9 @@
 param([switch] $Write)
 $root = Split-Path $PSScriptRoot
 $d = Join-Path $root 'src'
-$brazil = @(Get-Content "$d\corpus.txt" | ForEach-Object { Join-Path $root $_ })
+$brazilRelative = @(Get-ChildItem (Join-Path $root 'deps/corpus/DFe.NET') -Recurse -Filter *.xsd -File |
+    ForEach-Object { [IO.Path]::GetRelativePath($root, $_.FullName) -replace '\\', '/' } | Sort-Object)
+$brazil = @($brazilRelative | ForEach-Object { Join-Path $root $_ })
 $families = @(Get-ChildItem (Join-Path $root 'deps/corpus') -Directory | Where-Object Name -ne 'DFe.NET' |
     ForEach-Object { Get-ChildItem $_.FullName -Recurse -Filter *.xsd | Sort-Object FullName | ForEach-Object FullName })
 $distinct = [Collections.Generic.HashSet[string]]::new()
@@ -19,7 +21,7 @@ foreach ($s in @('', ' ', 'a', 'A', 'ABC', 'abc', 'Ação Ltda', ' leading', 'tr
         'http://www.fazenda.sp.gov.br/nfce/qrcode?p=35261012345678000195650010000000011000000015|2|1|1|ABCDEF0123456789ABCDEF0123456789ABCDEF01',
         'https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx', 'abc@example.com', 'ab.c', 'a@b.c', 'SP', 'RS', 'XX', 'EX', 'BR', '35', '43', '99', 'ABC1234', 'ABC1D23', 'AAA0001', 'ZZZ9999',
         'V1.00', 'v1', '1', '01', '001', '1000', '01.01', 'S', 'N', 'true', 'false', '00', '0000')) { $generic.Add($s) }
-$enumerations = Get-Content "$d\corpus.txt" | ForEach-Object { [xml](Get-Content (Join-Path $root $_) -Raw) } | ForEach-Object { $_.SelectNodes("//*[local-name()='enumeration']") | ForEach-Object value } | Where-Object { $_ -notmatch '[\r\n\t]' } | Sort-Object -Unique
+$enumerations = $brazil | ForEach-Object { [xml](Get-Content $_ -Raw) } | ForEach-Object { $_.SelectNodes("//*[local-name()='enumeration']") | ForEach-Object value } | Where-Object { $_ -notmatch '[\r\n\t]' } | Sort-Object -Unique
 . (Join-Path $PSScriptRoot 'pattern-examples.ps1')
 $examples = [Collections.Generic.List[string]]::new()
 foreach ($p in $patterns) {
@@ -44,8 +46,9 @@ $ones = ($rows | ForEach-Object { ($_.ToCharArray() | Where-Object { $_ -eq '1' 
 "patterns $($patterns.Count) ($($brazil.Count) Brazilian schemas, $($families.Count) other family schemas), probes $($probes.Count) ($($generic.Count) generic, $($sampled.Count) of $($enumerations.Count) enumeration values, $($examples.Count) generated examples and near misses), pairs $($patterns.Count * $probes.Count)"
 "patterns with a positive probe $withPositive, with a negative probe $withNegative, positive pairs $ones"
 if ($Write) {
-    [IO.File]::WriteAllText("$d\patterns.txt", ($patterns -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
-    [IO.File]::WriteAllText("$d\pattern_probes.txt", ($probes -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
-    [IO.File]::WriteAllText("$d\pattern_expected.txt", ($rows -join "`n") + "`n")
-    "wrote patterns.txt, pattern_probes.txt and pattern_expected.txt"
+    [IO.File]::WriteAllText((Join-Path $d 'patterns.txt'), ($patterns -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $d 'pattern_probes.txt'), ($probes -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $d 'pattern_expected.txt'), ($rows -join "`n") + "`n")
+    [IO.File]::WriteAllText((Join-Path $d 'corpus.txt'), ($brazilRelative -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
+    "wrote patterns.txt, pattern_probes.txt, pattern_expected.txt and corpus.txt"
 }
