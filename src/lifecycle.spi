@@ -113,44 +113,24 @@
 
 ///> rust
 test event_codes_name_their_author =
-    := author (code : i32) : string =
-        ?= actor_of_event_code code ?|
-        | Some actor =>
-            ?= actor ?|
-            | Issuer => "issuer"
-            | Recipient => "recipient"
-            | Fisco => "fisco"
-            | LinkedDocument => "linked document"
-            | Export => "export"
-            | OtherAgency => "other agency"
-        | None => "none"
-    ? author 110111i32 <> "issuer" ?> failwith "110111 cancellation is the issuer's"
-    ? author 110110i32 <> "issuer" ?> failwith "110110 correction is the issuer's"
-    ? author 210200i32 <> "recipient" ?> failwith "210200 confirmation is the recipient's"
-    ? author 411500i32 <> "fisco" ?> failwith "411500 is the fisco's"
-    ? author 610130i32 <> "linked document" ?> failwith "610130 comes from a CT-e"
-    ? author 790700i32 <> "export" ?> failwith "790700 is an export endorsement"
-    ? author 990900i32 <> "other agency" ?> failwith "990900 is SUFRAMA's"
-    ? author 310000i32 <> "none" ?> failwith "no observed event starts with 3"
+    ? actor_of_event_code 110111i32 <> Some Issuer ?> failwith "110111 cancellation is the issuer's"
+    ? actor_of_event_code 110110i32 <> Some Issuer ?> failwith "110110 correction is the issuer's"
+    ? actor_of_event_code 210200i32 <> Some Recipient ?> failwith "210200 confirmation is the recipient's"
+    ? actor_of_event_code 411500i32 <> Some Fisco ?> failwith "411500 is the fisco's"
+    ? actor_of_event_code 610130i32 <> Some LinkedDocument ?> failwith "610130 comes from a CT-e"
+    ? actor_of_event_code 790700i32 <> Some Export ?> failwith "790700 is an export endorsement"
+    ? actor_of_event_code 990900i32 <> Some OtherAgency ?> failwith "990900 is SUFRAMA's"
+    ? actor_of_event_code 310000i32 <> None ?> failwith "no observed event starts with 3"
 
 ///> rust
 test recipient_refusals_carry_their_justification =
-    := name (event : option recipient_event) : string =
-        ?= event ?|
-        | Some value =>
-            ?= value ?|
-            | Awareness => "awareness"
-            | Confirmation => "confirmation"
-            | Disownment reason => "disownment: " ++# reason
-            | NonPerformance reason => "non-performance: " ++# reason
-        | None => "none"
-    ? name (recipient_event_of_code 210220i32 "never ordered") <> "disownment: never ordered"
+    ? recipient_event_of_code 210220i32 "never ordered" <> Some (Disownment "never ordered")
     ?> failwith "210220 is a disownment that keeps its xJust"
-    ? name (recipient_event_of_code 210240i32 "goods refused") <> "non-performance: goods refused"
+    ? recipient_event_of_code 210240i32 "goods refused" <> Some (NonPerformance "goods refused")
     ?> failwith "210240 is a non-performance that keeps its xJust"
-    ? name (recipient_event_of_code 210210i32 "") <> "awareness" ?> failwith "210210 is awareness"
-    ? name (recipient_event_of_code 210200i32 "") <> "confirmation" ?> failwith "210200 is confirmation"
-    ? name (recipient_event_of_code 110111i32 "") <> "none" ?> failwith "110111 is not a recipient event"
+    ? recipient_event_of_code 210210i32 "" <> Some Awareness ?> failwith "210210 is awareness"
+    ? recipient_event_of_code 210200i32 "" <> Some Confirmation ?> failwith "210200 is confirmation"
+    ? recipient_event_of_code 110111i32 "" <> None ?> failwith "110111 is not a recipient event"
 
 ///> rust
 test a_cancellation_keeps_the_authorization_protocol =
