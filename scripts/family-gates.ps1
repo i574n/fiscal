@@ -25,10 +25,13 @@ if (Test-Path $cfdi) {
     '== generated_cfdi_v4_0_example.xml'
     & $validate -Document $cfdi -Schema (Join-Path $mx 'cfdv40.xsd') -Preload (Join-Path $mx 'catCFDI.xsd'), (Join-Path $mx 'tdCFDI.xsd') -Show 8
 }
-$ubl = Join-Path $root 'samples/generated_ubl_invoice_2_1_example.xml'
-if (Test-Path $ubl) {
-    '== generated_ubl_invoice_2_1_example.xml'
-    pwsh -NoProfile -File $validate -Document $ubl -Schema (Join-Path $root 'deps/corpus/eu/ubl21/maindoc/UBL-Invoice-2.1.xsd') -Preload (Join-Path $root 'deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd') -Resolve -Show 8
+$ubl21 = Join-Path $root 'deps/corpus/eu/ubl21'
+foreach ($document in 'Invoice', 'CreditNote', 'DebitNote', 'DespatchAdvice', 'ReceiptAdvice', 'ApplicationResponse') {
+    $name = "generated_ubl_$($document.ToLowerInvariant())_2_1_example.xml"
+    $sample = Join-Path $root "samples/$name"
+    if (-not (Test-Path $sample)) { "== $name :: not written"; continue }
+    "== $name"
+    pwsh -NoProfile -File $validate -Document $sample -Schema (Join-Path $ubl21 "maindoc/UBL-$document-2.1.xsd") -Preload (Join-Path $ubl21 'common/UBL-xmldsig-core-schema-2.1.xsd') -Resolve -Show 8
 }
 $it = Join-Path $root 'deps/corpus/it/fatturapa'
 $pl = Join-Path $root 'deps/corpus/pl/ksef'

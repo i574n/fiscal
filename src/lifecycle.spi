@@ -6,34 +6,55 @@
 :! rejected = ()
 :! cancelled = ()
 
-:| document s =
-    | Issued :: string -> document issued
-    | Authorized :: string * string -> document authorized
-    | Rejected :: string * string -> document rejected
-    | Cancelled :: string * string * string -> document cancelled
+:! access_key = string
 
-:= key_of \* s. (doc : document s) : string =
+:! protocol_id = string
+
+:= key_text ((access_key text) : access_key) : string = text
+
+:= protocol_text ((protocol_id text) : protocol_id) : string = text
+
+:== correction_letter = { sequence : i32; text : string }
+
+:| document s =
+    | Issued :: access_key -> document issued
+    | Authorized ::
+        { key : access_key; protocol : protocol_id; corrections : list correction_letter } -> document authorized
+    | Rejected :: access_key * string -> document rejected
+    | Cancelled :: { key : access_key; protocol : protocol_id; event_protocol : protocol_id } -> document cancelled
+
+:~ ^ key_of \* s. (doc : document s) : access_key =
     ?= doc ?|
     | Issued key => key
-    | Authorized (key, _) => key
+    | Authorized a => a::key
     | Rejected (key, _) => key
-    | Cancelled (key, _, _) => key
+    | Cancelled c => c::key
 
-:= authorize (doc : document issued) (protocol : string) : document authorized =
+:= authorize (doc : document issued) (protocol : protocol_id) : document authorized =
     ?= doc ?|
-    | Issued key => Authorized (key, protocol)
+    | Issued key => Authorized { key = key; protocol = protocol; corrections = [] }
 
 := reject (doc : document issued) (reason : string) : document rejected =
     ?= doc ?|
     | Issued key => Rejected (key, reason)
 
-:= cancel (doc : document authorized) (event_protocol : string) : document cancelled =
+:= correct (doc : document authorized) (letter : string) : document authorized =
     ?= doc ?|
-    | Authorized (key, protocol) => Cancelled (key, protocol, event_protocol)
+    | Authorized a =>
+        := next = { sequence = listm::length a::corrections + 1i32; text = letter }
+        Authorized { a ?| corrections = listm::append a::corrections [ next ] }
 
-:= authorization_protocol (doc : document cancelled) : string =
+:= corrections_of (doc : document authorized) : list correction_letter =
     ?= doc ?|
-    | Cancelled (_, protocol, _) => protocol
+    | Authorized a => a::corrections
+
+:= cancel (doc : document authorized) (event_protocol : protocol_id) : document cancelled =
+    ?= doc ?|
+    | Authorized a => Cancelled { key = a::key; protocol = a::protocol; event_protocol = event_protocol }
+
+:= authorization_protocol (doc : document cancelled) : protocol_id =
+    ?= doc ?|
+    | Cancelled c => c::protocol
 
 :| actor =
     | Issuer
@@ -111,11 +132,28 @@ test recipient_refusals_carry_their_justification =
 ///> rust
 test a_cancellation_keeps_the_authorization_protocol =
     := key = "35260112345678000195550010000000011000000019"
-    := closed = cancel (authorize (Issued key) "135260000000001") "135260000000002"
-    ? key_of closed <> key ?> failwith "the key survives every step"
-    ? authorization_protocol closed <> "135260000000001" ?> failwith "a cancellation quotes the authorization (nProt)"
-    ? key_of (reject (Issued "k") "duplicate") <> "k" ?> failwith "a rejection keeps the key"
+    := authorized = authorize (Issued (access_key key)) (protocol_id "135260000000001")
+    := corrected = correct (correct authorized "xCorrecao one") "xCorrecao two"
+    := closed = cancel corrected (protocol_id "135260000000002")
+    ? key_text (key_of closed) <> key ?> failwith "the key survives every step"
+    ? protocol_text (authorization_protocol closed) <> "135260000000001"
+    ?> failwith "a cancellation quotes the authorization (nProt)"
+    ?= corrections_of corrected ?|
+    | first :: second :: [] =>
+        ? first::sequence <> 1i32 || second::sequence <> 2i32 || second::text <> "xCorrecao two"
+        ?> failwith "CC-e letters keep their order and nSeqEvento"
+    | _ => failwith "two correction letters stay on the authorized document"
+    ? key_text (key_of (reject (Issued (access_key "k")) "duplicate")) <> "k" ?> failwith "a rejection keeps the key"
 
 ///> rust
 test cancelling_an_unauthorized_document_does_not_type fails "Unification failure" =
-    cancel (Issued "k") "p" |> ignore
+    cancel (Issued (access_key "k")) (protocol_id "p") |> ignore
+
+///> rust
+test cancelling_a_cancelled_document_does_not_type fails "Unification failure" =
+    := authorized = authorize (Issued (access_key "k")) (protocol_id "p")
+    cancel (cancel authorized (protocol_id "e1")) (protocol_id "e2") |> ignore
+
+///> rust
+test correcting_an_unauthorized_document_does_not_type fails "Unification failure" =
+    correct (Issued (access_key "k")) "letter" |> ignore

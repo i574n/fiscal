@@ -12,7 +12,7 @@
     | UblInvoice
     | UblCreditNote
 
-:= ubl_document_name (document : ubl_document) : string =
+:~ ^ ubl_document_name (document : ubl_document) : string =
     ?= document ?|
     | UblInvoice => "ubl-invoice"
     | UblCreditNote => "ubl-creditnote"
@@ -26,7 +26,7 @@
         ubl : list (ubl_document * string)
     }
 
-:= child_text (name : string) (children : list xml_node) : string =
+:~ ^ child_text (name : string) (children : list xml_node) : string =
     ?= first_named name children ?|
     | Some (_, inner) => sm'::trim (text_in inner)
     | None => ""
@@ -53,7 +53,7 @@
     | BusinessTerm n => "BT-" ++# sm'::obj_to_string n
     | BusinessGroup n => "BG-" ++# sm'::obj_to_string n
 
-:= is_group (id : term_id) : bool =
+:~ ^ is_group (id : term_id) : bool =
     ?= id ?|
     | BusinessGroup _ => !+
     | BusinessTerm _ => !-
@@ -144,7 +144,7 @@
     | _ :: rest => read_children rest path folder document rows
     | [] => rows
 
-:= structure_terms (structure : string) (document : ubl_document) (rows : list term_row) : list term_row =
+:~ ^ structure_terms (structure : string) (document : ubl_document) (rows : list term_row) : list term_row =
     := file = structure ++# "/" ++# ubl_document_name document ++# ".xml"
     ?= first_named "Structure" (read_xml (file_system::read_all_text file)) ?|
     | Some (_, children) =>
@@ -153,7 +153,7 @@
         | None => rows
     | None => rows
 
-:= term_order (r : term_row) : i32 =
+:~ ^ term_order (r : term_row) : i32 =
     ?= r::id ?|
     | BusinessTerm n => n
     | BusinessGroup n => 100000i32 + n
