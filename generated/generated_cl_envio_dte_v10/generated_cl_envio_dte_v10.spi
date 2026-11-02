@@ -11683,7 +11683,7 @@ and let x_envio_dte_set_dte_of_children forall s.
     =
     {
         caratula = (fun c => x_envio_dte_set_dte_caratula_of_xml c) (xml.required_child "Caratula" children)
-        dte = listm.map (fun c => x_dte_def_type_of_xml witness c) (xml.children_named "SiiDte:DTE" children)
+        dte = listm.map (fun c => x_dte_def_type_of_xml witness c) (xml.children_named "DTE" children)
         id = xml.required_attribute "ID" attributes
     }
 
@@ -15376,7 +15376,7 @@ and let x_envio_dte_to_xml forall s. (name : string) (x : x_envio_dte s) : xml.x
 and let x_envio_dte_set_dte_children forall s. (x : x_envio_dte_set_dte s) : list xml.xml_node =
     listm.concat [
         [ x_envio_dte_set_dte_caratula_to_xml "Caratula" x.caratula ]
-        listm.map (fun v => x_dte_def_type_to_xml "SiiDte:DTE" v) x.dte
+        listm.map (fun v => x_dte_def_type_to_xml "DTE" v) x.dte
     ]
 
 and let x_envio_dte_set_dte_attributes forall s. (x : x_envio_dte_set_dte s) : list (string * string) = [ ("ID", x.id) ]
@@ -20798,7 +20798,7 @@ and let x_envio_dte_set_dte_example (k : i32) : x_envio_dte_set_dte unsigned =
     {
         caratula = x_envio_dte_set_dte_caratula_example k
         dte = [ x_dte_def_type_example (k + 0i32) ]
-        id = "ID1"
+        id = "ID_x_envio_dte_set_dte"
     }
 
 and let x_envio_dte_set_dte_caratula_example (k : i32) : x_envio_dte_set_dte_caratula =
@@ -20931,7 +20931,7 @@ and let x_dte_def_type_choice_documento_documento_example (k : i32) : x_dte_def_
         comisiones = []
         ted = x_dte_def_type_choice_documento_documento_ted_example k
         tmst_firma = x_fecha_hora_type_example k
-        id = "ID1"
+        id = "ID_x_dte_def_type_choice_documento_documento"
     }
 
 and let x_dte_def_type_choice_documento_documento_ted_example (k : i32) : x_dte_def_type_choice_documento_documento_ted =
