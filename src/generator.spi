@@ -10,18 +10,6 @@
     ++# module_name
     ++# "\n"
 
-:= sample_helper () : string =
-    "\ninl sample_path (name : string) : string =\n"
-    ++# "    inl from_env = env.get_environment_variable \"FISCAL_ROOT\"\n"
-    ++# "    inl root =\n"
-    ++# "        if from_env <> \"\" then from_env\n"
-    ++# "        else\n"
-    ++# "            inl here = file_system.get_current_directory ()\n"
-    ++# "            match here |> file_system.find_parent file_system.File \"src/generator.spi\" with\n"
-    ++# "            | Ok dir => dir\n"
-    ++# "            | Error message => failwith message\n"
-    ++# "    sm'.(++#) (sm'.(++#) root \"/samples/\") name\n"
-
 := ensure_folder (folder : string) : () =
     ?= file_system::create_dir_all folder |> resultm::unbox ?|
     | Ok _ => ()
@@ -83,13 +71,17 @@ test generates_the_uf_code_union =
     | x :: rest => x = extra || has_extra extra rest
     | [] => !-
 
+:! module_id = string
+
+:= module_text ((module_id text) : module_id) : string = text
+
 :== family_root =
     {
-        module_name : string
+        module_name : module_id
         schema_path : string
-        root_element : string
-        root_type : string
-        target_namespace : string
+        root_element : tag_name
+        root_type : definition_name written
+        target_namespace : namespace_uri
         source : schema_source
         known_defect : option string
         documents : list string
@@ -97,15 +89,17 @@ test generates_the_uf_code_union =
         extras : list family_extra
     }
 
+:= root_type_name (family : family_root) : string = type_name (definition_text family::root_type)
+
 := cfdi_v4_0 () : family_root =
     := local = (fiscal_paths::under "deps/corpus/mx/cfdi/")
     := sat = "http://www.sat.gob.mx/sitio_internet/cfd/"
     {
-        module_name = "generated_cfdi_v4_0"
+        module_name = module_id "generated_cfdi_v4_0"
         schema_path = local ++# "cfdv40.xsd"
-        root_element = "Comprobante"
-        root_type = "Comprobante"
-        target_namespace = "http://www.sat.gob.mx/cfd/4"
+        root_element = tag_name "Comprobante"
+        root_type = definition_name "Comprobante"
+        target_namespace = namespace_uri "http://www.sat.gob.mx/cfd/4"
         source =
             Xsd [
                 (sat ++# "catalogos/catCFDI.xsd", local ++# "catCFDI.xsd");
@@ -122,11 +116,11 @@ test generates_the_uf_code_union =
     : family_root
     =
     {
-        module_name = module_name
+        module_name = module_id module_name
         schema_path = (fiscal_paths::under "deps/corpus/mx/complements/") ++# file
-        root_element = root
-        root_type = root
-        target_namespace = space
+        root_element = tag_name root
+        root_type = definition_name root
+        target_namespace = namespace_uri space
         source = Xsd catalog
         known_defect = None
         documents = []
@@ -169,11 +163,11 @@ test generates_the_uf_code_union =
     := mdfe = "http://www.portalfiscal.inf.br/mdfe"
     := family module_name schema_path root_element root_type target_namespace : family_root =
         {
-            module_name = module_name
+            module_name = module_id module_name
             schema_path = root ++# schema_path
-            root_element = root_element
-            root_type = root_type
-            target_namespace = target_namespace
+            root_element = tag_name root_element
+            root_type = definition_name root_type
+            target_namespace = namespace_uri target_namespace
             source = Xsd []
             known_defect = None
             documents = []
@@ -197,11 +191,11 @@ test generates_the_uf_code_union =
 
 := nfe_v4_00 () : family_root =
     {
-        module_name = "generated_nfe_v4"
+        module_name = module_id "generated_nfe_v4"
         schema_path = fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd"
-        root_element = "NFe"
-        root_type = "TNFe"
-        target_namespace = "http://www.portalfiscal.inf.br/nfe"
+        root_element = tag_name "NFe"
+        root_type = definition_name "TNFe"
+        target_namespace = namespace_uri "http://www.portalfiscal.inf.br/nfe"
         source = Xsd []
         known_defect = None
         documents = []
@@ -212,11 +206,11 @@ test generates_the_uf_code_union =
 := nfe_events () : list family_root =
     := event module_name schema : family_root =
         {
-            module_name = module_name
+            module_name = module_id module_name
             schema_path = fiscal_paths::under ("deps/corpus/DFe.NET/NFe.AppTeste/Schemas/" ++# schema)
-            root_element = "procEventoNFe"
-            root_type = "TProcEvento"
-            target_namespace = "http://www.portalfiscal.inf.br/nfe"
+            root_element = tag_name "procEventoNFe"
+            root_type = definition_name "TProcEvento"
+            target_namespace = namespace_uri "http://www.portalfiscal.inf.br/nfe"
             source = Xsd []
             known_defect = None
             documents = []
@@ -243,11 +237,11 @@ test generates_the_uf_code_union =
 
 := ubl_invoice_2_1 () : family_root =
     {
-        module_name = "generated_ubl_invoice_2_1"
+        module_name = module_id "generated_ubl_invoice_2_1"
         schema_path = (fiscal_paths::under "deps/corpus/eu/ubl21/maindoc/UBL-Invoice-2.1.xsd")
-        root_element = "Invoice"
-        root_type = "InvoiceType"
-        target_namespace = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+        root_element = tag_name "Invoice"
+        root_type = definition_name "InvoiceType"
+        target_namespace = namespace_uri "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
         source = Xsd []
         known_defect = None
         documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-invoice-documents.txt"
@@ -257,11 +251,11 @@ test generates_the_uf_code_union =
 
 := ubl_creditnote_2_1 () : family_root =
     {
-        module_name = "generated_ubl_creditnote_2_1"
+        module_name = module_id "generated_ubl_creditnote_2_1"
         schema_path = (fiscal_paths::under "deps/corpus/eu/ubl21/maindoc/UBL-CreditNote-2.1.xsd")
-        root_element = "CreditNote"
-        root_type = "CreditNoteType"
-        target_namespace = "urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
+        root_element = tag_name "CreditNote"
+        root_type = definition_name "CreditNoteType"
+        target_namespace = namespace_uri "urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
         source = Xsd []
         known_defect = None
         documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-creditnote-documents.txt"
@@ -271,11 +265,11 @@ test generates_the_uf_code_union =
 
 := ubl_document_2_1 (kind : string) (lower : string) : family_root =
     {
-        module_name = "generated_ubl_" ++# lower ++# "_2_1"
+        module_name = module_id ("generated_ubl_" ++# lower ++# "_2_1")
         schema_path = (fiscal_paths::under ("deps/corpus/eu/ubl21/maindoc/UBL-" ++# kind ++# "-2.1.xsd"))
-        root_element = kind
-        root_type = kind ++# "Type"
-        target_namespace = "urn:oasis:names:specification:ubl:schema:xsd:" ++# kind ++# "-2"
+        root_element = tag_name kind
+        root_type = definition_name (kind ++# "Type")
+        target_namespace = namespace_uri ("urn:oasis:names:specification:ubl:schema:xsd:" ++# kind ++# "-2")
         source = Xsd []
         known_defect = None
         documents = manifest_documents "deps/corpus/" ("deps/corpus/ubl-" ++# lower ++# "-documents.txt")
@@ -292,11 +286,11 @@ test generates_the_uf_code_union =
 := fatturapa_1_2_3 () : family_root =
     := local = (fiscal_paths::under "deps/corpus/")
     {
-        module_name = "generated_fatturapa_1_2_3"
+        module_name = module_id "generated_fatturapa_1_2_3"
         schema_path = local ++# "it/fatturapa/Schema_VFPR12_v1.2.3.xsd"
-        root_element = "FatturaElettronica"
-        root_type = "FatturaElettronicaType"
-        target_namespace = "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"
+        root_element = tag_name "FatturaElettronica"
+        root_type = definition_name "FatturaElettronicaType"
+        target_namespace = namespace_uri "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"
         source =
             Xsd [
                 (
@@ -313,11 +307,11 @@ test generates_the_uf_code_union =
 := ksef_fa_3 () : family_root =
     := local = (fiscal_paths::under "deps/corpus/pl/ksef/")
     {
-        module_name = "generated_ksef_fa_3"
+        module_name = module_id "generated_ksef_fa_3"
         schema_path = local ++# "schemat_FA3.xsd"
-        root_element = "Faktura"
-        root_type = "Faktura"
-        target_namespace = "http://crd.gov.pl/wzor/2025/06/25/13775/"
+        root_element = tag_name "Faktura"
+        root_type = definition_name "Faktura"
+        target_namespace = namespace_uri "http://crd.gov.pl/wzor/2025/06/25/13775/"
         source = Xsd [ ("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", local) ]
         known_defect = None
         documents = []
@@ -330,11 +324,11 @@ test generates_the_uf_code_union =
 
 := chile_dte_v10 () : family_root =
     {
-        module_name = "generated_cl_dte_v10"
+        module_name = module_id "generated_cl_dte_v10"
         schema_path = fiscal_paths::under "deps/corpus/cl/dte/DTE_v10.xsd"
-        root_element = "DTE"
-        root_type = "DTEDefType"
-        target_namespace = "http://www.sii.cl/SiiDte"
+        root_element = tag_name "DTE"
+        root_type = definition_name "DTEDefType"
+        target_namespace = namespace_uri "http://www.sii.cl/SiiDte"
         source = Xsd []
         known_defect = None
         documents = []
@@ -344,11 +338,11 @@ test generates_the_uf_code_union =
 
 := chile_envio_dte_v10 () : family_root =
     {
-        module_name = "generated_cl_envio_dte_v10"
+        module_name = module_id "generated_cl_envio_dte_v10"
         schema_path = fiscal_paths::under "deps/corpus/cl/dte/EnvioDTE_v10.xsd"
-        root_element = "EnvioDTE"
-        root_type = "EnvioDTE"
-        target_namespace = "http://www.sii.cl/SiiDte"
+        root_element = tag_name "EnvioDTE"
+        root_type = definition_name "EnvioDTE"
+        target_namespace = namespace_uri "http://www.sii.cl/SiiDte"
         source = Xsd []
         known_defect = None
         documents = [ "deps/corpus/cl/examples/F60T33-ejemplo.xml" ]
@@ -358,11 +352,11 @@ test generates_the_uf_code_union =
 
 := facturae_3_2_2 () : family_root =
     {
-        module_name = "generated_es_facturae_3_2_2"
+        module_name = module_id "generated_es_facturae_3_2_2"
         schema_path = fiscal_paths::under "deps/corpus/es/facturae/Facturaev3_2_2.xsd"
-        root_element = "Facturae"
-        root_type = "Facturae"
-        target_namespace = "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
+        root_element = tag_name "Facturae"
+        root_type = definition_name "Facturae"
+        target_namespace = namespace_uri "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
         source = Xsd [ ("http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd", local_xmldsig ()) ]
         known_defect = None
         documents = []
@@ -372,13 +366,15 @@ test generates_the_uf_code_union =
 
 := verifactu_registro () : family_root =
     {
-        module_name = "generated_es_verifactu"
+        module_name = module_id "generated_es_verifactu"
         schema_path = fiscal_paths::under "deps/corpus/es/verifactu/SuministroLR.xsd"
-        root_element = "RegFactuSistemaFacturacion"
-        root_type = "RegFactuSistemaFacturacion"
+        root_element = tag_name "RegFactuSistemaFacturacion"
+        root_type = definition_name "RegFactuSistemaFacturacion"
         target_namespace =
-            "https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/"
-            ++# "SuministroLR.xsd"
+            namespace_uri (
+                "https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/"
+                ++# "SuministroLR.xsd"
+            )
         source = Xsd [ ("http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd", local_xmldsig ()) ]
         known_defect = None
         documents = []
@@ -388,25 +384,25 @@ test generates_the_uf_code_union =
 
 := saft_pt_1_04_01 () : family_root =
     {
-        module_name = "generated_pt_saft_1_04_01"
+        module_name = module_id "generated_pt_saft_1_04_01"
         schema_path = fiscal_paths::under "deps/corpus/pt/saft/saftpt1.04_01.xsd"
-        root_element = "AuditFile"
-        root_type = "AuditFile"
-        target_namespace = "urn:OECD:StandardAuditFile-Tax:PT_1.04_01"
+        root_element = tag_name "AuditFile"
+        root_type = definition_name "AuditFile"
+        target_namespace = namespace_uri "urn:OECD:StandardAuditFile-Tax:PT_1.04_01"
         source = Xsd []
         known_defect = None
-        documents = []
+        documents = [ "deps/corpus/pt/saft/samples/saft_idemo599999999.xml" ]
         ubl_json_documents = []
         extras = []
     }
 
 := mydata_2_0_2 () : family_root =
     {
-        module_name = "generated_gr_mydata_2_0_2"
+        module_name = module_id "generated_gr_mydata_2_0_2"
         schema_path = fiscal_paths::under "deps/corpus/gr/mydata/InvoicesDoc-v2.0.2.xsd"
-        root_element = "InvoicesDoc"
-        root_type = "InvoicesDoc"
-        target_namespace = "http://www.aade.gr/myDATA/invoice/v1.0"
+        root_element = tag_name "InvoicesDoc"
+        root_type = definition_name "InvoicesDoc"
+        target_namespace = namespace_uri "http://www.aade.gr/myDATA/invoice/v1.0"
         source = Xsd []
         known_defect = None
         documents = manifest_documents "deps/corpus/" "deps/corpus/gr-mydata-invoicesdoc-documents.txt"
@@ -416,11 +412,11 @@ test generates_the_uf_code_union =
 
 := hacienda_factura_4_4 () : family_root =
     {
-        module_name = "generated_cr_factura_4_4"
+        module_name = module_id "generated_cr_factura_4_4"
         schema_path = fiscal_paths::under "deps/corpus/cr/hacienda/v4.4/FacturaElectronica_V4.4.xsd"
-        root_element = "FacturaElectronica"
-        root_type = "FacturaElectronica"
-        target_namespace = "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/facturaElectronica"
+        root_element = tag_name "FacturaElectronica"
+        root_type = definition_name "FacturaElectronica"
+        target_namespace = namespace_uri "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/facturaElectronica"
         source = Xsd [ ("../../xmldsig-core-schema.xsd", local_xmldsig ()) ]
         known_defect = None
         documents = []
@@ -432,12 +428,12 @@ test generates_the_uf_code_union =
     := first = sm'::substring 0i32 1i32 root
     := rest = sm'::substring 1i32 (sm'::length root - 1i32) root
     {
-        module_name = "generated_cr_" ++# suffix ++# "_4_4"
+        module_name = module_id ("generated_cr_" ++# suffix ++# "_4_4")
         schema_path = fiscal_paths::under ("deps/corpus/cr/hacienda/v4.4/" ++# root ++# "_V4.4.xsd")
-        root_element = root
-        root_type = root
+        root_element = tag_name root
+        root_type = definition_name root
         target_namespace =
-            "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/" ++# sm'::to_lower first ++# rest
+            namespace_uri ("https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/" ++# sm'::to_lower first ++# rest)
         source = Xsd [ ("../../xmldsig-core-schema.xsd", local_xmldsig ()) ]
         known_defect = None
         documents = []
@@ -460,11 +456,11 @@ test generates_the_uf_code_union =
 := nav_invoice_data_3_0 () : family_root =
     := local = fiscal_paths::under "deps/corpus/hu/nav/"
     {
-        module_name = "generated_hu_nav_3_0"
+        module_name = module_id "generated_hu_nav_3_0"
         schema_path = local ++# "invoiceData.xsd"
-        root_element = "InvoiceData"
-        root_type = "InvoiceData"
-        target_namespace = "http://schemas.nav.gov.hu/OSA/3.0/data"
+        root_element = tag_name "InvoiceData"
+        root_type = definition_name "InvoiceData"
+        target_namespace = namespace_uri "http://schemas.nav.gov.hu/OSA/3.0/data"
         source =
             Xsd [
                 ("http://schemas.nav.gov.hu/NTCA/1.0/common", local ++# "common.xsd");
@@ -478,11 +474,11 @@ test generates_the_uf_code_union =
 
 := gst_inv01_1_1 () : family_root =
     {
-        module_name = "generated_in_gst_inv01_1_1"
+        module_name = module_id "generated_in_gst_inv01_1_1"
         schema_path = fiscal_paths::under "deps/corpus/in/gst/inv01_1.1.json"
-        root_element = "GstInvoice"
-        root_type = "GstInvoice"
-        target_namespace = ""
+        root_element = tag_name "GstInvoice"
+        root_type = definition_name "GstInvoice"
+        target_namespace = namespace_uri ""
         source = JsonSchema
         known_defect = None
         documents = [ "deps/corpus/in/gst/examples/irn-request-example.json" ]
@@ -512,15 +508,15 @@ test generates_the_uf_code_union =
     | None => ""
 
 := example_document (family : family_root) (value : string) : string =
-    := t = type_name family::root_type
+    := t = root_type_name family
     := root, declaration =
-        ? qualifies_children family ?> family::root_element, "xmlns" |: "p:" ++# family::root_element, "xmlns:p"
+        ? qualifies_children family ?> tag_text family::root_element, "xmlns" |: "p:" ++# tag_text family::root_element, "xmlns:p"
     "xml.element \""
     ++# root
     ++# "\" ((\""
     ++# declaration
     ++# "\", \""
-    ++# family::target_namespace
+    ++# namespace_text family::target_namespace
     ++# "\") :: "
     ++# prefix_declarations family
     ++# t
@@ -542,10 +538,10 @@ test generates_the_uf_code_union =
     |: path
 
 := json_example_check (family : family_root) : string =
-    := t = type_name family::root_type
-    := root = "\"" ++# family::root_element ++# "\""
+    := t = root_type_name family
+    := root = "\"" ++# tag_text family::root_element ++# "\""
     "///> rust\ntest "
-    ++# family::module_name
+    ++# module_text family::module_name
     ++# "_writes_its_example =\n"
     ++# "    inl example = "
     ++# t
@@ -557,13 +553,13 @@ test generates_the_uf_code_union =
     ++# "_attributes example) ("
     ++# t
     ++# "_children example)\n"
-    ++# "    inl schema = file_system.read_all_text (sample_path \"../"
+    ++# "    inl schema = file_system.read_all_text (generated_fiscal_runtime.sample_path \"../"
     ++# repo_relative family::schema_path
     ++# "\")\n"
     ++# "    inl text = json_schema.json_document_text schema document\n"
-    ++# "    file_system.directory_create_all (sample_path \"\") |> ignore\n"
-    ++# "    file_system.write_all_text (sample_path \""
-    ++# family::module_name
+    ++# "    file_system.directory_create_all (generated_fiscal_runtime.sample_path \"\") |> ignore\n"
+    ++# "    file_system.write_all_text (generated_fiscal_runtime.sample_path \""
+    ++# module_text family::module_name
     ++# "_example.json\") text\n"
     ++# "    match json_schema.json_document "
     ++# root
@@ -582,22 +578,22 @@ test generates_the_uf_code_union =
 := is_json_family (family : family_root) : bool = ?= family::source ?| JsonSchema => !+ | Xsd _ => !-
 
 := json_document_checks (family : family_root) : string =
-    := t = type_name family::root_type
-    := root = "\"" ++# family::root_element ++# "\""
+    := t = root_type_name family
+    := root = "\"" ++# tag_text family::root_element ++# "\""
     := quoted = listm::map (\ path => "\"" ++# path ++# "\"") family::documents
     ?= family::documents ?|
     | _ :: _ ?& is_json_family family =>
         "\n///> rust\ntest "
-        ++# family::module_name
+        ++# module_text family::module_name
         ++# "_reads_its_documents =\n"
-        ++# "    inl schema = file_system.read_all_text (sample_path \"../"
+        ++# "    inl schema = file_system.read_all_text (generated_fiscal_runtime.sample_path \"../"
         ++# repo_relative family::schema_path
         ++# "\")\n"
         ++# "    inl documents = ["
         ++# join_with "; " quoted ""
         ++# "]\n"
         ++# "    inl check (path : string) : list string =\n"
-        ++# "        inl text = file_system.read_all_text (sample_path (sm'.(++#) \"../\" path))\n"
+        ++# "        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) \"../\" path))\n"
         ++# "        match json_schema.json_document "
         ++# root
         ++# " text with\n"
@@ -624,11 +620,11 @@ test generates_the_uf_code_union =
     | _ => ""
 
 := document_round_trip (family : family_root) (witness : string) (name : string) (reader : string) : string =
-    := t = type_name family::root_type
+    := t = root_type_name family
     "    inl "
     ++# name
     ++# " (path : string) : list string =\n"
-    ++# "        inl text = file_system.read_all_text (sample_path (sm'.(++#) \"../\" path))\n"
+    ++# "        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) \"../\" path))\n"
     ++# "        match "
     ++# reader
     ++# " text with\n"
@@ -636,7 +632,7 @@ test generates_the_uf_code_union =
     ++# "            match xml.first_difference node ("
     ++# t
     ++# "_to_xml \""
-    ++# family::root_element
+    ++# tag_text family::root_element
     ++# "\" ("
     ++# t
     ++# "_of_xml"
@@ -647,8 +643,8 @@ test generates_the_uf_code_union =
     ++# "        | _ => [sm'.(++#) path \": not one root element\"]\n"
 
 := json_round_trip (family : family_root) (witness : string) (name : string) : string =
-    := t = type_name family::root_type
-    := root = "\"" ++# family::root_element ++# "\""
+    := t = root_type_name family
+    := root = "\"" ++# tag_text family::root_element ++# "\""
     "    let rec xml_size (n : xml.xml_node) : i32 =\n"
     ++# (
         "        1i32 + listm.length (xml.data_attributes (xml.element_attributes n)) + xml_sizes "
@@ -687,7 +683,7 @@ test generates_the_uf_code_union =
     ++# "    inl "
     ++# name
     ++# " (path : string) : list string =\n"
-    ++# "        inl text = file_system.read_all_text (sample_path (sm'.(++#) \"../\" path))\n"
+    ++# "        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) \"../\" path))\n"
     ++# "        match json_schema.ubl_json_document text with\n"
     ++# "        | node :: [] =>\n"
     ++# "            inl once = "
@@ -757,13 +753,13 @@ test generates_the_uf_code_union =
         ++# "        | [] => ()\n"
 
 := xsd_example_check (family : family_root) : string =
-    := t = type_name family::root_type
+    := t = root_type_name family
     := pinned =
         ?= family::known_defect ?|
         | Some defect => " fails \"" ++# defect ++# "\""
         | None => ""
     "///> rust\ntest "
-    ++# family::module_name
+    ++# module_text family::module_name
     ++# "_writes_its_example"
     ++# pinned
     ++# " =\n"
@@ -773,9 +769,9 @@ test generates_the_uf_code_union =
     ++# "    inl document = "
     ++# example_document family "example"
     ++# "\n"
-    ++# "    file_system.directory_create_all (sample_path \"\") |> ignore\n"
-    ++# "    file_system.write_all_text (sample_path \""
-    ++# family::module_name
+    ++# "    file_system.directory_create_all (generated_fiscal_runtime.sample_path \"\") |> ignore\n"
+    ++# "    file_system.write_all_text (generated_fiscal_runtime.sample_path \""
+    ++# module_text family::module_name
     ++# "_example.xml\") ("
     ++# signed_text "document"
     ++# ")\n"
@@ -786,9 +782,9 @@ test generates_the_uf_code_union =
     | Xsd _ => xsd_example_check family
 
 := family_bench (family : family_root) (witness : string) : string =
-    := t = type_name family::root_type
-    := m = family::module_name
-    := one = "failwith \"one " ++# family::root_element ++# " element\"\n"
+    := t = root_type_name family
+    := m = module_text family::module_name
+    := one = "failwith \"one " ++# tag_text family::root_element ++# " element\"\n"
     := measurable =
         ?= family::source ?|
         | JsonSchema => !-
@@ -798,17 +794,9 @@ test generates_the_uf_code_union =
             | None => !+
     ? measurable = !- ?> ""
     |:
-        "    inl text = file_system.read_all_text (sample_path \""
+        "    inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path \""
         ++# m
         ++# "_example.xml\")\n"
-        ++# "    let rec insert (x : i64) (xs : list i64) : list i64 =\n"
-        ++# "        match xs with\n"
-        ++# "        | y :: rest => if x <= y then x :: xs else y :: insert x rest\n"
-        ++# "        | [] => x :: []\n"
-        ++# "    let rec nth (i : i32) (xs : list i64) : i64 =\n"
-        ++# "        match xs with\n"
-        ++# "        | y :: rest => if i = 0i32 then y else nth (i - 1i32) rest\n"
-        ++# "        | [] => -1i64\n"
         ++# "    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64)"
         ++# " : list i64 * list i64 * i64 =\n"
         ++# "        if left = 0i32 then parses, writes, bytes\n"
@@ -827,22 +815,21 @@ test generates_the_uf_code_union =
         ++# "                inl written = xml.write_node ("
         ++# t
         ++# "_to_xml \""
-        ++# family::root_element
+        ++# tag_text family::root_element
         ++# "\" parsed)\n"
         ++# "                inl written_at = date_time.stopwatch_elapsed_microseconds watch\n"
-        ++# "                inl parses = insert (parsed_at - start) parses\n"
-        ++# "                inl writes = insert (written_at - parsed_at) writes\n"
+        ++# "                inl parses = generated_fiscal_runtime.insert_run (parsed_at - start) parses\n"
+        ++# "                inl writes = generated_fiscal_runtime.insert_run (written_at - parsed_at) writes\n"
         ++# "                runs (left - 1i32) parses writes (bytes + sm'.length written)\n"
         ++# "            | _ => "
         ++# one
         ++# "    inl _ = runs (dyn 5i32) [] [] 0i64\n"
         ++# "    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64\n"
-        ++# "    inl cell (x : i64) : string = sm'.obj_to_string x\n"
         ++# "    inl row = sm'.(++#) \""
         ++# m
-        ++# " parse_us \" (cell (nth 15i32 parses))\n"
-        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" write_us \" (cell (nth 15i32 writes)))\n"
-        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" runs 31 bytes \" (cell bytes))\n"
+        ++# " parse_us \" (generated_fiscal_runtime.median parses)\n"
+        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" write_us \" (generated_fiscal_runtime.median writes))\n"
+        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" runs 31 bytes \" (sm'.obj_to_string bytes))\n"
         ++# "    console.write_line row\n"
         ++# "    match xml.read_xml text with\n"
         ++# "    | node :: [] =>\n"
@@ -854,7 +841,7 @@ test generates_the_uf_code_union =
         ++# "        inl document = "
         ++# example_document family "parsed"
         ++# "\n"
-        ++# "        inl folder = sample_path \"../target/bench\"\n"
+        ++# "        inl folder = generated_fiscal_runtime.sample_path \"../target/bench\"\n"
         ++# "        match file_system.directory_create_all folder with\n"
         ++# "        | Ok _ => file_system.write_all_text (sm'.(++#) folder \"/ours-"
         ++# m
@@ -869,30 +856,30 @@ test generates_the_uf_code_union =
     ?= any_validated_type schema ?|
     | Some t =>
         "\n///> rust\ntest "
-        ++# family::module_name
+        ++# module_text family::module_name
         ++# "_keeps_raw_strings_out fails \"Unification failure\" =\n    "
         ++# t
         ++# "_to_string \"raw\"\n"
     | None => ""
 
 := certificate_check (family : family_root) : string =
-    "\n///> rust\ntest " ++# family::module_name ++# "_certificates_hold =\n    certificates_checked () |> ignore\n"
+    "\n///> rust\ntest " ++# module_text family::module_name ++# "_certificates_hold =\n    certificates_checked () |> ignore\n"
 
 := family_schema (family : family_root) =
     ?= family::source ?|
     | Xsd catalog => (xsd_resolve::load_schema_tree_with catalog family::schema_path)::schema
     | JsonSchema =>
         := text = xml::read_text_replacing_invalid_utf8 family::schema_path
-        := model = json_schema::schema_of_json_schema family::root_type text
+        := model = json_schema::schema_of_json_schema (definition_text family::root_type) text
         xsd_resolve::finalize_names (xsd_resolve::qualify_schema [] model)
 
 := complement_member_of (complement : string * family_root) =
     := case_name, member = complement
-    { case_name = case_name; module_name = member::module_name; schema = family_schema member }
+    { case_name = case_name; module_name = module_text member::module_name; schema = family_schema member }
 
 := complement_unit (complement : string * family_root) : string =
     := _, member = complement
-    member::module_name
+    module_text member::module_name
 
 := signatures_of (family : family_root) : list string = ? has_extra Signed family::extras ?> [ "Signature" ] |: []
 
@@ -933,7 +920,7 @@ test generates_the_uf_code_union =
     | family :: rest =>
         := schema = family_schema family
         := signatures = signatures_of family
-        := root_staged = has_name (type_name family::root_type) (staged_type_names signatures schema)
+        := root_staged = has_name (root_type_name family) (staged_type_names signatures schema)
         := documents_witness = ? root_staged ?> " Signed" |: ""
         := example_witness = ? root_staged ?> " Unsigned" |: ""
         := xml_documents = ? is_json_family family ?> "" |: document_checks family documents_witness
@@ -948,13 +935,14 @@ test generates_the_uf_code_union =
                 := members = listm::map complement_member_of complements
                 generate_complements members ++# complement_any_content ()
         := main, certificates = generated_units_signed signatures any_content schema
+        write_generated_module (generated_runtime::unit_name ()) (generated_runtime::unit_text ())
         write_generated_module_with
-            (listm::map complement_unit complements)
-            family::module_name
-            (main ++# sample_helper () ++# checks)
+            (generated_runtime::unit_name () :: listm::map complement_unit complements)
+            (module_text family::module_name)
+            (main ++# "\n" ++# checks)
         ? certificates <> ""
-        ?> write_generated_module (family::module_name ++# "_certificates") (certificates ++# certificate_check family)
-        |: remove_generated_module (family::module_name ++# "_certificates")
+        ?> write_generated_module (module_text family::module_name ++# "_certificates") (certificates ++# certificate_check family)
+        |: remove_generated_module (module_text family::module_name ++# "_certificates")
         write_family_modules rest (count + 1i32)
     | [] => count
 

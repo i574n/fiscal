@@ -7,7 +7,10 @@ param(
 $ErrorActionPreference = 'Stop'
 $generated = Join-Path $Root 'generated'
 if (-not (Test-Path $generated)) { exit 0 }
-$cache = (New-Item -ItemType Directory -Force (Join-Path $Root 'target/format-cache')).FullName
+$identity = @($Compiler, (Join-Path (Split-Path $Compiler) 'SpiralCompilerCore.dll')) | Where-Object { Test-Path -LiteralPath $_ } |
+    ForEach-Object { (Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash }
+$formatter = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($identity -join ''))).Substring(0, 16)
+$cache = (New-Item -ItemType Directory -Force (Join-Path $Root "target/format-cache/$formatter")).FullName
 $clock = [Diagnostics.Stopwatch]::StartNew()
 $units = @(Get-ChildItem $generated -Directory | ForEach-Object { Get-ChildItem $_.FullName -File -Filter '*.spi' })
 $results = @($units | ForEach-Object -ThrottleLimit $Jobs -Parallel {

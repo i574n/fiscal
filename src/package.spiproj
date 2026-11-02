@@ -8,5 +8,6 @@ modules:
     canon
     corpus
     corpus_checks
+    generated_runtime
     generator
     lifecycle

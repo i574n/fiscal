@@ -20578,7 +20578,7 @@ and let x_dte_def_type_choice_documento_documento_example (k : i32) : x_dte_def_
         comisiones = []
         ted = x_dte_def_type_choice_documento_documento_ted_example k
         tmst_firma = x_fecha_hora_type_example k
-        id = "ID1"
+        id = "ID_x_dte_def_type_choice_documento_documento"
     }
 
 and let x_dte_def_type_choice_documento_documento_ted_example (k : i32) : x_dte_def_type_choice_documento_documento_ted =

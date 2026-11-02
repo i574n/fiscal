@@ -84,7 +84,7 @@ function Invoke-TestFile([IO.FileInfo] $Source) {
     Write-Output ("build.ps1 / {0} / discovered {1} executed {2} passed {3} failed {4} static {5} skipped {6} not_run {7}" -f
         $name, $s.discovered, $s.executed, $s.passed, $s.failed, $s.static, $s.skipped, $s.not_run)
     $missing = $s.discovered - $s.executed - $s.static
-    if ($s.failed -or $s.unsupported -or $s.skipped -or $s.not_run -or $missing -or $s.passed -ne $s.executed) {
+    if ($s.failed -or $s.unsupported -or $s.skipped -or $s.not_run -or $missing -or $s.passed -ne $s.executed -or !$s.executed) {
         $failedTests = ($lines | Select-String 'spiral-tests file (\{.*\})' |
             ForEach-Object { ($_.Matches[0].Groups[1].Value | ConvertFrom-Json).failed_tests }) -join ', '
         $problems.Add("${name}: failed $($s.failed), skipped $($s.skipped), not run $($s.not_run), not executed $missing ($failedTests)")

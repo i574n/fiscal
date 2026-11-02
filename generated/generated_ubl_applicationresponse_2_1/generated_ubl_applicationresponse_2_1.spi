@@ -1,4 +1,4 @@
-///- --package . --timeout 5052000
+///- --package . --timeout 5052384
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -8534,36 +8534,38 @@ inl x_application_response_type_get forall r.
     | ApplicationResponseType_field_cac_DocumentResponse => x.document_response
 
 union x_ubl_extensions_type_field r =
-    | UBLExtensionsType_field_UBLExtension :: x_ubl_extensions_type_field (list (x_ubl_extension_type))
+    | UBLExtensionsType_field_ext_UBLExtension :: x_ubl_extensions_type_field (list (x_ubl_extension_type))
 
 inl x_ubl_extensions_type_get forall r. (f : x_ubl_extensions_type_field r) (x : x_ubl_extensions_type) : r =
     match f with
-    | UBLExtensionsType_field_UBLExtension => x.ubl_extension
+    | UBLExtensionsType_field_ext_UBLExtension => x.ubl_extension
 
 union x_ubl_extension_type_field r =
     | UBLExtensionType_field_cbc_ID :: x_ubl_extension_type_field (option (x_id_type))
     | UBLExtensionType_field_cbc_Name :: x_ubl_extension_type_field (option (x_common_basic_components_2_name_type))
-    | UBLExtensionType_field_ExtensionAgencyID :: x_ubl_extension_type_field (option (x_extension_agency_id_type))
-    | UBLExtensionType_field_ExtensionAgencyName :: x_ubl_extension_type_field (option (x_extension_agency_name_type))
-    | UBLExtensionType_field_ExtensionVersionID :: x_ubl_extension_type_field (option (x_extension_version_id_type))
-    | UBLExtensionType_field_ExtensionAgencyURI :: x_ubl_extension_type_field (option (x_extension_agency_uri_type))
-    | UBLExtensionType_field_ExtensionURI :: x_ubl_extension_type_field (option (x_extension_uri_type))
-    | UBLExtensionType_field_ExtensionReasonCode :: x_ubl_extension_type_field (option (x_extension_reason_code_type))
-    | UBLExtensionType_field_ExtensionReason :: x_ubl_extension_type_field (option (x_extension_reason_type))
-    | UBLExtensionType_field_ExtensionContent :: x_ubl_extension_type_field (x_extension_content_type)
+    | UBLExtensionType_field_ext_ExtensionAgencyID :: x_ubl_extension_type_field (option (x_extension_agency_id_type))
+    | UBLExtensionType_field_ext_ExtensionAgencyName ::
+        x_ubl_extension_type_field (option (x_extension_agency_name_type))
+    | UBLExtensionType_field_ext_ExtensionVersionID :: x_ubl_extension_type_field (option (x_extension_version_id_type))
+    | UBLExtensionType_field_ext_ExtensionAgencyURI :: x_ubl_extension_type_field (option (x_extension_agency_uri_type))
+    | UBLExtensionType_field_ext_ExtensionURI :: x_ubl_extension_type_field (option (x_extension_uri_type))
+    | UBLExtensionType_field_ext_ExtensionReasonCode ::
+        x_ubl_extension_type_field (option (x_extension_reason_code_type))
+    | UBLExtensionType_field_ext_ExtensionReason :: x_ubl_extension_type_field (option (x_extension_reason_type))
+    | UBLExtensionType_field_ext_ExtensionContent :: x_ubl_extension_type_field (x_extension_content_type)
 
 inl x_ubl_extension_type_get forall r. (f : x_ubl_extension_type_field r) (x : x_ubl_extension_type) : r =
     match f with
     | UBLExtensionType_field_cbc_ID => x.id
     | UBLExtensionType_field_cbc_Name => x.name
-    | UBLExtensionType_field_ExtensionAgencyID => x.extension_agency_id
-    | UBLExtensionType_field_ExtensionAgencyName => x.extension_agency_name
-    | UBLExtensionType_field_ExtensionVersionID => x.extension_version_id
-    | UBLExtensionType_field_ExtensionAgencyURI => x.extension_agency_uri
-    | UBLExtensionType_field_ExtensionURI => x.extension_uri
-    | UBLExtensionType_field_ExtensionReasonCode => x.extension_reason_code
-    | UBLExtensionType_field_ExtensionReason => x.extension_reason
-    | UBLExtensionType_field_ExtensionContent => x.extension_content
+    | UBLExtensionType_field_ext_ExtensionAgencyID => x.extension_agency_id
+    | UBLExtensionType_field_ext_ExtensionAgencyName => x.extension_agency_name
+    | UBLExtensionType_field_ext_ExtensionVersionID => x.extension_version_id
+    | UBLExtensionType_field_ext_ExtensionAgencyURI => x.extension_agency_uri
+    | UBLExtensionType_field_ext_ExtensionURI => x.extension_uri
+    | UBLExtensionType_field_ext_ExtensionReasonCode => x.extension_reason_code
+    | UBLExtensionType_field_ext_ExtensionReason => x.extension_reason
+    | UBLExtensionType_field_ext_ExtensionContent => x.extension_content
 
 union x_extension_content_type_field r =
     | ExtensionContentType_field_any :: x_extension_content_type_field (any_content)
@@ -16157,7 +16159,8 @@ and let x_ubl_extensions_type_of_children
     : x_ubl_extensions_type
     =
     {
-        ubl_extension = listm.map (fun c => x_ubl_extension_type_of_xml c) (xml.children_named "UBLExtension" children)
+        ubl_extension =
+            listm.map (fun c => x_ubl_extension_type_of_xml c) (xml.children_named "ext:UBLExtension" children)
     }
 
 and let x_ubl_extensions_type_of_xml (c : xml.xml_node) : x_ubl_extensions_type =
@@ -16172,24 +16175,31 @@ and let x_ubl_extension_type_of_children
         name =
             optionm.map (fun c => x_common_basic_components_2_name_type_of_xml c) (xml.first_child "cbc:Name" children)
         extension_agency_id =
-            optionm.map (fun c => x_extension_agency_id_type_of_xml c) (xml.first_child "ExtensionAgencyID" children)
+            optionm.map
+                fun c => x_extension_agency_id_type_of_xml c
+                (xml.first_child "ext:ExtensionAgencyID" children)
         extension_agency_name =
             optionm.map
                 fun c => x_extension_agency_name_type_of_xml c
-                (xml.first_child "ExtensionAgencyName" children)
+                (xml.first_child "ext:ExtensionAgencyName" children)
         extension_version_id =
-            optionm.map (fun c => x_extension_version_id_type_of_xml c) (xml.first_child "ExtensionVersionID" children)
+            optionm.map
+                fun c => x_extension_version_id_type_of_xml c
+                (xml.first_child "ext:ExtensionVersionID" children)
         extension_agency_uri =
-            optionm.map (fun c => x_extension_agency_uri_type_of_xml c) (xml.first_child "ExtensionAgencyURI" children)
-        extension_uri = optionm.map (fun c => x_extension_uri_type_of_xml c) (xml.first_child "ExtensionURI" children)
+            optionm.map
+                fun c => x_extension_agency_uri_type_of_xml c
+                (xml.first_child "ext:ExtensionAgencyURI" children)
+        extension_uri =
+            optionm.map (fun c => x_extension_uri_type_of_xml c) (xml.first_child "ext:ExtensionURI" children)
         extension_reason_code =
             optionm.map
                 fun c => x_extension_reason_code_type_of_xml c
-                (xml.first_child "ExtensionReasonCode" children)
+                (xml.first_child "ext:ExtensionReasonCode" children)
         extension_reason =
-            optionm.map (fun c => x_extension_reason_type_of_xml c) (xml.first_child "ExtensionReason" children)
+            optionm.map (fun c => x_extension_reason_type_of_xml c) (xml.first_child "ext:ExtensionReason" children)
         extension_content =
-            (fun c => x_extension_content_type_of_xml c) (xml.required_child "ExtensionContent" children)
+            (fun c => x_extension_content_type_of_xml c) (xml.required_child "ext:ExtensionContent" children)
     }
 
 and let x_ubl_extension_type_of_xml (c : xml.xml_node) : x_ubl_extension_type =
@@ -35236,14 +35246,15 @@ and let x_application_response_type_to_xml (name : string) (x : x_application_re
 and let x_ubl_extensions_type_children (x : x_ubl_extensions_type) : list xml.xml_node =
     inl nodes forall r. (f : x_ubl_extensions_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | UBLExtensionsType_field_UBLExtension => listm.map (fun v => x_ubl_extension_type_to_xml "UBLExtension" v) v
+        | UBLExtensionsType_field_ext_UBLExtension =>
+            listm.map (fun v => x_ubl_extension_type_to_xml "ext:UBLExtension" v) v
     inl rec walk (fields : list (exists r. x_ubl_extensions_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
             inl exists r. f = packed
             listm.append (nodes f (x_ubl_extensions_type_get f x)) (walk rest)
         | [] => []
-    walk [ exists UBLExtensionsType_field_UBLExtension ]
+    walk [ exists UBLExtensionsType_field_ext_UBLExtension ]
 
 and let x_ubl_extensions_type_attributes (x : x_ubl_extensions_type) : list (string * string) = []
 
@@ -35256,21 +35267,21 @@ and let x_ubl_extension_type_children (x : x_ubl_extension_type) : list xml.xml_
         | UBLExtensionType_field_cbc_ID => xml.option_list (optionm.map (fun v => x_id_type_to_xml "cbc:ID" v) v)
         | UBLExtensionType_field_cbc_Name =>
             xml.option_list (optionm.map (fun v => x_common_basic_components_2_name_type_to_xml "cbc:Name" v) v)
-        | UBLExtensionType_field_ExtensionAgencyID =>
-            xml.option_list (optionm.map (fun v => x_extension_agency_id_type_to_xml "ExtensionAgencyID" v) v)
-        | UBLExtensionType_field_ExtensionAgencyName =>
-            xml.option_list (optionm.map (fun v => x_extension_agency_name_type_to_xml "ExtensionAgencyName" v) v)
-        | UBLExtensionType_field_ExtensionVersionID =>
-            xml.option_list (optionm.map (fun v => x_extension_version_id_type_to_xml "ExtensionVersionID" v) v)
-        | UBLExtensionType_field_ExtensionAgencyURI =>
-            xml.option_list (optionm.map (fun v => x_extension_agency_uri_type_to_xml "ExtensionAgencyURI" v) v)
-        | UBLExtensionType_field_ExtensionURI =>
-            xml.option_list (optionm.map (fun v => x_extension_uri_type_to_xml "ExtensionURI" v) v)
-        | UBLExtensionType_field_ExtensionReasonCode =>
-            xml.option_list (optionm.map (fun v => x_extension_reason_code_type_to_xml "ExtensionReasonCode" v) v)
-        | UBLExtensionType_field_ExtensionReason =>
-            xml.option_list (optionm.map (fun v => x_extension_reason_type_to_xml "ExtensionReason" v) v)
-        | UBLExtensionType_field_ExtensionContent => [ x_extension_content_type_to_xml "ExtensionContent" v ]
+        | UBLExtensionType_field_ext_ExtensionAgencyID =>
+            xml.option_list (optionm.map (fun v => x_extension_agency_id_type_to_xml "ext:ExtensionAgencyID" v) v)
+        | UBLExtensionType_field_ext_ExtensionAgencyName =>
+            xml.option_list (optionm.map (fun v => x_extension_agency_name_type_to_xml "ext:ExtensionAgencyName" v) v)
+        | UBLExtensionType_field_ext_ExtensionVersionID =>
+            xml.option_list (optionm.map (fun v => x_extension_version_id_type_to_xml "ext:ExtensionVersionID" v) v)
+        | UBLExtensionType_field_ext_ExtensionAgencyURI =>
+            xml.option_list (optionm.map (fun v => x_extension_agency_uri_type_to_xml "ext:ExtensionAgencyURI" v) v)
+        | UBLExtensionType_field_ext_ExtensionURI =>
+            xml.option_list (optionm.map (fun v => x_extension_uri_type_to_xml "ext:ExtensionURI" v) v)
+        | UBLExtensionType_field_ext_ExtensionReasonCode =>
+            xml.option_list (optionm.map (fun v => x_extension_reason_code_type_to_xml "ext:ExtensionReasonCode" v) v)
+        | UBLExtensionType_field_ext_ExtensionReason =>
+            xml.option_list (optionm.map (fun v => x_extension_reason_type_to_xml "ext:ExtensionReason" v) v)
+        | UBLExtensionType_field_ext_ExtensionContent => [ x_extension_content_type_to_xml "ext:ExtensionContent" v ]
     inl rec walk (fields : list (exists r. x_ubl_extension_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
@@ -35280,14 +35291,14 @@ and let x_ubl_extension_type_children (x : x_ubl_extension_type) : list xml.xml_
     walk [
         exists UBLExtensionType_field_cbc_ID
         exists UBLExtensionType_field_cbc_Name
-        exists UBLExtensionType_field_ExtensionAgencyID
-        exists UBLExtensionType_field_ExtensionAgencyName
-        exists UBLExtensionType_field_ExtensionVersionID
-        exists UBLExtensionType_field_ExtensionAgencyURI
-        exists UBLExtensionType_field_ExtensionURI
-        exists UBLExtensionType_field_ExtensionReasonCode
-        exists UBLExtensionType_field_ExtensionReason
-        exists UBLExtensionType_field_ExtensionContent
+        exists UBLExtensionType_field_ext_ExtensionAgencyID
+        exists UBLExtensionType_field_ext_ExtensionAgencyName
+        exists UBLExtensionType_field_ext_ExtensionVersionID
+        exists UBLExtensionType_field_ext_ExtensionAgencyURI
+        exists UBLExtensionType_field_ext_ExtensionURI
+        exists UBLExtensionType_field_ext_ExtensionReasonCode
+        exists UBLExtensionType_field_ext_ExtensionReason
+        exists UBLExtensionType_field_ext_ExtensionContent
     ]
 
 and let x_ubl_extension_type_attributes (x : x_ubl_extension_type) : list (string * string) = []
