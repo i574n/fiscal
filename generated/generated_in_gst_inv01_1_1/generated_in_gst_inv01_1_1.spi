@@ -5564,24 +5564,14 @@ and let x_gst_invoice_tran_dtls_example (k : i32) : x_gst_invoice_tran_dtls =
     }
 
 
-inl sample_path (name : string) : string =
-    inl from_env = env.get_environment_variable "FISCAL_ROOT"
-    inl root =
-        if from_env <> "" then from_env
-        else
-            inl here = file_system.get_current_directory ()
-            match here |> file_system.find_parent file_system.File "src/generator.spi" with
-            | Ok dir => dir
-            | Error message => failwith message
-    sm'.(++#) (sm'.(++#) root "/samples/") name
 ///> rust
 test generated_in_gst_inv01_1_1_writes_its_example =
     inl example = x_gst_invoice_example 0i32
     inl document = xml.element "GstInvoice" (x_gst_invoice_attributes example) (x_gst_invoice_children example)
-    inl schema = file_system.read_all_text (sample_path "../deps/corpus/in/gst/inv01_1.1.json")
+    inl schema = file_system.read_all_text (generated_fiscal_runtime.sample_path "../deps/corpus/in/gst/inv01_1.1.json")
     inl text = json_schema.json_document_text schema document
-    file_system.directory_create_all (sample_path "") |> ignore
-    file_system.write_all_text (sample_path "generated_in_gst_inv01_1_1_example.json") text
+    file_system.directory_create_all (generated_fiscal_runtime.sample_path "") |> ignore
+    file_system.write_all_text (generated_fiscal_runtime.sample_path "generated_in_gst_inv01_1_1_example.json") text
     match json_schema.json_document "GstInvoice" text with
     | node :: [] =>
         inl again =
@@ -5591,10 +5581,10 @@ test generated_in_gst_inv01_1_1_writes_its_example =
 
 ///> rust
 test generated_in_gst_inv01_1_1_reads_its_documents =
-    inl schema = file_system.read_all_text (sample_path "../deps/corpus/in/gst/inv01_1.1.json")
+    inl schema = file_system.read_all_text (generated_fiscal_runtime.sample_path "../deps/corpus/in/gst/inv01_1.1.json")
     inl documents = [ "deps/corpus/in/gst/examples/irn-request-example.json" ]
     inl check (path : string) : list string =
-        inl text = file_system.read_all_text (sample_path (sm'.(++#) "../" path))
+        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) "../" path))
         match json_schema.json_document "GstInvoice" text with
         | node :: [] =>
             inl expected = json_schema.json_document_text schema node

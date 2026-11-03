@@ -2,5 +2,6 @@ packageDir: ../../deps/spiral/lib
 packages:
     |core-
     spiral-
+    ../generated_fiscal_runtime-
 modules:
     generated_cl_envio_dte_v10

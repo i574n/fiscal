@@ -8093,16 +8093,6 @@ and let x_x509_data_type_example (k : i32) : x_x509_data_type =
     }
 
 
-inl sample_path (name : string) : string =
-    inl from_env = env.get_environment_variable "FISCAL_ROOT"
-    inl root =
-        if from_env <> "" then from_env
-        else
-            inl here = file_system.get_current_directory ()
-            match here |> file_system.find_parent file_system.File "src/generator.spi" with
-            | Ok dir => dir
-            | Error message => failwith message
-    sm'.(++#) (sm'.(++#) root "/samples/") name
 ///> rust
 test generated_cr_nota_credito_4_4_writes_its_example =
     inl example = x_nota_credito_electronica_example 0i32
@@ -8114,19 +8104,12 @@ test generated_cr_nota_credito_4_4_writes_its_example =
                 :: x_nota_credito_electronica_attributes example
             )
             (x_nota_credito_electronica_children example)
-    file_system.directory_create_all (sample_path "") |> ignore
+    file_system.directory_create_all (generated_fiscal_runtime.sample_path "") |> ignore
     file_system.write_all_text
-        (sample_path "generated_cr_nota_credito_4_4_example.xml")
+        (generated_fiscal_runtime.sample_path "generated_cr_nota_credito_4_4_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
-    inl text = file_system.read_all_text (sample_path "generated_cr_nota_credito_4_4_example.xml")
-    let rec insert (x : i64) (xs : list i64) : list i64 =
-        match xs with
-        | y :: rest => if x <= y then x :: xs else y :: insert x rest
-        | [] => x :: []
-    let rec nth (i : i32) (xs : list i64) : i64 =
-        match xs with
-        | y :: rest => if i = 0i32 then y else nth (i - 1i32) rest
-        | [] => -1i64
+    inl text =
+        file_system.read_all_text (generated_fiscal_runtime.sample_path "generated_cr_nota_credito_4_4_example.xml")
     let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64) : list i64 * list i64 * i64 =
         if left = 0i32 then parses, writes, bytes
         else
@@ -8139,16 +8122,15 @@ test generated_cr_nota_credito_4_4_writes_its_example =
                 inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
                 inl written = xml.write_node (x_nota_credito_electronica_to_xml "NotaCreditoElectronica" parsed)
                 inl written_at = date_time.stopwatch_elapsed_microseconds watch
-                inl parses = insert (parsed_at - start) parses
-                inl writes = insert (written_at - parsed_at) writes
+                inl parses = generated_fiscal_runtime.insert_run (parsed_at - start) parses
+                inl writes = generated_fiscal_runtime.insert_run (written_at - parsed_at) writes
                 runs (left - 1i32) parses writes (bytes + sm'.length written)
             | _ => failwith "one NotaCreditoElectronica element"
     inl _ = runs (dyn 5i32) [] [] 0i64
     inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64
-    inl cell (x : i64) : string = sm'.obj_to_string x
-    inl row = sm'.(++#) "generated_cr_nota_credito_4_4 parse_us " (cell (nth 15i32 parses))
-    inl row = sm'.(++#) row (sm'.(++#) " write_us " (cell (nth 15i32 writes)))
-    inl row = sm'.(++#) row (sm'.(++#) " runs 31 bytes " (cell bytes))
+    inl row = sm'.(++#) "generated_cr_nota_credito_4_4 parse_us " (generated_fiscal_runtime.median parses)
+    inl row = sm'.(++#) row (sm'.(++#) " write_us " (generated_fiscal_runtime.median writes))
+    inl row = sm'.(++#) row (sm'.(++#) " runs 31 bytes " (sm'.obj_to_string bytes))
     console.write_line row
     match xml.read_xml text with
     | node :: [] =>
@@ -8161,7 +8143,7 @@ test generated_cr_nota_credito_4_4_writes_its_example =
                     :: x_nota_credito_electronica_attributes parsed
                 )
                 (x_nota_credito_electronica_children parsed)
-        inl folder = sample_path "../target/bench"
+        inl folder = generated_fiscal_runtime.sample_path "../target/bench"
         match file_system.directory_create_all folder with
         | Ok _ =>
             file_system.write_all_text

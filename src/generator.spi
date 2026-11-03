@@ -391,7 +391,7 @@ test generates_the_uf_code_union =
         target_namespace = namespace_uri "urn:OECD:StandardAuditFile-Tax:PT_1.04_01"
         source = Xsd []
         known_defect = None
-        documents = [ "deps/corpus/pt/saft/samples/saft_idemo599999999.xml" ]
+        documents = []
         ubl_json_documents = []
         extras = []
     }

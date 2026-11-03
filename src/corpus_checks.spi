@@ -514,7 +514,7 @@ test dian_compiled_rules_read_fully =
         ++# " lets "
         ++# sm'::obj_to_string lets
     console::write_line ("dian compiled: " ++# shape ++# " invalid " ++# sm'::obj_to_string co::invalid)
-    ? shape <> "patterns 5 rules 84 assertions 249 fatal 228 lets 201" ?>
+    ? ((listm::length patterns : i32), co::rules, co::assertions, co::fatal, lets) <> (5i32, 84i32, 249i32, 228i32, 201i32) ?>
         failwith ("DIAN's compiled v1.9 rules read back as the skeleton wrote them: " ++# shape)
 
 :~ ^ catalog_states \* form. (types : list (xsd type_def form)) (acc : list (string * i32)) : list (string * i32) =
@@ -728,7 +728,7 @@ test pint_rules_read_fully =
         ++# " invalid "
         ++# sm'::obj_to_string co::invalid
     console::write_line ("pint: " ++# shape)
-    ? shape <> "patterns 2 rules 70 assertions 170 fatal 170 invalid 0" ?>
+    ? ((listm::length patterns : i32), co::rules, co::assertions, co::fatal, co::invalid) <> (2i32, 70i32, 170i32, 170i32, 0i32) ?>
         failwith ("PINT Billing 1.1.3 rules read fully: " ++# shape)
 
 ///> rust

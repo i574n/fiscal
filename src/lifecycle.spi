@@ -10,12 +10,14 @@
 :! cfdi = string
 :! ubl = string
 
-:? cancellation_event r : r -> string
-:? correction_event r : r -> string
+:! event_code = string
 
-:+ cancellation_event nfe = \ _ => "110111"
-:+ correction_event nfe = \ _ => "110110"
-:+ cancellation_event cfdi = \ _ => "Cancelacion"
+:? cancellation_event r : r -> event_code
+:? correction_event r : r -> event_code
+
+:+ cancellation_event nfe = \ _ => event_code "110111"
+:+ correction_event nfe = \ _ => event_code "110110"
+:+ cancellation_event cfdi = \ _ => event_code "Cancelacion"
 
 :! access_key = string
 
@@ -25,7 +27,7 @@
 
 := protocol_text ((protocol_id text) : protocol_id) : string = text
 
-:== correction_letter = { sequence : i32; text : string; event : string }
+:== correction_letter = { sequence : i32; text : string; event : event_code }
 
 :| private document r s =
     | Issued :: \* r. r * access_key -> document r issued
@@ -33,7 +35,7 @@
         { regime : r; key : access_key; protocol : protocol_id; corrections : list correction_letter } -> document r authorized
     | Rejected :: \* r. r * access_key * string -> document r rejected
     | Cancelled :: \* r.
-        { regime : r; key : access_key; protocol : protocol_id; event : string; event_protocol : protocol_id }
+        { regime : r; key : access_key; protocol : protocol_id; event : event_code; event_protocol : protocol_id }
         -> document r cancelled
 
 :~ key_of \* r s. (doc : document r s) : access_key =
@@ -75,7 +77,7 @@
     ?= doc ?|
     | Cancelled c => c::protocol
 
-:= cancellation_event_of \* r. (doc : document r cancelled) : string =
+:= cancellation_event_of \* r. (doc : document r cancelled) : event_code =
     ?= doc ?|
     | Cancelled c => c::event
 
@@ -141,19 +143,19 @@ test a_cancellation_keeps_the_authorization_protocol =
     ? key_text (key_of closed) <> key ?> failwith "the key survives every step"
     ? protocol_text (authorization_protocol closed) <> "135260000000001"
     ?> failwith "a cancellation quotes the authorization (nProt)"
-    ? cancellation_event_of closed <> "110111" ?> failwith "an NF-e cancellation is tpEvento 110111"
+    ? cancellation_event_of closed <> event_code "110111" ?> failwith "an NF-e cancellation is tpEvento 110111"
     ?= corrections_of corrected ?|
     | first :: second :: [] =>
         ? first::sequence <> 1i32 || second::sequence <> 2i32 || second::text <> "xCorrecao two"
         ?> failwith "CC-e letters keep their order and nSeqEvento"
-        ? second::event <> "110110" ?> failwith "a CC-e is tpEvento 110110"
+        ? second::event <> event_code "110110" ?> failwith "a CC-e is tpEvento 110110"
     | _ => failwith "two correction letters stay on the authorized document"
     ? key_text (key_of (reject (issue (nfe "4.00") (access_key "k")) "duplicate")) <> "k" ?> failwith "a rejection keeps the key"
 
 ///> rust
 test a_cfdi_cancels_through_its_own_request =
     := authorized = authorize (issue (cfdi "4.0") (access_key "5FB2822E-396D-4725-8521-CDC4BDD20CCF")) (protocol_id "sello")
-    ? cancellation_event_of (cancel authorized (protocol_id "acuse")) <> "Cancelacion"
+    ? cancellation_event_of (cancel authorized (protocol_id "acuse")) <> event_code "Cancelacion"
     ?> failwith "a CFDI cancellation is a Cancelacion request"
 
 ///> rust
