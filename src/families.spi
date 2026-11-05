@@ -1,0 +1,499 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xsd
+:< xsd_emit
+
+:| schema_source =
+    | Xsd : xsd_resolve::schema_catalog
+    | JsonSchema
+
+:| family_extra =
+    | Signed
+    | CfdiComplements
+    | NfeModelChecks
+
+:~ ^ has_extra (extra : family_extra) (extras : list family_extra) : bool =
+    ?= extras ?|
+    | x :: rest => x = extra || has_extra extra rest
+    | [] => !-
+
+:! module_id = string
+
+:= module_text ((module_id text) : module_id) : string = text
+
+:== family_root =
+    {
+        module_name : module_id
+        schema_path : string
+        root_element : tag_name
+        root_type : definition_name written
+        target_namespace : namespace_uri
+        source : schema_source
+        known_defect : option string
+        documents : list string
+        ubl_json_documents : list string
+        extras : list family_extra
+    }
+
+:= root_type_name (family : family_root) : string = type_name (definition_text family::root_type)
+
+:= cfdi_v4_0 () : family_root =
+    := local = (fiscal_paths::under "deps/corpus/mx/cfdi/")
+    := sat = "http://www.sat.gob.mx/sitio_internet/cfd/"
+    {
+        module_name = module_id "generated_cfdi_v4_0"
+        schema_path = local ++# "cfdv40.xsd"
+        root_element = tag_name "Comprobante"
+        root_type = definition_name "Comprobante"
+        target_namespace = namespace_uri "http://www.sat.gob.mx/cfd/4"
+        source =
+            Xsd [
+                (sat ++# "catalogos/catCFDI.xsd", local ++# "catCFDI.xsd");
+                (sat ++# "tipoDatos/tdCFDI/tdCFDI.xsd", local ++# "tdCFDI.xsd")
+            ]
+        known_defect = None
+        documents = [ "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml" ]
+        ubl_json_documents = []
+        extras = [ CfdiComplements ]
+    }
+
+:= cfdi_complement
+    (module_name : string) (file : string) (root : string) (space : string) (catalog : list (string * string))
+    : family_root
+    =
+    {
+        module_name = module_id module_name
+        schema_path = (fiscal_paths::under "deps/corpus/mx/complements/") ++# file
+        root_element = tag_name root
+        root_type = definition_name root
+        target_namespace = namespace_uri space
+        source = Xsd catalog
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= cfdi_tfd_1_1 () : family_root =
+    := local = (fiscal_paths::under "deps/corpus/mx/cfdi/")
+    cfdi_complement
+        "generated_cfdi_tfd_1_1"
+        "TimbreFiscalDigitalv11.xsd"
+        "TimbreFiscalDigital"
+        "http://www.sat.gob.mx/TimbreFiscalDigital"
+        [ ("http://www.sat.gob.mx/sitio_internet/cfd/tipoDatos/tdCFDI/tdCFDI.xsd", local ++# "tdCFDI.xsd") ]
+
+:= cfdi_pagos_2_0 () : family_root =
+    := local = (fiscal_paths::under "deps/corpus/mx/")
+    := sat = "http://www.sat.gob.mx/sitio_internet/cfd/"
+    cfdi_complement
+        "generated_cfdi_pagos_2_0"
+        "Pagos20.xsd"
+        "Pagos"
+        "http://www.sat.gob.mx/Pagos20"
+        [
+            (sat ++# "catalogos/catCFDI.xsd", local ++# "cfdi/catCFDI.xsd");
+            (sat ++# "tipoDatos/tdCFDI/tdCFDI.xsd", local ++# "cfdi/tdCFDI.xsd");
+            (sat ++# "catalogos/Pagos/catPagos.xsd", local ++# "complements/catPagos.xsd")
+        ]
+
+:= complements_of (family : family_root) : list (string * family_root) =
+    ? has_extra CfdiComplements family::extras
+    ?> [ ("TimbreFiscalDigital11", cfdi_tfd_1_1 ()); ("Pagos20", cfdi_pagos_2_0 ()) ]
+    |: []
+
+:= family_roots () : list family_root =
+    := root = (fiscal_paths::under "deps/corpus/DFe.NET/")
+    := nfe = "http://www.portalfiscal.inf.br/nfe"
+    := cte = "http://www.portalfiscal.inf.br/cte"
+    := mdfe = "http://www.portalfiscal.inf.br/mdfe"
+    := family module_name schema_path root_element root_type target_namespace : family_root =
+        {
+            module_name = module_id module_name
+            schema_path = root ++# schema_path
+            root_element = tag_name root_element
+            root_type = definition_name root_type
+            target_namespace = namespace_uri target_namespace
+            source = Xsd []
+            known_defect = None
+            documents = []
+            ubl_json_documents = []
+            extras = [ Signed ]
+        }
+    [
+        family "generated_nfe_v2_00" "NFe.AppTeste/Schemas/nfe_v2.00.xsd" "NFe" "TNFe" nfe;
+        family "generated_nfe_v3_10" "NFe.AppTeste/Schemas/nfe_v3.10.xsd" "NFe" "TNFe" nfe;
+        family "generated_cte_v2_00" "CTe.AppTeste/schemas/cte_v2.00.xsd" "CTe" "TCTe" cte;
+        family "generated_cte_v3_00" "CTe.AppTeste/schemas/cte_v3.00.xsd" "CTe" "TCTe" cte;
+        family "generated_cte_v4_00" "CTe.AppTeste/schemas/cte_v4.00.xsd" "CTe" "TCTe" cte;
+        family "generated_cte_os_v3_00" "CTe.AppTeste/schemas/cteOS_v3.00.xsd" "CTeOS" "TCTeOS" cte;
+        family "generated_cte_os_v4_00" "CTe.AppTeste/schemas/cteOS_v4.00.xsd" "CTeOS" "TCTeOS" cte;
+        family "generated_cte_simp_v4_00" "CTe.AppTeste/schemas/cteSimp_v4.00.xsd" "CTeSimp" "TCTeSimp" cte;
+        family "generated_gtve_v3_00" "CTe.AppTeste/schemas/GTVe_v3.00.xsd" "GTVe" "TGTVe" cte;
+        family "generated_gtve_v4_00" "CTe.AppTeste/schemas/GTVe_v4.00.xsd" "GTVe" "TGTVe" cte;
+        family "generated_mdfe_v1_00" "MDFe.AppTeste/Schemas/mdfe_v1.00.xsd" "MDFe" "TMDFe" mdfe;
+        family "generated_mdfe_v3_00" "MDFe.AppTeste/Schemas/mdfe_v3.00.xsd" "MDFe" "TMDFe" mdfe
+    ]
+
+:= nfe_v4_00 () : family_root =
+    {
+        module_name = module_id "generated_nfe_v4"
+        schema_path = fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd"
+        root_element = tag_name "NFe"
+        root_type = definition_name "TNFe"
+        target_namespace = namespace_uri "http://www.portalfiscal.inf.br/nfe"
+        source = Xsd []
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = [ Signed; NfeModelChecks ]
+    }
+
+:= nfe_events () : list family_root =
+    := event module_name schema : family_root =
+        {
+            module_name = module_id module_name
+            schema_path = fiscal_paths::under ("deps/corpus/DFe.NET/NFe.AppTeste/Schemas/" ++# schema)
+            root_element = tag_name "procEventoNFe"
+            root_type = definition_name "TProcEvento"
+            target_namespace = namespace_uri "http://www.portalfiscal.inf.br/nfe"
+            source = Xsd []
+            known_defect = None
+            documents = []
+            ubl_json_documents = []
+            extras = [ Signed ]
+        }
+    [
+        event "generated_nfe_evento_canc_v1_00" "procEventoCancNFe_v1.00.xsd";
+        event "generated_nfe_evento_cce_v1_00" "procCCeNFe_v1.00.xsd";
+        event "generated_nfe_evento_conf_recebto_v1_00" "procConfRecebtoNFe_v1.00.xsd"
+    ]
+
+:~ ^ manifest_entries (prefix : string) (entries : list string) (acc : list string) : list string =
+    ?= entries ?|
+    | entry :: rest =>
+        := trimmed = sm'::trim entry
+        manifest_entries prefix rest (? trimmed = "" ?> acc |: (prefix ++# trimmed) :: acc)
+    | [] => listm::rev acc
+
+:= manifest_documents (prefix : string) (manifest : string) : list string =
+    := path = fiscal_paths::under manifest
+    ? xml::is_file path = !- ?> []
+    |: manifest_entries prefix (sm'::split_list "\n" (xml::read_text_replacing_invalid_utf8 path)) []
+
+:= ubl_invoice_2_1 () : family_root =
+    {
+        module_name = module_id "generated_ubl_invoice_2_1"
+        schema_path = (fiscal_paths::under "deps/corpus/eu/ubl21/maindoc/UBL-Invoice-2.1.xsd")
+        root_element = tag_name "Invoice"
+        root_type = definition_name "InvoiceType"
+        target_namespace = namespace_uri "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+        source = Xsd []
+        known_defect = None
+        documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-invoice-documents.txt"
+        ubl_json_documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-invoice-json-documents.txt"
+        extras = []
+    }
+
+:= ubl_creditnote_2_1 () : family_root =
+    {
+        module_name = module_id "generated_ubl_creditnote_2_1"
+        schema_path = (fiscal_paths::under "deps/corpus/eu/ubl21/maindoc/UBL-CreditNote-2.1.xsd")
+        root_element = tag_name "CreditNote"
+        root_type = definition_name "CreditNoteType"
+        target_namespace = namespace_uri "urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"
+        source = Xsd []
+        known_defect = None
+        documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-creditnote-documents.txt"
+        ubl_json_documents = manifest_documents "deps/corpus/" "deps/corpus/ubl-creditnote-json-documents.txt"
+        extras = []
+    }
+
+:= ubl_document_2_1 (kind : string) (lower : string) : family_root =
+    {
+        module_name = module_id ("generated_ubl_" ++# lower ++# "_2_1")
+        schema_path = (fiscal_paths::under ("deps/corpus/eu/ubl21/maindoc/UBL-" ++# kind ++# "-2.1.xsd"))
+        root_element = tag_name kind
+        root_type = definition_name (kind ++# "Type")
+        target_namespace = namespace_uri ("urn:oasis:names:specification:ubl:schema:xsd:" ++# kind ++# "-2")
+        source = Xsd []
+        known_defect = None
+        documents = manifest_documents "deps/corpus/" ("deps/corpus/ubl-" ++# lower ++# "-documents.txt")
+        ubl_json_documents = manifest_documents "deps/corpus/" ("deps/corpus/ubl-" ++# lower ++# "-json-documents.txt")
+        extras = []
+    }
+
+:= ubl_business_documents_2_1 () : list family_root =
+    [
+        ubl_document_2_1 "DebitNote" "debitnote"; ubl_document_2_1 "ApplicationResponse" "applicationresponse";
+        ubl_document_2_1 "DespatchAdvice" "despatchadvice"; ubl_document_2_1 "ReceiptAdvice" "receiptadvice"
+    ]
+
+:= fatturapa_1_2_3 () : family_root =
+    := local = (fiscal_paths::under "deps/corpus/")
+    {
+        module_name = module_id "generated_fatturapa_1_2_3"
+        schema_path = local ++# "it/fatturapa/Schema_VFPR12_v1.2.3.xsd"
+        root_element = tag_name "FatturaElettronica"
+        root_type = definition_name "FatturaElettronicaType"
+        target_namespace = namespace_uri "http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"
+        source =
+            Xsd [
+                (
+                    "http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/xmldsig-core-schema.xsd",
+                    local ++# "DFe.NET/CTe.AppTeste/schemas/xmldsig-core-schema_v1.01.xsd"
+                )
+            ]
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= ksef_fa_3 () : family_root =
+    := local = (fiscal_paths::under "deps/corpus/pl/ksef/")
+    {
+        module_name = module_id "generated_ksef_fa_3"
+        schema_path = local ++# "schemat_FA3.xsd"
+        root_element = tag_name "Faktura"
+        root_type = definition_name "Faktura"
+        target_namespace = namespace_uri "http://crd.gov.pl/wzor/2025/06/25/13775/"
+        source = Xsd [ ("http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/", local) ]
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= local_xmldsig () : string =
+    fiscal_paths::under "deps/corpus/DFe.NET/CTe.AppTeste/schemas/xmldsig-core-schema_v1.01.xsd"
+
+:= chile_dte_v10 () : family_root =
+    {
+        module_name = module_id "generated_cl_dte_v10"
+        schema_path = fiscal_paths::under "deps/corpus/cl/dte/DTE_v10.xsd"
+        root_element = tag_name "DTE"
+        root_type = definition_name "DTEDefType"
+        target_namespace = namespace_uri "http://www.sii.cl/SiiDte"
+        source = Xsd []
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = [ Signed ]
+    }
+
+:= chile_envio_dte_v10 () : family_root =
+    {
+        module_name = module_id "generated_cl_envio_dte_v10"
+        schema_path = fiscal_paths::under "deps/corpus/cl/dte/EnvioDTE_v10.xsd"
+        root_element = tag_name "EnvioDTE"
+        root_type = definition_name "EnvioDTE"
+        target_namespace = namespace_uri "http://www.sii.cl/SiiDte"
+        source = Xsd []
+        known_defect = None
+        documents = [ "deps/corpus/cl/examples/F60T33-ejemplo.xml" ]
+        ubl_json_documents = []
+        extras = [ Signed ]
+    }
+
+:= facturae_3_2_2 () : family_root =
+    {
+        module_name = module_id "generated_es_facturae_3_2_2"
+        schema_path = fiscal_paths::under "deps/corpus/es/facturae/Facturaev3_2_2.xsd"
+        root_element = tag_name "Facturae"
+        root_type = definition_name "Facturae"
+        target_namespace = namespace_uri "http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml"
+        source = Xsd [ ("http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd", local_xmldsig ()) ]
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= verifactu_registro () : family_root =
+    {
+        module_name = module_id "generated_es_verifactu"
+        schema_path = fiscal_paths::under "deps/corpus/es/verifactu/SuministroLR.xsd"
+        root_element = tag_name "RegFactuSistemaFacturacion"
+        root_type = definition_name "RegFactuSistemaFacturacion"
+        target_namespace =
+            namespace_uri (
+                "https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/"
+                ++# "SuministroLR.xsd"
+            )
+        source = Xsd [ ("http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd", local_xmldsig ()) ]
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= saft_pt_1_04_01 () : family_root =
+    {
+        module_name = module_id "generated_pt_saft_1_04_01"
+        schema_path = fiscal_paths::under "deps/corpus/pt/saft/saftpt1.04_01.xsd"
+        root_element = tag_name "AuditFile"
+        root_type = definition_name "AuditFile"
+        target_namespace = namespace_uri "urn:OECD:StandardAuditFile-Tax:PT_1.04_01"
+        source = Xsd []
+        known_defect = None
+        documents = [ "deps/corpus/pt/saft/samples/saft_idemo599999999.xml" ]
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= mydata_2_0_2 () : family_root =
+    {
+        module_name = module_id "generated_gr_mydata_2_0_2"
+        schema_path = fiscal_paths::under "deps/corpus/gr/mydata/InvoicesDoc-v2.0.2.xsd"
+        root_element = tag_name "InvoicesDoc"
+        root_type = definition_name "InvoicesDoc"
+        target_namespace = namespace_uri "http://www.aade.gr/myDATA/invoice/v1.0"
+        source = Xsd []
+        known_defect = None
+        documents = manifest_documents "deps/corpus/" "deps/corpus/gr-mydata-invoicesdoc-documents.txt"
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= hacienda_factura_4_4 () : family_root =
+    {
+        module_name = module_id "generated_cr_factura_4_4"
+        schema_path = fiscal_paths::under "deps/corpus/cr/hacienda/v4.4/FacturaElectronica_V4.4.xsd"
+        root_element = tag_name "FacturaElectronica"
+        root_type = definition_name "FacturaElectronica"
+        target_namespace = namespace_uri "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/facturaElectronica"
+        source = Xsd [ ("../../xmldsig-core-schema.xsd", local_xmldsig ()) ]
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = [ Signed ]
+    }
+
+:= hacienda_document (root : string) (suffix : string) : family_root =
+    := first = sm'::substring 0i32 1i32 root
+    := rest = sm'::substring 1i32 (sm'::length root - 1i32) root
+    {
+        module_name = module_id ("generated_cr_" ++# suffix ++# "_4_4")
+        schema_path = fiscal_paths::under ("deps/corpus/cr/hacienda/v4.4/" ++# root ++# "_V4.4.xsd")
+        root_element = tag_name root
+        root_type = definition_name root
+        target_namespace =
+            namespace_uri ("https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/" ++# sm'::to_lower first ++# rest)
+        source = Xsd [ ("../../xmldsig-core-schema.xsd", local_xmldsig ()) ]
+        known_defect = None
+        documents = []
+        ubl_json_documents = []
+        extras = [ Signed ]
+    }
+
+:= hacienda_documents () : list family_root =
+    [
+        hacienda_document "FacturaElectronicaCompra" "factura_compra";
+        hacienda_document "FacturaElectronicaExportacion" "factura_exportacion";
+        hacienda_document "NotaCreditoElectronica" "nota_credito";
+        hacienda_document "NotaDebitoElectronica" "nota_debito";
+        hacienda_document "TiqueteElectronico" "tiquete";
+        hacienda_document "ReciboElectronicoPago" "recibo_pago";
+        hacienda_document "MensajeReceptor" "mensaje_receptor";
+        hacienda_document "MensajeHacienda" "mensaje_hacienda"
+    ]
+
+:= nav_invoice_data_3_0 () : family_root =
+    := local = fiscal_paths::under "deps/corpus/hu/nav/"
+    {
+        module_name = module_id "generated_hu_nav_3_0"
+        schema_path = local ++# "invoiceData.xsd"
+        root_element = tag_name "InvoiceData"
+        root_type = definition_name "InvoiceData"
+        target_namespace = namespace_uri "http://schemas.nav.gov.hu/OSA/3.0/data"
+        source =
+            Xsd [
+                ("http://schemas.nav.gov.hu/NTCA/1.0/common", local ++# "common.xsd");
+                ("http://schemas.nav.gov.hu/OSA/3.0/base", local ++# "invoiceBase.xsd")
+            ]
+        known_defect = None
+        documents = manifest_documents "deps/corpus/" "deps/corpus/hu-nav-invoicedata-documents.txt"
+        ubl_json_documents = []
+        extras = []
+    }
+
+:= gst_inv01_1_1 () : family_root =
+    {
+        module_name = module_id "generated_in_gst_inv01_1_1"
+        schema_path = fiscal_paths::under "deps/corpus/in/gst/inv01_1.1.json"
+        root_element = tag_name "GstInvoice"
+        root_type = definition_name "GstInvoice"
+        target_namespace = namespace_uri ""
+        source = JsonSchema
+        known_defect = None
+        documents = [ "deps/corpus/in/gst/examples/irn-request-example.json" ]
+        ubl_json_documents = []
+        extras = []
+    }
+
+:! brazil = ()
+:! europe_ubl = ()
+:! mexico = ()
+
+:| regime_witness r =
+    | Brazil :: regime_witness brazil
+    | EuropeUbl :: regime_witness europe_ubl
+    | Mexico :: regime_witness mexico
+
+:! regime_family r = family_root
+
+:= family_root_of \* r. ((regime_family root) : regime_family r) : family_root = root
+
+:= brazilian_families () : list (regime_family brazil) =
+    listm::map regime_family (listm::append (family_roots ()) (nfe_v4_00 () :: nfe_events ()))
+
+:= ubl_families () : list (regime_family europe_ubl) =
+    listm::map regime_family (ubl_invoice_2_1 () :: ubl_creditnote_2_1 () :: ubl_business_documents_2_1 ())
+
+:= mexican_families () : list (regime_family mexico) = listm::map regime_family [ cfdi_v4_0 () ]
+
+:= families_of \* r. (witness : regime_witness r) : list (regime_family r) =
+    ?= witness ?|
+    | Brazil => brazilian_families ()
+    | EuropeUbl => ubl_families ()
+    | Mexico => mexican_families ()
+
+:= access_key_digits (_ : regime_family brazil) : i32 = 44i32
+:~ ^ contains_name (n : string) (names : list string) : bool =
+    ?= names ?|
+    | m :: rest => m = n || contains_name n rest
+    | [] => !-
+
+:~ ^ has_duplicate (names : list string) : bool =
+    ?= names ?|
+    | n :: tail => contains_name n tail || has_duplicate tail
+    | [] => !-
+
+///> rust
+test every_family_has_its_own_module_name =
+    := all =
+        listm::concat [
+            family_roots (); nfe_events (); ubl_business_documents_2_1 (); hacienda_documents ()
+            [ cfdi_v4_0 (); ubl_invoice_2_1 (); ubl_creditnote_2_1 (); fatturapa_1_2_3 (); ksef_fa_3 () ]
+            [ chile_dte_v10 (); chile_envio_dte_v10 (); facturae_3_2_2 (); verifactu_registro (); saft_pt_1_04_01 () ]
+            [ mydata_2_0_2 (); hacienda_factura_4_4 (); nav_invoice_data_3_0 (); gst_inv01_1_1 () ]
+        ]
+    := names = listm::map (\ (f : family_root) => module_text f::module_name) all
+    ? has_duplicate names ?> failwith "two families would write the same generated unit"
+
+///> rust
+test every_regime_lists_its_own_families =
+    ? (listm::length (families_of Brazil) : i32) <> 16i32
+    ?> failwith "12 NF-e/CT-e/MDF-e roots, NF-e 4.00 and its 3 events are Brazilian"
+    ? (listm::length (families_of EuropeUbl) : i32) <> 6i32
+    ?> failwith "Invoice, CreditNote and 4 business documents are UBL"
+    ? (listm::length (families_of Mexico) : i32) <> 1i32 ?> failwith "CFDI 4.0 is Mexican"
+    ? (listm::length (listm::map access_key_digits (families_of Brazil)) : i32) <> 16i32
+    ?> failwith "every Brazilian family has a 44-digit access key"
+
+///> rust
+test a_ubl_family_takes_no_brazilian_access_key fails "Unification" =
+    ?= families_of EuropeUbl ?|
+    | f :: _ => access_key_digits f |> ignore
+    | [] => ()

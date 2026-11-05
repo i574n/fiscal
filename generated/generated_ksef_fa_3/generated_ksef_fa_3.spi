@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -4000,7 +4002,7 @@ inl x_t_identyfikator_osoby_niefizycznej_zagranicznej_skrocona_nazwa_example_tex
         x_t_identyfikator_osoby_niefizycznej_zagranicznej_skrocona_nazwa_example k
     )
 
-type x_t_identyfikator_osoby_niefizycznej_zagranicznej =
+nominal x_t_identyfikator_osoby_niefizycznej_zagranicznej =
     {
         pelna_nazwa : x_t_identyfikator_osoby_niefizycznej_zagranicznej_pelna_nazwa
         skrocona_nazwa : option (x_t_identyfikator_osoby_niefizycznej_zagranicznej_skrocona_nazwa)
@@ -4075,7 +4077,7 @@ inl x_t_identyfikator_osoby_niefizycznej_pelny_skrocona_nazwa_example_text (k : 
         x_t_identyfikator_osoby_niefizycznej_pelny_skrocona_nazwa_example k
     )
 
-type x_t_identyfikator_osoby_niefizycznej_pelny =
+nominal x_t_identyfikator_osoby_niefizycznej_pelny =
     {
         nip : option (x_t_nr_nip)
         pelna_nazwa : x_t_identyfikator_osoby_niefizycznej_pelny_pelna_nazwa
@@ -4117,7 +4119,7 @@ inl x_t_identyfikator_osoby_niefizycznej1_pelna_nazwa_example_text (k : i32) : s
         x_t_identyfikator_osoby_niefizycznej1_pelna_nazwa_example k
     )
 
-type x_t_identyfikator_osoby_niefizycznej1 =
+nominal x_t_identyfikator_osoby_niefizycznej1 =
     {
         nip : x_t_nr_nip
         pelna_nazwa : x_t_identyfikator_osoby_niefizycznej1_pelna_nazwa
@@ -4157,14 +4159,14 @@ inl x_t_identyfikator_osoby_niefizycznej_pelna_nazwa_example_text (k : i32) : st
         x_t_identyfikator_osoby_niefizycznej_pelna_nazwa_example k
     )
 
-type x_t_identyfikator_osoby_niefizycznej =
+nominal x_t_identyfikator_osoby_niefizycznej =
     {
         nip : x_t_nr_nip
         pelna_nazwa : x_t_identyfikator_osoby_niefizycznej_pelna_nazwa
         regon : option (x_t_nr_regon)
     }
 
-type x_t_identyfikator_osoby_fizycznej_zagranicznej =
+nominal x_t_identyfikator_osoby_fizycznej_zagranicznej =
     {
         imie_pierwsze : x_t_imie
         nazwisko : x_t_nazwisko
@@ -4175,7 +4177,7 @@ type x_t_identyfikator_osoby_fizycznej_zagranicznej =
         nip : option (x_t_nr_nip)
     }
 
-type x_t_identyfikator_osoby_fizycznej_pelny =
+nominal x_t_identyfikator_osoby_fizycznej_pelny =
     {
         nip : option (x_t_nr_nip)
         imie_pierwsze : x_t_imie
@@ -4186,7 +4188,7 @@ type x_t_identyfikator_osoby_fizycznej_pelny =
         pesel : x_t_nr_pesel
     }
 
-type x_t_identyfikator_osoby_fizycznej2 =
+nominal x_t_identyfikator_osoby_fizycznej2 =
     {
         nip : x_t_nr_nip
         imie_pierwsze : x_t_imie
@@ -4198,7 +4200,7 @@ union x_t_identyfikator_osoby_fizycznej1_choice_nip =
     | TIdentyfikatorOsobyFizycznej1_choice_NIP_NIP : x_t_nr_nip
     | TIdentyfikatorOsobyFizycznej1_choice_NIP_PESEL : x_t_nr_pesel
 
-type x_t_identyfikator_osoby_fizycznej1 =
+nominal x_t_identyfikator_osoby_fizycznej1 =
     {
         choice_nip : x_t_identyfikator_osoby_fizycznej1_choice_nip
         imie_pierwsze : x_t_imie
@@ -4206,7 +4208,7 @@ type x_t_identyfikator_osoby_fizycznej1 =
         data_urodzenia : x_definicje_typy_t_data
     }
 
-type x_t_identyfikator_osoby_fizycznej =
+nominal x_t_identyfikator_osoby_fizycznej =
     {
         nip : x_t_nr_nip
         imie_pierwsze : x_t_imie
@@ -4233,7 +4235,7 @@ inl x_t_adres_zagraniczny_kod_kraju_example (_ : i32) : x_t_adres_zagraniczny_ko
 inl x_t_adres_zagraniczny_kod_kraju_example_text (k : i32) : string =
     x_t_adres_zagraniczny_kod_kraju_to_string (x_t_adres_zagraniczny_kod_kraju_example k)
 
-type x_t_adres_zagraniczny =
+nominal x_t_adres_zagraniczny =
     {
         kod_kraju : x_t_adres_zagraniczny_kod_kraju
         kod_pocztowy : option (x_t_kod_pocztowy)
@@ -4243,7 +4245,7 @@ type x_t_adres_zagraniczny =
         nr_lokalu : option (x_t_nr_lokalu)
     }
 
-type x_t_adres_polski1 =
+nominal x_t_adres_polski1 =
     {
         kod_kraju : x_t_kod_kraju
         wojewodztwo : x_t_jedn_admin
@@ -4256,7 +4258,7 @@ type x_t_adres_polski1 =
         kod_pocztowy : x_t_kod_pocztowy
     }
 
-type x_t_adres_polski =
+nominal x_t_adres_polski =
     {
         kod_kraju : x_t_kod_kraju
         wojewodztwo : x_t_jedn_admin
@@ -4270,12 +4272,12 @@ type x_t_adres_polski =
         poczta : x_t_miejscowosc
     }
 
-type x_t_adres1_choice_adres_pol_group_adres_pol =
+nominal x_t_adres1_choice_adres_pol_group_adres_pol =
     {
         adres_pol : x_t_adres_polski1
     }
 
-type x_t_adres1_choice_adres_pol_group_adres_zagr =
+nominal x_t_adres1_choice_adres_pol_group_adres_zagr =
     {
         adres_zagr : x_t_adres_zagraniczny
     }
@@ -4284,17 +4286,17 @@ union x_t_adres1_choice_adres_pol =
     | TAdres1_choice_AdresPol_group_AdresPol : x_t_adres1_choice_adres_pol_group_adres_pol
     | TAdres1_choice_AdresPol_group_AdresZagr : x_t_adres1_choice_adres_pol_group_adres_zagr
 
-type x_t_adres1 =
+nominal x_t_adres1 =
     {
         choice_adres_pol : x_t_adres1_choice_adres_pol
     }
 
-type x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol =
+nominal x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol =
     {
         adres_pol : x_t_adres_polski
     }
 
-type x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr =
+nominal x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr =
     {
         adres_zagr : x_t_adres_zagraniczny
     }
@@ -4303,12 +4305,12 @@ union x_definicje_typy_t_adres_choice_adres_pol =
     | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresPol : x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol
     | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresZagr : x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr
 
-type x_definicje_typy_t_adres =
+nominal x_definicje_typy_t_adres =
     {
         choice_adres_pol : x_definicje_typy_t_adres_choice_adres_pol
     }
 
-type x_t_podmiot3_choice_nip_group_kod_ue =
+nominal x_t_podmiot3_choice_nip_group_kod_ue =
     {
         kod_ue : x_t_kody_krajow_ue
         nr_vat_ue : x_t_nr_vat_ue
@@ -4324,7 +4326,7 @@ inl x_t_podmiot3_choice_nip_group_kod_kraju_nr_id_example (k : i32) : string =
 inl x_t_podmiot3_choice_nip_group_kod_kraju_nr_id_example_text (k : i32) : string =
     x_t_podmiot3_choice_nip_group_kod_kraju_nr_id_example k
 
-type x_t_podmiot3_choice_nip_group_kod_kraju =
+nominal x_t_podmiot3_choice_nip_group_kod_kraju =
     {
         kod_kraju : option (x_t_kod_kraju)
         nr_id : x_t_podmiot3_choice_nip_group_kod_kraju_nr_id
@@ -4337,13 +4339,13 @@ union x_t_podmiot3_choice_nip =
     | TPodmiot3_choice_NIP_group_KodKraju : x_t_podmiot3_choice_nip_group_kod_kraju
     | TPodmiot3_choice_NIP_BrakID : x_t_wybor1
 
-type x_t_podmiot3 =
+nominal x_t_podmiot3 =
     {
         choice_nip : x_t_podmiot3_choice_nip
         nazwa : x_t_znakowy512
     }
 
-type x_t_podmiot2_choice_nip_group_kod_ue =
+nominal x_t_podmiot2_choice_nip_group_kod_ue =
     {
         kod_ue : x_t_kody_krajow_ue
         nr_vat_ue : x_t_nr_vat_ue
@@ -4359,7 +4361,7 @@ inl x_t_podmiot2_choice_nip_group_kod_kraju_nr_id_example (k : i32) : string =
 inl x_t_podmiot2_choice_nip_group_kod_kraju_nr_id_example_text (k : i32) : string =
     x_t_podmiot2_choice_nip_group_kod_kraju_nr_id_example k
 
-type x_t_podmiot2_choice_nip_group_kod_kraju =
+nominal x_t_podmiot2_choice_nip_group_kod_kraju =
     {
         kod_kraju : option (x_t_kod_kraju)
         nr_id : x_t_podmiot2_choice_nip_group_kod_kraju_nr_id
@@ -4371,19 +4373,19 @@ union x_t_podmiot2_choice_nip =
     | TPodmiot2_choice_NIP_group_KodKraju : x_t_podmiot2_choice_nip_group_kod_kraju
     | TPodmiot2_choice_NIP_BrakID : x_t_wybor1
 
-type x_t_podmiot2 =
+nominal x_t_podmiot2 =
     {
         choice_nip : x_t_podmiot2_choice_nip
         nazwa : x_t_znakowy512
     }
 
-type x_t_podmiot1 =
+nominal x_t_podmiot1 =
     {
         nip : x_t_nr_nip
         nazwa : x_t_znakowy512
     }
 
-type x_t_rachunek_bankowy =
+nominal x_t_rachunek_bankowy =
     {
         nr_rb : x_t_nr_rb
         swift : option (x_swift_type)
@@ -4392,14 +4394,14 @@ type x_t_rachunek_bankowy =
         opis_rachunku : option (x_t_znakowy)
     }
 
-type x_t_klucz_wartosc =
+nominal x_t_klucz_wartosc =
     {
         nr_wiersza : option (x_t_naturalny)
         klucz : x_t_znakowy
         wartosc : x_t_znakowy
     }
 
-type x_t_adres =
+nominal x_t_adres =
     {
         kod_kraju : x_t_kod_kraju
         adres_l1 : x_t_znakowy512
@@ -4407,7 +4409,7 @@ type x_t_adres =
         gln : option (x_tgln)
     }
 
-type x_t_naglowek_kod_formularza =
+nominal x_t_naglowek_kod_formularza =
     {
         base : x_t_kod_formularza
         kod_systemowy : string
@@ -4444,7 +4446,7 @@ inl x_t_naglowek_data_wytworzenia_fa_example (k : i32) : string = x_definicje_ty
 
 inl x_t_naglowek_data_wytworzenia_fa_example_text (k : i32) : string = x_t_naglowek_data_wytworzenia_fa_example k
 
-type x_t_naglowek =
+nominal x_t_naglowek =
     {
         kod_formularza : x_t_naglowek_kod_formularza
         wariant_formularza : x_t_naglowek_wariant_formularza
@@ -4452,18 +4454,18 @@ type x_t_naglowek =
         system_info : option (x_t_znakowy)
     }
 
-type x_faktura_podmiot1_adres_koresp =
+nominal x_faktura_podmiot1_adres_koresp =
     {
         base : x_t_adres
     }
 
-type x_faktura_podmiot1_dane_kontaktowe =
+nominal x_faktura_podmiot1_dane_kontaktowe =
     {
         email : option (x_t_adres_email)
         telefon : option (x_t_numer_telefonu)
     }
 
-type x_faktura_podmiot1 =
+nominal x_faktura_podmiot1 =
     {
         prefiks_podatnika : option (x_t_kody_krajow_ue)
         nr_eori : option (x_t_znakowy)
@@ -4474,7 +4476,7 @@ type x_faktura_podmiot1 =
         status_info_podatnika : option (x_t_status_info_podatnika)
     }
 
-type x_faktura_podmiot2_dane_kontaktowe =
+nominal x_faktura_podmiot2_dane_kontaktowe =
     {
         email : option (x_t_adres_email)
         telefon : option (x_t_numer_telefonu)
@@ -4516,7 +4518,7 @@ inl x_faktura_podmiot2_gv_example (k : i32) : x_faktura_podmiot2_gv = x_t_wybor1
 
 inl x_faktura_podmiot2_gv_example_text (k : i32) : string = x_t_wybor1_2_example_text k
 
-type x_faktura_podmiot2 =
+nominal x_faktura_podmiot2 =
     {
         nr_eori : option (x_t_znakowy)
         dane_identyfikacyjne : x_t_podmiot2
@@ -4545,13 +4547,13 @@ inl x_faktura_podmiot3_id_nabywcy_example (_ : i32) : x_faktura_podmiot3_id_naby
 inl x_faktura_podmiot3_id_nabywcy_example_text (k : i32) : string =
     x_faktura_podmiot3_id_nabywcy_to_string (x_faktura_podmiot3_id_nabywcy_example k)
 
-type x_faktura_podmiot3_dane_kontaktowe =
+nominal x_faktura_podmiot3_dane_kontaktowe =
     {
         email : option (x_t_adres_email)
         telefon : option (x_t_numer_telefonu)
     }
 
-type x_faktura_podmiot3_choice_rola_group_rola_inna =
+nominal x_faktura_podmiot3_choice_rola_group_rola_inna =
     {
         rola_inna : x_t_wybor1
         opis_roli : x_t_znakowy
@@ -4561,7 +4563,7 @@ union x_faktura_podmiot3_choice_rola =
     | Faktura_Podmiot3_choice_Rola_Rola : x_t_rola_podmiotu3
     | Faktura_Podmiot3_choice_Rola_group_RolaInna : x_faktura_podmiot3_choice_rola_group_rola_inna
 
-type x_faktura_podmiot3 =
+nominal x_faktura_podmiot3 =
     {
         id_nabywcy : option (x_faktura_podmiot3_id_nabywcy)
         nr_eori : option (x_t_znakowy)
@@ -4574,13 +4576,13 @@ type x_faktura_podmiot3 =
         nr_klienta : option (x_t_znakowy)
     }
 
-type x_faktura_podmiot_upowazniony_dane_kontaktowe =
+nominal x_faktura_podmiot_upowazniony_dane_kontaktowe =
     {
         email_pu : option (x_t_adres_email)
         telefon_pu : option (x_t_numer_telefonu)
     }
 
-type x_faktura_podmiot_upowazniony =
+nominal x_faktura_podmiot_upowazniony =
     {
         nr_eori : option (x_t_znakowy)
         dane_identyfikacyjne : x_t_podmiot1
@@ -4590,7 +4592,7 @@ type x_faktura_podmiot_upowazniony =
         rola_pu : x_t_rola_podmiotu_upowaznionego
     }
 
-type x_faktura_fa_choice_p_6_okres_fa =
+nominal x_faktura_fa_choice_p_6_okres_fa =
     {
         p_6_od : x_t_data_t
         p_6_do : x_t_data_t
@@ -4605,7 +4607,7 @@ union x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_choice_p_19_a =
     | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_choice_P_19A_P_19B : x_t_znakowy
     | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_choice_P_19A_P_19C : x_t_znakowy
 
-type x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19 =
+nominal x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19 =
     {
         p_19 : x_t_wybor1
         choice_p_19_a : x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_choice_p_19_a
@@ -4615,7 +4617,7 @@ union x_faktura_fa_adnotacje_zwolnienie_choice_p_19 =
     | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19 : x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19
     | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_P_19N : x_t_wybor1
 
-type x_faktura_fa_adnotacje_zwolnienie =
+nominal x_faktura_fa_adnotacje_zwolnienie =
     {
         choice_p_19 : x_faktura_fa_adnotacje_zwolnienie_choice_p_19
     }
@@ -4636,20 +4638,20 @@ union
         :
         option (x_t_znakowy)
 
-type x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b =
+nominal x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b =
     {
         p_22_b : x_t_znakowy
         choice_p_22_b1 : option (x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_choice_p_22_b1)
         p_22_bt : option (x_t_znakowy)
     }
 
-type x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c =
+nominal x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c =
     {
         p_22_c : x_t_znakowy
         p_22_c1 : option (x_t_znakowy)
     }
 
-type x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d =
+nominal x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d =
     {
         p_22_d : x_t_znakowy
         p_22_d1 : option (x_t_znakowy)
@@ -4663,7 +4665,7 @@ union x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22D :
         x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d
 
-type x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu =
+nominal x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu =
     {
         p_22_a : x_t_data_t
         p_nr_wiersza_nst : x_t_naturalny
@@ -4675,7 +4677,7 @@ type x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_s
         choice_p_22_b : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b
     }
 
-type x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22 =
+nominal x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22 =
     {
         p_22 : x_t_wybor1
         p_42_5 : x_t_wybor1_2
@@ -4687,7 +4689,7 @@ union x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22 =
         x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_P_22N : x_t_wybor1
 
-type x_faktura_fa_adnotacje_nowe_srodki_transportu =
+nominal x_faktura_fa_adnotacje_nowe_srodki_transportu =
     {
         choice_p_22 : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22
     }
@@ -4698,7 +4700,7 @@ union x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_choice_p_p
     | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_choice_P_PMarzy_2_P_PMarzy_3_2 : x_t_wybor1
     | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_choice_P_PMarzy_2_P_PMarzy_3_3 : x_t_wybor1
 
-type x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy =
+nominal x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy =
     {
         p_p_marzy : x_t_wybor1
         choice_p_p_marzy_2 : x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_choice_p_p_marzy_2
@@ -4709,12 +4711,12 @@ union x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy =
         x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy
     | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_P_PMarzyN : x_t_wybor1
 
-type x_faktura_fa_adnotacje_p_marzy =
+nominal x_faktura_fa_adnotacje_p_marzy =
     {
         choice_p_p_marzy : x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy
     }
 
-type x_faktura_fa_adnotacje =
+nominal x_faktura_fa_adnotacje =
     {
         p_16 : x_t_wybor1_2
         p_17 : x_t_wybor1_2
@@ -4726,7 +4728,7 @@ type x_faktura_fa_adnotacje =
         p_marzy : x_faktura_fa_adnotacje_p_marzy
     }
 
-type x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f =
+nominal x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f =
     {
         nr_k_se_f : x_t_wybor1
         nr_k_se_f_fa_korygowanej : x_t_numer_k_se_f
@@ -4737,14 +4739,14 @@ union x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f =
         x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f
     | Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_NrKSeFN : x_t_wybor1
 
-type x_faktura_fa_dane_fa_korygowanej =
+nominal x_faktura_fa_dane_fa_korygowanej =
     {
         data_wyst_fa_korygowanej : x_t_data_t
         nr_fa_korygowanej : x_t_znakowy
         choice_nr_k_se_f : x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f
     }
 
-type x_faktura_fa_podmiot1_k =
+nominal x_faktura_fa_podmiot1_k =
     {
         prefiks_podatnika : option (x_t_kody_krajow_ue)
         dane_identyfikacyjne : x_t_podmiot1
@@ -4768,21 +4770,21 @@ inl x_faktura_fa_podmiot2_k_id_nabywcy_example (_ : i32) : x_faktura_fa_podmiot2
 inl x_faktura_fa_podmiot2_k_id_nabywcy_example_text (k : i32) : string =
     x_faktura_fa_podmiot2_k_id_nabywcy_to_string (x_faktura_fa_podmiot2_k_id_nabywcy_example k)
 
-type x_faktura_fa_podmiot2_k =
+nominal x_faktura_fa_podmiot2_k =
     {
         dane_identyfikacyjne : x_t_podmiot2
         adres : option (x_t_adres)
         id_nabywcy : option (x_faktura_fa_podmiot2_k_id_nabywcy)
     }
 
-type x_faktura_fa_zaliczka_czesciowa =
+nominal x_faktura_fa_zaliczka_czesciowa =
     {
         p_6_z : x_t_data_t
         p_15_z : x_t_kwotowy
         kurs_waluty_zw : option (x_t_ilosci)
     }
 
-type x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn =
+nominal x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn =
     {
         nr_k_se_fzn : x_t_wybor1
         nr_fa_zaliczkowej : x_t_znakowy
@@ -4793,12 +4795,12 @@ union x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn =
         x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn
     | Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_NrKSeFFaZaliczkowej : x_t_numer_k_se_f
 
-type x_faktura_fa_faktura_zaliczkowa =
+nominal x_faktura_fa_faktura_zaliczkowa =
     {
         choice_nr_k_se_fzn : x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn
     }
 
-type x_faktura_fa_fa_wiersz =
+nominal x_faktura_fa_fa_wiersz =
     {
         nr_wiersza_fa : x_t_naturalny
         uu_id : option (x_t_znakowy50)
@@ -4827,13 +4829,13 @@ type x_faktura_fa_fa_wiersz =
         stan_przed : option (x_t_wybor1)
     }
 
-type x_faktura_fa_rozliczenie_obciazenia =
+nominal x_faktura_fa_rozliczenie_obciazenia =
     {
         kwota : x_t_kwotowy
         powod : x_t_znakowy
     }
 
-type x_faktura_fa_rozliczenie_odliczenia =
+nominal x_faktura_fa_rozliczenie_odliczenia =
     {
         kwota : x_t_kwotowy
         powod : x_t_znakowy
@@ -4843,7 +4845,7 @@ union x_faktura_fa_rozliczenie_choice_do_zaplaty =
     | Faktura_Fa_Rozliczenie_choice_DoZaplaty_DoZaplaty : x_t_kwotowy
     | Faktura_Fa_Rozliczenie_choice_DoZaplaty_DoRozliczenia : x_t_kwotowy
 
-type x_faktura_fa_rozliczenie =
+nominal x_faktura_fa_rozliczenie =
     {
         obciazenia : list (x_faktura_fa_rozliczenie_obciazenia)
         suma_obciazen : option (x_t_kwotowy)
@@ -4852,13 +4854,13 @@ type x_faktura_fa_rozliczenie =
         choice_do_zaplaty : option (x_faktura_fa_rozliczenie_choice_do_zaplaty)
     }
 
-type x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono =
+nominal x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono =
     {
         zaplacono : x_t_wybor1
         data_zaplaty : x_t_data
     }
 
-type x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna =
+nominal x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna =
     {
         platnosc_inna : x_t_wybor1
         opis_platnosci : x_t_znakowy
@@ -4873,14 +4875,14 @@ union x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_z
         :
         x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna
 
-type x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa =
+nominal x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa =
     {
         kwota_zaplaty_czesciowej : x_t_kwotowy
         data_zaplaty_czesciowej : x_t_data
         choice_forma_platnosci : option (x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci)
     }
 
-type x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej =
+nominal x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej =
     {
         znacznik_zaplaty_czesciowej : x_t_wybor1_2
         zaplata_czesciowa : list (x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa)
@@ -4891,20 +4893,20 @@ union x_faktura_fa_platnosc_choice_zaplacono =
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej :
         x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej
 
-type x_faktura_fa_platnosc_termin_platnosci_termin_opis =
+nominal x_faktura_fa_platnosc_termin_platnosci_termin_opis =
     {
         ilosc : string
         jednostka : x_t_znakowy50
         zdarzenie_poczatkowe : x_t_znakowy
     }
 
-type x_faktura_fa_platnosc_termin_platnosci =
+nominal x_faktura_fa_platnosc_termin_platnosci =
     {
         termin : option (x_t_data)
         termin_opis : option (x_faktura_fa_platnosc_termin_platnosci_termin_opis)
     }
 
-type x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna =
+nominal x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna =
     {
         platnosc_inna : x_t_wybor1
         opis_platnosci : x_t_znakowy
@@ -4915,7 +4917,7 @@ union x_faktura_fa_platnosc_choice_forma_platnosci =
     | Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna :
         x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna
 
-type x_faktura_fa_platnosc_skonto =
+nominal x_faktura_fa_platnosc_skonto =
     {
         warunki_skonta : x_t_znakowy
         wysokosc_skonta : x_t_znakowy
@@ -5746,7 +5748,7 @@ inl x_faktura_fa_platnosc_ipk_se_f_example (_ : i32) : x_faktura_fa_platnosc_ipk
 inl x_faktura_fa_platnosc_ipk_se_f_example_text (k : i32) : string =
     x_faktura_fa_platnosc_ipk_se_f_to_string (x_faktura_fa_platnosc_ipk_se_f_example k)
 
-type x_faktura_fa_platnosc =
+nominal x_faktura_fa_platnosc =
     {
         choice_zaplacono : option (x_faktura_fa_platnosc_choice_zaplacono)
         termin_platnosci : list (x_faktura_fa_platnosc_termin_platnosci)
@@ -5758,19 +5760,19 @@ type x_faktura_fa_platnosc =
         ipk_se_f : option (x_faktura_fa_platnosc_ipk_se_f)
     }
 
-type x_faktura_fa_warunki_transakcji_umowy =
+nominal x_faktura_fa_warunki_transakcji_umowy =
     {
         data_umowy : option (x_t_data_u)
         nr_umowy : option (x_t_znakowy)
     }
 
-type x_faktura_fa_warunki_transakcji_zamowienia =
+nominal x_faktura_fa_warunki_transakcji_zamowienia =
     {
         data_zamowienia : option (x_t_data_u)
         nr_zamowienia : option (x_t_znakowy)
     }
 
-type x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny =
+nominal x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny =
     {
         transport_inny : x_t_wybor1
         opis_innego_transportu : x_t_znakowy50
@@ -5781,13 +5783,13 @@ union x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu =
     | Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_group_TransportInny :
         x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny
 
-type x_faktura_fa_warunki_transakcji_transport_przewoznik =
+nominal x_faktura_fa_warunki_transakcji_transport_przewoznik =
     {
         dane_identyfikacyjne : x_t_podmiot2
         adres_przewoznika : x_t_adres
     }
 
-type x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny =
+nominal x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny =
     {
         ladunek_inny : x_t_wybor1
         opis_innego_ladunku : x_t_znakowy50
@@ -5798,7 +5800,7 @@ union x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku =
     | Faktura_Fa_WarunkiTransakcji_Transport_choice_OpisLadunku_group_LadunekInny :
         x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny
 
-type x_faktura_fa_warunki_transakcji_transport =
+nominal x_faktura_fa_warunki_transakcji_transport =
     {
         choice_rodzaj_transportu : x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu
         przewoznik : option (x_faktura_fa_warunki_transakcji_transport_przewoznik)
@@ -5812,7 +5814,7 @@ type x_faktura_fa_warunki_transakcji_transport =
         wysylka_do : option (x_t_adres)
     }
 
-type x_faktura_fa_warunki_transakcji =
+nominal x_faktura_fa_warunki_transakcji =
     {
         umowy : list (x_faktura_fa_warunki_transakcji_umowy)
         zamowienia : list (x_faktura_fa_warunki_transakcji_zamowienia)
@@ -5824,7 +5826,7 @@ type x_faktura_fa_warunki_transakcji =
         podmiot_posredniczacy : option (x_t_wybor1)
     }
 
-type x_faktura_fa_zamowienie_zamowienie_wiersz =
+nominal x_faktura_fa_zamowienie_zamowienie_wiersz =
     {
         nr_wiersza_zam : x_t_naturalny
         uu_idz : option (x_t_znakowy50)
@@ -5848,13 +5850,13 @@ type x_faktura_fa_zamowienie_zamowienie_wiersz =
         stan_przed_z : option (x_t_wybor1)
     }
 
-type x_faktura_fa_zamowienie =
+nominal x_faktura_fa_zamowienie =
     {
         wartosc_zamowienia : x_t_kwotowy
         zamowienie_wiersz : list (x_faktura_fa_zamowienie_zamowienie_wiersz)
     }
 
-type x_faktura_fa =
+nominal x_faktura_fa =
     {
         kod_waluty : x_t_kod_waluty
         p_1 : x_t_data_t
@@ -5910,7 +5912,7 @@ type x_faktura_fa =
         zamowienie : option (x_faktura_fa_zamowienie)
     }
 
-type x_faktura_stopka_informacje =
+nominal x_faktura_stopka_informacje =
     {
         stopka_faktury : option (x_t_tekstowy)
     }
@@ -5931,7 +5933,7 @@ inl x_faktura_stopka_rejestry_bdo_example (_ : i32) : x_faktura_stopka_rejestry_
 inl x_faktura_stopka_rejestry_bdo_example_text (k : i32) : string =
     x_faktura_stopka_rejestry_bdo_to_string (x_faktura_stopka_rejestry_bdo_example k)
 
-type x_faktura_stopka_rejestry =
+nominal x_faktura_stopka_rejestry =
     {
         pelna_nazwa : option (x_t_znakowy)
         krs : option (x_t_nr_krs)
@@ -5939,30 +5941,30 @@ type x_faktura_stopka_rejestry =
         bdo : option (x_faktura_stopka_rejestry_bdo)
     }
 
-type x_faktura_stopka =
+nominal x_faktura_stopka =
     {
         informacje : list (x_faktura_stopka_informacje)
         rejestry : list (x_faktura_stopka_rejestry)
     }
 
-type x_faktura_zalacznik_blok_danych_meta_dane =
+nominal x_faktura_zalacznik_blok_danych_meta_dane =
     {
         z_klucz : x_t_znakowy
         z_wartosc : x_t_znakowy
     }
 
-type x_faktura_zalacznik_blok_danych_tekst =
+nominal x_faktura_zalacznik_blok_danych_tekst =
     {
         akapit : list (x_t_znakowy512)
     }
 
-type x_faktura_zalacznik_blok_danych_tabela_t_meta_dane =
+nominal x_faktura_zalacznik_blok_danych_tabela_t_meta_dane =
     {
         t_klucz : x_t_znakowy
         t_wartosc : x_t_znakowy
     }
 
-type x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom =
+nominal x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom =
     {
         base : x_t_znakowy2
     }
@@ -6020,28 +6022,28 @@ inl x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_typ_example_text (k : 
         x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_typ_example k
     )
 
-type x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol =
+nominal x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol =
     {
         n_kom : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom
         typ : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_typ
     }
 
-type x_faktura_zalacznik_blok_danych_tabela_t_naglowek =
+nominal x_faktura_zalacznik_blok_danych_tabela_t_naglowek =
     {
         kol : list (x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol)
     }
 
-type x_faktura_zalacznik_blok_danych_tabela_wiersz =
+nominal x_faktura_zalacznik_blok_danych_tabela_wiersz =
     {
         w_kom : list (x_t_znakowy2)
     }
 
-type x_faktura_zalacznik_blok_danych_tabela_suma =
+nominal x_faktura_zalacznik_blok_danych_tabela_suma =
     {
         s_kom : list (x_t_znakowy2)
     }
 
-type x_faktura_zalacznik_blok_danych_tabela =
+nominal x_faktura_zalacznik_blok_danych_tabela =
     {
         t_meta_dane : list (x_faktura_zalacznik_blok_danych_tabela_t_meta_dane)
         opis : option (x_t_znakowy512)
@@ -6050,7 +6052,7 @@ type x_faktura_zalacznik_blok_danych_tabela =
         suma : option (x_faktura_zalacznik_blok_danych_tabela_suma)
     }
 
-type x_faktura_zalacznik_blok_danych =
+nominal x_faktura_zalacznik_blok_danych =
     {
         z_naglowek : option (x_t_znakowy512)
         meta_dane : list (x_faktura_zalacznik_blok_danych_meta_dane)
@@ -6058,12 +6060,12 @@ type x_faktura_zalacznik_blok_danych =
         tabela : list (x_faktura_zalacznik_blok_danych_tabela)
     }
 
-type x_faktura_zalacznik =
+nominal x_faktura_zalacznik =
     {
         blok_danych : list (x_faktura_zalacznik_blok_danych)
     }
 
-type x_faktura =
+nominal x_faktura =
     {
         naglowek : x_t_naglowek
         podmiot1 : x_faktura_podmiot1
@@ -6087,13 +6089,13 @@ inl x_t_kwota2_nieujemna_example (k : i32) = x_t_kwota2_example k
 
 inl x_t_kwota2_nieujemna_example_text (k : i32) : string = x_t_kwota2_example_text k
 
-type x_t_osoba_niefizyczna_pelna1_adres_siedziby =
+nominal x_t_osoba_niefizyczna_pelna1_adres_siedziby =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_niefizyczna_pelna1 =
+nominal x_t_osoba_niefizyczna_pelna1 =
     {
         osoba_niefizyczna : x_t_identyfikator_osoby_niefizycznej_pelny
         adres_siedziby : x_t_osoba_niefizyczna_pelna1_adres_siedziby
@@ -6103,13 +6105,13 @@ union x_t_podmiot_dowolny_pelny1_choice_osoba_fizyczna =
     | TPodmiotDowolnyPelny1_choice_OsobaFizyczna_OsobaFizyczna : x_t_identyfikator_osoby_fizycznej_pelny
     | TPodmiotDowolnyPelny1_choice_OsobaFizyczna_OsobaNiefizyczna : x_t_identyfikator_osoby_niefizycznej_pelny
 
-type x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby =
+nominal x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_podmiot_dowolny_pelny1 =
+nominal x_t_podmiot_dowolny_pelny1 =
     {
         choice_osoba_fizyczna : x_t_podmiot_dowolny_pelny1_choice_osoba_fizyczna
         adres_zamieszkania_siedziby : x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby
@@ -6119,175 +6121,175 @@ union x_t_podmiot_dowolny_pelny_choice_osoba_fizyczna =
     | TPodmiotDowolnyPelny_choice_OsobaFizyczna_OsobaFizyczna : x_t_identyfikator_osoby_fizycznej_pelny
     | TPodmiotDowolnyPelny_choice_OsobaFizyczna_OsobaNiefizyczna : x_t_identyfikator_osoby_niefizycznej_pelny
 
-type x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby =
+nominal x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_podmiot_dowolny_pelny =
+nominal x_t_podmiot_dowolny_pelny =
     {
         choice_osoba_fizyczna : x_t_podmiot_dowolny_pelny_choice_osoba_fizyczna
         adres_zamieszkania_siedziby : x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby
     }
 
-type x_t_osoba_niefizyczna_pelna_adres_siedziby =
+nominal x_t_osoba_niefizyczna_pelna_adres_siedziby =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_osoba_niefizyczna_pelna =
+nominal x_t_osoba_niefizyczna_pelna =
     {
         osoba_niefizyczna : x_t_identyfikator_osoby_niefizycznej_pelny
         adres_siedziby : x_t_osoba_niefizyczna_pelna_adres_siedziby
     }
 
-type x_t_podmiot_dowolny2_adres_zamieszkania_siedziby =
+nominal x_t_podmiot_dowolny2_adres_zamieszkania_siedziby =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_podmiot_dowolny1_adres_zamieszkania_siedziby =
+nominal x_t_podmiot_dowolny1_adres_zamieszkania_siedziby =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna_pelna1_adres_zamieszkania =
+nominal x_t_osoba_fizyczna_pelna1_adres_zamieszkania =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna_pelna1 =
+nominal x_t_osoba_fizyczna_pelna1 =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej_pelny
         adres_zamieszkania : x_t_osoba_fizyczna_pelna1_adres_zamieszkania
     }
 
-type x_t_osoba_fizyczna_pelna_adres_zamieszkania =
+nominal x_t_osoba_fizyczna_pelna_adres_zamieszkania =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna_pelna =
+nominal x_t_osoba_fizyczna_pelna =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej_pelny
         adres_zamieszkania : x_t_osoba_fizyczna_pelna_adres_zamieszkania
     }
 
-type x_t_podmiot_dowolny_adres_zamieszkania_siedziby =
+nominal x_t_podmiot_dowolny_adres_zamieszkania_siedziby =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna4_adres_zamieszkania =
+nominal x_t_osoba_fizyczna4_adres_zamieszkania =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna4 =
+nominal x_t_osoba_fizyczna4 =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej2
         adres_zamieszkania : x_t_osoba_fizyczna4_adres_zamieszkania
     }
 
-type x_t_osoba_niefizyczna2_adres_siedziby =
+nominal x_t_osoba_niefizyczna2_adres_siedziby =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_niefizyczna2 =
+nominal x_t_osoba_niefizyczna2 =
     {
         osoba_niefizyczna : x_t_identyfikator_osoby_niefizycznej1
         adres_siedziby : x_t_osoba_niefizyczna2_adres_siedziby
     }
 
-type x_t_osoba_niefizyczna1_adres_siedziby =
+nominal x_t_osoba_niefizyczna1_adres_siedziby =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_niefizyczna1 =
+nominal x_t_osoba_niefizyczna1 =
     {
         osoba_niefizyczna : x_t_identyfikator_osoby_niefizycznej
         adres_siedziby : x_t_osoba_niefizyczna1_adres_siedziby
     }
 
-type x_t_osoba_niefizyczna_adres_siedziby =
+nominal x_t_osoba_niefizyczna_adres_siedziby =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_osoba_niefizyczna =
+nominal x_t_osoba_niefizyczna =
     {
         osoba_niefizyczna : x_t_identyfikator_osoby_niefizycznej
         adres_siedziby : x_t_osoba_niefizyczna_adres_siedziby
     }
 
-type x_t_osoba_fizyczna2_adres_zamieszkania =
+nominal x_t_osoba_fizyczna2_adres_zamieszkania =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna2 =
+nominal x_t_osoba_fizyczna2 =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej2
         adres_zamieszkania : x_t_osoba_fizyczna2_adres_zamieszkania
     }
 
-type x_t_osoba_fizyczna3_adres_zamieszkania =
+nominal x_t_osoba_fizyczna3_adres_zamieszkania =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna3 =
+nominal x_t_osoba_fizyczna3 =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej1
         adres_zamieszkania : x_t_osoba_fizyczna3_adres_zamieszkania
     }
 
-type x_t_osoba_fizyczna5_adres_zamieszkania =
+nominal x_t_osoba_fizyczna5_adres_zamieszkania =
     {
         base : x_t_adres1
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna5 =
+nominal x_t_osoba_fizyczna5 =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej
         adres_zamieszkania : x_t_osoba_fizyczna5_adres_zamieszkania
     }
 
-type x_t_osoba_fizyczna1_adres_zamieszkania =
+nominal x_t_osoba_fizyczna1_adres_zamieszkania =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna1 =
+nominal x_t_osoba_fizyczna1 =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej1
         adres_zamieszkania : x_t_osoba_fizyczna1_adres_zamieszkania
     }
 
-type x_t_osoba_fizyczna_adres_zamieszkania =
+nominal x_t_osoba_fizyczna_adres_zamieszkania =
     {
         base : x_definicje_typy_t_adres
         rodzaj_adresu : string
     }
 
-type x_t_osoba_fizyczna =
+nominal x_t_osoba_fizyczna =
     {
         osoba_fizyczna : x_t_identyfikator_osoby_fizycznej
         adres_zamieszkania : x_t_osoba_fizyczna_adres_zamieszkania
@@ -6297,7 +6299,7 @@ union x_t_podmiot_dowolny_bez_adresu3_choice_osoba_fizyczna =
     | TPodmiotDowolnyBezAdresu3_choice_OsobaFizyczna_OsobaFizyczna : x_t_identyfikator_osoby_fizycznej2
     | TPodmiotDowolnyBezAdresu3_choice_OsobaFizyczna_OsobaNiefizyczna : x_t_identyfikator_osoby_niefizycznej1
 
-type x_t_podmiot_dowolny_bez_adresu3 =
+nominal x_t_podmiot_dowolny_bez_adresu3 =
     {
         choice_osoba_fizyczna : x_t_podmiot_dowolny_bez_adresu3_choice_osoba_fizyczna
     }
@@ -6306,7 +6308,7 @@ union x_t_podmiot_dowolny_bez_adresu2_choice_osoba_fizyczna =
     | TPodmiotDowolnyBezAdresu2_choice_OsobaFizyczna_OsobaFizyczna : x_t_identyfikator_osoby_fizycznej2
     | TPodmiotDowolnyBezAdresu2_choice_OsobaFizyczna_OsobaNiefizyczna : x_t_identyfikator_osoby_niefizycznej
 
-type x_t_podmiot_dowolny_bez_adresu2 =
+nominal x_t_podmiot_dowolny_bez_adresu2 =
     {
         choice_osoba_fizyczna : x_t_podmiot_dowolny_bez_adresu2_choice_osoba_fizyczna
     }
@@ -6315,7 +6317,7 @@ union x_t_podmiot_dowolny_bez_adresu1_choice_osoba_fizyczna =
     | TPodmiotDowolnyBezAdresu1_choice_OsobaFizyczna_OsobaFizyczna : x_t_identyfikator_osoby_fizycznej1
     | TPodmiotDowolnyBezAdresu1_choice_OsobaFizyczna_OsobaNiefizyczna : x_t_identyfikator_osoby_niefizycznej
 
-type x_t_podmiot_dowolny_bez_adresu1 =
+nominal x_t_podmiot_dowolny_bez_adresu1 =
     {
         choice_osoba_fizyczna : x_t_podmiot_dowolny_bez_adresu1_choice_osoba_fizyczna
     }
@@ -6324,24 +6326,24 @@ union x_t_podmiot_dowolny_bez_adresu_choice_osoba_fizyczna =
     | TPodmiotDowolnyBezAdresu_choice_OsobaFizyczna_OsobaFizyczna : x_t_identyfikator_osoby_fizycznej
     | TPodmiotDowolnyBezAdresu_choice_OsobaFizyczna_OsobaNiefizyczna : x_t_identyfikator_osoby_niefizycznej
 
-type x_t_podmiot_dowolny_bez_adresu =
+nominal x_t_podmiot_dowolny_bez_adresu =
     {
         choice_osoba_fizyczna : x_t_podmiot_dowolny_bez_adresu_choice_osoba_fizyczna
     }
 
-type x_t_podmiot_dowolny2 =
+nominal x_t_podmiot_dowolny2 =
     {
         base : x_t_podmiot_dowolny_bez_adresu3
         adres_zamieszkania_siedziby : x_t_podmiot_dowolny2_adres_zamieszkania_siedziby
     }
 
-type x_t_podmiot_dowolny1 =
+nominal x_t_podmiot_dowolny1 =
     {
         base : x_t_podmiot_dowolny_bez_adresu
         adres_zamieszkania_siedziby : x_t_podmiot_dowolny1_adres_zamieszkania_siedziby
     }
 
-type x_t_podmiot_dowolny =
+nominal x_t_podmiot_dowolny =
     {
         base : x_t_podmiot_dowolny_bez_adresu
         adres_zamieszkania_siedziby : x_t_podmiot_dowolny_adres_zamieszkania_siedziby
@@ -8263,7 +8265,7 @@ inl x_t_osoba_niefizyczna_pelna1_get forall r.
     | TOsobaNiefizycznaPelna1_field_AdresSiedziby => x.adres_siedziby
 
 let rec x_faktura_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_faktura =
-    {
+    x_faktura {
         naglowek = (fun c => x_t_naglowek_of_xml c) (xml.required_child "Naglowek" children)
         podmiot1 = (fun c => x_faktura_podmiot1_of_xml c) (xml.required_child "Podmiot1" children)
         podmiot2 = (fun c => x_faktura_podmiot2_of_xml c) (xml.required_child "Podmiot2" children)
@@ -8284,7 +8286,7 @@ and let x_faktura_zalacznik_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik
     =
-    {
+    x_faktura_zalacznik {
         blok_danych =
             listm.map (fun c => x_faktura_zalacznik_blok_danych_of_xml c) (xml.children_named "BlokDanych" children)
     }
@@ -8296,7 +8298,7 @@ and let x_faktura_zalacznik_blok_danych_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych
     =
-    {
+    x_faktura_zalacznik_blok_danych {
         z_naglowek =
             optionm.map
                 fun c =>
@@ -8320,7 +8322,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tabela
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela {
         t_meta_dane =
             listm.map
                 fun c => x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_of_xml c
@@ -8351,7 +8353,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_suma_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tabela_suma
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_suma {
         s_kom =
             listm.map
                 fun c =>
@@ -8369,7 +8371,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_wiersz_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tabela_wiersz
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_wiersz {
         w_kom =
             listm.map
                 fun c =>
@@ -8387,7 +8389,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_naglowek_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tabela_t_naglowek
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek {
         kol =
             listm.map
                 fun c => x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_of_xml c
@@ -8404,7 +8406,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol {
         n_kom =
             (fun c => x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom_of_xml c) (xml.required_child "NKom" children)
         typ =
@@ -8429,7 +8431,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom {
         base = xml.required_value "x_t_znakowy2" (x_t_znakowy2_of_string (xml.text_in children))
     }
 
@@ -8445,7 +8447,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tabela_t_meta_dane
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_meta_dane {
         t_klucz =
             (fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TKlucz" children)
         t_wartosc =
@@ -8462,7 +8464,7 @@ and let x_faktura_zalacznik_blok_danych_tekst_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_tekst
     =
-    {
+    x_faktura_zalacznik_blok_danych_tekst {
         akapit =
             listm.map
                 fun c =>
@@ -8479,7 +8481,7 @@ and let x_faktura_zalacznik_blok_danych_meta_dane_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_zalacznik_blok_danych_meta_dane
     =
-    {
+    x_faktura_zalacznik_blok_danych_meta_dane {
         z_klucz =
             (fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ZKlucz" children)
         z_wartosc =
@@ -8493,7 +8495,7 @@ and let x_faktura_stopka_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_stopka
     =
-    {
+    x_faktura_stopka {
         informacje =
             listm.map (fun c => x_faktura_stopka_informacje_of_xml c) (xml.children_named "Informacje" children)
         rejestry = listm.map (fun c => x_faktura_stopka_rejestry_of_xml c) (xml.children_named "Rejestry" children)
@@ -8506,7 +8508,7 @@ and let x_faktura_stopka_rejestry_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_stopka_rejestry
     =
-    {
+    x_faktura_stopka_rejestry {
         pelna_nazwa =
             optionm.map
                 fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))
@@ -8535,7 +8537,7 @@ and let x_faktura_stopka_informacje_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_stopka_informacje
     =
-    {
+    x_faktura_stopka_informacje {
         stopka_faktury =
             optionm.map
                 fun c =>
@@ -8547,7 +8549,7 @@ and let x_faktura_stopka_informacje_of_xml (c : xml.xml_node) : x_faktura_stopka
     x_faktura_stopka_informacje_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_faktura_fa_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_faktura_fa =
-    {
+    x_faktura_fa {
         kod_waluty =
             (fun c => xml.required_value "x_t_kod_waluty" (x_t_kod_waluty_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KodWaluty" children)
         p_1 =
@@ -8714,7 +8716,7 @@ and let x_faktura_fa_zamowienie_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_zamowienie
     =
-    {
+    x_faktura_fa_zamowienie {
         wartosc_zamowienia =
             (fun c => xml.required_value "x_t_kwotowy" (x_t_kwotowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "WartoscZamowienia" children)
         zamowienie_wiersz =
@@ -8730,7 +8732,7 @@ and let x_faktura_fa_zamowienie_zamowienie_wiersz_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_zamowienie_zamowienie_wiersz
     =
-    {
+    x_faktura_fa_zamowienie_zamowienie_wiersz {
         nr_wiersza_zam = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NrWierszaZam" children)
         uu_idz =
             optionm.map
@@ -8828,7 +8830,7 @@ and let x_faktura_fa_warunki_transakcji_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_warunki_transakcji
     =
-    {
+    x_faktura_fa_warunki_transakcji {
         umowy =
             listm.map (fun c => x_faktura_fa_warunki_transakcji_umowy_of_xml c) (xml.children_named "Umowy" children)
         zamowienia =
@@ -8864,7 +8866,7 @@ and let x_faktura_fa_warunki_transakcji_transport_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_warunki_transakcji_transport
     =
-    {
+    x_faktura_fa_warunki_transakcji_transport {
         choice_rodzaj_transportu =
             x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_of_children attributes children
         przewoznik =
@@ -8918,7 +8920,7 @@ and let x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladu
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny
     =
-    {
+    x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny {
         ladunek_inny =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "LadunekInny" children)
         opis_innego_ladunku =
@@ -8937,7 +8939,7 @@ and let x_faktura_fa_warunki_transakcji_transport_przewoznik_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_warunki_transakcji_transport_przewoznik
     =
-    {
+    x_faktura_fa_warunki_transakcji_transport_przewoznik {
         dane_identyfikacyjne = (fun c => x_t_podmiot2_of_xml c) (xml.required_child "DaneIdentyfikacyjne" children)
         adres_przewoznika = (fun c => x_t_adres_of_xml c) (xml.required_child "AdresPrzewoznika" children)
     }
@@ -8969,7 +8971,7 @@ and let x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny
     =
-    {
+    x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny {
         transport_inny =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TransportInny" children)
         opis_innego_transportu =
@@ -8988,7 +8990,7 @@ and let x_faktura_fa_warunki_transakcji_zamowienia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_warunki_transakcji_zamowienia
     =
-    {
+    x_faktura_fa_warunki_transakcji_zamowienia {
         data_zamowienia =
             optionm.map
                 fun c => xml.required_value "x_t_data_u" (x_t_data_u_of_string (xml.text_in (xml.element_children c)))
@@ -9006,7 +9008,7 @@ and let x_faktura_fa_warunki_transakcji_umowy_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_warunki_transakcji_umowy
     =
-    {
+    x_faktura_fa_warunki_transakcji_umowy {
         data_umowy =
             optionm.map
                 fun c => xml.required_value "x_t_data_u" (x_t_data_u_of_string (xml.text_in (xml.element_children c)))
@@ -9024,7 +9026,7 @@ and let x_faktura_fa_platnosc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc
     =
-    {
+    x_faktura_fa_platnosc {
         choice_zaplacono =
             if xml.has_any_child [ "Zaplacono"; "ZnacznikZaplatyCzesciowej" ] children
             then Some (x_faktura_fa_platnosc_choice_zaplacono_of_children attributes children)
@@ -9063,7 +9065,7 @@ and let x_faktura_fa_platnosc_skonto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_skonto
     =
-    {
+    x_faktura_fa_platnosc_skonto {
         warunki_skonta =
             (fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "WarunkiSkonta" children)
         wysokosc_skonta =
@@ -9092,7 +9094,7 @@ and let x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_of_chil
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna
     =
-    {
+    x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna {
         platnosc_inna =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PlatnoscInna" children)
         opis_platnosci =
@@ -9111,7 +9113,7 @@ and let x_faktura_fa_platnosc_termin_platnosci_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_termin_platnosci
     =
-    {
+    x_faktura_fa_platnosc_termin_platnosci {
         termin =
             optionm.map
                 fun c => xml.required_value "x_t_data" (x_t_data_of_string (xml.text_in (xml.element_children c)))
@@ -9129,7 +9131,7 @@ and let x_faktura_fa_platnosc_termin_platnosci_termin_opis_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_termin_platnosci_termin_opis
     =
-    {
+    x_faktura_fa_platnosc_termin_platnosci_termin_opis {
         ilosc = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Ilosc" children)
         jednostka =
             (fun c => xml.required_value "x_t_znakowy50" (x_t_znakowy50_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Jednostka" children)
@@ -9162,7 +9164,7 @@ and let x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej
     =
-    {
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej {
         znacznik_zaplaty_czesciowej =
             (fun c => xml.required_value "x_t_wybor1_2" (x_t_wybor1_2_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ZnacznikZaplatyCzesciowej" children)
         zaplata_czesciowa =
@@ -9184,7 +9186,7 @@ and let x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa
     =
-    {
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa {
         kwota_zaplaty_czesciowej =
             (fun c => xml.required_value "x_t_kwotowy" (x_t_kwotowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KwotaZaplatyCzesciowej" children)
         data_zaplaty_czesciowej =
@@ -9236,7 +9238,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna
     =
-    {
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna {
         platnosc_inna =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PlatnoscInna" children)
         opis_platnosci =
@@ -9256,7 +9258,7 @@ and let x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono
     =
-    {
+    x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono {
         zaplacono =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Zaplacono" children)
         data_zaplaty =
@@ -9275,7 +9277,7 @@ and let x_faktura_fa_rozliczenie_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_rozliczenie
     =
-    {
+    x_faktura_fa_rozliczenie {
         obciazenia =
             listm.map (fun c => x_faktura_fa_rozliczenie_obciazenia_of_xml c) (xml.children_named "Obciazenia" children)
         suma_obciazen =
@@ -9316,7 +9318,7 @@ and let x_faktura_fa_rozliczenie_odliczenia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_rozliczenie_odliczenia
     =
-    {
+    x_faktura_fa_rozliczenie_odliczenia {
         kwota =
             (fun c => xml.required_value "x_t_kwotowy" (x_t_kwotowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Kwota" children)
         powod =
@@ -9330,7 +9332,7 @@ and let x_faktura_fa_rozliczenie_obciazenia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_rozliczenie_obciazenia
     =
-    {
+    x_faktura_fa_rozliczenie_obciazenia {
         kwota =
             (fun c => xml.required_value "x_t_kwotowy" (x_t_kwotowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Kwota" children)
         powod =
@@ -9344,7 +9346,7 @@ and let x_faktura_fa_fa_wiersz_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_fa_wiersz
     =
-    {
+    x_faktura_fa_fa_wiersz {
         nr_wiersza_fa = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NrWierszaFa" children)
         uu_id =
             optionm.map
@@ -9464,7 +9466,7 @@ and let x_faktura_fa_faktura_zaliczkowa_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_faktura_zaliczkowa
     =
-    {
+    x_faktura_fa_faktura_zaliczkowa {
         choice_nr_k_se_fzn = x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_of_children attributes children
     }
 
@@ -9490,7 +9492,7 @@ and let x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_of_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn
     =
-    {
+    x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn {
         nr_k_se_fzn =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NrKSeFZN" children)
         nr_fa_zaliczkowej =
@@ -9509,7 +9511,7 @@ and let x_faktura_fa_zaliczka_czesciowa_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_zaliczka_czesciowa
     =
-    {
+    x_faktura_fa_zaliczka_czesciowa {
         p_6_z =
             (fun c => xml.required_value "x_t_data_t" (x_t_data_t_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_6Z" children)
         p_15_z =
@@ -9527,7 +9529,7 @@ and let x_faktura_fa_podmiot2_k_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_podmiot2_k
     =
-    {
+    x_faktura_fa_podmiot2_k {
         dane_identyfikacyjne = (fun c => x_t_podmiot2_of_xml c) (xml.required_child "DaneIdentyfikacyjne" children)
         adres = optionm.map (fun c => x_t_adres_of_xml c) (xml.first_child "Adres" children)
         id_nabywcy =
@@ -9545,7 +9547,7 @@ and let x_faktura_fa_podmiot1_k_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_podmiot1_k
     =
-    {
+    x_faktura_fa_podmiot1_k {
         prefiks_podatnika =
             optionm.map
                 fun c =>
@@ -9563,7 +9565,7 @@ and let x_faktura_fa_dane_fa_korygowanej_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_dane_fa_korygowanej
     =
-    {
+    x_faktura_fa_dane_fa_korygowanej {
         data_wyst_fa_korygowanej =
             (fun c => xml.required_value "x_t_data_t" (x_t_data_t_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DataWystFaKorygowanej" children)
         nr_fa_korygowanej =
@@ -9593,7 +9595,7 @@ and let x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_of_chi
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f
     =
-    {
+    x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f {
         nr_k_se_f =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NrKSeF" children)
         nr_k_se_f_fa_korygowanej =
@@ -9612,7 +9614,7 @@ and let x_faktura_fa_adnotacje_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje
     =
-    {
+    x_faktura_fa_adnotacje {
         p_16 =
             (fun c => xml.required_value "x_t_wybor1_2" (x_t_wybor1_2_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_16" children)
         p_17 =
@@ -9636,7 +9638,7 @@ and let x_faktura_fa_adnotacje_p_marzy_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_p_marzy
     =
-    {
+    x_faktura_fa_adnotacje_p_marzy {
         choice_p_p_marzy = x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_of_children attributes children
     }
 
@@ -9662,7 +9664,7 @@ and let x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy
     =
-    {
+    x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy {
         p_p_marzy =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_PMarzy" children)
         choice_p_p_marzy_2 =
@@ -9708,7 +9710,7 @@ and let x_faktura_fa_adnotacje_nowe_srodki_transportu_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu {
         choice_p_22 = x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_of_children attributes children
     }
 
@@ -9737,7 +9739,7 @@ and let x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_of_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22 {
         p_22 =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_22" children)
         p_42_5 =
@@ -9761,7 +9763,7 @@ and let x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_now
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu {
         p_22_a =
             (fun c => xml.required_value "x_t_data_t" (x_t_data_t_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_22A" children)
         p_nr_wiersza_nst =
@@ -9835,7 +9837,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d {
         p_22_d =
             (fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_22D" children)
         p_22_d1 =
@@ -9858,7 +9860,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c {
         p_22_c =
             (fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_22C" children)
         p_22_c1 =
@@ -9881,7 +9883,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b {
         p_22_b =
             (fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_22B" children)
         choice_p_22_b1 =
@@ -9958,7 +9960,7 @@ and let x_faktura_fa_adnotacje_zwolnienie_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_zwolnienie
     =
-    {
+    x_faktura_fa_adnotacje_zwolnienie {
         choice_p_19 = x_faktura_fa_adnotacje_zwolnienie_choice_p_19_of_children attributes children
     }
 
@@ -9984,7 +9986,7 @@ and let x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19
     =
-    {
+    x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19 {
         p_19 =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_19" children)
         choice_p_19_a =
@@ -10037,7 +10039,7 @@ and let x_faktura_fa_choice_p_6_okres_fa_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_fa_choice_p_6_okres_fa
     =
-    {
+    x_faktura_fa_choice_p_6_okres_fa {
         p_6_od =
             (fun c => xml.required_value "x_t_data_t" (x_t_data_t_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "P_6_Od" children)
         p_6_do =
@@ -10051,7 +10053,7 @@ and let x_faktura_podmiot_upowazniony_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot_upowazniony
     =
-    {
+    x_faktura_podmiot_upowazniony {
         nr_eori =
             optionm.map
                 fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))
@@ -10074,7 +10076,7 @@ and let x_faktura_podmiot_upowazniony_dane_kontaktowe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot_upowazniony_dane_kontaktowe
     =
-    {
+    x_faktura_podmiot_upowazniony_dane_kontaktowe {
         email_pu =
             optionm.map
                 fun c =>
@@ -10100,7 +10102,7 @@ and let x_faktura_podmiot3_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot3
     =
-    {
+    x_faktura_podmiot3 {
         id_nabywcy =
             optionm.map
                 fun c =>
@@ -10148,7 +10150,7 @@ and let x_faktura_podmiot3_choice_rola_group_rola_inna_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot3_choice_rola_group_rola_inna
     =
-    {
+    x_faktura_podmiot3_choice_rola_group_rola_inna {
         rola_inna =
             (fun c => xml.required_value "x_t_wybor1" (x_t_wybor1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RolaInna" children)
         opis_roli =
@@ -10165,7 +10167,7 @@ and let x_faktura_podmiot3_dane_kontaktowe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot3_dane_kontaktowe
     =
-    {
+    x_faktura_podmiot3_dane_kontaktowe {
         email =
             optionm.map
                 fun c =>
@@ -10188,7 +10190,7 @@ and let x_faktura_podmiot2_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot2
     =
-    {
+    x_faktura_podmiot2 {
         nr_eori =
             optionm.map
                 fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))
@@ -10223,7 +10225,7 @@ and let x_faktura_podmiot2_dane_kontaktowe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot2_dane_kontaktowe
     =
-    {
+    x_faktura_podmiot2_dane_kontaktowe {
         email =
             optionm.map
                 fun c =>
@@ -10246,7 +10248,7 @@ and let x_faktura_podmiot1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot1
     =
-    {
+    x_faktura_podmiot1 {
         prefiks_podatnika =
             optionm.map
                 fun c =>
@@ -10280,7 +10282,7 @@ and let x_faktura_podmiot1_dane_kontaktowe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot1_dane_kontaktowe
     =
-    {
+    x_faktura_podmiot1_dane_kontaktowe {
         email =
             optionm.map
                 fun c =>
@@ -10303,7 +10305,7 @@ and let x_faktura_podmiot1_adres_koresp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_faktura_podmiot1_adres_koresp
     =
-    {
+    x_faktura_podmiot1_adres_koresp {
         base = x_t_adres_of_children attributes children
     }
 
@@ -10311,7 +10313,7 @@ and let x_faktura_podmiot1_adres_koresp_of_xml (c : xml.xml_node) : x_faktura_po
     x_faktura_podmiot1_adres_koresp_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_naglowek_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_naglowek =
-    {
+    x_t_naglowek {
         kod_formularza = (fun c => x_t_naglowek_kod_formularza_of_xml c) (xml.required_child "KodFormularza" children)
         wariant_formularza =
             (fun c => xml.required_value "x_t_naglowek_wariant_formularza" (x_t_naglowek_wariant_formularza_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "WariantFormularza" children)
@@ -10330,7 +10332,7 @@ and let x_t_naglowek_kod_formularza_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_naglowek_kod_formularza
     =
-    {
+    x_t_naglowek_kod_formularza {
         base = xml.required_value "x_t_kod_formularza" (x_t_kod_formularza_of_string (xml.text_in children))
         kod_systemowy = xml.required_attribute "kodSystemowy" (xml.checked_fixed "kodSystemowy" "FA (3)" attributes)
         wersja_schemy = xml.required_attribute "wersjaSchemy" (xml.checked_fixed "wersjaSchemy" "1-0E" attributes)
@@ -10340,7 +10342,7 @@ and let x_t_naglowek_kod_formularza_of_xml (c : xml.xml_node) : x_t_naglowek_kod
     x_t_naglowek_kod_formularza_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_adres_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_adres =
-    {
+    x_t_adres {
         kod_kraju =
             (fun c => xml.required_value "x_t_kod_kraju" (x_t_kod_kraju_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KodKraju" children)
         adres_l1 =
@@ -10365,7 +10367,7 @@ and let x_t_klucz_wartosc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_klucz_wartosc
     =
-    {
+    x_t_klucz_wartosc {
         nr_wiersza = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "NrWiersza" children)
         klucz =
             (fun c => xml.required_value "x_t_znakowy" (x_t_znakowy_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Klucz" children)
@@ -10380,7 +10382,7 @@ and let x_t_rachunek_bankowy_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_rachunek_bankowy
     =
-    {
+    x_t_rachunek_bankowy {
         nr_rb =
             (fun c => xml.required_value "x_t_nr_rb" (x_t_nr_rb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NrRB" children)
         swift =
@@ -10408,7 +10410,7 @@ and let x_t_rachunek_bankowy_of_xml (c : xml.xml_node) : x_t_rachunek_bankowy =
     x_t_rachunek_bankowy_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_podmiot1_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_podmiot1 =
-    {
+    x_t_podmiot1 {
         nip =
             (fun c => xml.required_value "x_t_nr_nip" (x_t_nr_nip_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NIP" children)
         nazwa =
@@ -10419,7 +10421,7 @@ and let x_t_podmiot1_of_xml (c : xml.xml_node) : x_t_podmiot1 =
     x_t_podmiot1_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_podmiot2_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_podmiot2 =
-    {
+    x_t_podmiot2 {
         choice_nip = x_t_podmiot2_choice_nip_of_children attributes children
         nazwa =
             (fun c => xml.required_value "x_t_znakowy512" (x_t_znakowy512_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nazwa" children)
@@ -10451,7 +10453,7 @@ and let x_t_podmiot2_choice_nip_group_kod_kraju_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot2_choice_nip_group_kod_kraju
     =
-    {
+    x_t_podmiot2_choice_nip_group_kod_kraju {
         kod_kraju =
             optionm.map
                 fun c =>
@@ -10467,7 +10469,7 @@ and let x_t_podmiot2_choice_nip_group_kod_ue_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot2_choice_nip_group_kod_ue
     =
-    {
+    x_t_podmiot2_choice_nip_group_kod_ue {
         kod_ue =
             (fun c => xml.required_value "x_t_kody_krajow_ue" (x_t_kody_krajow_ue_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KodUE" children)
         nr_vat_ue =
@@ -10478,7 +10480,7 @@ and let x_t_podmiot2_choice_nip_group_kod_ue_of_xml (c : xml.xml_node) : x_t_pod
     x_t_podmiot2_choice_nip_group_kod_ue_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_podmiot3_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_podmiot3 =
-    {
+    x_t_podmiot3 {
         choice_nip = x_t_podmiot3_choice_nip_of_children attributes children
         nazwa =
             (fun c => xml.required_value "x_t_znakowy512" (x_t_znakowy512_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nazwa" children)
@@ -10514,7 +10516,7 @@ and let x_t_podmiot3_choice_nip_group_kod_kraju_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot3_choice_nip_group_kod_kraju
     =
-    {
+    x_t_podmiot3_choice_nip_group_kod_kraju {
         kod_kraju =
             optionm.map
                 fun c =>
@@ -10530,7 +10532,7 @@ and let x_t_podmiot3_choice_nip_group_kod_ue_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot3_choice_nip_group_kod_ue
     =
-    {
+    x_t_podmiot3_choice_nip_group_kod_ue {
         kod_ue =
             (fun c => xml.required_value "x_t_kody_krajow_ue" (x_t_kody_krajow_ue_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KodUE" children)
         nr_vat_ue =
@@ -10544,7 +10546,7 @@ and let x_definicje_typy_t_adres_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_definicje_typy_t_adres
     =
-    {
+    x_definicje_typy_t_adres {
         choice_adres_pol = x_definicje_typy_t_adres_choice_adres_pol_of_children attributes children
     }
 
@@ -10570,7 +10572,7 @@ and let x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr
     =
-    {
+    x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr {
         adres_zagr = (fun c => x_t_adres_zagraniczny_of_xml c) (xml.required_child "AdresZagr" children)
     }
 
@@ -10586,7 +10588,7 @@ and let x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol
     =
-    {
+    x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol {
         adres_pol = (fun c => x_t_adres_polski_of_xml c) (xml.required_child "AdresPol" children)
     }
 
@@ -10599,7 +10601,7 @@ and let x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_of_xml
         (xml.element_children c)
 
 and let x_t_adres1_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_adres1 =
-    {
+    x_t_adres1 {
         choice_adres_pol = x_t_adres1_choice_adres_pol_of_children attributes children
     }
 
@@ -10625,7 +10627,7 @@ and let x_t_adres1_choice_adres_pol_group_adres_zagr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_adres1_choice_adres_pol_group_adres_zagr
     =
-    {
+    x_t_adres1_choice_adres_pol_group_adres_zagr {
         adres_zagr = (fun c => x_t_adres_zagraniczny_of_xml c) (xml.required_child "AdresZagr" children)
     }
 
@@ -10639,7 +10641,7 @@ and let x_t_adres1_choice_adres_pol_group_adres_pol_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_adres1_choice_adres_pol_group_adres_pol
     =
-    {
+    x_t_adres1_choice_adres_pol_group_adres_pol {
         adres_pol = (fun c => x_t_adres_polski1_of_xml c) (xml.required_child "AdresPol" children)
     }
 
@@ -10653,7 +10655,7 @@ and let x_t_adres_polski_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_adres_polski
     =
-    {
+    x_t_adres_polski {
         kod_kraju =
             (fun c => xml.required_value "x_t_kod_kraju" (x_t_kod_kraju_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KodKraju" children)
         wojewodztwo =
@@ -10688,7 +10690,7 @@ and let x_t_adres_polski1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_adres_polski1
     =
-    {
+    x_t_adres_polski1 {
         kod_kraju =
             (fun c => xml.required_value "x_t_kod_kraju" (x_t_kod_kraju_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KodKraju" children)
         wojewodztwo =
@@ -10721,7 +10723,7 @@ and let x_t_adres_zagraniczny_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_adres_zagraniczny
     =
-    {
+    x_t_adres_zagraniczny {
         kod_kraju =
             (fun c => xml.required_value "x_t_adres_zagraniczny_kod_kraju" (x_t_adres_zagraniczny_kod_kraju_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "KodKraju" children)
         kod_pocztowy =
@@ -10757,7 +10759,7 @@ and let x_t_identyfikator_osoby_fizycznej_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_fizycznej
     =
-    {
+    x_t_identyfikator_osoby_fizycznej {
         nip =
             (fun c => xml.required_value "x_t_nr_nip" (x_t_nr_nip_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NIP" children)
         imie_pierwsze =
@@ -10780,7 +10782,7 @@ and let x_t_identyfikator_osoby_fizycznej1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_fizycznej1
     =
-    {
+    x_t_identyfikator_osoby_fizycznej1 {
         choice_nip = x_t_identyfikator_osoby_fizycznej1_choice_nip_of_children attributes children
         imie_pierwsze =
             (fun c => xml.required_value "x_t_imie" (x_t_imie_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ImiePierwsze" children)
@@ -10812,7 +10814,7 @@ and let x_t_identyfikator_osoby_fizycznej2_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_fizycznej2
     =
-    {
+    x_t_identyfikator_osoby_fizycznej2 {
         nip =
             (fun c => xml.required_value "x_t_nr_nip" (x_t_nr_nip_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NIP" children)
         imie_pierwsze =
@@ -10830,7 +10832,7 @@ and let x_t_identyfikator_osoby_fizycznej_pelny_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_fizycznej_pelny
     =
-    {
+    x_t_identyfikator_osoby_fizycznej_pelny {
         nip =
             optionm.map
                 fun c => xml.required_value "x_t_nr_nip" (x_t_nr_nip_of_string (xml.text_in (xml.element_children c)))
@@ -10856,7 +10858,7 @@ and let x_t_identyfikator_osoby_fizycznej_zagranicznej_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_fizycznej_zagranicznej
     =
-    {
+    x_t_identyfikator_osoby_fizycznej_zagranicznej {
         imie_pierwsze =
             (fun c => xml.required_value "x_t_imie" (x_t_imie_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ImiePierwsze" children)
         nazwisko =
@@ -10889,7 +10891,7 @@ and let x_t_identyfikator_osoby_niefizycznej_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_niefizycznej
     =
-    {
+    x_t_identyfikator_osoby_niefizycznej {
         nip =
             (fun c => xml.required_value "x_t_nr_nip" (x_t_nr_nip_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NIP" children)
         pelna_nazwa =
@@ -10908,7 +10910,7 @@ and let x_t_identyfikator_osoby_niefizycznej1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_niefizycznej1
     =
-    {
+    x_t_identyfikator_osoby_niefizycznej1 {
         nip =
             (fun c => xml.required_value "x_t_nr_nip" (x_t_nr_nip_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "NIP" children)
         pelna_nazwa =
@@ -10922,7 +10924,7 @@ and let x_t_identyfikator_osoby_niefizycznej_pelny_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_niefizycznej_pelny
     =
-    {
+    x_t_identyfikator_osoby_niefizycznej_pelny {
         nip =
             optionm.map
                 fun c => xml.required_value "x_t_nr_nip" (x_t_nr_nip_of_string (xml.text_in (xml.element_children c)))
@@ -10942,7 +10944,7 @@ and let x_t_identyfikator_osoby_niefizycznej_zagranicznej_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_identyfikator_osoby_niefizycznej_zagranicznej
     =
-    {
+    x_t_identyfikator_osoby_niefizycznej_zagranicznej {
         pelna_nazwa =
             (fun c => xml.required_value "x_t_identyfikator_osoby_niefizycznej_zagranicznej_pelna_nazwa" (x_t_identyfikator_osoby_niefizycznej_zagranicznej_pelna_nazwa_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PelnaNazwa" children)
         skrocona_nazwa =
@@ -10968,7 +10970,7 @@ and let x_t_podmiot_dowolny_bez_adresu_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_bez_adresu
     =
-    {
+    x_t_podmiot_dowolny_bez_adresu {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu_choice_osoba_fizyczna_of_children attributes children
     }
 
@@ -10994,7 +10996,7 @@ and let x_t_podmiot_dowolny_bez_adresu1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_bez_adresu1
     =
-    {
+    x_t_podmiot_dowolny_bez_adresu1 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu1_choice_osoba_fizyczna_of_children attributes children
     }
 
@@ -11020,7 +11022,7 @@ and let x_t_podmiot_dowolny_bez_adresu2_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_bez_adresu2
     =
-    {
+    x_t_podmiot_dowolny_bez_adresu2 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu2_choice_osoba_fizyczna_of_children attributes children
     }
 
@@ -11046,7 +11048,7 @@ and let x_t_podmiot_dowolny_bez_adresu3_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_bez_adresu3
     =
-    {
+    x_t_podmiot_dowolny_bez_adresu3 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu3_choice_osoba_fizyczna_of_children attributes children
     }
 
@@ -11072,7 +11074,7 @@ and let x_t_osoba_fizyczna_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna
     =
-    {
+    x_t_osoba_fizyczna {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11086,7 +11088,7 @@ and let x_t_osoba_fizyczna_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna_adres_zamieszkania {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11098,7 +11100,7 @@ and let x_t_osoba_fizyczna1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna1
     =
-    {
+    x_t_osoba_fizyczna1 {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej1_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11112,7 +11114,7 @@ and let x_t_osoba_fizyczna1_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna1_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna1_adres_zamieszkania {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11124,7 +11126,7 @@ and let x_t_osoba_fizyczna5_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna5
     =
-    {
+    x_t_osoba_fizyczna5 {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11138,7 +11140,7 @@ and let x_t_osoba_fizyczna5_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna5_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna5_adres_zamieszkania {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11150,7 +11152,7 @@ and let x_t_osoba_fizyczna3_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna3
     =
-    {
+    x_t_osoba_fizyczna3 {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej1_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11164,7 +11166,7 @@ and let x_t_osoba_fizyczna3_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna3_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna3_adres_zamieszkania {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11176,7 +11178,7 @@ and let x_t_osoba_fizyczna2_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna2
     =
-    {
+    x_t_osoba_fizyczna2 {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej2_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11190,7 +11192,7 @@ and let x_t_osoba_fizyczna2_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna2_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna2_adres_zamieszkania {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11202,7 +11204,7 @@ and let x_t_osoba_niefizyczna_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna
     =
-    {
+    x_t_osoba_niefizyczna {
         osoba_niefizyczna =
             (fun c => x_t_identyfikator_osoby_niefizycznej_of_xml c) (xml.required_child "OsobaNiefizyczna" children)
         adres_siedziby =
@@ -11216,7 +11218,7 @@ and let x_t_osoba_niefizyczna_adres_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna_adres_siedziby
     =
-    {
+    x_t_osoba_niefizyczna_adres_siedziby {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11228,7 +11230,7 @@ and let x_t_osoba_niefizyczna1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna1
     =
-    {
+    x_t_osoba_niefizyczna1 {
         osoba_niefizyczna =
             (fun c => x_t_identyfikator_osoby_niefizycznej_of_xml c) (xml.required_child "OsobaNiefizyczna" children)
         adres_siedziby =
@@ -11242,7 +11244,7 @@ and let x_t_osoba_niefizyczna1_adres_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna1_adres_siedziby
     =
-    {
+    x_t_osoba_niefizyczna1_adres_siedziby {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11254,7 +11256,7 @@ and let x_t_osoba_niefizyczna2_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna2
     =
-    {
+    x_t_osoba_niefizyczna2 {
         osoba_niefizyczna =
             (fun c => x_t_identyfikator_osoby_niefizycznej1_of_xml c) (xml.required_child "OsobaNiefizyczna" children)
         adres_siedziby =
@@ -11268,7 +11270,7 @@ and let x_t_osoba_niefizyczna2_adres_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna2_adres_siedziby
     =
-    {
+    x_t_osoba_niefizyczna2_adres_siedziby {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11280,7 +11282,7 @@ and let x_t_osoba_fizyczna4_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna4
     =
-    {
+    x_t_osoba_fizyczna4 {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej2_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11294,7 +11296,7 @@ and let x_t_osoba_fizyczna4_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna4_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna4_adres_zamieszkania {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11306,7 +11308,7 @@ and let x_t_podmiot_dowolny_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny
     =
-    {
+    x_t_podmiot_dowolny {
         base = x_t_podmiot_dowolny_bez_adresu_of_children attributes children
         adres_zamieszkania_siedziby =
             (fun c => x_t_podmiot_dowolny_adres_zamieszkania_siedziby_of_xml c) (xml.required_child "AdresZamieszkaniaSiedziby" children)
@@ -11319,7 +11321,7 @@ and let x_t_podmiot_dowolny_adres_zamieszkania_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny_adres_zamieszkania_siedziby {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11334,7 +11336,7 @@ and let x_t_osoba_fizyczna_pelna_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna_pelna
     =
-    {
+    x_t_osoba_fizyczna_pelna {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej_pelny_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11348,7 +11350,7 @@ and let x_t_osoba_fizyczna_pelna_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna_pelna_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna_pelna_adres_zamieszkania {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11363,7 +11365,7 @@ and let x_t_osoba_fizyczna_pelna1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna_pelna1
     =
-    {
+    x_t_osoba_fizyczna_pelna1 {
         osoba_fizyczna =
             (fun c => x_t_identyfikator_osoby_fizycznej_pelny_of_xml c) (xml.required_child "OsobaFizyczna" children)
         adres_zamieszkania =
@@ -11377,7 +11379,7 @@ and let x_t_osoba_fizyczna_pelna1_adres_zamieszkania_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_fizyczna_pelna1_adres_zamieszkania
     =
-    {
+    x_t_osoba_fizyczna_pelna1_adres_zamieszkania {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11392,7 +11394,7 @@ and let x_t_podmiot_dowolny1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny1
     =
-    {
+    x_t_podmiot_dowolny1 {
         base = x_t_podmiot_dowolny_bez_adresu_of_children attributes children
         adres_zamieszkania_siedziby =
             (fun c => x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_of_xml c) (xml.required_child "AdresZamieszkaniaSiedziby" children)
@@ -11405,7 +11407,7 @@ and let x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny1_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny1_adres_zamieszkania_siedziby {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11420,7 +11422,7 @@ and let x_t_podmiot_dowolny2_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny2
     =
-    {
+    x_t_podmiot_dowolny2 {
         base = x_t_podmiot_dowolny_bez_adresu3_of_children attributes children
         adres_zamieszkania_siedziby =
             (fun c => x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_of_xml c) (xml.required_child "AdresZamieszkaniaSiedziby" children)
@@ -11433,7 +11435,7 @@ and let x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny2_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny2_adres_zamieszkania_siedziby {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11448,7 +11450,7 @@ and let x_t_osoba_niefizyczna_pelna_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna_pelna
     =
-    {
+    x_t_osoba_niefizyczna_pelna {
         osoba_niefizyczna =
             (fun c => x_t_identyfikator_osoby_niefizycznej_pelny_of_xml c) (xml.required_child "OsobaNiefizyczna" children)
         adres_siedziby =
@@ -11462,7 +11464,7 @@ and let x_t_osoba_niefizyczna_pelna_adres_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna_pelna_adres_siedziby
     =
-    {
+    x_t_osoba_niefizyczna_pelna_adres_siedziby {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11474,7 +11476,7 @@ and let x_t_podmiot_dowolny_pelny_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_pelny
     =
-    {
+    x_t_podmiot_dowolny_pelny {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_pelny_choice_osoba_fizyczna_of_children attributes children
         adres_zamieszkania_siedziby =
             (fun c => x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_of_xml c) (xml.required_child "AdresZamieszkaniaSiedziby" children)
@@ -11487,7 +11489,7 @@ and let x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby {
         base = x_definicje_typy_t_adres_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11519,7 +11521,7 @@ and let x_t_podmiot_dowolny_pelny1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_pelny1
     =
-    {
+    x_t_podmiot_dowolny_pelny1 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_pelny1_choice_osoba_fizyczna_of_children attributes children
         adres_zamieszkania_siedziby =
             (fun c => x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_of_xml c) (xml.required_child "AdresZamieszkaniaSiedziby" children)
@@ -11532,7 +11534,7 @@ and let x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -11564,7 +11566,7 @@ and let x_t_osoba_niefizyczna_pelna1_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna_pelna1
     =
-    {
+    x_t_osoba_niefizyczna_pelna1 {
         osoba_niefizyczna =
             (fun c => x_t_identyfikator_osoby_niefizycznej_pelny_of_xml c) (xml.required_child "OsobaNiefizyczna" children)
         adres_siedziby =
@@ -11578,7 +11580,7 @@ and let x_t_osoba_niefizyczna_pelna1_adres_siedziby_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_osoba_niefizyczna_pelna1_adres_siedziby
     =
-    {
+    x_t_osoba_niefizyczna_pelna1_adres_siedziby {
         base = x_t_adres1_of_children attributes children
         rodzaj_adresu = xml.required_attribute "rodzajAdresu" (xml.checked_fixed "rodzajAdresu" "RAD" attributes)
     }
@@ -15954,7 +15956,7 @@ and let x_t_osoba_niefizyczna_pelna1_adres_siedziby_to_xml
         (x_t_osoba_niefizyczna_pelna1_adres_siedziby_children x)
 
 and let x_faktura_example (k : i32) : x_faktura =
-    {
+    x_faktura {
         naglowek = x_t_naglowek_example k
         podmiot1 = x_faktura_podmiot1_example k
         podmiot2 = x_faktura_podmiot2_example k
@@ -15966,12 +15968,12 @@ and let x_faktura_example (k : i32) : x_faktura =
     }
 
 and let x_faktura_zalacznik_example (k : i32) : x_faktura_zalacznik =
-    {
+    x_faktura_zalacznik {
         blok_danych = [ x_faktura_zalacznik_blok_danych_example (k + 0i32) ]
     }
 
 and let x_faktura_zalacznik_blok_danych_example (k : i32) : x_faktura_zalacznik_blok_danych =
-    {
+    x_faktura_zalacznik_blok_danych {
         z_naglowek = None
         meta_dane = [ x_faktura_zalacznik_blok_danych_meta_dane_example (k + 0i32) ]
         tekst = None
@@ -15979,7 +15981,7 @@ and let x_faktura_zalacznik_blok_danych_example (k : i32) : x_faktura_zalacznik_
     }
 
 and let x_faktura_zalacznik_blok_danych_tabela_example (k : i32) : x_faktura_zalacznik_blok_danych_tabela =
-    {
+    x_faktura_zalacznik_blok_danych_tabela {
         t_meta_dane = []
         opis = None
         t_naglowek = x_faktura_zalacznik_blok_danych_tabela_t_naglowek_example k
@@ -15988,12 +15990,12 @@ and let x_faktura_zalacznik_blok_danych_tabela_example (k : i32) : x_faktura_zal
     }
 
 and let x_faktura_zalacznik_blok_danych_tabela_suma_example (k : i32) : x_faktura_zalacznik_blok_danych_tabela_suma =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_suma {
         s_kom = [ x_t_znakowy2_example (k + 0i32) ]
     }
 
 and let x_faktura_zalacznik_blok_danych_tabela_wiersz_example (k : i32) : x_faktura_zalacznik_blok_danych_tabela_wiersz =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_wiersz {
         w_kom = [ x_t_znakowy2_example (k + 0i32) ]
     }
 
@@ -16001,7 +16003,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_naglowek_example
     (k : i32)
     : x_faktura_zalacznik_blok_danych_tabela_t_naglowek
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek {
         kol = [ x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_example (k + 0i32) ]
     }
 
@@ -16009,7 +16011,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_example
     (k : i32)
     : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol {
         n_kom = x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom_example k
         typ = x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_typ_example k
     }
@@ -16018,7 +16020,7 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom_example
     (k : i32)
     : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom {
         base = x_t_znakowy2_example k
     }
 
@@ -16026,30 +16028,30 @@ and let x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_example
     (k : i32)
     : x_faktura_zalacznik_blok_danych_tabela_t_meta_dane
     =
-    {
+    x_faktura_zalacznik_blok_danych_tabela_t_meta_dane {
         t_klucz = x_t_znakowy_example k
         t_wartosc = x_t_znakowy_example k
     }
 
 and let x_faktura_zalacznik_blok_danych_tekst_example (k : i32) : x_faktura_zalacznik_blok_danych_tekst =
-    {
+    x_faktura_zalacznik_blok_danych_tekst {
         akapit = [ x_t_znakowy512_example (k + 0i32) ]
     }
 
 and let x_faktura_zalacznik_blok_danych_meta_dane_example (k : i32) : x_faktura_zalacznik_blok_danych_meta_dane =
-    {
+    x_faktura_zalacznik_blok_danych_meta_dane {
         z_klucz = x_t_znakowy_example k
         z_wartosc = x_t_znakowy_example k
     }
 
 and let x_faktura_stopka_example (k : i32) : x_faktura_stopka =
-    {
+    x_faktura_stopka {
         informacje = []
         rejestry = []
     }
 
 and let x_faktura_stopka_rejestry_example (k : i32) : x_faktura_stopka_rejestry =
-    {
+    x_faktura_stopka_rejestry {
         pelna_nazwa = None
         krs = None
         regon = None
@@ -16057,12 +16059,12 @@ and let x_faktura_stopka_rejestry_example (k : i32) : x_faktura_stopka_rejestry 
     }
 
 and let x_faktura_stopka_informacje_example (k : i32) : x_faktura_stopka_informacje =
-    {
+    x_faktura_stopka_informacje {
         stopka_faktury = None
     }
 
 and let x_faktura_fa_example (k : i32) : x_faktura_fa =
-    {
+    x_faktura_fa {
         kod_waluty = x_t_kod_waluty_example k
         p_1 = x_t_data_t_example k
         p_1_m = None
@@ -16118,13 +16120,13 @@ and let x_faktura_fa_example (k : i32) : x_faktura_fa =
     }
 
 and let x_faktura_fa_zamowienie_example (k : i32) : x_faktura_fa_zamowienie =
-    {
+    x_faktura_fa_zamowienie {
         wartosc_zamowienia = x_t_kwotowy_example k
         zamowienie_wiersz = [ x_faktura_fa_zamowienie_zamowienie_wiersz_example (k + 0i32) ]
     }
 
 and let x_faktura_fa_zamowienie_zamowienie_wiersz_example (k : i32) : x_faktura_fa_zamowienie_zamowienie_wiersz =
-    {
+    x_faktura_fa_zamowienie_zamowienie_wiersz {
         nr_wiersza_zam = x_t_naturalny_example k
         uu_idz = None
         p_7_z = None
@@ -16148,7 +16150,7 @@ and let x_faktura_fa_zamowienie_zamowienie_wiersz_example (k : i32) : x_faktura_
     }
 
 and let x_faktura_fa_warunki_transakcji_example (k : i32) : x_faktura_fa_warunki_transakcji =
-    {
+    x_faktura_fa_warunki_transakcji {
         umowy = []
         zamowienia = []
         nr_partii_towaru = []
@@ -16160,7 +16162,7 @@ and let x_faktura_fa_warunki_transakcji_example (k : i32) : x_faktura_fa_warunki
     }
 
 and let x_faktura_fa_warunki_transakcji_transport_example (k : i32) : x_faktura_fa_warunki_transakcji_transport =
-    {
+    x_faktura_fa_warunki_transakcji_transport {
         choice_rodzaj_transportu = x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_example k
         przewoznik = None
         nr_zlecenia_transportu = None
@@ -16183,7 +16185,7 @@ and let x_faktura_fa_warunki_transakcji_transport_przewoznik_example
     (k : i32)
     : x_faktura_fa_warunki_transakcji_transport_przewoznik
     =
-    {
+    x_faktura_fa_warunki_transakcji_transport_przewoznik {
         dane_identyfikacyjne = x_t_podmiot2_example k
         adres_przewoznika = x_t_adres_example k
     }
@@ -16195,19 +16197,19 @@ and let x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_examp
     Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_RodzajTransportu (x_t_rodzaj_transportu_example k)
 
 and let x_faktura_fa_warunki_transakcji_zamowienia_example (k : i32) : x_faktura_fa_warunki_transakcji_zamowienia =
-    {
+    x_faktura_fa_warunki_transakcji_zamowienia {
         data_zamowienia = None
         nr_zamowienia = None
     }
 
 and let x_faktura_fa_warunki_transakcji_umowy_example (k : i32) : x_faktura_fa_warunki_transakcji_umowy =
-    {
+    x_faktura_fa_warunki_transakcji_umowy {
         data_umowy = None
         nr_umowy = None
     }
 
 and let x_faktura_fa_platnosc_example (k : i32) : x_faktura_fa_platnosc =
-    {
+    x_faktura_fa_platnosc {
         choice_zaplacono = None
         termin_platnosci = []
         choice_forma_platnosci = None
@@ -16219,7 +16221,7 @@ and let x_faktura_fa_platnosc_example (k : i32) : x_faktura_fa_platnosc =
     }
 
 and let x_faktura_fa_platnosc_skonto_example (k : i32) : x_faktura_fa_platnosc_skonto =
-    {
+    x_faktura_fa_platnosc_skonto {
         warunki_skonta = x_t_znakowy_example k
         wysokosc_skonta = x_t_znakowy_example k
     }
@@ -16228,7 +16230,7 @@ and let x_faktura_fa_platnosc_choice_forma_platnosci_example (k : i32) : x_faktu
     Faktura_Fa_Platnosc_choice_FormaPlatnosci_FormaPlatnosci (x_t_forma_platnosci_example k)
 
 and let x_faktura_fa_platnosc_termin_platnosci_example (k : i32) : x_faktura_fa_platnosc_termin_platnosci =
-    {
+    x_faktura_fa_platnosc_termin_platnosci {
         termin = None
         termin_opis = None
     }
@@ -16237,7 +16239,7 @@ and let x_faktura_fa_platnosc_termin_platnosci_termin_opis_example
     (k : i32)
     : x_faktura_fa_platnosc_termin_platnosci_termin_opis
     =
-    {
+    x_faktura_fa_platnosc_termin_platnosci_termin_opis {
         ilosc = "1"
         jednostka = x_t_znakowy50_example k
         zdarzenie_poczatkowe = x_t_znakowy_example k
@@ -16252,13 +16254,13 @@ and let x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_example
     (k : i32)
     : x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono
     =
-    {
+    x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono {
         zaplacono = x_t_wybor1_example k
         data_zaplaty = x_t_data_example k
     }
 
 and let x_faktura_fa_rozliczenie_example (k : i32) : x_faktura_fa_rozliczenie =
-    {
+    x_faktura_fa_rozliczenie {
         obciazenia = []
         suma_obciazen = None
         odliczenia = []
@@ -16270,19 +16272,19 @@ and let x_faktura_fa_rozliczenie_choice_do_zaplaty_example (k : i32) : x_faktura
     Faktura_Fa_Rozliczenie_choice_DoZaplaty_DoZaplaty (x_t_kwotowy_example k)
 
 and let x_faktura_fa_rozliczenie_odliczenia_example (k : i32) : x_faktura_fa_rozliczenie_odliczenia =
-    {
+    x_faktura_fa_rozliczenie_odliczenia {
         kwota = x_t_kwotowy_example k
         powod = x_t_znakowy_example k
     }
 
 and let x_faktura_fa_rozliczenie_obciazenia_example (k : i32) : x_faktura_fa_rozliczenie_obciazenia =
-    {
+    x_faktura_fa_rozliczenie_obciazenia {
         kwota = x_t_kwotowy_example k
         powod = x_t_znakowy_example k
     }
 
 and let x_faktura_fa_fa_wiersz_example (k : i32) : x_faktura_fa_fa_wiersz =
-    {
+    x_faktura_fa_fa_wiersz {
         nr_wiersza_fa = x_t_naturalny_example k
         uu_id = None
         p_6_a = None
@@ -16311,7 +16313,7 @@ and let x_faktura_fa_fa_wiersz_example (k : i32) : x_faktura_fa_fa_wiersz =
     }
 
 and let x_faktura_fa_faktura_zaliczkowa_example (k : i32) : x_faktura_fa_faktura_zaliczkowa =
-    {
+    x_faktura_fa_faktura_zaliczkowa {
         choice_nr_k_se_fzn = x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_example k
     }
 
@@ -16327,34 +16329,34 @@ and let x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_exa
     (k : i32)
     : x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn
     =
-    {
+    x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn {
         nr_k_se_fzn = x_t_wybor1_example k
         nr_fa_zaliczkowej = x_t_znakowy_example k
     }
 
 and let x_faktura_fa_zaliczka_czesciowa_example (k : i32) : x_faktura_fa_zaliczka_czesciowa =
-    {
+    x_faktura_fa_zaliczka_czesciowa {
         p_6_z = x_t_data_t_example k
         p_15_z = x_t_kwotowy_example k
         kurs_waluty_zw = None
     }
 
 and let x_faktura_fa_podmiot2_k_example (k : i32) : x_faktura_fa_podmiot2_k =
-    {
+    x_faktura_fa_podmiot2_k {
         dane_identyfikacyjne = x_t_podmiot2_example k
         adres = None
         id_nabywcy = None
     }
 
 and let x_faktura_fa_podmiot1_k_example (k : i32) : x_faktura_fa_podmiot1_k =
-    {
+    x_faktura_fa_podmiot1_k {
         prefiks_podatnika = None
         dane_identyfikacyjne = x_t_podmiot1_example k
         adres = x_t_adres_example k
     }
 
 and let x_faktura_fa_dane_fa_korygowanej_example (k : i32) : x_faktura_fa_dane_fa_korygowanej =
-    {
+    x_faktura_fa_dane_fa_korygowanej {
         data_wyst_fa_korygowanej = x_t_data_t_example k
         nr_fa_korygowanej = x_t_znakowy_example k
         choice_nr_k_se_f = x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_example k
@@ -16372,13 +16374,13 @@ and let x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_exampl
     (k : i32)
     : x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f
     =
-    {
+    x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f {
         nr_k_se_f = x_t_wybor1_example k
         nr_k_se_f_fa_korygowanej = x_t_numer_k_se_f_example k
     }
 
 and let x_faktura_fa_adnotacje_example (k : i32) : x_faktura_fa_adnotacje =
-    {
+    x_faktura_fa_adnotacje {
         p_16 = x_t_wybor1_2_example k
         p_17 = x_t_wybor1_2_example k
         p_18 = x_t_wybor1_2_example k
@@ -16390,7 +16392,7 @@ and let x_faktura_fa_adnotacje_example (k : i32) : x_faktura_fa_adnotacje =
     }
 
 and let x_faktura_fa_adnotacje_p_marzy_example (k : i32) : x_faktura_fa_adnotacje_p_marzy =
-    {
+    x_faktura_fa_adnotacje_p_marzy {
         choice_p_p_marzy = x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_example k
     }
 
@@ -16406,7 +16408,7 @@ and let x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_example
     (k : i32)
     : x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy
     =
-    {
+    x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy {
         p_p_marzy = x_t_wybor1_example k
         choice_p_p_marzy_2 =
             x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_choice_p_p_marzy_2_example k
@@ -16419,7 +16421,7 @@ and let x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_choice_p
     Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_choice_P_PMarzy_2_P_PMarzy_2 (x_t_wybor1_example k)
 
 and let x_faktura_fa_adnotacje_nowe_srodki_transportu_example (k : i32) : x_faktura_fa_adnotacje_nowe_srodki_transportu =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu {
         choice_p_22 = x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_example k
     }
 
@@ -16435,7 +16437,7 @@ and let x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_exa
     (k : i32)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22 {
         p_22 = x_t_wybor1_example k
         p_42_5 = x_t_wybor1_2_example k
         nowy_srodek_transportu =
@@ -16450,7 +16452,7 @@ and let x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_now
     (k : i32)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu {
         p_22_a = x_t_data_t_example k
         p_nr_wiersza_nst = x_t_naturalny_example k
         p_22_bmk = None
@@ -16477,7 +16479,7 @@ and let
     (k : i32)
     : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b
     =
-    {
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b {
         p_22_b = x_t_znakowy_example k
         choice_p_22_b1 = None
         p_22_bt = None
@@ -16492,7 +16494,7 @@ and let
         (None)
 
 and let x_faktura_fa_adnotacje_zwolnienie_example (k : i32) : x_faktura_fa_adnotacje_zwolnienie =
-    {
+    x_faktura_fa_adnotacje_zwolnienie {
         choice_p_19 = x_faktura_fa_adnotacje_zwolnienie_choice_p_19_example k
     }
 
@@ -16505,7 +16507,7 @@ and let x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_example
     (k : i32)
     : x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19
     =
-    {
+    x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19 {
         p_19 = x_t_wybor1_example k
         choice_p_19_a = x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_choice_p_19_a_example k
     }
@@ -16520,7 +16522,7 @@ and let x_faktura_fa_choice_p_6_example (k : i32) : x_faktura_fa_choice_p_6 =
     Faktura_Fa_choice_P_6_P_6 (x_t_data_t_example k)
 
 and let x_faktura_podmiot_upowazniony_example (k : i32) : x_faktura_podmiot_upowazniony =
-    {
+    x_faktura_podmiot_upowazniony {
         nr_eori = None
         dane_identyfikacyjne = x_t_podmiot1_example k
         adres = x_t_adres_example k
@@ -16530,13 +16532,13 @@ and let x_faktura_podmiot_upowazniony_example (k : i32) : x_faktura_podmiot_upow
     }
 
 and let x_faktura_podmiot_upowazniony_dane_kontaktowe_example (k : i32) : x_faktura_podmiot_upowazniony_dane_kontaktowe =
-    {
+    x_faktura_podmiot_upowazniony_dane_kontaktowe {
         email_pu = None
         telefon_pu = None
     }
 
 and let x_faktura_podmiot3_example (k : i32) : x_faktura_podmiot3 =
-    {
+    x_faktura_podmiot3 {
         id_nabywcy = None
         nr_eori = None
         dane_identyfikacyjne = x_t_podmiot3_example k
@@ -16552,13 +16554,13 @@ and let x_faktura_podmiot3_choice_rola_example (k : i32) : x_faktura_podmiot3_ch
     Faktura_Podmiot3_choice_Rola_Rola (x_t_rola_podmiotu3_example k)
 
 and let x_faktura_podmiot3_dane_kontaktowe_example (k : i32) : x_faktura_podmiot3_dane_kontaktowe =
-    {
+    x_faktura_podmiot3_dane_kontaktowe {
         email = None
         telefon = None
     }
 
 and let x_faktura_podmiot2_example (k : i32) : x_faktura_podmiot2 =
-    {
+    x_faktura_podmiot2 {
         nr_eori = None
         dane_identyfikacyjne = x_t_podmiot2_example k
         adres = None
@@ -16571,13 +16573,13 @@ and let x_faktura_podmiot2_example (k : i32) : x_faktura_podmiot2 =
     }
 
 and let x_faktura_podmiot2_dane_kontaktowe_example (k : i32) : x_faktura_podmiot2_dane_kontaktowe =
-    {
+    x_faktura_podmiot2_dane_kontaktowe {
         email = None
         telefon = None
     }
 
 and let x_faktura_podmiot1_example (k : i32) : x_faktura_podmiot1 =
-    {
+    x_faktura_podmiot1 {
         prefiks_podatnika = None
         nr_eori = None
         dane_identyfikacyjne = x_t_podmiot1_example k
@@ -16588,18 +16590,18 @@ and let x_faktura_podmiot1_example (k : i32) : x_faktura_podmiot1 =
     }
 
 and let x_faktura_podmiot1_dane_kontaktowe_example (k : i32) : x_faktura_podmiot1_dane_kontaktowe =
-    {
+    x_faktura_podmiot1_dane_kontaktowe {
         email = None
         telefon = None
     }
 
 and let x_faktura_podmiot1_adres_koresp_example (k : i32) : x_faktura_podmiot1_adres_koresp =
-    {
+    x_faktura_podmiot1_adres_koresp {
         base = x_t_adres_example k
     }
 
 and let x_t_naglowek_example (k : i32) : x_t_naglowek =
-    {
+    x_t_naglowek {
         kod_formularza = x_t_naglowek_kod_formularza_example k
         wariant_formularza = x_t_naglowek_wariant_formularza_example k
         data_wytworzenia_fa = x_t_naglowek_data_wytworzenia_fa_example k
@@ -16607,14 +16609,14 @@ and let x_t_naglowek_example (k : i32) : x_t_naglowek =
     }
 
 and let x_t_naglowek_kod_formularza_example (k : i32) : x_t_naglowek_kod_formularza =
-    {
+    x_t_naglowek_kod_formularza {
         base = x_t_kod_formularza_example k
         kod_systemowy = "FA (3)"
         wersja_schemy = "1-0E"
     }
 
 and let x_t_adres_example (k : i32) : x_t_adres =
-    {
+    x_t_adres {
         kod_kraju = x_t_kod_kraju_example k
         adres_l1 = x_t_znakowy512_example k
         adres_l2 = None
@@ -16622,14 +16624,14 @@ and let x_t_adres_example (k : i32) : x_t_adres =
     }
 
 and let x_t_klucz_wartosc_example (k : i32) : x_t_klucz_wartosc =
-    {
+    x_t_klucz_wartosc {
         nr_wiersza = None
         klucz = x_t_znakowy_example k
         wartosc = x_t_znakowy_example k
     }
 
 and let x_t_rachunek_bankowy_example (k : i32) : x_t_rachunek_bankowy =
-    {
+    x_t_rachunek_bankowy {
         nr_rb = x_t_nr_rb_example k
         swift = None
         rachunek_wlasny_banku = None
@@ -16638,13 +16640,13 @@ and let x_t_rachunek_bankowy_example (k : i32) : x_t_rachunek_bankowy =
     }
 
 and let x_t_podmiot1_example (k : i32) : x_t_podmiot1 =
-    {
+    x_t_podmiot1 {
         nip = x_t_nr_nip_example k
         nazwa = x_t_znakowy512_example k
     }
 
 and let x_t_podmiot2_example (k : i32) : x_t_podmiot2 =
-    {
+    x_t_podmiot2 {
         choice_nip = x_t_podmiot2_choice_nip_example k
         nazwa = x_t_znakowy512_example k
     }
@@ -16653,7 +16655,7 @@ and let x_t_podmiot2_choice_nip_example (k : i32) : x_t_podmiot2_choice_nip =
     TPodmiot2_choice_NIP_NIP (x_t_nr_nip_example k)
 
 and let x_t_podmiot3_example (k : i32) : x_t_podmiot3 =
-    {
+    x_t_podmiot3 {
         choice_nip = x_t_podmiot3_choice_nip_example k
         nazwa = x_t_znakowy512_example k
     }
@@ -16662,7 +16664,7 @@ and let x_t_podmiot3_choice_nip_example (k : i32) : x_t_podmiot3_choice_nip =
     TPodmiot3_choice_NIP_NIP (x_t_nr_nip_example k)
 
 and let x_definicje_typy_t_adres_example (k : i32) : x_definicje_typy_t_adres =
-    {
+    x_definicje_typy_t_adres {
         choice_adres_pol = x_definicje_typy_t_adres_choice_adres_pol_example k
     }
 
@@ -16675,12 +16677,12 @@ and let x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_example
     (k : i32)
     : x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol
     =
-    {
+    x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol {
         adres_pol = x_t_adres_polski_example k
     }
 
 and let x_t_adres1_example (k : i32) : x_t_adres1 =
-    {
+    x_t_adres1 {
         choice_adres_pol = x_t_adres1_choice_adres_pol_example k
     }
 
@@ -16688,12 +16690,12 @@ and let x_t_adres1_choice_adres_pol_example (k : i32) : x_t_adres1_choice_adres_
     TAdres1_choice_AdresPol_group_AdresPol (x_t_adres1_choice_adres_pol_group_adres_pol_example k)
 
 and let x_t_adres1_choice_adres_pol_group_adres_pol_example (k : i32) : x_t_adres1_choice_adres_pol_group_adres_pol =
-    {
+    x_t_adres1_choice_adres_pol_group_adres_pol {
         adres_pol = x_t_adres_polski1_example k
     }
 
 and let x_t_adres_polski_example (k : i32) : x_t_adres_polski =
-    {
+    x_t_adres_polski {
         kod_kraju = x_t_kod_kraju_example k
         wojewodztwo = x_t_jedn_admin_example k
         powiat = x_t_jedn_admin_example k
@@ -16707,7 +16709,7 @@ and let x_t_adres_polski_example (k : i32) : x_t_adres_polski =
     }
 
 and let x_t_adres_polski1_example (k : i32) : x_t_adres_polski1 =
-    {
+    x_t_adres_polski1 {
         kod_kraju = x_t_kod_kraju_example k
         wojewodztwo = x_t_jedn_admin_example k
         powiat = x_t_jedn_admin_example k
@@ -16720,7 +16722,7 @@ and let x_t_adres_polski1_example (k : i32) : x_t_adres_polski1 =
     }
 
 and let x_t_adres_zagraniczny_example (k : i32) : x_t_adres_zagraniczny =
-    {
+    x_t_adres_zagraniczny {
         kod_kraju = x_t_adres_zagraniczny_kod_kraju_example k
         kod_pocztowy = None
         miejscowosc = x_t_miejscowosc_example k
@@ -16730,7 +16732,7 @@ and let x_t_adres_zagraniczny_example (k : i32) : x_t_adres_zagraniczny =
     }
 
 and let x_t_identyfikator_osoby_fizycznej_example (k : i32) : x_t_identyfikator_osoby_fizycznej =
-    {
+    x_t_identyfikator_osoby_fizycznej {
         nip = x_t_nr_nip_example k
         imie_pierwsze = x_t_imie_example k
         nazwisko = x_t_nazwisko_example k
@@ -16739,7 +16741,7 @@ and let x_t_identyfikator_osoby_fizycznej_example (k : i32) : x_t_identyfikator_
     }
 
 and let x_t_identyfikator_osoby_fizycznej1_example (k : i32) : x_t_identyfikator_osoby_fizycznej1 =
-    {
+    x_t_identyfikator_osoby_fizycznej1 {
         choice_nip = x_t_identyfikator_osoby_fizycznej1_choice_nip_example k
         imie_pierwsze = x_t_imie_example k
         nazwisko = x_t_nazwisko_example k
@@ -16750,7 +16752,7 @@ and let x_t_identyfikator_osoby_fizycznej1_choice_nip_example (k : i32) : x_t_id
     TIdentyfikatorOsobyFizycznej1_choice_NIP_NIP (x_t_nr_nip_example k)
 
 and let x_t_identyfikator_osoby_fizycznej2_example (k : i32) : x_t_identyfikator_osoby_fizycznej2 =
-    {
+    x_t_identyfikator_osoby_fizycznej2 {
         nip = x_t_nr_nip_example k
         imie_pierwsze = x_t_imie_example k
         nazwisko = x_t_nazwisko_example k
@@ -16758,7 +16760,7 @@ and let x_t_identyfikator_osoby_fizycznej2_example (k : i32) : x_t_identyfikator
     }
 
 and let x_t_identyfikator_osoby_fizycznej_pelny_example (k : i32) : x_t_identyfikator_osoby_fizycznej_pelny =
-    {
+    x_t_identyfikator_osoby_fizycznej_pelny {
         nip = None
         imie_pierwsze = x_t_imie_example k
         nazwisko = x_t_nazwisko_example k
@@ -16769,7 +16771,7 @@ and let x_t_identyfikator_osoby_fizycznej_pelny_example (k : i32) : x_t_identyfi
     }
 
 and let x_t_identyfikator_osoby_fizycznej_zagranicznej_example (k : i32) : x_t_identyfikator_osoby_fizycznej_zagranicznej =
-    {
+    x_t_identyfikator_osoby_fizycznej_zagranicznej {
         imie_pierwsze = x_t_imie_example k
         nazwisko = x_t_nazwisko_example k
         data_urodzenia = x_definicje_typy_t_data_example k
@@ -16780,20 +16782,20 @@ and let x_t_identyfikator_osoby_fizycznej_zagranicznej_example (k : i32) : x_t_i
     }
 
 and let x_t_identyfikator_osoby_niefizycznej_example (k : i32) : x_t_identyfikator_osoby_niefizycznej =
-    {
+    x_t_identyfikator_osoby_niefizycznej {
         nip = x_t_nr_nip_example k
         pelna_nazwa = x_t_identyfikator_osoby_niefizycznej_pelna_nazwa_example k
         regon = None
     }
 
 and let x_t_identyfikator_osoby_niefizycznej1_example (k : i32) : x_t_identyfikator_osoby_niefizycznej1 =
-    {
+    x_t_identyfikator_osoby_niefizycznej1 {
         nip = x_t_nr_nip_example k
         pelna_nazwa = x_t_identyfikator_osoby_niefizycznej1_pelna_nazwa_example k
     }
 
 and let x_t_identyfikator_osoby_niefizycznej_pelny_example (k : i32) : x_t_identyfikator_osoby_niefizycznej_pelny =
-    {
+    x_t_identyfikator_osoby_niefizycznej_pelny {
         nip = None
         pelna_nazwa = x_t_identyfikator_osoby_niefizycznej_pelny_pelna_nazwa_example k
         skrocona_nazwa = x_t_identyfikator_osoby_niefizycznej_pelny_skrocona_nazwa_example k
@@ -16804,14 +16806,14 @@ and let x_t_identyfikator_osoby_niefizycznej_zagranicznej_example
     (k : i32)
     : x_t_identyfikator_osoby_niefizycznej_zagranicznej
     =
-    {
+    x_t_identyfikator_osoby_niefizycznej_zagranicznej {
         pelna_nazwa = x_t_identyfikator_osoby_niefizycznej_zagranicznej_pelna_nazwa_example k
         skrocona_nazwa = None
         nip = None
     }
 
 and let x_t_podmiot_dowolny_bez_adresu_example (k : i32) : x_t_podmiot_dowolny_bez_adresu =
-    {
+    x_t_podmiot_dowolny_bez_adresu {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu_choice_osoba_fizyczna_example k
     }
 
@@ -16822,7 +16824,7 @@ and let x_t_podmiot_dowolny_bez_adresu_choice_osoba_fizyczna_example
     TPodmiotDowolnyBezAdresu_choice_OsobaFizyczna_OsobaFizyczna (x_t_identyfikator_osoby_fizycznej_example k)
 
 and let x_t_podmiot_dowolny_bez_adresu1_example (k : i32) : x_t_podmiot_dowolny_bez_adresu1 =
-    {
+    x_t_podmiot_dowolny_bez_adresu1 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu1_choice_osoba_fizyczna_example k
     }
 
@@ -16833,7 +16835,7 @@ and let x_t_podmiot_dowolny_bez_adresu1_choice_osoba_fizyczna_example
     TPodmiotDowolnyBezAdresu1_choice_OsobaFizyczna_OsobaFizyczna (x_t_identyfikator_osoby_fizycznej1_example k)
 
 and let x_t_podmiot_dowolny_bez_adresu2_example (k : i32) : x_t_podmiot_dowolny_bez_adresu2 =
-    {
+    x_t_podmiot_dowolny_bez_adresu2 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu2_choice_osoba_fizyczna_example k
     }
 
@@ -16844,7 +16846,7 @@ and let x_t_podmiot_dowolny_bez_adresu2_choice_osoba_fizyczna_example
     TPodmiotDowolnyBezAdresu2_choice_OsobaFizyczna_OsobaFizyczna (x_t_identyfikator_osoby_fizycznej2_example k)
 
 and let x_t_podmiot_dowolny_bez_adresu3_example (k : i32) : x_t_podmiot_dowolny_bez_adresu3 =
-    {
+    x_t_podmiot_dowolny_bez_adresu3 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_bez_adresu3_choice_osoba_fizyczna_example k
     }
 
@@ -16855,115 +16857,115 @@ and let x_t_podmiot_dowolny_bez_adresu3_choice_osoba_fizyczna_example
     TPodmiotDowolnyBezAdresu3_choice_OsobaFizyczna_OsobaFizyczna (x_t_identyfikator_osoby_fizycznej2_example k)
 
 and let x_t_osoba_fizyczna_example (k : i32) : x_t_osoba_fizyczna =
-    {
+    x_t_osoba_fizyczna {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej_example k
         adres_zamieszkania = x_t_osoba_fizyczna_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna_adres_zamieszkania {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_fizyczna1_example (k : i32) : x_t_osoba_fizyczna1 =
-    {
+    x_t_osoba_fizyczna1 {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej1_example k
         adres_zamieszkania = x_t_osoba_fizyczna1_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna1_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna1_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna1_adres_zamieszkania {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_fizyczna5_example (k : i32) : x_t_osoba_fizyczna5 =
-    {
+    x_t_osoba_fizyczna5 {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej_example k
         adres_zamieszkania = x_t_osoba_fizyczna5_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna5_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna5_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna5_adres_zamieszkania {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_fizyczna3_example (k : i32) : x_t_osoba_fizyczna3 =
-    {
+    x_t_osoba_fizyczna3 {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej1_example k
         adres_zamieszkania = x_t_osoba_fizyczna3_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna3_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna3_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna3_adres_zamieszkania {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_fizyczna2_example (k : i32) : x_t_osoba_fizyczna2 =
-    {
+    x_t_osoba_fizyczna2 {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej2_example k
         adres_zamieszkania = x_t_osoba_fizyczna2_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna2_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna2_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna2_adres_zamieszkania {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_niefizyczna_example (k : i32) : x_t_osoba_niefizyczna =
-    {
+    x_t_osoba_niefizyczna {
         osoba_niefizyczna = x_t_identyfikator_osoby_niefizycznej_example k
         adres_siedziby = x_t_osoba_niefizyczna_adres_siedziby_example k
     }
 
 and let x_t_osoba_niefizyczna_adres_siedziby_example (k : i32) : x_t_osoba_niefizyczna_adres_siedziby =
-    {
+    x_t_osoba_niefizyczna_adres_siedziby {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_niefizyczna1_example (k : i32) : x_t_osoba_niefizyczna1 =
-    {
+    x_t_osoba_niefizyczna1 {
         osoba_niefizyczna = x_t_identyfikator_osoby_niefizycznej_example k
         adres_siedziby = x_t_osoba_niefizyczna1_adres_siedziby_example k
     }
 
 and let x_t_osoba_niefizyczna1_adres_siedziby_example (k : i32) : x_t_osoba_niefizyczna1_adres_siedziby =
-    {
+    x_t_osoba_niefizyczna1_adres_siedziby {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_niefizyczna2_example (k : i32) : x_t_osoba_niefizyczna2 =
-    {
+    x_t_osoba_niefizyczna2 {
         osoba_niefizyczna = x_t_identyfikator_osoby_niefizycznej1_example k
         adres_siedziby = x_t_osoba_niefizyczna2_adres_siedziby_example k
     }
 
 and let x_t_osoba_niefizyczna2_adres_siedziby_example (k : i32) : x_t_osoba_niefizyczna2_adres_siedziby =
-    {
+    x_t_osoba_niefizyczna2_adres_siedziby {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_fizyczna4_example (k : i32) : x_t_osoba_fizyczna4 =
-    {
+    x_t_osoba_fizyczna4 {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej2_example k
         adres_zamieszkania = x_t_osoba_fizyczna4_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna4_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna4_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna4_adres_zamieszkania {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_podmiot_dowolny_example (k : i32) : x_t_podmiot_dowolny =
-    {
+    x_t_podmiot_dowolny {
         base = x_t_podmiot_dowolny_bez_adresu_example k
         adres_zamieszkania_siedziby = x_t_podmiot_dowolny_adres_zamieszkania_siedziby_example k
     }
@@ -16972,37 +16974,37 @@ and let x_t_podmiot_dowolny_adres_zamieszkania_siedziby_example
     (k : i32)
     : x_t_podmiot_dowolny_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny_adres_zamieszkania_siedziby {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_fizyczna_pelna_example (k : i32) : x_t_osoba_fizyczna_pelna =
-    {
+    x_t_osoba_fizyczna_pelna {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej_pelny_example k
         adres_zamieszkania = x_t_osoba_fizyczna_pelna_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna_pelna_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna_pelna_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna_pelna_adres_zamieszkania {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_fizyczna_pelna1_example (k : i32) : x_t_osoba_fizyczna_pelna1 =
-    {
+    x_t_osoba_fizyczna_pelna1 {
         osoba_fizyczna = x_t_identyfikator_osoby_fizycznej_pelny_example k
         adres_zamieszkania = x_t_osoba_fizyczna_pelna1_adres_zamieszkania_example k
     }
 
 and let x_t_osoba_fizyczna_pelna1_adres_zamieszkania_example (k : i32) : x_t_osoba_fizyczna_pelna1_adres_zamieszkania =
-    {
+    x_t_osoba_fizyczna_pelna1_adres_zamieszkania {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_podmiot_dowolny1_example (k : i32) : x_t_podmiot_dowolny1 =
-    {
+    x_t_podmiot_dowolny1 {
         base = x_t_podmiot_dowolny_bez_adresu_example k
         adres_zamieszkania_siedziby = x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_example k
     }
@@ -17011,13 +17013,13 @@ and let x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_example
     (k : i32)
     : x_t_podmiot_dowolny1_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny1_adres_zamieszkania_siedziby {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_podmiot_dowolny2_example (k : i32) : x_t_podmiot_dowolny2 =
-    {
+    x_t_podmiot_dowolny2 {
         base = x_t_podmiot_dowolny_bez_adresu3_example k
         adres_zamieszkania_siedziby = x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_example k
     }
@@ -17026,25 +17028,25 @@ and let x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_example
     (k : i32)
     : x_t_podmiot_dowolny2_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny2_adres_zamieszkania_siedziby {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_osoba_niefizyczna_pelna_example (k : i32) : x_t_osoba_niefizyczna_pelna =
-    {
+    x_t_osoba_niefizyczna_pelna {
         osoba_niefizyczna = x_t_identyfikator_osoby_niefizycznej_pelny_example k
         adres_siedziby = x_t_osoba_niefizyczna_pelna_adres_siedziby_example k
     }
 
 and let x_t_osoba_niefizyczna_pelna_adres_siedziby_example (k : i32) : x_t_osoba_niefizyczna_pelna_adres_siedziby =
-    {
+    x_t_osoba_niefizyczna_pelna_adres_siedziby {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
 
 and let x_t_podmiot_dowolny_pelny_example (k : i32) : x_t_podmiot_dowolny_pelny =
-    {
+    x_t_podmiot_dowolny_pelny {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_pelny_choice_osoba_fizyczna_example k
         adres_zamieszkania_siedziby = x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_example k
     }
@@ -17053,7 +17055,7 @@ and let x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_example
     (k : i32)
     : x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby {
         base = x_definicje_typy_t_adres_example k
         rodzaj_adresu = "RAD"
     }
@@ -17065,7 +17067,7 @@ and let x_t_podmiot_dowolny_pelny_choice_osoba_fizyczna_example
     TPodmiotDowolnyPelny_choice_OsobaFizyczna_OsobaFizyczna (x_t_identyfikator_osoby_fizycznej_pelny_example k)
 
 and let x_t_podmiot_dowolny_pelny1_example (k : i32) : x_t_podmiot_dowolny_pelny1 =
-    {
+    x_t_podmiot_dowolny_pelny1 {
         choice_osoba_fizyczna = x_t_podmiot_dowolny_pelny1_choice_osoba_fizyczna_example k
         adres_zamieszkania_siedziby = x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_example k
     }
@@ -17074,7 +17076,7 @@ and let x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_example
     (k : i32)
     : x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby
     =
-    {
+    x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
@@ -17086,16 +17088,510 @@ and let x_t_podmiot_dowolny_pelny1_choice_osoba_fizyczna_example
     TPodmiotDowolnyPelny1_choice_OsobaFizyczna_OsobaFizyczna (x_t_identyfikator_osoby_fizycznej_pelny_example k)
 
 and let x_t_osoba_niefizyczna_pelna1_example (k : i32) : x_t_osoba_niefizyczna_pelna1 =
-    {
+    x_t_osoba_niefizyczna_pelna1 {
         osoba_niefizyczna = x_t_identyfikator_osoby_niefizycznej_pelny_example k
         adres_siedziby = x_t_osoba_niefizyczna_pelna1_adres_siedziby_example k
     }
 
 and let x_t_osoba_niefizyczna_pelna1_adres_siedziby_example (k : i32) : x_t_osoba_niefizyczna_pelna1_adres_siedziby =
-    {
+    x_t_osoba_niefizyczna_pelna1_adres_siedziby {
         base = x_t_adres1_example k
         rodzaj_adresu = "RAD"
     }
+
+
+instance of_xml x_faktura = x_faktura_of_xml
+instance to_xml x_faktura = x_faktura_to_xml
+
+instance of_xml x_faktura_zalacznik = x_faktura_zalacznik_of_xml
+instance to_xml x_faktura_zalacznik = x_faktura_zalacznik_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych = x_faktura_zalacznik_blok_danych_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych = x_faktura_zalacznik_blok_danych_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tabela = x_faktura_zalacznik_blok_danych_tabela_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tabela = x_faktura_zalacznik_blok_danych_tabela_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tabela_suma = x_faktura_zalacznik_blok_danych_tabela_suma_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tabela_suma = x_faktura_zalacznik_blok_danych_tabela_suma_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tabela_wiersz = x_faktura_zalacznik_blok_danych_tabela_wiersz_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tabela_wiersz = x_faktura_zalacznik_blok_danych_tabela_wiersz_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tabela_t_naglowek =
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tabela_t_naglowek =
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol =
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol =
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom =
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom =
+    x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_n_kom_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tabela_t_meta_dane =
+    x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tabela_t_meta_dane =
+    x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_tekst = x_faktura_zalacznik_blok_danych_tekst_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_tekst = x_faktura_zalacznik_blok_danych_tekst_to_xml
+
+instance of_xml x_faktura_zalacznik_blok_danych_meta_dane = x_faktura_zalacznik_blok_danych_meta_dane_of_xml
+instance to_xml x_faktura_zalacznik_blok_danych_meta_dane = x_faktura_zalacznik_blok_danych_meta_dane_to_xml
+
+instance of_xml x_faktura_stopka = x_faktura_stopka_of_xml
+instance to_xml x_faktura_stopka = x_faktura_stopka_to_xml
+
+instance of_xml x_faktura_stopka_rejestry = x_faktura_stopka_rejestry_of_xml
+instance to_xml x_faktura_stopka_rejestry = x_faktura_stopka_rejestry_to_xml
+
+instance of_xml x_faktura_stopka_informacje = x_faktura_stopka_informacje_of_xml
+instance to_xml x_faktura_stopka_informacje = x_faktura_stopka_informacje_to_xml
+
+instance of_xml x_faktura_fa = x_faktura_fa_of_xml
+instance to_xml x_faktura_fa = x_faktura_fa_to_xml
+
+instance of_xml x_faktura_fa_zamowienie = x_faktura_fa_zamowienie_of_xml
+instance to_xml x_faktura_fa_zamowienie = x_faktura_fa_zamowienie_to_xml
+
+instance of_xml x_faktura_fa_zamowienie_zamowienie_wiersz = x_faktura_fa_zamowienie_zamowienie_wiersz_of_xml
+instance to_xml x_faktura_fa_zamowienie_zamowienie_wiersz = x_faktura_fa_zamowienie_zamowienie_wiersz_to_xml
+
+instance of_xml x_faktura_fa_warunki_transakcji = x_faktura_fa_warunki_transakcji_of_xml
+instance to_xml x_faktura_fa_warunki_transakcji = x_faktura_fa_warunki_transakcji_to_xml
+
+instance of_xml x_faktura_fa_warunki_transakcji_transport = x_faktura_fa_warunki_transakcji_transport_of_xml
+instance to_xml x_faktura_fa_warunki_transakcji_transport = x_faktura_fa_warunki_transakcji_transport_to_xml
+
+instance of_xml x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny =
+    x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_of_xml
+instance to_xml x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny =
+    x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_to_xml
+
+instance of_xml x_faktura_fa_warunki_transakcji_transport_przewoznik =
+    x_faktura_fa_warunki_transakcji_transport_przewoznik_of_xml
+instance to_xml x_faktura_fa_warunki_transakcji_transport_przewoznik =
+    x_faktura_fa_warunki_transakcji_transport_przewoznik_to_xml
+
+instance of_xml x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny =
+    x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny_of_xml
+instance to_xml x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny =
+    x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny_to_xml
+
+instance of_xml x_faktura_fa_warunki_transakcji_zamowienia = x_faktura_fa_warunki_transakcji_zamowienia_of_xml
+instance to_xml x_faktura_fa_warunki_transakcji_zamowienia = x_faktura_fa_warunki_transakcji_zamowienia_to_xml
+
+instance of_xml x_faktura_fa_warunki_transakcji_umowy = x_faktura_fa_warunki_transakcji_umowy_of_xml
+instance to_xml x_faktura_fa_warunki_transakcji_umowy = x_faktura_fa_warunki_transakcji_umowy_to_xml
+
+instance of_xml x_faktura_fa_platnosc = x_faktura_fa_platnosc_of_xml
+instance to_xml x_faktura_fa_platnosc = x_faktura_fa_platnosc_to_xml
+
+instance of_xml x_faktura_fa_platnosc_skonto = x_faktura_fa_platnosc_skonto_of_xml
+instance to_xml x_faktura_fa_platnosc_skonto = x_faktura_fa_platnosc_skonto_to_xml
+
+instance of_xml x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna =
+    x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_of_xml
+instance to_xml x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna =
+    x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_to_xml
+
+instance of_xml x_faktura_fa_platnosc_termin_platnosci = x_faktura_fa_platnosc_termin_platnosci_of_xml
+instance to_xml x_faktura_fa_platnosc_termin_platnosci = x_faktura_fa_platnosc_termin_platnosci_to_xml
+
+instance of_xml x_faktura_fa_platnosc_termin_platnosci_termin_opis =
+    x_faktura_fa_platnosc_termin_platnosci_termin_opis_of_xml
+instance to_xml x_faktura_fa_platnosc_termin_platnosci_termin_opis =
+    x_faktura_fa_platnosc_termin_platnosci_termin_opis_to_xml
+
+instance of_xml x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej =
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_of_xml
+instance to_xml x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej =
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_to_xml
+
+instance of_xml x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa =
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_of_xml
+instance to_xml x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa =
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_to_xml
+
+instance
+    of_xml
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna
+    =
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna_of_xml
+instance
+    to_xml
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna
+    =
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna_to_xml
+
+instance of_xml x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono =
+    x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_of_xml
+instance to_xml x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono =
+    x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_to_xml
+
+instance of_xml x_faktura_fa_rozliczenie = x_faktura_fa_rozliczenie_of_xml
+instance to_xml x_faktura_fa_rozliczenie = x_faktura_fa_rozliczenie_to_xml
+
+instance of_xml x_faktura_fa_rozliczenie_odliczenia = x_faktura_fa_rozliczenie_odliczenia_of_xml
+instance to_xml x_faktura_fa_rozliczenie_odliczenia = x_faktura_fa_rozliczenie_odliczenia_to_xml
+
+instance of_xml x_faktura_fa_rozliczenie_obciazenia = x_faktura_fa_rozliczenie_obciazenia_of_xml
+instance to_xml x_faktura_fa_rozliczenie_obciazenia = x_faktura_fa_rozliczenie_obciazenia_to_xml
+
+instance of_xml x_faktura_fa_fa_wiersz = x_faktura_fa_fa_wiersz_of_xml
+instance to_xml x_faktura_fa_fa_wiersz = x_faktura_fa_fa_wiersz_to_xml
+
+instance of_xml x_faktura_fa_faktura_zaliczkowa = x_faktura_fa_faktura_zaliczkowa_of_xml
+instance to_xml x_faktura_fa_faktura_zaliczkowa = x_faktura_fa_faktura_zaliczkowa_to_xml
+
+instance of_xml x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn =
+    x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_of_xml
+instance to_xml x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn =
+    x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_to_xml
+
+instance of_xml x_faktura_fa_zaliczka_czesciowa = x_faktura_fa_zaliczka_czesciowa_of_xml
+instance to_xml x_faktura_fa_zaliczka_czesciowa = x_faktura_fa_zaliczka_czesciowa_to_xml
+
+instance of_xml x_faktura_fa_podmiot2_k = x_faktura_fa_podmiot2_k_of_xml
+instance to_xml x_faktura_fa_podmiot2_k = x_faktura_fa_podmiot2_k_to_xml
+
+instance of_xml x_faktura_fa_podmiot1_k = x_faktura_fa_podmiot1_k_of_xml
+instance to_xml x_faktura_fa_podmiot1_k = x_faktura_fa_podmiot1_k_to_xml
+
+instance of_xml x_faktura_fa_dane_fa_korygowanej = x_faktura_fa_dane_fa_korygowanej_of_xml
+instance to_xml x_faktura_fa_dane_fa_korygowanej = x_faktura_fa_dane_fa_korygowanej_to_xml
+
+instance of_xml x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f =
+    x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_of_xml
+instance to_xml x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f =
+    x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_to_xml
+
+instance of_xml x_faktura_fa_adnotacje = x_faktura_fa_adnotacje_of_xml
+instance to_xml x_faktura_fa_adnotacje = x_faktura_fa_adnotacje_to_xml
+
+instance of_xml x_faktura_fa_adnotacje_p_marzy = x_faktura_fa_adnotacje_p_marzy_of_xml
+instance to_xml x_faktura_fa_adnotacje_p_marzy = x_faktura_fa_adnotacje_p_marzy_to_xml
+
+instance of_xml x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy =
+    x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_of_xml
+instance to_xml x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy =
+    x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_to_xml
+
+instance of_xml x_faktura_fa_adnotacje_nowe_srodki_transportu = x_faktura_fa_adnotacje_nowe_srodki_transportu_of_xml
+instance to_xml x_faktura_fa_adnotacje_nowe_srodki_transportu = x_faktura_fa_adnotacje_nowe_srodki_transportu_to_xml
+
+instance of_xml x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22 =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_of_xml
+instance to_xml x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22 =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_to_xml
+
+instance of_xml x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_of_xml
+instance to_xml x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_to_xml
+
+instance
+    of_xml
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d
+    =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d_of_xml
+instance
+    to_xml
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d
+    =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d_to_xml
+
+instance
+    of_xml
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c
+    =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c_of_xml
+instance
+    to_xml
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c
+    =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c_to_xml
+
+instance
+    of_xml
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b
+    =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_of_xml
+instance
+    to_xml
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b
+    =
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_to_xml
+
+instance of_xml x_faktura_fa_adnotacje_zwolnienie = x_faktura_fa_adnotacje_zwolnienie_of_xml
+instance to_xml x_faktura_fa_adnotacje_zwolnienie = x_faktura_fa_adnotacje_zwolnienie_to_xml
+
+instance of_xml x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19 =
+    x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_of_xml
+instance to_xml x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19 =
+    x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_to_xml
+
+instance of_xml x_faktura_fa_choice_p_6_okres_fa = x_faktura_fa_choice_p_6_okres_fa_of_xml
+instance to_xml x_faktura_fa_choice_p_6_okres_fa = x_faktura_fa_choice_p_6_okres_fa_to_xml
+
+instance of_xml x_faktura_podmiot_upowazniony = x_faktura_podmiot_upowazniony_of_xml
+instance to_xml x_faktura_podmiot_upowazniony = x_faktura_podmiot_upowazniony_to_xml
+
+instance of_xml x_faktura_podmiot_upowazniony_dane_kontaktowe = x_faktura_podmiot_upowazniony_dane_kontaktowe_of_xml
+instance to_xml x_faktura_podmiot_upowazniony_dane_kontaktowe = x_faktura_podmiot_upowazniony_dane_kontaktowe_to_xml
+
+instance of_xml x_faktura_podmiot3 = x_faktura_podmiot3_of_xml
+instance to_xml x_faktura_podmiot3 = x_faktura_podmiot3_to_xml
+
+instance of_xml x_faktura_podmiot3_choice_rola_group_rola_inna = x_faktura_podmiot3_choice_rola_group_rola_inna_of_xml
+instance to_xml x_faktura_podmiot3_choice_rola_group_rola_inna = x_faktura_podmiot3_choice_rola_group_rola_inna_to_xml
+
+instance of_xml x_faktura_podmiot3_dane_kontaktowe = x_faktura_podmiot3_dane_kontaktowe_of_xml
+instance to_xml x_faktura_podmiot3_dane_kontaktowe = x_faktura_podmiot3_dane_kontaktowe_to_xml
+
+instance of_xml x_faktura_podmiot2 = x_faktura_podmiot2_of_xml
+instance to_xml x_faktura_podmiot2 = x_faktura_podmiot2_to_xml
+
+instance of_xml x_faktura_podmiot2_dane_kontaktowe = x_faktura_podmiot2_dane_kontaktowe_of_xml
+instance to_xml x_faktura_podmiot2_dane_kontaktowe = x_faktura_podmiot2_dane_kontaktowe_to_xml
+
+instance of_xml x_faktura_podmiot1 = x_faktura_podmiot1_of_xml
+instance to_xml x_faktura_podmiot1 = x_faktura_podmiot1_to_xml
+
+instance of_xml x_faktura_podmiot1_dane_kontaktowe = x_faktura_podmiot1_dane_kontaktowe_of_xml
+instance to_xml x_faktura_podmiot1_dane_kontaktowe = x_faktura_podmiot1_dane_kontaktowe_to_xml
+
+instance of_xml x_faktura_podmiot1_adres_koresp = x_faktura_podmiot1_adres_koresp_of_xml
+instance to_xml x_faktura_podmiot1_adres_koresp = x_faktura_podmiot1_adres_koresp_to_xml
+
+instance of_xml x_t_naglowek = x_t_naglowek_of_xml
+instance to_xml x_t_naglowek = x_t_naglowek_to_xml
+
+instance of_xml x_t_naglowek_kod_formularza = x_t_naglowek_kod_formularza_of_xml
+instance to_xml x_t_naglowek_kod_formularza = x_t_naglowek_kod_formularza_to_xml
+
+instance of_xml x_t_adres = x_t_adres_of_xml
+instance to_xml x_t_adres = x_t_adres_to_xml
+
+instance of_xml x_t_klucz_wartosc = x_t_klucz_wartosc_of_xml
+instance to_xml x_t_klucz_wartosc = x_t_klucz_wartosc_to_xml
+
+instance of_xml x_t_rachunek_bankowy = x_t_rachunek_bankowy_of_xml
+instance to_xml x_t_rachunek_bankowy = x_t_rachunek_bankowy_to_xml
+
+instance of_xml x_t_podmiot1 = x_t_podmiot1_of_xml
+instance to_xml x_t_podmiot1 = x_t_podmiot1_to_xml
+
+instance of_xml x_t_podmiot2 = x_t_podmiot2_of_xml
+instance to_xml x_t_podmiot2 = x_t_podmiot2_to_xml
+
+instance of_xml x_t_podmiot2_choice_nip_group_kod_kraju = x_t_podmiot2_choice_nip_group_kod_kraju_of_xml
+instance to_xml x_t_podmiot2_choice_nip_group_kod_kraju = x_t_podmiot2_choice_nip_group_kod_kraju_to_xml
+
+instance of_xml x_t_podmiot2_choice_nip_group_kod_ue = x_t_podmiot2_choice_nip_group_kod_ue_of_xml
+instance to_xml x_t_podmiot2_choice_nip_group_kod_ue = x_t_podmiot2_choice_nip_group_kod_ue_to_xml
+
+instance of_xml x_t_podmiot3 = x_t_podmiot3_of_xml
+instance to_xml x_t_podmiot3 = x_t_podmiot3_to_xml
+
+instance of_xml x_t_podmiot3_choice_nip_group_kod_kraju = x_t_podmiot3_choice_nip_group_kod_kraju_of_xml
+instance to_xml x_t_podmiot3_choice_nip_group_kod_kraju = x_t_podmiot3_choice_nip_group_kod_kraju_to_xml
+
+instance of_xml x_t_podmiot3_choice_nip_group_kod_ue = x_t_podmiot3_choice_nip_group_kod_ue_of_xml
+instance to_xml x_t_podmiot3_choice_nip_group_kod_ue = x_t_podmiot3_choice_nip_group_kod_ue_to_xml
+
+instance of_xml x_definicje_typy_t_adres = x_definicje_typy_t_adres_of_xml
+instance to_xml x_definicje_typy_t_adres = x_definicje_typy_t_adres_to_xml
+
+instance of_xml x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr =
+    x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_of_xml
+instance to_xml x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr =
+    x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_to_xml
+
+instance of_xml x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol =
+    x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_of_xml
+instance to_xml x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol =
+    x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_to_xml
+
+instance of_xml x_t_adres1 = x_t_adres1_of_xml
+instance to_xml x_t_adres1 = x_t_adres1_to_xml
+
+instance of_xml x_t_adres1_choice_adres_pol_group_adres_zagr = x_t_adres1_choice_adres_pol_group_adres_zagr_of_xml
+instance to_xml x_t_adres1_choice_adres_pol_group_adres_zagr = x_t_adres1_choice_adres_pol_group_adres_zagr_to_xml
+
+instance of_xml x_t_adres1_choice_adres_pol_group_adres_pol = x_t_adres1_choice_adres_pol_group_adres_pol_of_xml
+instance to_xml x_t_adres1_choice_adres_pol_group_adres_pol = x_t_adres1_choice_adres_pol_group_adres_pol_to_xml
+
+instance of_xml x_t_adres_polski = x_t_adres_polski_of_xml
+instance to_xml x_t_adres_polski = x_t_adres_polski_to_xml
+
+instance of_xml x_t_adres_polski1 = x_t_adres_polski1_of_xml
+instance to_xml x_t_adres_polski1 = x_t_adres_polski1_to_xml
+
+instance of_xml x_t_adres_zagraniczny = x_t_adres_zagraniczny_of_xml
+instance to_xml x_t_adres_zagraniczny = x_t_adres_zagraniczny_to_xml
+
+instance of_xml x_t_identyfikator_osoby_fizycznej = x_t_identyfikator_osoby_fizycznej_of_xml
+instance to_xml x_t_identyfikator_osoby_fizycznej = x_t_identyfikator_osoby_fizycznej_to_xml
+
+instance of_xml x_t_identyfikator_osoby_fizycznej1 = x_t_identyfikator_osoby_fizycznej1_of_xml
+instance to_xml x_t_identyfikator_osoby_fizycznej1 = x_t_identyfikator_osoby_fizycznej1_to_xml
+
+instance of_xml x_t_identyfikator_osoby_fizycznej2 = x_t_identyfikator_osoby_fizycznej2_of_xml
+instance to_xml x_t_identyfikator_osoby_fizycznej2 = x_t_identyfikator_osoby_fizycznej2_to_xml
+
+instance of_xml x_t_identyfikator_osoby_fizycznej_pelny = x_t_identyfikator_osoby_fizycznej_pelny_of_xml
+instance to_xml x_t_identyfikator_osoby_fizycznej_pelny = x_t_identyfikator_osoby_fizycznej_pelny_to_xml
+
+instance of_xml x_t_identyfikator_osoby_fizycznej_zagranicznej = x_t_identyfikator_osoby_fizycznej_zagranicznej_of_xml
+instance to_xml x_t_identyfikator_osoby_fizycznej_zagranicznej = x_t_identyfikator_osoby_fizycznej_zagranicznej_to_xml
+
+instance of_xml x_t_identyfikator_osoby_niefizycznej = x_t_identyfikator_osoby_niefizycznej_of_xml
+instance to_xml x_t_identyfikator_osoby_niefizycznej = x_t_identyfikator_osoby_niefizycznej_to_xml
+
+instance of_xml x_t_identyfikator_osoby_niefizycznej1 = x_t_identyfikator_osoby_niefizycznej1_of_xml
+instance to_xml x_t_identyfikator_osoby_niefizycznej1 = x_t_identyfikator_osoby_niefizycznej1_to_xml
+
+instance of_xml x_t_identyfikator_osoby_niefizycznej_pelny = x_t_identyfikator_osoby_niefizycznej_pelny_of_xml
+instance to_xml x_t_identyfikator_osoby_niefizycznej_pelny = x_t_identyfikator_osoby_niefizycznej_pelny_to_xml
+
+instance of_xml x_t_identyfikator_osoby_niefizycznej_zagranicznej =
+    x_t_identyfikator_osoby_niefizycznej_zagranicznej_of_xml
+instance to_xml x_t_identyfikator_osoby_niefizycznej_zagranicznej =
+    x_t_identyfikator_osoby_niefizycznej_zagranicznej_to_xml
+
+instance of_xml x_t_podmiot_dowolny_bez_adresu = x_t_podmiot_dowolny_bez_adresu_of_xml
+instance to_xml x_t_podmiot_dowolny_bez_adresu = x_t_podmiot_dowolny_bez_adresu_to_xml
+
+instance of_xml x_t_podmiot_dowolny_bez_adresu1 = x_t_podmiot_dowolny_bez_adresu1_of_xml
+instance to_xml x_t_podmiot_dowolny_bez_adresu1 = x_t_podmiot_dowolny_bez_adresu1_to_xml
+
+instance of_xml x_t_podmiot_dowolny_bez_adresu2 = x_t_podmiot_dowolny_bez_adresu2_of_xml
+instance to_xml x_t_podmiot_dowolny_bez_adresu2 = x_t_podmiot_dowolny_bez_adresu2_to_xml
+
+instance of_xml x_t_podmiot_dowolny_bez_adresu3 = x_t_podmiot_dowolny_bez_adresu3_of_xml
+instance to_xml x_t_podmiot_dowolny_bez_adresu3 = x_t_podmiot_dowolny_bez_adresu3_to_xml
+
+instance of_xml x_t_osoba_fizyczna = x_t_osoba_fizyczna_of_xml
+instance to_xml x_t_osoba_fizyczna = x_t_osoba_fizyczna_to_xml
+
+instance of_xml x_t_osoba_fizyczna_adres_zamieszkania = x_t_osoba_fizyczna_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna_adres_zamieszkania = x_t_osoba_fizyczna_adres_zamieszkania_to_xml
+
+instance of_xml x_t_osoba_fizyczna1 = x_t_osoba_fizyczna1_of_xml
+instance to_xml x_t_osoba_fizyczna1 = x_t_osoba_fizyczna1_to_xml
+
+instance of_xml x_t_osoba_fizyczna1_adres_zamieszkania = x_t_osoba_fizyczna1_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna1_adres_zamieszkania = x_t_osoba_fizyczna1_adres_zamieszkania_to_xml
+
+instance of_xml x_t_osoba_fizyczna5 = x_t_osoba_fizyczna5_of_xml
+instance to_xml x_t_osoba_fizyczna5 = x_t_osoba_fizyczna5_to_xml
+
+instance of_xml x_t_osoba_fizyczna5_adres_zamieszkania = x_t_osoba_fizyczna5_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna5_adres_zamieszkania = x_t_osoba_fizyczna5_adres_zamieszkania_to_xml
+
+instance of_xml x_t_osoba_fizyczna3 = x_t_osoba_fizyczna3_of_xml
+instance to_xml x_t_osoba_fizyczna3 = x_t_osoba_fizyczna3_to_xml
+
+instance of_xml x_t_osoba_fizyczna3_adres_zamieszkania = x_t_osoba_fizyczna3_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna3_adres_zamieszkania = x_t_osoba_fizyczna3_adres_zamieszkania_to_xml
+
+instance of_xml x_t_osoba_fizyczna2 = x_t_osoba_fizyczna2_of_xml
+instance to_xml x_t_osoba_fizyczna2 = x_t_osoba_fizyczna2_to_xml
+
+instance of_xml x_t_osoba_fizyczna2_adres_zamieszkania = x_t_osoba_fizyczna2_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna2_adres_zamieszkania = x_t_osoba_fizyczna2_adres_zamieszkania_to_xml
+
+instance of_xml x_t_osoba_niefizyczna = x_t_osoba_niefizyczna_of_xml
+instance to_xml x_t_osoba_niefizyczna = x_t_osoba_niefizyczna_to_xml
+
+instance of_xml x_t_osoba_niefizyczna_adres_siedziby = x_t_osoba_niefizyczna_adres_siedziby_of_xml
+instance to_xml x_t_osoba_niefizyczna_adres_siedziby = x_t_osoba_niefizyczna_adres_siedziby_to_xml
+
+instance of_xml x_t_osoba_niefizyczna1 = x_t_osoba_niefizyczna1_of_xml
+instance to_xml x_t_osoba_niefizyczna1 = x_t_osoba_niefizyczna1_to_xml
+
+instance of_xml x_t_osoba_niefizyczna1_adres_siedziby = x_t_osoba_niefizyczna1_adres_siedziby_of_xml
+instance to_xml x_t_osoba_niefizyczna1_adres_siedziby = x_t_osoba_niefizyczna1_adres_siedziby_to_xml
+
+instance of_xml x_t_osoba_niefizyczna2 = x_t_osoba_niefizyczna2_of_xml
+instance to_xml x_t_osoba_niefizyczna2 = x_t_osoba_niefizyczna2_to_xml
+
+instance of_xml x_t_osoba_niefizyczna2_adres_siedziby = x_t_osoba_niefizyczna2_adres_siedziby_of_xml
+instance to_xml x_t_osoba_niefizyczna2_adres_siedziby = x_t_osoba_niefizyczna2_adres_siedziby_to_xml
+
+instance of_xml x_t_osoba_fizyczna4 = x_t_osoba_fizyczna4_of_xml
+instance to_xml x_t_osoba_fizyczna4 = x_t_osoba_fizyczna4_to_xml
+
+instance of_xml x_t_osoba_fizyczna4_adres_zamieszkania = x_t_osoba_fizyczna4_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna4_adres_zamieszkania = x_t_osoba_fizyczna4_adres_zamieszkania_to_xml
+
+instance of_xml x_t_podmiot_dowolny = x_t_podmiot_dowolny_of_xml
+instance to_xml x_t_podmiot_dowolny = x_t_podmiot_dowolny_to_xml
+
+instance of_xml x_t_podmiot_dowolny_adres_zamieszkania_siedziby = x_t_podmiot_dowolny_adres_zamieszkania_siedziby_of_xml
+instance to_xml x_t_podmiot_dowolny_adres_zamieszkania_siedziby = x_t_podmiot_dowolny_adres_zamieszkania_siedziby_to_xml
+
+instance of_xml x_t_osoba_fizyczna_pelna = x_t_osoba_fizyczna_pelna_of_xml
+instance to_xml x_t_osoba_fizyczna_pelna = x_t_osoba_fizyczna_pelna_to_xml
+
+instance of_xml x_t_osoba_fizyczna_pelna_adres_zamieszkania = x_t_osoba_fizyczna_pelna_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna_pelna_adres_zamieszkania = x_t_osoba_fizyczna_pelna_adres_zamieszkania_to_xml
+
+instance of_xml x_t_osoba_fizyczna_pelna1 = x_t_osoba_fizyczna_pelna1_of_xml
+instance to_xml x_t_osoba_fizyczna_pelna1 = x_t_osoba_fizyczna_pelna1_to_xml
+
+instance of_xml x_t_osoba_fizyczna_pelna1_adres_zamieszkania = x_t_osoba_fizyczna_pelna1_adres_zamieszkania_of_xml
+instance to_xml x_t_osoba_fizyczna_pelna1_adres_zamieszkania = x_t_osoba_fizyczna_pelna1_adres_zamieszkania_to_xml
+
+instance of_xml x_t_podmiot_dowolny1 = x_t_podmiot_dowolny1_of_xml
+instance to_xml x_t_podmiot_dowolny1 = x_t_podmiot_dowolny1_to_xml
+
+instance of_xml x_t_podmiot_dowolny1_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_of_xml
+instance to_xml x_t_podmiot_dowolny1_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny1_adres_zamieszkania_siedziby_to_xml
+
+instance of_xml x_t_podmiot_dowolny2 = x_t_podmiot_dowolny2_of_xml
+instance to_xml x_t_podmiot_dowolny2 = x_t_podmiot_dowolny2_to_xml
+
+instance of_xml x_t_podmiot_dowolny2_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_of_xml
+instance to_xml x_t_podmiot_dowolny2_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny2_adres_zamieszkania_siedziby_to_xml
+
+instance of_xml x_t_osoba_niefizyczna_pelna = x_t_osoba_niefizyczna_pelna_of_xml
+instance to_xml x_t_osoba_niefizyczna_pelna = x_t_osoba_niefizyczna_pelna_to_xml
+
+instance of_xml x_t_osoba_niefizyczna_pelna_adres_siedziby = x_t_osoba_niefizyczna_pelna_adres_siedziby_of_xml
+instance to_xml x_t_osoba_niefizyczna_pelna_adres_siedziby = x_t_osoba_niefizyczna_pelna_adres_siedziby_to_xml
+
+instance of_xml x_t_podmiot_dowolny_pelny = x_t_podmiot_dowolny_pelny_of_xml
+instance to_xml x_t_podmiot_dowolny_pelny = x_t_podmiot_dowolny_pelny_to_xml
+
+instance of_xml x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_of_xml
+instance to_xml x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny_pelny_adres_zamieszkania_siedziby_to_xml
+
+instance of_xml x_t_podmiot_dowolny_pelny1 = x_t_podmiot_dowolny_pelny1_of_xml
+instance to_xml x_t_podmiot_dowolny_pelny1 = x_t_podmiot_dowolny_pelny1_to_xml
+
+instance of_xml x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_of_xml
+instance to_xml x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby =
+    x_t_podmiot_dowolny_pelny1_adres_zamieszkania_siedziby_to_xml
+
+instance of_xml x_t_osoba_niefizyczna_pelna1 = x_t_osoba_niefizyczna_pelna1_of_xml
+instance to_xml x_t_osoba_niefizyczna_pelna1 = x_t_osoba_niefizyczna_pelna1_to_xml
+
+instance of_xml x_t_osoba_niefizyczna_pelna1_adres_siedziby = x_t_osoba_niefizyczna_pelna1_adres_siedziby_of_xml
+instance to_xml x_t_osoba_niefizyczna_pelna1_adres_siedziby = x_t_osoba_niefizyczna_pelna1_adres_siedziby_to_xml
 
 
 ///> rust

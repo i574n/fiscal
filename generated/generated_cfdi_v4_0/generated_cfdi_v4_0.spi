@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -6355,7 +6357,7 @@ inl x_comprobante_informacion_global_a_o_example (_ : i32) : string = "1"
 inl x_comprobante_informacion_global_a_o_example_text (k : i32) : string =
     x_comprobante_informacion_global_a_o_example k
 
-type x_comprobante_informacion_global =
+nominal x_comprobante_informacion_global =
     {
         periodicidad : x_c_periodicidad
         meses : x_c_meses
@@ -6577,12 +6579,12 @@ inl x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid_example_text (k : i32)
         x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid_example k
     )
 
-type x_comprobante_cfdi_relacionados_cfdi_relacionado =
+nominal x_comprobante_cfdi_relacionados_cfdi_relacionado =
     {
         uuid : x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid
     }
 
-type x_comprobante_cfdi_relacionados =
+nominal x_comprobante_cfdi_relacionados =
     {
         cfdi_relacionado : list (x_comprobante_cfdi_relacionados_cfdi_relacionado)
         tipo_relacion : x_c_tipo_relacion
@@ -6770,7 +6772,7 @@ inl x_comprobante_emisor_fac_atr_adquirente_example (_ : i32) : x_comprobante_em
 inl x_comprobante_emisor_fac_atr_adquirente_example_text (k : i32) : string =
     x_comprobante_emisor_fac_atr_adquirente_to_string (x_comprobante_emisor_fac_atr_adquirente_example k)
 
-type x_comprobante_emisor =
+nominal x_comprobante_emisor =
     {
         rfc : x_t_rfc
         nombre : x_comprobante_emisor_nombre
@@ -6877,7 +6879,7 @@ inl x_comprobante_receptor_num_reg_id_trib_example (_ : i32) : x_comprobante_rec
 inl x_comprobante_receptor_num_reg_id_trib_example_text (k : i32) : string =
     x_comprobante_receptor_num_reg_id_trib_to_string (x_comprobante_receptor_num_reg_id_trib_example k)
 
-type x_comprobante_receptor =
+nominal x_comprobante_receptor =
     {
         rfc : x_t_rfc
         nombre : x_comprobante_receptor_nombre
@@ -6906,7 +6908,7 @@ inl x_comprobante_conceptos_concepto_impuestos_traslados_traslado_tasa_o_cuota_e
 inl x_comprobante_conceptos_concepto_impuestos_traslados_traslado_tasa_o_cuota_example_text (k : i32) : string =
     x_comprobante_conceptos_concepto_impuestos_traslados_traslado_tasa_o_cuota_example k
 
-type x_comprobante_conceptos_concepto_impuestos_traslados_traslado =
+nominal x_comprobante_conceptos_concepto_impuestos_traslados_traslado =
     {
         base : x_comprobante_conceptos_concepto_impuestos_traslados_traslado_base
         impuesto : x_c_impuesto
@@ -6915,7 +6917,7 @@ type x_comprobante_conceptos_concepto_impuestos_traslados_traslado =
         importe : option (x_t_importe)
     }
 
-type x_comprobante_conceptos_concepto_impuestos_traslados =
+nominal x_comprobante_conceptos_concepto_impuestos_traslados =
     {
         traslado : list (x_comprobante_conceptos_concepto_impuestos_traslados_traslado)
     }
@@ -6938,7 +6940,7 @@ inl x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_tasa_o_cuot
 inl x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_tasa_o_cuota_example_text (k : i32) : string =
     x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_tasa_o_cuota_example k
 
-type x_comprobante_conceptos_concepto_impuestos_retenciones_retencion =
+nominal x_comprobante_conceptos_concepto_impuestos_retenciones_retencion =
     {
         base : x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_base
         impuesto : x_c_impuesto
@@ -6947,12 +6949,12 @@ type x_comprobante_conceptos_concepto_impuestos_retenciones_retencion =
         importe : x_t_importe
     }
 
-type x_comprobante_conceptos_concepto_impuestos_retenciones =
+nominal x_comprobante_conceptos_concepto_impuestos_retenciones =
     {
         retencion : list (x_comprobante_conceptos_concepto_impuestos_retenciones_retencion)
     }
 
-type x_comprobante_conceptos_concepto_impuestos =
+nominal x_comprobante_conceptos_concepto_impuestos =
     {
         traslados : option (x_comprobante_conceptos_concepto_impuestos_traslados)
         retenciones : option (x_comprobante_conceptos_concepto_impuestos_retenciones)
@@ -7031,7 +7033,7 @@ inl x_comprobante_conceptos_concepto_a_cuenta_terceros_domicilio_fiscal_a_cuenta
         x_comprobante_conceptos_concepto_a_cuenta_terceros_domicilio_fiscal_a_cuenta_terceros_example k
     )
 
-type x_comprobante_conceptos_concepto_a_cuenta_terceros =
+nominal x_comprobante_conceptos_concepto_a_cuenta_terceros =
     {
         rfc_a_cuenta_terceros : x_t_rfc
         nombre_a_cuenta_terceros : x_comprobante_conceptos_concepto_a_cuenta_terceros_nombre_a_cuenta_terceros
@@ -7143,7 +7145,7 @@ inl x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento_examp
         x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento_example k
     )
 
-type x_comprobante_conceptos_concepto_informacion_aduanera =
+nominal x_comprobante_conceptos_concepto_informacion_aduanera =
     {
         numero_pedimento : x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento
     }
@@ -7237,12 +7239,12 @@ inl x_comprobante_conceptos_concepto_cuenta_predial_numero_example_text (k : i32
         x_comprobante_conceptos_concepto_cuenta_predial_numero_example k
     )
 
-type x_comprobante_conceptos_concepto_cuenta_predial =
+nominal x_comprobante_conceptos_concepto_cuenta_predial =
     {
         numero : x_comprobante_conceptos_concepto_cuenta_predial_numero
     }
 
-type x_comprobante_conceptos_concepto_complemento_concepto =
+nominal x_comprobante_conceptos_concepto_complemento_concepto =
     {
         any : any_content
     }
@@ -7279,7 +7281,7 @@ inl x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento
         x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento_example k
     )
 
-type x_comprobante_conceptos_concepto_parte_informacion_aduanera =
+nominal x_comprobante_conceptos_concepto_parte_informacion_aduanera =
     {
         numero_pedimento : x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento
     }
@@ -7837,7 +7839,7 @@ inl x_comprobante_conceptos_concepto_parte_descripcion_example_text (k : i32) : 
         x_comprobante_conceptos_concepto_parte_descripcion_example k
     )
 
-type x_comprobante_conceptos_concepto_parte =
+nominal x_comprobante_conceptos_concepto_parte =
     {
         informacion_aduanera : list (x_comprobante_conceptos_concepto_parte_informacion_aduanera)
         clave_prod_serv : x_c_clave_prod_serv
@@ -7941,7 +7943,7 @@ inl x_comprobante_conceptos_concepto_descripcion_example (_ : i32) : x_comproban
 inl x_comprobante_conceptos_concepto_descripcion_example_text (k : i32) : string =
     x_comprobante_conceptos_concepto_descripcion_to_string (x_comprobante_conceptos_concepto_descripcion_example k)
 
-type x_comprobante_conceptos_concepto =
+nominal x_comprobante_conceptos_concepto =
     {
         impuestos : option (x_comprobante_conceptos_concepto_impuestos)
         a_cuenta_terceros : option (x_comprobante_conceptos_concepto_a_cuenta_terceros)
@@ -7961,18 +7963,18 @@ type x_comprobante_conceptos_concepto =
         objeto_imp : x_c_objeto_imp
     }
 
-type x_comprobante_conceptos =
+nominal x_comprobante_conceptos =
     {
         concepto : list (x_comprobante_conceptos_concepto)
     }
 
-type x_comprobante_impuestos_retenciones_retencion =
+nominal x_comprobante_impuestos_retenciones_retencion =
     {
         impuesto : x_c_impuesto
         importe : x_t_importe
     }
 
-type x_comprobante_impuestos_retenciones =
+nominal x_comprobante_impuestos_retenciones =
     {
         retencion : list (x_comprobante_impuestos_retenciones_retencion)
     }
@@ -7986,7 +7988,7 @@ inl x_comprobante_impuestos_traslados_traslado_tasa_o_cuota_example (_ : i32) : 
 inl x_comprobante_impuestos_traslados_traslado_tasa_o_cuota_example_text (k : i32) : string =
     x_comprobante_impuestos_traslados_traslado_tasa_o_cuota_example k
 
-type x_comprobante_impuestos_traslados_traslado =
+nominal x_comprobante_impuestos_traslados_traslado =
     {
         base : x_t_importe
         impuesto : x_c_impuesto
@@ -7995,12 +7997,12 @@ type x_comprobante_impuestos_traslados_traslado =
         importe : option (x_t_importe)
     }
 
-type x_comprobante_impuestos_traslados =
+nominal x_comprobante_impuestos_traslados =
     {
         traslado : list (x_comprobante_impuestos_traslados_traslado)
     }
 
-type x_comprobante_impuestos =
+nominal x_comprobante_impuestos =
     {
         retenciones : option (x_comprobante_impuestos_retenciones)
         traslados : option (x_comprobante_impuestos_traslados)
@@ -8008,12 +8010,12 @@ type x_comprobante_impuestos =
         total_impuestos_trasladados : option (x_t_importe)
     }
 
-type x_comprobante_complemento =
+nominal x_comprobante_complemento =
     {
         any : any_content
     }
 
-type x_comprobante_addenda =
+nominal x_comprobante_addenda =
     {
         any : any_content
     }
@@ -8584,7 +8586,7 @@ inl x_comprobante_confirmacion_example (_ : i32) : x_comprobante_confirmacion = 
 inl x_comprobante_confirmacion_example_text (k : i32) : string =
     x_comprobante_confirmacion_to_string (x_comprobante_confirmacion_example k)
 
-type x_comprobante =
+nominal x_comprobante =
     {
         informacion_global : option (x_comprobante_informacion_global)
         cfdi_relacionados : list (x_comprobante_cfdi_relacionados)
@@ -8796,7 +8798,7 @@ inl x_comprobante_cfdi_relacionados_get forall r.
     | Comprobante_CfdiRelacionados_field_CfdiRelacionado => x.cfdi_relacionado
 
 let rec x_comprobante_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_comprobante =
-    {
+    x_comprobante {
         informacion_global =
             optionm.map
                 fun c => x_comprobante_informacion_global_of_xml c
@@ -8876,7 +8878,7 @@ and let x_comprobante_addenda_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_addenda
     =
-    {
+    x_comprobante_addenda {
         any = any_content_of (xml.unclaimed_children [] children)
     }
 
@@ -8887,7 +8889,7 @@ and let x_comprobante_complemento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_complemento
     =
-    {
+    x_comprobante_complemento {
         any = any_content_of (xml.unclaimed_children [] children)
     }
 
@@ -8898,7 +8900,7 @@ and let x_comprobante_impuestos_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_impuestos
     =
-    {
+    x_comprobante_impuestos {
         retenciones =
             optionm.map (fun c => x_comprobante_impuestos_retenciones_of_xml c) (xml.first_child "Retenciones" children)
         traslados =
@@ -8920,7 +8922,7 @@ and let x_comprobante_impuestos_traslados_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_impuestos_traslados
     =
-    {
+    x_comprobante_impuestos_traslados {
         traslado =
             listm.map
                 fun c => x_comprobante_impuestos_traslados_traslado_of_xml c
@@ -8934,7 +8936,7 @@ and let x_comprobante_impuestos_traslados_traslado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_impuestos_traslados_traslado
     =
-    {
+    x_comprobante_impuestos_traslados_traslado {
         base = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Base" attributes))
         impuesto =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
@@ -8956,7 +8958,7 @@ and let x_comprobante_impuestos_retenciones_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_impuestos_retenciones
     =
-    {
+    x_comprobante_impuestos_retenciones {
         retencion =
             listm.map
                 fun c => x_comprobante_impuestos_retenciones_retencion_of_xml c
@@ -8970,7 +8972,7 @@ and let x_comprobante_impuestos_retenciones_retencion_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_impuestos_retenciones_retencion
     =
-    {
+    x_comprobante_impuestos_retenciones_retencion {
         impuesto =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
         importe = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Importe" attributes))
@@ -8986,7 +8988,7 @@ and let x_comprobante_conceptos_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos
     =
-    {
+    x_comprobante_conceptos {
         concepto =
             listm.map (fun c => x_comprobante_conceptos_concepto_of_xml c) (xml.children_named "Concepto" children)
     }
@@ -8998,7 +9000,7 @@ and let x_comprobante_conceptos_concepto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto
     =
-    {
+    x_comprobante_conceptos_concepto {
         impuestos =
             optionm.map
                 fun c => x_comprobante_conceptos_concepto_impuestos_of_xml c
@@ -9072,7 +9074,7 @@ and let x_comprobante_conceptos_concepto_parte_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_parte
     =
-    {
+    x_comprobante_conceptos_concepto_parte {
         informacion_aduanera =
             listm.map
                 fun c => x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_xml c
@@ -9121,7 +9123,7 @@ and let x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_parte_informacion_aduanera
     =
-    {
+    x_comprobante_conceptos_concepto_parte_informacion_aduanera {
         numero_pedimento =
             xml.required_value
                 "x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento"
@@ -9144,7 +9146,7 @@ and let x_comprobante_conceptos_concepto_complemento_concepto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_complemento_concepto
     =
-    {
+    x_comprobante_conceptos_concepto_complemento_concepto {
         any = any_content_of (xml.unclaimed_children [] children)
     }
 
@@ -9160,7 +9162,7 @@ and let x_comprobante_conceptos_concepto_cuenta_predial_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_cuenta_predial
     =
-    {
+    x_comprobante_conceptos_concepto_cuenta_predial {
         numero =
             xml.required_value
                 "x_comprobante_conceptos_concepto_cuenta_predial_numero"
@@ -9181,7 +9183,7 @@ and let x_comprobante_conceptos_concepto_informacion_aduanera_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_informacion_aduanera
     =
-    {
+    x_comprobante_conceptos_concepto_informacion_aduanera {
         numero_pedimento =
             xml.required_value
                 "x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento"
@@ -9204,7 +9206,7 @@ and let x_comprobante_conceptos_concepto_a_cuenta_terceros_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_a_cuenta_terceros
     =
-    {
+    x_comprobante_conceptos_concepto_a_cuenta_terceros {
         rfc_a_cuenta_terceros =
             xml.required_value "x_t_rfc" (x_t_rfc_of_string (xml.required_attribute "RfcACuentaTerceros" attributes))
         nombre_a_cuenta_terceros =
@@ -9239,7 +9241,7 @@ and let x_comprobante_conceptos_concepto_impuestos_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_impuestos
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos {
         traslados =
             optionm.map
                 fun c => x_comprobante_conceptos_concepto_impuestos_traslados_of_xml c
@@ -9257,7 +9259,7 @@ and let x_comprobante_conceptos_concepto_impuestos_retenciones_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_impuestos_retenciones
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_retenciones {
         retencion =
             listm.map
                 fun c => x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_xml c
@@ -9276,7 +9278,7 @@ and let x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_chil
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_impuestos_retenciones_retencion
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_retenciones_retencion {
         base = xml.required_attribute "Base" attributes
         impuesto =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
@@ -9300,7 +9302,7 @@ and let x_comprobante_conceptos_concepto_impuestos_traslados_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_impuestos_traslados
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_traslados {
         traslado =
             listm.map
                 fun c => x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_xml c
@@ -9317,7 +9319,7 @@ and let x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_conceptos_concepto_impuestos_traslados_traslado
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_traslados_traslado {
         base = xml.required_attribute "Base" attributes
         impuesto =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
@@ -9344,7 +9346,7 @@ and let x_comprobante_receptor_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_receptor
     =
-    {
+    x_comprobante_receptor {
         rfc = xml.required_value "x_t_rfc" (x_t_rfc_of_string (xml.required_attribute "Rfc" attributes))
         nombre =
             xml.required_value
@@ -9384,7 +9386,7 @@ and let x_comprobante_emisor_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_emisor
     =
-    {
+    x_comprobante_emisor {
         rfc = xml.required_value "x_t_rfc" (x_t_rfc_of_string (xml.required_attribute "Rfc" attributes))
         nombre =
             xml.required_value
@@ -9410,7 +9412,7 @@ and let x_comprobante_cfdi_relacionados_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_cfdi_relacionados
     =
-    {
+    x_comprobante_cfdi_relacionados {
         cfdi_relacionado =
             listm.map
                 fun c => x_comprobante_cfdi_relacionados_cfdi_relacionado_of_xml c
@@ -9428,7 +9430,7 @@ and let x_comprobante_cfdi_relacionados_cfdi_relacionado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_cfdi_relacionados_cfdi_relacionado
     =
-    {
+    x_comprobante_cfdi_relacionados_cfdi_relacionado {
         uuid =
             xml.required_value
                 "x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid"
@@ -9449,7 +9451,7 @@ and let x_comprobante_informacion_global_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_comprobante_informacion_global
     =
-    {
+    x_comprobante_informacion_global {
         periodicidad =
             xml.required_value
                 "x_c_periodicidad"
@@ -10130,7 +10132,7 @@ and let x_comprobante_informacion_global_to_xml (name : string) (x : x_comproban
     xml.element name (x_comprobante_informacion_global_attributes x) (x_comprobante_informacion_global_children x)
 
 and let x_comprobante_example (k : i32) : x_comprobante =
-    {
+    x_comprobante {
         informacion_global = None
         cfdi_relacionados = []
         emisor = x_comprobante_emisor_example k
@@ -10161,17 +10163,17 @@ and let x_comprobante_example (k : i32) : x_comprobante =
     }
 
 and let x_comprobante_addenda_example (k : i32) : x_comprobante_addenda =
-    {
+    x_comprobante_addenda {
         any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
     }
 
 and let x_comprobante_complemento_example (k : i32) : x_comprobante_complemento =
-    {
+    x_comprobante_complemento {
         any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
     }
 
 and let x_comprobante_impuestos_example (k : i32) : x_comprobante_impuestos =
-    {
+    x_comprobante_impuestos {
         retenciones = None
         traslados = None
         total_impuestos_retenidos = None
@@ -10179,12 +10181,12 @@ and let x_comprobante_impuestos_example (k : i32) : x_comprobante_impuestos =
     }
 
 and let x_comprobante_impuestos_traslados_example (k : i32) : x_comprobante_impuestos_traslados =
-    {
+    x_comprobante_impuestos_traslados {
         traslado = [ x_comprobante_impuestos_traslados_traslado_example (k + 0i32) ]
     }
 
 and let x_comprobante_impuestos_traslados_traslado_example (k : i32) : x_comprobante_impuestos_traslados_traslado =
-    {
+    x_comprobante_impuestos_traslados_traslado {
         base = x_t_importe_example k
         impuesto = x_c_impuesto_example k
         tipo_factor = x_c_tipo_factor_example k
@@ -10193,23 +10195,23 @@ and let x_comprobante_impuestos_traslados_traslado_example (k : i32) : x_comprob
     }
 
 and let x_comprobante_impuestos_retenciones_example (k : i32) : x_comprobante_impuestos_retenciones =
-    {
+    x_comprobante_impuestos_retenciones {
         retencion = [ x_comprobante_impuestos_retenciones_retencion_example (k + 0i32) ]
     }
 
 and let x_comprobante_impuestos_retenciones_retencion_example (k : i32) : x_comprobante_impuestos_retenciones_retencion =
-    {
+    x_comprobante_impuestos_retenciones_retencion {
         impuesto = x_c_impuesto_example k
         importe = x_t_importe_example k
     }
 
 and let x_comprobante_conceptos_example (k : i32) : x_comprobante_conceptos =
-    {
+    x_comprobante_conceptos {
         concepto = [ x_comprobante_conceptos_concepto_example (k + 0i32) ]
     }
 
 and let x_comprobante_conceptos_concepto_example (k : i32) : x_comprobante_conceptos_concepto =
-    {
+    x_comprobante_conceptos_concepto {
         impuestos = None
         a_cuenta_terceros = None
         informacion_aduanera = []
@@ -10229,7 +10231,7 @@ and let x_comprobante_conceptos_concepto_example (k : i32) : x_comprobante_conce
     }
 
 and let x_comprobante_conceptos_concepto_parte_example (k : i32) : x_comprobante_conceptos_concepto_parte =
-    {
+    x_comprobante_conceptos_concepto_parte {
         informacion_aduanera = []
         clave_prod_serv = x_c_clave_prod_serv_example k
         no_identificacion = None
@@ -10244,7 +10246,7 @@ and let x_comprobante_conceptos_concepto_parte_informacion_aduanera_example
     (k : i32)
     : x_comprobante_conceptos_concepto_parte_informacion_aduanera
     =
-    {
+    x_comprobante_conceptos_concepto_parte_informacion_aduanera {
         numero_pedimento = x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento_example k
     }
 
@@ -10252,7 +10254,7 @@ and let x_comprobante_conceptos_concepto_complemento_concepto_example
     (k : i32)
     : x_comprobante_conceptos_concepto_complemento_concepto
     =
-    {
+    x_comprobante_conceptos_concepto_complemento_concepto {
         any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
     }
 
@@ -10260,7 +10262,7 @@ and let x_comprobante_conceptos_concepto_cuenta_predial_example
     (k : i32)
     : x_comprobante_conceptos_concepto_cuenta_predial
     =
-    {
+    x_comprobante_conceptos_concepto_cuenta_predial {
         numero = x_comprobante_conceptos_concepto_cuenta_predial_numero_example k
     }
 
@@ -10268,7 +10270,7 @@ and let x_comprobante_conceptos_concepto_informacion_aduanera_example
     (k : i32)
     : x_comprobante_conceptos_concepto_informacion_aduanera
     =
-    {
+    x_comprobante_conceptos_concepto_informacion_aduanera {
         numero_pedimento = x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento_example k
     }
 
@@ -10276,7 +10278,7 @@ and let x_comprobante_conceptos_concepto_a_cuenta_terceros_example
     (k : i32)
     : x_comprobante_conceptos_concepto_a_cuenta_terceros
     =
-    {
+    x_comprobante_conceptos_concepto_a_cuenta_terceros {
         rfc_a_cuenta_terceros = x_t_rfc_example k
         nombre_a_cuenta_terceros = x_comprobante_conceptos_concepto_a_cuenta_terceros_nombre_a_cuenta_terceros_example k
         regimen_fiscal_a_cuenta_terceros = x_c_regimen_fiscal_example k
@@ -10285,7 +10287,7 @@ and let x_comprobante_conceptos_concepto_a_cuenta_terceros_example
     }
 
 and let x_comprobante_conceptos_concepto_impuestos_example (k : i32) : x_comprobante_conceptos_concepto_impuestos =
-    {
+    x_comprobante_conceptos_concepto_impuestos {
         traslados = None
         retenciones = None
     }
@@ -10294,7 +10296,7 @@ and let x_comprobante_conceptos_concepto_impuestos_retenciones_example
     (k : i32)
     : x_comprobante_conceptos_concepto_impuestos_retenciones
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_retenciones {
         retencion = [ x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_example (k + 0i32) ]
     }
 
@@ -10302,7 +10304,7 @@ and let x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_example
     (k : i32)
     : x_comprobante_conceptos_concepto_impuestos_retenciones_retencion
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_retenciones_retencion {
         base = x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_base_example k
         impuesto = x_c_impuesto_example k
         tipo_factor = x_c_tipo_factor_example k
@@ -10314,7 +10316,7 @@ and let x_comprobante_conceptos_concepto_impuestos_traslados_example
     (k : i32)
     : x_comprobante_conceptos_concepto_impuestos_traslados
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_traslados {
         traslado = [ x_comprobante_conceptos_concepto_impuestos_traslados_traslado_example (k + 0i32) ]
     }
 
@@ -10322,7 +10324,7 @@ and let x_comprobante_conceptos_concepto_impuestos_traslados_traslado_example
     (k : i32)
     : x_comprobante_conceptos_concepto_impuestos_traslados_traslado
     =
-    {
+    x_comprobante_conceptos_concepto_impuestos_traslados_traslado {
         base = x_comprobante_conceptos_concepto_impuestos_traslados_traslado_base_example k
         impuesto = x_c_impuesto_example k
         tipo_factor = x_c_tipo_factor_example k
@@ -10331,7 +10333,7 @@ and let x_comprobante_conceptos_concepto_impuestos_traslados_traslado_example
     }
 
 and let x_comprobante_receptor_example (k : i32) : x_comprobante_receptor =
-    {
+    x_comprobante_receptor {
         rfc = x_t_rfc_example k
         nombre = x_comprobante_receptor_nombre_example k
         domicilio_fiscal_receptor = x_comprobante_receptor_domicilio_fiscal_receptor_example k
@@ -10342,7 +10344,7 @@ and let x_comprobante_receptor_example (k : i32) : x_comprobante_receptor =
     }
 
 and let x_comprobante_emisor_example (k : i32) : x_comprobante_emisor =
-    {
+    x_comprobante_emisor {
         rfc = x_t_rfc_example k
         nombre = x_comprobante_emisor_nombre_example k
         regimen_fiscal = x_c_regimen_fiscal_example k
@@ -10350,7 +10352,7 @@ and let x_comprobante_emisor_example (k : i32) : x_comprobante_emisor =
     }
 
 and let x_comprobante_cfdi_relacionados_example (k : i32) : x_comprobante_cfdi_relacionados =
-    {
+    x_comprobante_cfdi_relacionados {
         cfdi_relacionado = [ x_comprobante_cfdi_relacionados_cfdi_relacionado_example (k + 0i32) ]
         tipo_relacion = x_c_tipo_relacion_example k
     }
@@ -10359,16 +10361,113 @@ and let x_comprobante_cfdi_relacionados_cfdi_relacionado_example
     (k : i32)
     : x_comprobante_cfdi_relacionados_cfdi_relacionado
     =
-    {
+    x_comprobante_cfdi_relacionados_cfdi_relacionado {
         uuid = x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid_example k
     }
 
 and let x_comprobante_informacion_global_example (k : i32) : x_comprobante_informacion_global =
-    {
+    x_comprobante_informacion_global {
         periodicidad = x_c_periodicidad_example k
         meses = x_c_meses_example k
         a_o = x_comprobante_informacion_global_a_o_example k
     }
+
+
+instance of_xml x_comprobante = x_comprobante_of_xml
+instance to_xml x_comprobante = x_comprobante_to_xml
+
+instance of_xml x_comprobante_addenda = x_comprobante_addenda_of_xml
+instance to_xml x_comprobante_addenda = x_comprobante_addenda_to_xml
+
+instance of_xml x_comprobante_complemento = x_comprobante_complemento_of_xml
+instance to_xml x_comprobante_complemento = x_comprobante_complemento_to_xml
+
+instance of_xml x_comprobante_impuestos = x_comprobante_impuestos_of_xml
+instance to_xml x_comprobante_impuestos = x_comprobante_impuestos_to_xml
+
+instance of_xml x_comprobante_impuestos_traslados = x_comprobante_impuestos_traslados_of_xml
+instance to_xml x_comprobante_impuestos_traslados = x_comprobante_impuestos_traslados_to_xml
+
+instance of_xml x_comprobante_impuestos_traslados_traslado = x_comprobante_impuestos_traslados_traslado_of_xml
+instance to_xml x_comprobante_impuestos_traslados_traslado = x_comprobante_impuestos_traslados_traslado_to_xml
+
+instance of_xml x_comprobante_impuestos_retenciones = x_comprobante_impuestos_retenciones_of_xml
+instance to_xml x_comprobante_impuestos_retenciones = x_comprobante_impuestos_retenciones_to_xml
+
+instance of_xml x_comprobante_impuestos_retenciones_retencion = x_comprobante_impuestos_retenciones_retencion_of_xml
+instance to_xml x_comprobante_impuestos_retenciones_retencion = x_comprobante_impuestos_retenciones_retencion_to_xml
+
+instance of_xml x_comprobante_conceptos = x_comprobante_conceptos_of_xml
+instance to_xml x_comprobante_conceptos = x_comprobante_conceptos_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto = x_comprobante_conceptos_concepto_of_xml
+instance to_xml x_comprobante_conceptos_concepto = x_comprobante_conceptos_concepto_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_parte = x_comprobante_conceptos_concepto_parte_of_xml
+instance to_xml x_comprobante_conceptos_concepto_parte = x_comprobante_conceptos_concepto_parte_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_parte_informacion_aduanera =
+    x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_xml
+instance to_xml x_comprobante_conceptos_concepto_parte_informacion_aduanera =
+    x_comprobante_conceptos_concepto_parte_informacion_aduanera_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_complemento_concepto =
+    x_comprobante_conceptos_concepto_complemento_concepto_of_xml
+instance to_xml x_comprobante_conceptos_concepto_complemento_concepto =
+    x_comprobante_conceptos_concepto_complemento_concepto_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_cuenta_predial = x_comprobante_conceptos_concepto_cuenta_predial_of_xml
+instance to_xml x_comprobante_conceptos_concepto_cuenta_predial = x_comprobante_conceptos_concepto_cuenta_predial_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_informacion_aduanera =
+    x_comprobante_conceptos_concepto_informacion_aduanera_of_xml
+instance to_xml x_comprobante_conceptos_concepto_informacion_aduanera =
+    x_comprobante_conceptos_concepto_informacion_aduanera_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_a_cuenta_terceros =
+    x_comprobante_conceptos_concepto_a_cuenta_terceros_of_xml
+instance to_xml x_comprobante_conceptos_concepto_a_cuenta_terceros =
+    x_comprobante_conceptos_concepto_a_cuenta_terceros_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_impuestos = x_comprobante_conceptos_concepto_impuestos_of_xml
+instance to_xml x_comprobante_conceptos_concepto_impuestos = x_comprobante_conceptos_concepto_impuestos_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_impuestos_retenciones =
+    x_comprobante_conceptos_concepto_impuestos_retenciones_of_xml
+instance to_xml x_comprobante_conceptos_concepto_impuestos_retenciones =
+    x_comprobante_conceptos_concepto_impuestos_retenciones_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_impuestos_retenciones_retencion =
+    x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_xml
+instance to_xml x_comprobante_conceptos_concepto_impuestos_retenciones_retencion =
+    x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_impuestos_traslados =
+    x_comprobante_conceptos_concepto_impuestos_traslados_of_xml
+instance to_xml x_comprobante_conceptos_concepto_impuestos_traslados =
+    x_comprobante_conceptos_concepto_impuestos_traslados_to_xml
+
+instance of_xml x_comprobante_conceptos_concepto_impuestos_traslados_traslado =
+    x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_xml
+instance to_xml x_comprobante_conceptos_concepto_impuestos_traslados_traslado =
+    x_comprobante_conceptos_concepto_impuestos_traslados_traslado_to_xml
+
+instance of_xml x_comprobante_receptor = x_comprobante_receptor_of_xml
+instance to_xml x_comprobante_receptor = x_comprobante_receptor_to_xml
+
+instance of_xml x_comprobante_emisor = x_comprobante_emisor_of_xml
+instance to_xml x_comprobante_emisor = x_comprobante_emisor_to_xml
+
+instance of_xml x_comprobante_cfdi_relacionados = x_comprobante_cfdi_relacionados_of_xml
+instance to_xml x_comprobante_cfdi_relacionados = x_comprobante_cfdi_relacionados_to_xml
+
+instance of_xml x_comprobante_cfdi_relacionados_cfdi_relacionado =
+    x_comprobante_cfdi_relacionados_cfdi_relacionado_of_xml
+instance to_xml x_comprobante_cfdi_relacionados_cfdi_relacionado =
+    x_comprobante_cfdi_relacionados_cfdi_relacionado_to_xml
+
+instance of_xml x_comprobante_informacion_global = x_comprobante_informacion_global_of_xml
+instance to_xml x_comprobante_informacion_global = x_comprobante_informacion_global_to_xml
 
 
 ///> rust

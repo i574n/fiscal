@@ -9,5 +9,12 @@ modules:
     corpus
     corpus_checks
     generated_runtime
+    families
     generator
     lifecycle
+    document
+    p2p
+    posting
+    reports
+    profiles
+    sunat

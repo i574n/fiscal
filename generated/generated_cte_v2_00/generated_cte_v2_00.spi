@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -20,6 +22,10 @@ union staged s a =
 union stage s =
     | Unsigned :: stage unsigned
     | Signed :: stage signed
+
+prototype stage_of s : () -> stage s
+instance stage_of unsigned = fun () => Unsigned
+instance stage_of signed = fun () => Signed
 
 inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
     match witness with
@@ -4740,29 +4746,34 @@ inl x_t_cfop_example (_ : i32) : x_t_cfop = x_t_cfop "7001"
 
 inl x_t_cfop_example_text (k : i32) : string = x_t_cfop_to_string (x_t_cfop_example k)
 
-type x_x509_data_type =
+nominal x_x509_data_type =
     {
         x509_certificate : string
     }
 
-type x_key_info_type =
+nominal x_key_info_type =
     {
         x509_data : x_x509_data_type
         id : option (string)
     }
 
-type x_transform_type =
+nominal x_transform_type_group_x_path =
     {
         x_path : string
+    }
+
+nominal x_transform_type =
+    {
+        group_x_path : list (x_transform_type_group_x_path)
         algorithm : x_t_transform_uri
     }
 
-type x_transforms_type =
+nominal x_transforms_type =
     {
         transform : list (x_transform_type)
     }
 
-type x_reference_type_digest_method =
+nominal x_reference_type_digest_method =
     {
         algorithm : string
     }
@@ -4783,7 +4794,7 @@ inl x_reference_type_uri_example (_ : i32) : x_reference_type_uri = x_reference_
 inl x_reference_type_uri_example_text (k : i32) : string =
     x_reference_type_uri_to_string (x_reference_type_uri_example k)
 
-type x_reference_type =
+nominal x_reference_type =
     {
         transforms : x_transforms_type
         digest_method : x_reference_type_digest_method
@@ -4793,17 +4804,17 @@ type x_reference_type =
         type_value : option (string)
     }
 
-type x_signed_info_type_canonicalization_method =
+nominal x_signed_info_type_canonicalization_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type_signature_method =
+nominal x_signed_info_type_signature_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type =
+nominal x_signed_info_type =
     {
         canonicalization_method : x_signed_info_type_canonicalization_method
         signature_method : x_signed_info_type_signature_method
@@ -4811,13 +4822,13 @@ type x_signed_info_type =
         id : option (string)
     }
 
-type x_signature_value_type =
+nominal x_signature_value_type =
     {
         base : string
         id : option (string)
     }
 
-type x_signature_type =
+nominal x_signature_type =
     {
         signed_info : x_signed_info_type
         signature_value : x_signature_value_type
@@ -4843,12 +4854,12 @@ inl x_t_unid_carga_lac_unid_carga_n_lacre_example (_ : i32) : x_t_unid_carga_lac
 inl x_t_unid_carga_lac_unid_carga_n_lacre_example_text (k : i32) : string =
     x_t_unid_carga_lac_unid_carga_n_lacre_to_string (x_t_unid_carga_lac_unid_carga_n_lacre_example k)
 
-type x_t_unid_carga_lac_unid_carga =
+nominal x_t_unid_carga_lac_unid_carga =
     {
         n_lacre : x_t_unid_carga_lac_unid_carga_n_lacre
     }
 
-type x_t_unid_carga =
+nominal x_t_unid_carga =
     {
         tp_unid_carga : x_ttipo_unid_carga
         id_unid_carga : x_t_container
@@ -4879,12 +4890,12 @@ inl x_t_unidade_transp_lac_unid_transp_n_lacre_example (_ : i32) : x_t_unidade_t
 inl x_t_unidade_transp_lac_unid_transp_n_lacre_example_text (k : i32) : string =
     x_t_unidade_transp_lac_unid_transp_n_lacre_to_string (x_t_unidade_transp_lac_unid_transp_n_lacre_example k)
 
-type x_t_unidade_transp_lac_unid_transp =
+nominal x_t_unidade_transp_lac_unid_transp =
     {
         n_lacre : x_t_unidade_transp_lac_unid_transp_n_lacre
     }
 
-type x_t_unidade_transp =
+nominal x_t_unidade_transp =
     {
         tp_unid_transp : x_ttipo_unid_transp
         id_unid_transp : x_t_container
@@ -4914,7 +4925,7 @@ inl x_t_imp_choice_icms00_icms00_cst_example (k : i32) : x_t_imp_choice_icms00_i
 inl x_t_imp_choice_icms00_icms00_cst_example_text (k : i32) : string =
     x_t_imp_choice_icms00_icms00_cst_to_string (x_t_imp_choice_icms00_icms00_cst_example k)
 
-type x_t_imp_choice_icms00_icms00 =
+nominal x_t_imp_choice_icms00_icms00 =
     {
         cst : x_t_imp_choice_icms00_icms00_cst
         v_bc : x_t_dec_1302
@@ -4943,7 +4954,7 @@ inl x_t_imp_choice_icms00_icms20_cst_example (k : i32) : x_t_imp_choice_icms00_i
 inl x_t_imp_choice_icms00_icms20_cst_example_text (k : i32) : string =
     x_t_imp_choice_icms00_icms20_cst_to_string (x_t_imp_choice_icms00_icms20_cst_example k)
 
-type x_t_imp_choice_icms00_icms20 =
+nominal x_t_imp_choice_icms00_icms20 =
     {
         cst : x_t_imp_choice_icms00_icms20_cst
         p_red_bc : x_t_dec_0302_opc
@@ -4981,7 +4992,7 @@ inl x_t_imp_choice_icms00_icms45_cst_example (k : i32) : x_t_imp_choice_icms00_i
 inl x_t_imp_choice_icms00_icms45_cst_example_text (k : i32) : string =
     x_t_imp_choice_icms00_icms45_cst_to_string (x_t_imp_choice_icms00_icms45_cst_example k)
 
-type x_t_imp_choice_icms00_icms45 =
+nominal x_t_imp_choice_icms00_icms45 =
     {
         cst : x_t_imp_choice_icms00_icms45_cst
     }
@@ -5007,7 +5018,7 @@ inl x_t_imp_choice_icms00_icms60_cst_example (k : i32) : x_t_imp_choice_icms00_i
 inl x_t_imp_choice_icms00_icms60_cst_example_text (k : i32) : string =
     x_t_imp_choice_icms00_icms60_cst_to_string (x_t_imp_choice_icms00_icms60_cst_example k)
 
-type x_t_imp_choice_icms00_icms60 =
+nominal x_t_imp_choice_icms00_icms60 =
     {
         cst : x_t_imp_choice_icms00_icms60_cst
         v_bcst_ret : x_t_dec_1302
@@ -5037,7 +5048,7 @@ inl x_t_imp_choice_icms00_icms90_cst_example (k : i32) : x_t_imp_choice_icms00_i
 inl x_t_imp_choice_icms00_icms90_cst_example_text (k : i32) : string =
     x_t_imp_choice_icms00_icms90_cst_to_string (x_t_imp_choice_icms00_icms90_cst_example k)
 
-type x_t_imp_choice_icms00_icms90 =
+nominal x_t_imp_choice_icms00_icms90 =
     {
         cst : x_t_imp_choice_icms00_icms90_cst
         p_red_bc : option (x_t_dec_0302_opc)
@@ -5061,7 +5072,7 @@ inl x_t_imp_choice_icms00_icms_outra_uf_cst_example (k : i32) : x_t_imp_choice_i
 inl x_t_imp_choice_icms00_icms_outra_uf_cst_example_text (k : i32) : string =
     x_t_imp_choice_icms00_icms90_cst_example_text k
 
-type x_t_imp_choice_icms00_icms_outra_uf =
+nominal x_t_imp_choice_icms00_icms_outra_uf =
     {
         cst : x_t_imp_choice_icms00_icms_outra_uf_cst
         p_red_bc_outra_uf : option (x_t_dec_0302_opc)
@@ -5091,7 +5102,7 @@ inl x_t_imp_choice_icms00_icmssn_ind_sn_example (k : i32) : x_t_imp_choice_icms0
 inl x_t_imp_choice_icms00_icmssn_ind_sn_example_text (k : i32) : string =
     x_t_imp_choice_icms00_icmssn_ind_sn_to_string (x_t_imp_choice_icms00_icmssn_ind_sn_example k)
 
-type x_t_imp_choice_icms00_icmssn =
+nominal x_t_imp_choice_icms00_icmssn =
     {
         ind_sn : x_t_imp_choice_icms00_icmssn_ind_sn
     }
@@ -5105,7 +5116,7 @@ union x_t_imp_choice_icms00 =
     | TImp_choice_ICMS00_ICMSOutraUF : x_t_imp_choice_icms00_icms_outra_uf
     | TImp_choice_ICMS00_ICMSSN : x_t_imp_choice_icms00_icmssn
 
-type x_t_imp =
+nominal x_t_imp =
     {
         choice_icms00 : x_t_imp_choice_icms00
     }
@@ -5204,7 +5215,7 @@ inl x_t_end_re_ent_x_mun_example (_ : i32) : x_t_end_re_ent_x_mun = x_t_end_re_e
 inl x_t_end_re_ent_x_mun_example_text (k : i32) : string =
     x_t_end_re_ent_x_mun_to_string (x_t_end_re_ent_x_mun_example k)
 
-type x_t_end_re_ent =
+nominal x_t_end_re_ent =
     {
         choice_cnpj : x_t_end_re_ent_choice_cnpj
         x_nome : x_t_end_re_ent_x_nome
@@ -5231,7 +5242,7 @@ inl x_t_local_x_mun_example (_ : i32) : x_t_local_x_mun = x_t_local_x_mun "1"
 
 inl x_t_local_x_mun_example_text (k : i32) : string = x_t_local_x_mun_to_string (x_t_local_x_mun_example k)
 
-type x_t_local =
+nominal x_t_local =
     {
         c_mun : x_t_cod_mun_ibge
         x_mun : x_t_local_x_mun
@@ -5384,7 +5395,7 @@ inl x_t_end_org_x_pais_example (_ : i32) : x_t_end_org_x_pais = x_t_end_org_x_pa
 
 inl x_t_end_org_x_pais_example_text (k : i32) : string = x_t_end_org_x_pais_to_string (x_t_end_org_x_pais_example k)
 
-type x_t_end_org =
+nominal x_t_end_org =
     {
         x_lgr : x_t_end_org_x_lgr
         nro : x_t_end_org_nro
@@ -5484,7 +5495,7 @@ inl x_t_endernac_cep_example (_ : i32) : x_t_endernac_cep = x_t_endernac_cep "00
 
 inl x_t_endernac_cep_example_text (k : i32) : string = x_t_endernac_cep_to_string (x_t_endernac_cep_example k)
 
-type x_t_endernac =
+nominal x_t_endernac =
     {
         x_lgr : x_t_endernac_x_lgr
         nro : x_t_endernac_nro
@@ -5609,7 +5620,7 @@ inl x_t_endereco_x_pais_example (_ : i32) : x_t_endereco_x_pais = x_t_endereco_x
 
 inl x_t_endereco_x_pais_example_text (k : i32) : string = x_t_endereco_x_pais_to_string (x_t_endereco_x_pais_example k)
 
-type x_t_endereco =
+nominal x_t_endereco =
     {
         x_lgr : x_t_endereco_x_lgr
         nro : x_t_endereco_nro
@@ -5708,7 +5719,7 @@ inl x_t_ende_emi_cep_example (_ : i32) : x_t_ende_emi_cep = x_t_ende_emi_cep "00
 
 inl x_t_ende_emi_cep_example_text (k : i32) : string = x_t_ende_emi_cep_to_string (x_t_ende_emi_cep_example k)
 
-type x_t_ende_emi =
+nominal x_t_ende_emi =
     {
         x_lgr : x_t_ende_emi_x_lgr
         nro : x_t_ende_emi_nro
@@ -5739,14 +5750,14 @@ inl x_t_ret_envi_c_te_inf_rec_t_med_example (_ : i32) : x_t_ret_envi_c_te_inf_re
 inl x_t_ret_envi_c_te_inf_rec_t_med_example_text (k : i32) : string =
     x_t_ret_envi_c_te_inf_rec_t_med_to_string (x_t_ret_envi_c_te_inf_rec_t_med_example k)
 
-type x_t_ret_envi_c_te_inf_rec =
+nominal x_t_ret_envi_c_te_inf_rec =
     {
         n_rec : x_t_rec
         dh_recbto : string
         t_med : x_t_ret_envi_c_te_inf_rec_t_med
     }
 
-type x_t_ret_envi_c_te =
+nominal x_t_ret_envi_c_te =
     {
         tp_amb : x_t_amb
         c_uf : x_t_cod_uf_ibge
@@ -6262,7 +6273,7 @@ inl x_tc_te_inf_cte_ide_choice_toma03_toma03_toma_example (k : i32) : x_tc_te_in
 
 inl x_tc_te_inf_cte_ide_choice_toma03_toma03_toma_example_text (k : i32) : string = x_t_proc_emi_example_text k
 
-type x_tc_te_inf_cte_ide_choice_toma03_toma03 =
+nominal x_tc_te_inf_cte_ide_choice_toma03_toma03 =
     {
         toma : x_tc_te_inf_cte_ide_choice_toma03_toma03_toma
     }
@@ -6350,7 +6361,7 @@ inl x_tc_te_inf_cte_ide_choice_toma03_toma4_x_fant_example (_ : i32) : x_tc_te_i
 inl x_tc_te_inf_cte_ide_choice_toma03_toma4_x_fant_example_text (k : i32) : string =
     x_tc_te_inf_cte_ide_choice_toma03_toma4_x_fant_to_string (x_tc_te_inf_cte_ide_choice_toma03_toma4_x_fant_example k)
 
-type x_tc_te_inf_cte_ide_choice_toma03_toma4 =
+nominal x_tc_te_inf_cte_ide_choice_toma03_toma4 =
     {
         toma : x_tc_te_inf_cte_ide_choice_toma03_toma4_toma
         choice_cnpj : x_tc_te_inf_cte_ide_choice_toma03_toma4_choice_cnpj
@@ -6401,7 +6412,7 @@ inl x_tc_te_inf_cte_ide_x_just_example (_ : i32) : x_tc_te_inf_cte_ide_x_just =
 inl x_tc_te_inf_cte_ide_x_just_example_text (k : i32) : string =
     x_tc_te_inf_cte_ide_x_just_to_string (x_tc_te_inf_cte_ide_x_just_example k)
 
-type x_tc_te_inf_cte_ide =
+nominal x_tc_te_inf_cte_ide =
     {
         c_uf : x_t_cod_uf_ibge
         c_ct : x_tc_te_inf_cte_ide_c_ct
@@ -6528,7 +6539,7 @@ inl x_tc_te_inf_cte_compl_fluxo_pass_x_pass_example (_ : i32) : x_tc_te_inf_cte_
 inl x_tc_te_inf_cte_compl_fluxo_pass_x_pass_example_text (k : i32) : string =
     x_tc_te_inf_cte_compl_fluxo_pass_x_pass_to_string (x_tc_te_inf_cte_compl_fluxo_pass_x_pass_example k)
 
-type x_tc_te_inf_cte_compl_fluxo_pass =
+nominal x_tc_te_inf_cte_compl_fluxo_pass =
     {
         x_pass : option (x_tc_te_inf_cte_compl_fluxo_pass_x_pass)
     }
@@ -6569,7 +6580,7 @@ inl x_tc_te_inf_cte_compl_fluxo_x_rota_example (_ : i32) : x_tc_te_inf_cte_compl
 inl x_tc_te_inf_cte_compl_fluxo_x_rota_example_text (k : i32) : string =
     x_tc_te_inf_cte_compl_fluxo_x_rota_to_string (x_tc_te_inf_cte_compl_fluxo_x_rota_example k)
 
-type x_tc_te_inf_cte_compl_fluxo =
+nominal x_tc_te_inf_cte_compl_fluxo =
     {
         x_orig : option (x_tc_te_inf_cte_compl_fluxo_x_orig)
         pass : list (x_tc_te_inf_cte_compl_fluxo_pass)
@@ -6610,7 +6621,7 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_tp_per_example_text (
         x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_tp_per_example k
     )
 
-type x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data =
+nominal x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data =
     {
         tp_per : x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_tp_per
     }
@@ -6656,7 +6667,7 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_tp_per_example_text (
         x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_tp_per_example k
     )
 
-type x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data =
+nominal x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data =
     {
         tp_per : x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_tp_per
         d_prog : x_t_data
@@ -6685,7 +6696,7 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_tp_per_example
 inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_tp_per_example_text (k : i32) : string =
     x_tc_te_inf_cte_ide_choice_toma03_toma4_toma_example_text k
 
-type x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo =
+nominal x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo =
     {
         tp_per : x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_tp_per
         d_ini : x_t_data
@@ -6721,7 +6732,7 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_tp_hor_example
 inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_tp_hor_example_text (k : i32) : string =
     x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_tp_per_example_text k
 
-type x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora =
+nominal x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora =
     {
         tp_hor : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_tp_hor
     }
@@ -6750,7 +6761,7 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_tp_hor_example
 inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_tp_hor_example_text (k : i32) : string =
     x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_tp_per_example_text k
 
-type x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora =
+nominal x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora =
     {
         tp_hor : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_tp_hor
         h_prog : x_t_time
@@ -6779,7 +6790,7 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_tp_hor_example
 inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_tp_hor_example_text (k : i32) : string =
     x_tc_te_inf_cte_ide_choice_toma03_toma4_toma_example_text k
 
-type x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter =
+nominal x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter =
     {
         tp_hor : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_tp_hor
         h_ini : x_t_time
@@ -6791,7 +6802,7 @@ union x_tc_te_inf_cte_compl_entrega_choice_sem_hora =
     | TCTe_infCte_compl_Entrega_choice_semHora_comHora : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora
     | TCTe_infCte_compl_Entrega_choice_semHora_noInter : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter
 
-type x_tc_te_inf_cte_compl_entrega =
+nominal x_tc_te_inf_cte_compl_entrega =
     {
         choice_sem_data : x_tc_te_inf_cte_compl_entrega_choice_sem_data
         choice_sem_hora : x_tc_te_inf_cte_compl_entrega_choice_sem_hora
@@ -6886,7 +6897,7 @@ inl x_tc_te_inf_cte_compl_obs_cont_x_campo_example (_ : i32) : x_tc_te_inf_cte_c
 inl x_tc_te_inf_cte_compl_obs_cont_x_campo_example_text (k : i32) : string =
     x_tc_te_inf_cte_compl_obs_cont_x_campo_to_string (x_tc_te_inf_cte_compl_obs_cont_x_campo_example k)
 
-type x_tc_te_inf_cte_compl_obs_cont =
+nominal x_tc_te_inf_cte_compl_obs_cont =
     {
         x_texto : x_tc_te_inf_cte_compl_obs_cont_x_texto
         x_campo : x_tc_te_inf_cte_compl_obs_cont_x_campo
@@ -6930,13 +6941,13 @@ inl x_tc_te_inf_cte_compl_obs_fisco_x_campo_example (_ : i32) : x_tc_te_inf_cte_
 inl x_tc_te_inf_cte_compl_obs_fisco_x_campo_example_text (k : i32) : string =
     x_tc_te_inf_cte_compl_obs_fisco_x_campo_to_string (x_tc_te_inf_cte_compl_obs_fisco_x_campo_example k)
 
-type x_tc_te_inf_cte_compl_obs_fisco =
+nominal x_tc_te_inf_cte_compl_obs_fisco =
     {
         x_texto : x_tc_te_inf_cte_compl_obs_fisco_x_texto
         x_campo : x_tc_te_inf_cte_compl_obs_fisco_x_campo
     }
 
-type x_tc_te_inf_cte_compl =
+nominal x_tc_te_inf_cte_compl =
     {
         x_carac_ad : option (x_tc_te_inf_cte_compl_x_carac_ad)
         x_carac_ser : option (x_tc_te_inf_cte_compl_x_carac_ser)
@@ -6992,7 +7003,7 @@ inl x_tc_te_inf_cte_emit_x_fant_example (_ : i32) : x_tc_te_inf_cte_emit_x_fant 
 inl x_tc_te_inf_cte_emit_x_fant_example_text (k : i32) : string =
     x_tc_te_inf_cte_emit_x_fant_to_string (x_tc_te_inf_cte_emit_x_fant_example k)
 
-type x_tc_te_inf_cte_emit =
+nominal x_tc_te_inf_cte_emit =
     {
         cnpj : x_t_cnpj
         ie : x_tc_te_inf_cte_emit_ie
@@ -7047,7 +7058,7 @@ inl x_tc_te_inf_cte_rem_email_example (k : i32) : string = x_t_email_example_tex
 
 inl x_tc_te_inf_cte_rem_email_example_text (k : i32) : string = x_tc_te_inf_cte_rem_email_example k
 
-type x_tc_te_inf_cte_rem =
+nominal x_tc_te_inf_cte_rem =
     {
         choice_cnpj : x_tc_te_inf_cte_rem_choice_cnpj
         ie : x_t_ie_dest
@@ -7079,7 +7090,7 @@ inl x_tc_te_inf_cte_exped_x_nome_example (_ : i32) : x_tc_te_inf_cte_exped_x_nom
 inl x_tc_te_inf_cte_exped_x_nome_example_text (k : i32) : string =
     x_tc_te_inf_cte_exped_x_nome_to_string (x_tc_te_inf_cte_exped_x_nome_example k)
 
-type x_tc_te_inf_cte_exped =
+nominal x_tc_te_inf_cte_exped =
     {
         choice_cnpj : x_tc_te_inf_cte_exped_choice_cnpj
         ie : x_t_ie_dest
@@ -7110,7 +7121,7 @@ inl x_tc_te_inf_cte_receb_x_nome_example (_ : i32) : x_tc_te_inf_cte_receb_x_nom
 inl x_tc_te_inf_cte_receb_x_nome_example_text (k : i32) : string =
     x_tc_te_inf_cte_receb_x_nome_to_string (x_tc_te_inf_cte_receb_x_nome_example k)
 
-type x_tc_te_inf_cte_receb =
+nominal x_tc_te_inf_cte_receb =
     {
         choice_cnpj : x_tc_te_inf_cte_receb_choice_cnpj
         ie : x_t_ie_dest
@@ -7201,7 +7212,7 @@ inl x_tc_te_inf_cte_dest_isuf_example (_ : i32) : x_tc_te_inf_cte_dest_isuf = x_
 inl x_tc_te_inf_cte_dest_isuf_example_text (k : i32) : string =
     x_tc_te_inf_cte_dest_isuf_to_string (x_tc_te_inf_cte_dest_isuf_example k)
 
-type x_tc_te_inf_cte_dest =
+nominal x_tc_te_inf_cte_dest =
     {
         choice_cnpj : x_tc_te_inf_cte_dest_choice_cnpj
         ie : option (x_tc_te_inf_cte_dest_ie)
@@ -7230,13 +7241,13 @@ inl x_tc_te_inf_cte_v_prest_comp_x_nome_example (_ : i32) : x_tc_te_inf_cte_v_pr
 inl x_tc_te_inf_cte_v_prest_comp_x_nome_example_text (k : i32) : string =
     x_tc_te_inf_cte_v_prest_comp_x_nome_to_string (x_tc_te_inf_cte_v_prest_comp_x_nome_example k)
 
-type x_tc_te_inf_cte_v_prest_comp =
+nominal x_tc_te_inf_cte_v_prest_comp =
     {
         x_nome : x_tc_te_inf_cte_v_prest_comp_x_nome
         v_comp : x_t_dec_1302
     }
 
-type x_tc_te_inf_cte_v_prest =
+nominal x_tc_te_inf_cte_v_prest =
     {
         v_t_prest : x_t_dec_1302
         v_rec : x_t_dec_1302
@@ -7261,7 +7272,7 @@ inl x_tc_te_inf_cte_imp_inf_ad_fisco_example (_ : i32) : x_tc_te_inf_cte_imp_inf
 inl x_tc_te_inf_cte_imp_inf_ad_fisco_example_text (k : i32) : string =
     x_tc_te_inf_cte_imp_inf_ad_fisco_to_string (x_tc_te_inf_cte_imp_inf_ad_fisco_example k)
 
-type x_tc_te_inf_cte_imp_icmsuf_fim =
+nominal x_tc_te_inf_cte_imp_icmsuf_fim =
     {
         v_bcuf_fim : x_t_dec_1302
         p_fcpuf_fim : x_t_dec_0302
@@ -7273,7 +7284,7 @@ type x_tc_te_inf_cte_imp_icmsuf_fim =
         v_icmsuf_ini : x_t_dec_1302
     }
 
-type x_tc_te_inf_cte_imp =
+nominal x_tc_te_inf_cte_imp =
     {
         icms : x_t_imp
         v_tot_trib : option (x_t_dec_1302)
@@ -7430,14 +7441,14 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_tp_med_ex
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_tp_med_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q =
     {
         c_unid : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_c_unid
         tp_med : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_tp_med
         q_carga : x_t_dec_1104
     }
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga =
     {
         v_carga : option (x_t_dec_1302)
         pro_pred : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_pro_pred
@@ -7673,7 +7684,7 @@ union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_i
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_choice_infUnidTransp_infUnidCarga :
         list (x_t_unid_carga)
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf =
     {
         n_roma : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_n_roma)
         n_ped : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_n_ped)
@@ -7735,7 +7746,7 @@ union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_i
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_choice_infUnidTransp_infUnidCarga :
         list (x_t_unid_carga)
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe =
     {
         chave : x_t_ch_n_fe
         pin : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_pin)
@@ -7869,7 +7880,7 @@ union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_i
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_choice_infUnidTransp_infUnidCarga :
         list (x_t_unid_carga)
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros =
     {
         tp_doc : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_tp_doc
         desc_outros : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_desc_outros)
@@ -7888,7 +7899,7 @@ union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros :
         list (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros)
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc =
     {
         choice_inf_nf : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf
     }
@@ -8210,7 +8221,7 @@ inl
                 k
         )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap =
     {
         tp_doc : x_t_doc_assoc
         serie : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_serie
@@ -8219,7 +8230,7 @@ type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_d
         d_emi : x_t_data
     }
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele =
     {
         chave : x_t_ch_n_fe
     }
@@ -8236,12 +8247,12 @@ union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_
                 x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele
             )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant =
     {
         choice_id_doc_ant_pap : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap
     }
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant =
     {
         choice_cnpj : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_choice_cnpj
         ie : x_t_ie
@@ -8250,7 +8261,7 @@ type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant =
         id_doc_ant : list (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant)
     }
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant =
     {
         emi_doc_ant : list (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant)
     }
@@ -8404,7 +8415,7 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_n_aver_example_text (
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_n_aver_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg =
     {
         resp_seg : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_resp_seg
         x_seg : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_x_seg)
@@ -8466,7 +8477,7 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_versao_modal_ex
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_versao_modal_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal =
     {
         any : any_content
         versao_modal : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_versao_modal
@@ -8721,7 +8732,7 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_ponto_fulgor_example
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_ponto_fulgor_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri =
     {
         n_onu : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_n_onu
         x_nome_ae : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_x_nome_ae)
@@ -8860,7 +8871,7 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_c_mod_example_
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_c_mod_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos =
     {
         chassi : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_chassi
         c_cor : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_c_cor
@@ -8902,7 +8913,7 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_n_fat_example_te
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_n_fat_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat =
     {
         n_fat : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_n_fat)
         v_orig : option (x_t_dec_1302_opc)
@@ -8942,14 +8953,14 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_n_dup_example_te
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_n_dup_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup =
     {
         n_dup : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_n_dup)
         d_venc : option (x_t_data)
         v_dup : option (x_t_dec_1302_opc)
     }
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr =
     {
         fat : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat)
         dup : list (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup)
@@ -9087,7 +9098,7 @@ inl
                 k
         )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf =
     {
         choice_cnpj : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_choice_cnpj
         mod : x_t_mod_doc
@@ -9104,7 +9115,7 @@ union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refCte : x_t_ch_n_fe
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms =
     {
         choice_ref_n_fe : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe
     }
@@ -9130,7 +9141,7 @@ inl
     =
     x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_ref_cte_anu_example k
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms =
     {
         ref_cte_anu : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_ref_cte_anu
     }
@@ -9141,13 +9152,13 @@ union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaNaoICMS :
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub =
     {
         ch_cte : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_ch_cte
         choice_toma_icms : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms
     }
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm =
     {
         inf_carga : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga
         inf_doc : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc)
@@ -9160,7 +9171,7 @@ type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm =
         inf_cte_sub : option (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub)
     }
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp =
     {
         chave : x_t_ch_n_fe
     }
@@ -9197,7 +9208,7 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_ch_cte_example_text (k : i3
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_ch_cte_example k
     )
 
-type x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu =
+nominal x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu =
     {
         ch_cte : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_ch_cte
         d_emi : x_t_data
@@ -9212,7 +9223,7 @@ union x_tc_te_inf_cte_aut_xml_choice_cnpj =
     | TCTe_infCte_autXML_choice_CNPJ_CNPJ : x_t_cnpj
     | TCTe_infCte_autXML_choice_CNPJ_CPF : x_t_cpf
 
-type x_tc_te_inf_cte_aut_xml =
+nominal x_tc_te_inf_cte_aut_xml =
     {
         choice_cnpj : x_tc_te_inf_cte_aut_xml_choice_cnpj
     }
@@ -9390,7 +9401,7 @@ inl x_tc_te_inf_cte_id_example (_ : i32) : x_tc_te_inf_cte_id =
 
 inl x_tc_te_inf_cte_id_example_text (k : i32) : string = x_tc_te_inf_cte_id_to_string (x_tc_te_inf_cte_id_example k)
 
-type x_tc_te_inf_cte =
+nominal x_tc_te_inf_cte =
     {
         ide : x_tc_te_inf_cte_ide
         compl : option (x_tc_te_inf_cte_compl)
@@ -9407,13 +9418,13 @@ type x_tc_te_inf_cte =
         id : x_tc_te_inf_cte_id
     }
 
-type x_tc_te s =
+nominal x_tc_te s =
     {
         inf_cte : x_tc_te_inf_cte
         signature : staged s x_signature_type
     }
 
-type x_t_envi_c_te s =
+nominal x_t_envi_c_te s =
     {
         id_lote : x_t_id_lote
         c_te : list (x_tc_te s)
@@ -10890,11 +10901,21 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     | TransformsType_field_Transform => x.transform
 
 union x_transform_type_field r =
-    | TransformType_field_XPath :: x_transform_type_field (string)
+    | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
-    | TransformType_field_XPath => x.x_path
+    | TransformType_field_group_x_path => x.group_x_path
+
+union x_transform_type_group_x_path_field r =
+    | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
+
+inl x_transform_type_group_x_path_get forall r.
+    (f : x_transform_type_group_x_path_field r) (x : x_transform_type_group_x_path)
+    : r
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => x.x_path
 
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
@@ -10914,7 +10935,7 @@ let rec x_tc_te_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te s
     =
-    {
+    x_tc_te {
         inf_cte = (fun c => x_tc_te_inf_cte_of_xml c) (xml.required_child "infCte" children)
         signature =
             staged_of witness fun () =>
@@ -10928,7 +10949,7 @@ and let x_tc_te_inf_cte_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte
     =
-    {
+    x_tc_te_inf_cte {
         ide = (fun c => x_tc_te_inf_cte_ide_of_xml c) (xml.required_child "ide" children)
         compl = optionm.map (fun c => x_tc_te_inf_cte_compl_of_xml c) (xml.first_child "compl" children)
         emit = (fun c => x_tc_te_inf_cte_emit_of_xml c) (xml.required_child "emit" children)
@@ -10954,7 +10975,7 @@ and let x_tc_te_inf_cte_aut_xml_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_aut_xml
     =
-    {
+    x_tc_te_inf_cte_aut_xml {
         choice_cnpj = x_tc_te_inf_cte_aut_xml_choice_cnpj_of_children attributes children
     }
 
@@ -10999,7 +11020,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu {
         ch_cte =
             (fun c => xml.required_value "x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_ch_cte" (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_ch_cte_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chCte" children)
         d_emi =
@@ -11016,7 +11037,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp {
         chave =
             (fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chave" children)
     }
@@ -11031,7 +11052,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm {
         inf_carga =
             (fun c => x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_of_xml c) (xml.required_child "infCarga" children)
         inf_doc =
@@ -11076,7 +11097,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub {
         ch_cte =
             (fun c => xml.required_value "x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_ch_cte" (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_ch_cte_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chCte" children)
         choice_toma_icms =
@@ -11114,7 +11135,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_to
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms {
         ref_cte_anu = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "refCteAnu" children)
     }
 
@@ -11130,7 +11151,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_to
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms {
         choice_ref_n_fe =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_of_children
                 attributes
@@ -11174,7 +11195,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf {
         choice_cnpj =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_choice_cnpj_of_children
                 attributes
@@ -11230,7 +11251,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr {
         fat =
             optionm.map
                 fun c => x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_of_xml c
@@ -11253,7 +11274,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup {
         n_dup =
             optionm.map
                 fun c =>
@@ -11285,7 +11306,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat {
         n_fat =
             optionm.map
                 fun c =>
@@ -11325,7 +11346,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos {
         chassi =
             (fun c => xml.required_value "x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_chassi" (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_chassi_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chassi" children)
         c_cor =
@@ -11352,7 +11373,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri {
         n_onu =
             (fun c => xml.required_value "x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_n_onu" (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_n_onu_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nONU" children)
         x_nome_ae =
@@ -11406,7 +11427,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal {
         any = any_content_of (xml.unclaimed_children [] children)
         versao_modal =
             xml.required_value
@@ -11430,7 +11451,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg {
         resp_seg =
             (fun c => xml.required_value "x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_resp_seg" (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_resp_seg_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "respSeg" children)
         x_seg =
@@ -11474,7 +11495,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant {
         emi_doc_ant =
             listm.map
                 fun c => x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_of_xml c
@@ -11493,7 +11514,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_o
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant {
         choice_cnpj =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_choice_cnpj_of_children
                 attributes
@@ -11522,7 +11543,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant {
         choice_id_doc_ant_pap =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_of_children
                 attributes
@@ -11569,7 +11590,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele {
         chave =
             (fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chave" children)
     }
@@ -11588,7 +11609,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap {
         tp_doc =
             (fun c => xml.required_value "x_t_doc_assoc" (x_t_doc_assoc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpDoc" children)
         serie =
@@ -11642,7 +11663,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc {
         choice_inf_nf =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_of_children attributes children
     }
@@ -11684,7 +11705,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros {
         tp_doc =
             (fun c => xml.required_value "x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_tp_doc" (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_tp_doc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpDoc" children)
         desc_outros =
@@ -11761,7 +11782,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe {
         chave =
             (fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chave" children)
         pin =
@@ -11814,7 +11835,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf {
         n_roma =
             optionm.map
                 fun c =>
@@ -11913,7 +11934,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga {
         v_carga =
             optionm.map
                 fun c =>
@@ -11946,7 +11967,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_of_ch
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q {
         c_unid =
             (fun c => xml.required_value "x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_c_unid" (x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_c_unid_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUnid" children)
         tp_med =
@@ -11967,7 +11988,7 @@ and let x_tc_te_inf_cte_imp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_imp
     =
-    {
+    x_tc_te_inf_cte_imp {
         icms = (fun c => x_t_imp_of_xml c) (xml.required_child "ICMS" children)
         v_tot_trib =
             optionm.map
@@ -11991,7 +12012,7 @@ and let x_tc_te_inf_cte_imp_icmsuf_fim_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_imp_icmsuf_fim
     =
-    {
+    x_tc_te_inf_cte_imp_icmsuf_fim {
         v_bcuf_fim =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBCUFFim" children)
         p_fcpuf_fim =
@@ -12017,7 +12038,7 @@ and let x_tc_te_inf_cte_v_prest_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_v_prest
     =
-    {
+    x_tc_te_inf_cte_v_prest {
         v_t_prest =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vTPrest" children)
         v_rec =
@@ -12032,7 +12053,7 @@ and let x_tc_te_inf_cte_v_prest_comp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_v_prest_comp
     =
-    {
+    x_tc_te_inf_cte_v_prest_comp {
         x_nome =
             (fun c => xml.required_value "x_tc_te_inf_cte_v_prest_comp_x_nome" (x_tc_te_inf_cte_v_prest_comp_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
         v_comp =
@@ -12046,7 +12067,7 @@ and let x_tc_te_inf_cte_dest_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_dest
     =
-    {
+    x_tc_te_inf_cte_dest {
         choice_cnpj = x_tc_te_inf_cte_dest_choice_cnpj_of_children attributes children
         ie = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "IE" children)
         x_nome =
@@ -12090,7 +12111,7 @@ and let x_tc_te_inf_cte_receb_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_receb
     =
-    {
+    x_tc_te_inf_cte_receb {
         choice_cnpj = x_tc_te_inf_cte_receb_choice_cnpj_of_children attributes children
         ie =
             (fun c => xml.required_value "x_t_ie_dest" (x_t_ie_dest_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "IE" children)
@@ -12129,7 +12150,7 @@ and let x_tc_te_inf_cte_exped_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_exped
     =
-    {
+    x_tc_te_inf_cte_exped {
         choice_cnpj = x_tc_te_inf_cte_exped_choice_cnpj_of_children attributes children
         ie =
             (fun c => xml.required_value "x_t_ie_dest" (x_t_ie_dest_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "IE" children)
@@ -12168,7 +12189,7 @@ and let x_tc_te_inf_cte_rem_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_rem
     =
-    {
+    x_tc_te_inf_cte_rem {
         choice_cnpj = x_tc_te_inf_cte_rem_choice_cnpj_of_children attributes children
         ie =
             (fun c => xml.required_value "x_t_ie_dest" (x_t_ie_dest_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "IE" children)
@@ -12210,7 +12231,7 @@ and let x_tc_te_inf_cte_emit_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_emit
     =
-    {
+    x_tc_te_inf_cte_emit {
         cnpj =
             (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
         ie = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "IE" children)
@@ -12232,7 +12253,7 @@ and let x_tc_te_inf_cte_compl_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl
     =
-    {
+    x_tc_te_inf_cte_compl {
         x_carac_ad =
             optionm.map
                 fun c =>
@@ -12283,7 +12304,7 @@ and let x_tc_te_inf_cte_compl_obs_fisco_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_obs_fisco
     =
-    {
+    x_tc_te_inf_cte_compl_obs_fisco {
         x_texto =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_obs_fisco_x_texto" (x_tc_te_inf_cte_compl_obs_fisco_x_texto_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xTexto" children)
         x_campo =
@@ -12299,7 +12320,7 @@ and let x_tc_te_inf_cte_compl_obs_cont_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_obs_cont
     =
-    {
+    x_tc_te_inf_cte_compl_obs_cont {
         x_texto =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_obs_cont_x_texto" (x_tc_te_inf_cte_compl_obs_cont_x_texto_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xTexto" children)
         x_campo =
@@ -12315,7 +12336,7 @@ and let x_tc_te_inf_cte_compl_entrega_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_entrega
     =
-    {
+    x_tc_te_inf_cte_compl_entrega {
         choice_sem_data = x_tc_te_inf_cte_compl_entrega_choice_sem_data_of_children attributes children
         choice_sem_hora = x_tc_te_inf_cte_compl_entrega_choice_sem_hora_of_children attributes children
     }
@@ -12346,7 +12367,7 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter {
         tp_hor =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_tp_hor" (x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_tp_hor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpHor" children)
         h_ini =
@@ -12367,7 +12388,7 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora {
         tp_hor =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_tp_hor" (x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_tp_hor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpHor" children)
         h_prog =
@@ -12386,7 +12407,7 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora {
         tp_hor =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_tp_hor" (x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_tp_hor_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpHor" children)
     }
@@ -12422,7 +12443,7 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo {
         tp_per =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_tp_per" (x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_tp_per_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpPer" children)
         d_ini =
@@ -12443,7 +12464,7 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data {
         tp_per =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_tp_per" (x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_tp_per_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpPer" children)
         d_prog =
@@ -12462,7 +12483,7 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data {
         tp_per =
             (fun c => xml.required_value "x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_tp_per" (x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_tp_per_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpPer" children)
     }
@@ -12479,7 +12500,7 @@ and let x_tc_te_inf_cte_compl_fluxo_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_fluxo
     =
-    {
+    x_tc_te_inf_cte_compl_fluxo {
         x_orig =
             optionm.map
                 fun c =>
@@ -12508,7 +12529,7 @@ and let x_tc_te_inf_cte_compl_fluxo_pass_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_compl_fluxo_pass
     =
-    {
+    x_tc_te_inf_cte_compl_fluxo_pass {
         x_pass =
             optionm.map
                 fun c =>
@@ -12524,7 +12545,7 @@ and let x_tc_te_inf_cte_ide_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_ide
     =
-    {
+    x_tc_te_inf_cte_ide {
         c_uf =
             (fun c => xml.required_value "x_t_cod_uf_ibge" (x_t_cod_uf_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUF" children)
         c_ct =
@@ -12623,7 +12644,7 @@ and let x_tc_te_inf_cte_ide_choice_toma03_toma4_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_ide_choice_toma03_toma4
     =
-    {
+    x_tc_te_inf_cte_ide_choice_toma03_toma4 {
         toma =
             (fun c => xml.required_value "x_tc_te_inf_cte_ide_choice_toma03_toma4_toma" (x_tc_te_inf_cte_ide_choice_toma03_toma4_toma_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "toma" children)
         choice_cnpj = x_tc_te_inf_cte_ide_choice_toma03_toma4_choice_cnpj_of_children attributes children
@@ -12672,7 +12693,7 @@ and let x_tc_te_inf_cte_ide_choice_toma03_toma03_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tc_te_inf_cte_ide_choice_toma03_toma03
     =
-    {
+    x_tc_te_inf_cte_ide_choice_toma03_toma03 {
         toma =
             (fun c => xml.required_value "x_tc_te_inf_cte_ide_choice_toma03_toma03_toma" (x_tc_te_inf_cte_ide_choice_toma03_toma03_toma_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "toma" children)
     }
@@ -12684,7 +12705,7 @@ and let x_t_envi_c_te_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_envi_c_te s
     =
-    {
+    x_t_envi_c_te {
         id_lote =
             (fun c => xml.required_value "x_t_id_lote" (x_t_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
         c_te = listm.map (fun c => x_tc_te_of_xml witness c) (xml.children_named "CTe" children)
@@ -12698,7 +12719,7 @@ and let x_t_ret_envi_c_te_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_envi_c_te
     =
-    {
+    x_t_ret_envi_c_te {
         tp_amb =
             (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
         c_uf =
@@ -12720,7 +12741,7 @@ and let x_t_ret_envi_c_te_inf_rec_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_envi_c_te_inf_rec
     =
-    {
+    x_t_ret_envi_c_te_inf_rec {
         n_rec =
             (fun c => xml.required_value "x_t_rec" (x_t_rec_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nRec" children)
         dh_recbto = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "dhRecbto" children)
@@ -12732,7 +12753,7 @@ and let x_t_ret_envi_c_te_inf_rec_of_xml (c : xml.xml_node) : x_t_ret_envi_c_te_
     x_t_ret_envi_c_te_inf_rec_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_ende_emi_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_ende_emi =
-    {
+    x_t_ende_emi {
         x_lgr =
             (fun c => xml.required_value "x_t_ende_emi_x_lgr" (x_t_ende_emi_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
         nro =
@@ -12767,7 +12788,7 @@ and let x_t_ende_emi_of_xml (c : xml.xml_node) : x_t_ende_emi =
     x_t_ende_emi_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_endereco_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_endereco =
-    {
+    x_t_endereco {
         x_lgr =
             (fun c => xml.required_value "x_t_endereco_x_lgr" (x_t_endereco_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
         nro =
@@ -12810,7 +12831,7 @@ and let x_t_endereco_of_xml (c : xml.xml_node) : x_t_endereco =
     x_t_endereco_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_endernac_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_endernac =
-    {
+    x_t_endernac {
         x_lgr =
             (fun c => xml.required_value "x_t_endernac_x_lgr" (x_t_endernac_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
         nro =
@@ -12841,7 +12862,7 @@ and let x_t_endernac_of_xml (c : xml.xml_node) : x_t_endernac =
     x_t_endernac_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_end_org_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_end_org =
-    {
+    x_t_end_org {
         x_lgr =
             (fun c => xml.required_value "x_t_end_org_x_lgr" (x_t_end_org_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
         nro =
@@ -12889,7 +12910,7 @@ and let x_t_end_org_of_xml (c : xml.xml_node) : x_t_end_org =
     x_t_end_org_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_local_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_local =
-    {
+    x_t_local {
         c_mun =
             (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
         x_mun =
@@ -12905,7 +12926,7 @@ and let x_t_end_re_ent_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_end_re_ent
     =
-    {
+    x_t_end_re_ent {
         choice_cnpj = x_t_end_re_ent_choice_cnpj_of_children attributes children
         x_nome =
             (fun c => xml.required_value "x_t_end_re_ent_x_nome" (x_t_end_re_ent_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
@@ -12948,7 +12969,7 @@ and let x_t_end_re_ent_choice_cnpj_of_children
     else failwith "x_t_end_re_ent_choice_cnpj: no alternative present"
 
 and let x_t_imp_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_imp =
-    {
+    x_t_imp {
         choice_icms00 = x_t_imp_choice_icms00_of_children attributes children
     }
 
@@ -12994,7 +13015,7 @@ and let x_t_imp_choice_icms00_icmssn_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_imp_choice_icms00_icmssn
     =
-    {
+    x_t_imp_choice_icms00_icmssn {
         ind_sn =
             (fun c => xml.required_value "x_t_imp_choice_icms00_icmssn_ind_sn" (x_t_imp_choice_icms00_icmssn_ind_sn_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "indSN" children)
     }
@@ -13006,7 +13027,7 @@ and let x_t_imp_choice_icms00_icms_outra_uf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_imp_choice_icms00_icms_outra_uf
     =
-    {
+    x_t_imp_choice_icms00_icms_outra_uf {
         cst =
             (fun c => xml.required_value "x_t_imp_choice_icms00_icms_outra_uf_cst" (x_t_imp_choice_icms00_icms_outra_uf_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         p_red_bc_outra_uf =
@@ -13030,7 +13051,7 @@ and let x_t_imp_choice_icms00_icms90_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_imp_choice_icms00_icms90
     =
-    {
+    x_t_imp_choice_icms00_icms90 {
         cst =
             (fun c => xml.required_value "x_t_imp_choice_icms00_icms90_cst" (x_t_imp_choice_icms00_icms90_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         p_red_bc =
@@ -13059,7 +13080,7 @@ and let x_t_imp_choice_icms00_icms60_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_imp_choice_icms00_icms60
     =
-    {
+    x_t_imp_choice_icms00_icms60 {
         cst =
             (fun c => xml.required_value "x_t_imp_choice_icms00_icms60_cst" (x_t_imp_choice_icms00_icms60_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         v_bcst_ret =
@@ -13082,7 +13103,7 @@ and let x_t_imp_choice_icms00_icms45_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_imp_choice_icms00_icms45
     =
-    {
+    x_t_imp_choice_icms00_icms45 {
         cst =
             (fun c => xml.required_value "x_t_imp_choice_icms00_icms45_cst" (x_t_imp_choice_icms00_icms45_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
     }
@@ -13094,7 +13115,7 @@ and let x_t_imp_choice_icms00_icms20_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_imp_choice_icms00_icms20
     =
-    {
+    x_t_imp_choice_icms00_icms20 {
         cst =
             (fun c => xml.required_value "x_t_imp_choice_icms00_icms20_cst" (x_t_imp_choice_icms00_icms20_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         p_red_bc =
@@ -13114,7 +13135,7 @@ and let x_t_imp_choice_icms00_icms00_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_imp_choice_icms00_icms00
     =
-    {
+    x_t_imp_choice_icms00_icms00 {
         cst =
             (fun c => xml.required_value "x_t_imp_choice_icms00_icms00_cst" (x_t_imp_choice_icms00_icms00_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         v_bc =
@@ -13132,7 +13153,7 @@ and let x_t_unidade_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_unidade_transp
     =
-    {
+    x_t_unidade_transp {
         tp_unid_transp =
             (fun c => xml.required_value "x_ttipo_unid_transp" (x_ttipo_unid_transp_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpUnidTransp" children)
         id_unid_transp =
@@ -13157,7 +13178,7 @@ and let x_t_unidade_transp_lac_unid_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_unidade_transp_lac_unid_transp
     =
-    {
+    x_t_unidade_transp_lac_unid_transp {
         n_lacre =
             (fun c => xml.required_value "x_t_unidade_transp_lac_unid_transp_n_lacre" (x_t_unidade_transp_lac_unid_transp_n_lacre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nLacre" children)
     }
@@ -13169,7 +13190,7 @@ and let x_t_unid_carga_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_unid_carga
     =
-    {
+    x_t_unid_carga {
         tp_unid_carga =
             (fun c => xml.required_value "x_ttipo_unid_carga" (x_ttipo_unid_carga_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpUnidCarga" children)
         id_unid_carga =
@@ -13191,7 +13212,7 @@ and let x_t_unid_carga_lac_unid_carga_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_unid_carga_lac_unid_carga
     =
-    {
+    x_t_unid_carga_lac_unid_carga {
         n_lacre =
             (fun c => xml.required_value "x_t_unid_carga_lac_unid_carga_n_lacre" (x_t_unid_carga_lac_unid_carga_n_lacre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nLacre" children)
     }
@@ -13203,7 +13224,7 @@ and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type
     =
-    {
+    x_signature_type {
         signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
         signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
         key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
@@ -13217,7 +13238,7 @@ and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_value_type
     =
-    {
+    x_signature_value_type {
         base = xml.text_in children
         id = xml.attribute_of "Id" attributes
     }
@@ -13229,7 +13250,7 @@ and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type
     =
-    {
+    x_signed_info_type {
         canonicalization_method =
             (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
         signature_method =
@@ -13245,7 +13266,7 @@ and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_signature_method
     =
-    {
+    x_signed_info_type_signature_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -13259,7 +13280,7 @@ and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_canonicalization_method
     =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -13273,7 +13294,7 @@ and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type
     =
-    {
+    x_reference_type {
         transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
         digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
         digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
@@ -13292,7 +13313,7 @@ and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type_digest_method
     =
-    {
+    x_reference_type_digest_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -13306,7 +13327,7 @@ and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transforms_type
     =
-    {
+    x_transforms_type {
         transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
     }
 
@@ -13317,8 +13338,11 @@ and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transform_type
     =
-    {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    x_transform_type {
+        group_x_path =
+            listm.map
+                fun run => x_transform_type_group_x_path_of_children [] run
+                (xml.group_runs [ "XPath" ] children)
         algorithm =
             xml.required_value
                 "x_t_transform_uri"
@@ -13328,11 +13352,22 @@ and let x_transform_type_of_children
 and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
+and let x_transform_type_group_x_path_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transform_type_group_x_path
+    =
+    x_transform_type_group_x_path {
+        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    }
+
+and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
+
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_key_info_type
     =
-    {
+    x_key_info_type {
         x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
         id = xml.attribute_of "Id" attributes
     }
@@ -13344,7 +13379,7 @@ and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_x509_data_type
     =
-    {
+    x_x509_data_type {
         x509_certificate =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
     }
@@ -16324,20 +16359,37 @@ and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.x
 and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
     inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | TransformType_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+        | TransformType_field_group_x_path => listm.concat (listm.map x_transform_type_group_x_path_children v)
     inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
             inl exists r. f = packed
             listm.append (nodes f (x_transform_type_get f x)) (walk rest)
         | [] => []
-    walk [ exists TransformType_field_XPath ]
+    walk [ exists TransformType_field_group_x_path ]
 
 and let x_transform_type_attributes (x : x_transform_type) : list (string * string) =
     [ ("Algorithm", to_text x.algorithm) ]
 
 and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
     xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_transform_type_group_x_path_children (x : x_transform_type_group_x_path) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_group_x_path_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_group_XPath_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_transform_type_group_x_path_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_group_x_path_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_group_XPath_field_XPath ]
+
+and let x_transform_type_group_x_path_attributes (x : x_transform_type_group_x_path) : list (string * string) = []
+
+and let x_transform_type_group_x_path_to_xml (name : string) (x : x_transform_type_group_x_path) : xml.xml_node =
+    xml.element name (x_transform_type_group_x_path_attributes x) (x_transform_type_group_x_path_children x)
 
 and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
     inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
@@ -16375,13 +16427,13 @@ and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml
     xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
 
 and let x_tc_te_example (k : i32) : x_tc_te unsigned =
-    {
+    x_tc_te {
         inf_cte = x_tc_te_inf_cte_example k
         signature = Pending "an unsigned example"
     }
 
 and let x_tc_te_inf_cte_example (k : i32) : x_tc_te_inf_cte =
-    {
+    x_tc_te_inf_cte {
         ide = x_tc_te_inf_cte_ide_example k
         compl = None
         emit = x_tc_te_inf_cte_emit_example k
@@ -16398,7 +16450,7 @@ and let x_tc_te_inf_cte_example (k : i32) : x_tc_te_inf_cte =
     }
 
 and let x_tc_te_inf_cte_aut_xml_example (k : i32) : x_tc_te_inf_cte_aut_xml =
-    {
+    x_tc_te_inf_cte_aut_xml {
         choice_cnpj = x_tc_te_inf_cte_aut_xml_choice_cnpj_example k
     }
 
@@ -16412,7 +16464,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm {
         inf_carga = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_example k
         inf_doc = None
         doc_ant = None
@@ -16428,7 +16480,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub {
         ch_cte = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_ch_cte_example k
         choice_toma_icms = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_example k
     }
@@ -16445,7 +16497,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_to
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms {
         choice_ref_n_fe =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_example
                 k
@@ -16463,7 +16515,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr {
         fat = None
         dup = []
     }
@@ -16472,7 +16524,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup {
         n_dup = None
         d_venc = None
         v_dup = None
@@ -16482,7 +16534,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat {
         n_fat = None
         v_orig = None
         v_desc = None
@@ -16493,7 +16545,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos {
         chassi = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_chassi_example k
         c_cor = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_c_cor_example k
         x_cor = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_x_cor_example k
@@ -16506,7 +16558,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri {
         n_onu = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_n_onu_example k
         x_nome_ae = None
         x_cla_risco = None
@@ -16520,7 +16572,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal {
         any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
         versao_modal = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_versao_modal_example k
     }
@@ -16529,7 +16581,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg {
         resp_seg = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_resp_seg_example k
         x_seg = None
         n_apol = None
@@ -16541,7 +16593,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant {
         emi_doc_ant = [ x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_example (k + 0i32) ]
     }
 
@@ -16549,7 +16601,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_e
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant {
         choice_cnpj = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_choice_cnpj_example k
         ie = x_t_ie_example k
         uf = x_t_uf_example k
@@ -16562,7 +16614,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_i
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant {
         choice_id_doc_ant_pap =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_example
                 k
@@ -16584,7 +16636,7 @@ and let
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap {
         tp_doc = x_t_doc_assoc_example k
         serie =
             x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_serie_example
@@ -16606,7 +16658,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc {
         choice_inf_nf = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_example k
     }
 
@@ -16622,7 +16674,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf {
         n_roma = None
         n_ped = None
         mod = x_t_mod_nf_example k
@@ -16654,7 +16706,7 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_example
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga {
         v_carga = None
         pro_pred = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_pro_pred_example k
         x_out_cat = None
@@ -16665,14 +16717,14 @@ and let x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_examp
     (k : i32)
     : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q
     =
-    {
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q {
         c_unid = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_c_unid_example k
         tp_med = x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_tp_med_example k
         q_carga = x_t_dec_1104_example k
     }
 
 and let x_tc_te_inf_cte_imp_example (k : i32) : x_tc_te_inf_cte_imp =
-    {
+    x_tc_te_inf_cte_imp {
         icms = x_t_imp_example k
         v_tot_trib = None
         inf_ad_fisco = None
@@ -16680,7 +16732,7 @@ and let x_tc_te_inf_cte_imp_example (k : i32) : x_tc_te_inf_cte_imp =
     }
 
 and let x_tc_te_inf_cte_imp_icmsuf_fim_example (k : i32) : x_tc_te_inf_cte_imp_icmsuf_fim =
-    {
+    x_tc_te_inf_cte_imp_icmsuf_fim {
         v_bcuf_fim = x_t_dec_1302_example k
         p_fcpuf_fim = x_t_dec_0302_example k
         p_icmsuf_fim = x_t_dec_0302_example k
@@ -16692,20 +16744,20 @@ and let x_tc_te_inf_cte_imp_icmsuf_fim_example (k : i32) : x_tc_te_inf_cte_imp_i
     }
 
 and let x_tc_te_inf_cte_v_prest_example (k : i32) : x_tc_te_inf_cte_v_prest =
-    {
+    x_tc_te_inf_cte_v_prest {
         v_t_prest = x_t_dec_1302_example k
         v_rec = x_t_dec_1302_example k
         comp = []
     }
 
 and let x_tc_te_inf_cte_v_prest_comp_example (k : i32) : x_tc_te_inf_cte_v_prest_comp =
-    {
+    x_tc_te_inf_cte_v_prest_comp {
         x_nome = x_tc_te_inf_cte_v_prest_comp_x_nome_example k
         v_comp = x_t_dec_1302_example k
     }
 
 and let x_tc_te_inf_cte_dest_example (k : i32) : x_tc_te_inf_cte_dest =
-    {
+    x_tc_te_inf_cte_dest {
         choice_cnpj = x_tc_te_inf_cte_dest_choice_cnpj_example k
         ie = None
         x_nome = x_tc_te_inf_cte_dest_x_nome_example k
@@ -16719,7 +16771,7 @@ and let x_tc_te_inf_cte_dest_choice_cnpj_example (k : i32) : x_tc_te_inf_cte_des
     TCTe_infCte_dest_choice_CNPJ_CNPJ (x_t_cnpj_opc_example k)
 
 and let x_tc_te_inf_cte_receb_example (k : i32) : x_tc_te_inf_cte_receb =
-    {
+    x_tc_te_inf_cte_receb {
         choice_cnpj = x_tc_te_inf_cte_receb_choice_cnpj_example k
         ie = x_t_ie_dest_example k
         x_nome = x_tc_te_inf_cte_receb_x_nome_example k
@@ -16732,7 +16784,7 @@ and let x_tc_te_inf_cte_receb_choice_cnpj_example (k : i32) : x_tc_te_inf_cte_re
     TCTe_infCte_receb_choice_CNPJ_CNPJ (x_t_cnpj_opc_example k)
 
 and let x_tc_te_inf_cte_exped_example (k : i32) : x_tc_te_inf_cte_exped =
-    {
+    x_tc_te_inf_cte_exped {
         choice_cnpj = x_tc_te_inf_cte_exped_choice_cnpj_example k
         ie = x_t_ie_dest_example k
         x_nome = x_tc_te_inf_cte_exped_x_nome_example k
@@ -16745,7 +16797,7 @@ and let x_tc_te_inf_cte_exped_choice_cnpj_example (k : i32) : x_tc_te_inf_cte_ex
     TCTe_infCte_exped_choice_CNPJ_CNPJ (x_t_cnpj_opc_example k)
 
 and let x_tc_te_inf_cte_rem_example (k : i32) : x_tc_te_inf_cte_rem =
-    {
+    x_tc_te_inf_cte_rem {
         choice_cnpj = x_tc_te_inf_cte_rem_choice_cnpj_example k
         ie = x_t_ie_dest_example k
         x_nome = x_tc_te_inf_cte_rem_x_nome_example k
@@ -16759,7 +16811,7 @@ and let x_tc_te_inf_cte_rem_choice_cnpj_example (k : i32) : x_tc_te_inf_cte_rem_
     TCTe_infCte_rem_choice_CNPJ_CNPJ (x_t_cnpj_opc_example k)
 
 and let x_tc_te_inf_cte_emit_example (k : i32) : x_tc_te_inf_cte_emit =
-    {
+    x_tc_te_inf_cte_emit {
         cnpj = x_t_cnpj_example k
         ie = x_tc_te_inf_cte_emit_ie_example k
         x_nome = x_tc_te_inf_cte_emit_x_nome_example k
@@ -16768,7 +16820,7 @@ and let x_tc_te_inf_cte_emit_example (k : i32) : x_tc_te_inf_cte_emit =
     }
 
 and let x_tc_te_inf_cte_compl_example (k : i32) : x_tc_te_inf_cte_compl =
-    {
+    x_tc_te_inf_cte_compl {
         x_carac_ad = None
         x_carac_ser = None
         x_emi = None
@@ -16782,19 +16834,19 @@ and let x_tc_te_inf_cte_compl_example (k : i32) : x_tc_te_inf_cte_compl =
     }
 
 and let x_tc_te_inf_cte_compl_obs_fisco_example (k : i32) : x_tc_te_inf_cte_compl_obs_fisco =
-    {
+    x_tc_te_inf_cte_compl_obs_fisco {
         x_texto = x_tc_te_inf_cte_compl_obs_fisco_x_texto_example k
         x_campo = x_tc_te_inf_cte_compl_obs_fisco_x_campo_example k
     }
 
 and let x_tc_te_inf_cte_compl_obs_cont_example (k : i32) : x_tc_te_inf_cte_compl_obs_cont =
-    {
+    x_tc_te_inf_cte_compl_obs_cont {
         x_texto = x_tc_te_inf_cte_compl_obs_cont_x_texto_example k
         x_campo = x_tc_te_inf_cte_compl_obs_cont_x_campo_example k
     }
 
 and let x_tc_te_inf_cte_compl_entrega_example (k : i32) : x_tc_te_inf_cte_compl_entrega =
-    {
+    x_tc_te_inf_cte_compl_entrega {
         choice_sem_data = x_tc_te_inf_cte_compl_entrega_choice_sem_data_example k
         choice_sem_hora = x_tc_te_inf_cte_compl_entrega_choice_sem_hora_example k
     }
@@ -16806,7 +16858,7 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_example
     (k : i32)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora {
         tp_hor = x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_tp_hor_example k
     }
 
@@ -16817,12 +16869,12 @@ and let x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_example
     (k : i32)
     : x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data
     =
-    {
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data {
         tp_per = x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_tp_per_example k
     }
 
 and let x_tc_te_inf_cte_compl_fluxo_example (k : i32) : x_tc_te_inf_cte_compl_fluxo =
-    {
+    x_tc_te_inf_cte_compl_fluxo {
         x_orig = None
         pass = []
         x_dest = None
@@ -16830,12 +16882,12 @@ and let x_tc_te_inf_cte_compl_fluxo_example (k : i32) : x_tc_te_inf_cte_compl_fl
     }
 
 and let x_tc_te_inf_cte_compl_fluxo_pass_example (k : i32) : x_tc_te_inf_cte_compl_fluxo_pass =
-    {
+    x_tc_te_inf_cte_compl_fluxo_pass {
         x_pass = None
     }
 
 and let x_tc_te_inf_cte_ide_example (k : i32) : x_tc_te_inf_cte_ide =
-    {
+    x_tc_te_inf_cte_ide {
         c_uf = x_t_cod_uf_ibge_example k
         c_ct = x_tc_te_inf_cte_ide_c_ct_example k
         cfop = x_t_cfop_example k
@@ -16875,19 +16927,19 @@ and let x_tc_te_inf_cte_ide_choice_toma03_example (k : i32) : x_tc_te_inf_cte_id
     TCTe_infCte_ide_choice_toma03_toma03 (x_tc_te_inf_cte_ide_choice_toma03_toma03_example k)
 
 and let x_tc_te_inf_cte_ide_choice_toma03_toma03_example (k : i32) : x_tc_te_inf_cte_ide_choice_toma03_toma03 =
-    {
+    x_tc_te_inf_cte_ide_choice_toma03_toma03 {
         toma = x_tc_te_inf_cte_ide_choice_toma03_toma03_toma_example k
     }
 
 and let x_t_envi_c_te_example (k : i32) : x_t_envi_c_te unsigned =
-    {
+    x_t_envi_c_te {
         id_lote = x_t_id_lote_example k
         c_te = [ x_tc_te_example (k + 0i32) ]
         versao = x_t_ver_c_te_example k
     }
 
 and let x_t_ret_envi_c_te_example (k : i32) : x_t_ret_envi_c_te =
-    {
+    x_t_ret_envi_c_te {
         tp_amb = x_t_amb_example k
         c_uf = x_t_cod_uf_ibge_example k
         ver_aplic = x_t_ver_aplic_example k
@@ -16898,14 +16950,14 @@ and let x_t_ret_envi_c_te_example (k : i32) : x_t_ret_envi_c_te =
     }
 
 and let x_t_ret_envi_c_te_inf_rec_example (k : i32) : x_t_ret_envi_c_te_inf_rec =
-    {
+    x_t_ret_envi_c_te_inf_rec {
         n_rec = x_t_rec_example k
         dh_recbto = "2026-01-01T00:00:00"
         t_med = x_t_ret_envi_c_te_inf_rec_t_med_example k
     }
 
 and let x_t_ende_emi_example (k : i32) : x_t_ende_emi =
-    {
+    x_t_ende_emi {
         x_lgr = x_t_ende_emi_x_lgr_example k
         nro = x_t_ende_emi_nro_example k
         x_cpl = None
@@ -16918,7 +16970,7 @@ and let x_t_ende_emi_example (k : i32) : x_t_ende_emi =
     }
 
 and let x_t_endereco_example (k : i32) : x_t_endereco =
-    {
+    x_t_endereco {
         x_lgr = x_t_endereco_x_lgr_example k
         nro = x_t_endereco_nro_example k
         x_cpl = None
@@ -16932,7 +16984,7 @@ and let x_t_endereco_example (k : i32) : x_t_endereco =
     }
 
 and let x_t_endernac_example (k : i32) : x_t_endernac =
-    {
+    x_t_endernac {
         x_lgr = x_t_endernac_x_lgr_example k
         nro = x_t_endernac_nro_example k
         x_cpl = None
@@ -16944,7 +16996,7 @@ and let x_t_endernac_example (k : i32) : x_t_endernac =
     }
 
 and let x_t_end_org_example (k : i32) : x_t_end_org =
-    {
+    x_t_end_org {
         x_lgr = x_t_end_org_x_lgr_example k
         nro = x_t_end_org_nro_example k
         x_cpl = None
@@ -16959,14 +17011,14 @@ and let x_t_end_org_example (k : i32) : x_t_end_org =
     }
 
 and let x_t_local_example (k : i32) : x_t_local =
-    {
+    x_t_local {
         c_mun = x_t_cod_mun_ibge_example k
         x_mun = x_t_local_x_mun_example k
         uf = x_t_uf_example k
     }
 
 and let x_t_end_re_ent_example (k : i32) : x_t_end_re_ent =
-    {
+    x_t_end_re_ent {
         choice_cnpj = x_t_end_re_ent_choice_cnpj_example k
         x_nome = x_t_end_re_ent_x_nome_example k
         x_lgr = x_t_end_re_ent_x_lgr_example k
@@ -16982,7 +17034,7 @@ and let x_t_end_re_ent_choice_cnpj_example (k : i32) : x_t_end_re_ent_choice_cnp
     TEndReEnt_choice_CNPJ_CNPJ (x_t_cnpj_example k)
 
 and let x_t_imp_example (k : i32) : x_t_imp =
-    {
+    x_t_imp {
         choice_icms00 = x_t_imp_choice_icms00_example k
     }
 
@@ -16990,7 +17042,7 @@ and let x_t_imp_choice_icms00_example (k : i32) : x_t_imp_choice_icms00 =
     TImp_choice_ICMS00_ICMS00 (x_t_imp_choice_icms00_icms00_example k)
 
 and let x_t_imp_choice_icms00_icms00_example (k : i32) : x_t_imp_choice_icms00_icms00 =
-    {
+    x_t_imp_choice_icms00_icms00 {
         cst = x_t_imp_choice_icms00_icms00_cst_example k
         v_bc = x_t_dec_1302_example k
         p_icms = x_t_dec_0302_example k
@@ -16998,7 +17050,7 @@ and let x_t_imp_choice_icms00_icms00_example (k : i32) : x_t_imp_choice_icms00_i
     }
 
 and let x_t_unidade_transp_example (k : i32) : x_t_unidade_transp =
-    {
+    x_t_unidade_transp {
         tp_unid_transp = x_ttipo_unid_transp_example k
         id_unid_transp = x_t_container_example k
         lac_unid_transp = []
@@ -17007,12 +17059,12 @@ and let x_t_unidade_transp_example (k : i32) : x_t_unidade_transp =
     }
 
 and let x_t_unidade_transp_lac_unid_transp_example (k : i32) : x_t_unidade_transp_lac_unid_transp =
-    {
+    x_t_unidade_transp_lac_unid_transp {
         n_lacre = x_t_unidade_transp_lac_unid_transp_n_lacre_example k
     }
 
 and let x_t_unid_carga_example (k : i32) : x_t_unid_carga =
-    {
+    x_t_unid_carga {
         tp_unid_carga = x_ttipo_unid_carga_example k
         id_unid_carga = x_t_container_example k
         lac_unid_carga = []
@@ -17020,12 +17072,12 @@ and let x_t_unid_carga_example (k : i32) : x_t_unid_carga =
     }
 
 and let x_t_unid_carga_lac_unid_carga_example (k : i32) : x_t_unid_carga_lac_unid_carga =
-    {
+    x_t_unid_carga_lac_unid_carga {
         n_lacre = x_t_unid_carga_lac_unid_carga_n_lacre_example k
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =
-    {
+    x_signature_type {
         signed_info = x_signed_info_type_example k
         signature_value = x_signature_value_type_example k
         key_info = x_key_info_type_example k
@@ -17033,13 +17085,13 @@ and let x_signature_type_example (k : i32) : x_signature_type =
     }
 
 and let x_signature_value_type_example (k : i32) : x_signature_value_type =
-    {
+    x_signature_value_type {
         base = "AAAA"
         id = None
     }
 
 and let x_signed_info_type_example (k : i32) : x_signed_info_type =
-    {
+    x_signed_info_type {
         canonicalization_method = x_signed_info_type_canonicalization_method_example k
         signature_method = x_signed_info_type_signature_method_example k
         reference = x_reference_type_example k
@@ -17047,17 +17099,17 @@ and let x_signed_info_type_example (k : i32) : x_signed_info_type =
     }
 
 and let x_signed_info_type_signature_method_example (k : i32) : x_signed_info_type_signature_method =
-    {
+    x_signed_info_type_signature_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
     }
 
 and let x_signed_info_type_canonicalization_method_example (k : i32) : x_signed_info_type_canonicalization_method =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
     }
 
 and let x_reference_type_example (k : i32) : x_reference_type =
-    {
+    x_reference_type {
         transforms = x_transforms_type_example k
         digest_method = x_reference_type_digest_method_example k
         digest_value = x_digest_value_type_example k
@@ -17067,31 +17119,372 @@ and let x_reference_type_example (k : i32) : x_reference_type =
     }
 
 and let x_reference_type_digest_method_example (k : i32) : x_reference_type_digest_method =
-    {
+    x_reference_type_digest_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
     }
 
 and let x_transforms_type_example (k : i32) : x_transforms_type =
-    {
+    x_transforms_type {
         transform = [ x_transform_type_example (k + 0i32); x_transform_type_example (k + 1i32) ]
     }
 
 and let x_transform_type_example (k : i32) : x_transform_type =
-    {
-        x_path = "1"
+    x_transform_type {
+        group_x_path = []
         algorithm = x_t_transform_uri_example k
     }
 
+and let x_transform_type_group_x_path_example (k : i32) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path {
+        x_path = "1"
+    }
+
 and let x_key_info_type_example (k : i32) : x_key_info_type =
-    {
+    x_key_info_type {
         x509_data = x_x509_data_type_example k
         id = None
     }
 
 and let x_x509_data_type_example (k : i32) : x_x509_data_type =
-    {
+    x_x509_data_type {
         x509_certificate = "AAAA"
     }
+
+
+instance of_xml x_tc_te s {stage_of} = fun c => x_tc_te_of_xml (stage_of ()) c
+instance to_xml x_tc_te s = x_tc_te_to_xml
+
+instance of_xml x_tc_te_inf_cte = x_tc_te_inf_cte_of_xml
+instance to_xml x_tc_te_inf_cte = x_tc_te_inf_cte_to_xml
+
+instance of_xml x_tc_te_inf_cte_aut_xml = x_tc_te_inf_cte_aut_xml_of_xml
+instance to_xml x_tc_te_inf_cte_aut_xml = x_tc_te_inf_cte_aut_xml_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_to_xml
+
+instance
+    of_xml
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf
+    =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_of_xml
+instance
+    to_xml
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf
+    =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_to_xml
+
+instance
+    of_xml
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele
+    =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele_of_xml
+instance
+    to_xml
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele
+    =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele_to_xml
+
+instance
+    of_xml
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap
+    =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_of_xml
+instance
+    to_xml
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap
+    =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_to_xml
+
+instance of_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_of_xml
+instance to_xml x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q =
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_to_xml
+
+instance of_xml x_tc_te_inf_cte_imp = x_tc_te_inf_cte_imp_of_xml
+instance to_xml x_tc_te_inf_cte_imp = x_tc_te_inf_cte_imp_to_xml
+
+instance of_xml x_tc_te_inf_cte_imp_icmsuf_fim = x_tc_te_inf_cte_imp_icmsuf_fim_of_xml
+instance to_xml x_tc_te_inf_cte_imp_icmsuf_fim = x_tc_te_inf_cte_imp_icmsuf_fim_to_xml
+
+instance of_xml x_tc_te_inf_cte_v_prest = x_tc_te_inf_cte_v_prest_of_xml
+instance to_xml x_tc_te_inf_cte_v_prest = x_tc_te_inf_cte_v_prest_to_xml
+
+instance of_xml x_tc_te_inf_cte_v_prest_comp = x_tc_te_inf_cte_v_prest_comp_of_xml
+instance to_xml x_tc_te_inf_cte_v_prest_comp = x_tc_te_inf_cte_v_prest_comp_to_xml
+
+instance of_xml x_tc_te_inf_cte_dest = x_tc_te_inf_cte_dest_of_xml
+instance to_xml x_tc_te_inf_cte_dest = x_tc_te_inf_cte_dest_to_xml
+
+instance of_xml x_tc_te_inf_cte_receb = x_tc_te_inf_cte_receb_of_xml
+instance to_xml x_tc_te_inf_cte_receb = x_tc_te_inf_cte_receb_to_xml
+
+instance of_xml x_tc_te_inf_cte_exped = x_tc_te_inf_cte_exped_of_xml
+instance to_xml x_tc_te_inf_cte_exped = x_tc_te_inf_cte_exped_to_xml
+
+instance of_xml x_tc_te_inf_cte_rem = x_tc_te_inf_cte_rem_of_xml
+instance to_xml x_tc_te_inf_cte_rem = x_tc_te_inf_cte_rem_to_xml
+
+instance of_xml x_tc_te_inf_cte_emit = x_tc_te_inf_cte_emit_of_xml
+instance to_xml x_tc_te_inf_cte_emit = x_tc_te_inf_cte_emit_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl = x_tc_te_inf_cte_compl_of_xml
+instance to_xml x_tc_te_inf_cte_compl = x_tc_te_inf_cte_compl_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_obs_fisco = x_tc_te_inf_cte_compl_obs_fisco_of_xml
+instance to_xml x_tc_te_inf_cte_compl_obs_fisco = x_tc_te_inf_cte_compl_obs_fisco_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_obs_cont = x_tc_te_inf_cte_compl_obs_cont_of_xml
+instance to_xml x_tc_te_inf_cte_compl_obs_cont = x_tc_te_inf_cte_compl_obs_cont_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_entrega = x_tc_te_inf_cte_compl_entrega_of_xml
+instance to_xml x_tc_te_inf_cte_compl_entrega = x_tc_te_inf_cte_compl_entrega_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_of_xml
+instance to_xml x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_of_xml
+instance to_xml x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_of_xml
+instance to_xml x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_of_xml
+instance to_xml x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_of_xml
+instance to_xml x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_of_xml
+instance to_xml x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data =
+    x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_fluxo = x_tc_te_inf_cte_compl_fluxo_of_xml
+instance to_xml x_tc_te_inf_cte_compl_fluxo = x_tc_te_inf_cte_compl_fluxo_to_xml
+
+instance of_xml x_tc_te_inf_cte_compl_fluxo_pass = x_tc_te_inf_cte_compl_fluxo_pass_of_xml
+instance to_xml x_tc_te_inf_cte_compl_fluxo_pass = x_tc_te_inf_cte_compl_fluxo_pass_to_xml
+
+instance of_xml x_tc_te_inf_cte_ide = x_tc_te_inf_cte_ide_of_xml
+instance to_xml x_tc_te_inf_cte_ide = x_tc_te_inf_cte_ide_to_xml
+
+instance of_xml x_tc_te_inf_cte_ide_choice_toma03_toma4 = x_tc_te_inf_cte_ide_choice_toma03_toma4_of_xml
+instance to_xml x_tc_te_inf_cte_ide_choice_toma03_toma4 = x_tc_te_inf_cte_ide_choice_toma03_toma4_to_xml
+
+instance of_xml x_tc_te_inf_cte_ide_choice_toma03_toma03 = x_tc_te_inf_cte_ide_choice_toma03_toma03_of_xml
+instance to_xml x_tc_te_inf_cte_ide_choice_toma03_toma03 = x_tc_te_inf_cte_ide_choice_toma03_toma03_to_xml
+
+instance of_xml x_t_envi_c_te s {stage_of} = fun c => x_t_envi_c_te_of_xml (stage_of ()) c
+instance to_xml x_t_envi_c_te s = x_t_envi_c_te_to_xml
+
+instance of_xml x_t_ret_envi_c_te = x_t_ret_envi_c_te_of_xml
+instance to_xml x_t_ret_envi_c_te = x_t_ret_envi_c_te_to_xml
+
+instance of_xml x_t_ret_envi_c_te_inf_rec = x_t_ret_envi_c_te_inf_rec_of_xml
+instance to_xml x_t_ret_envi_c_te_inf_rec = x_t_ret_envi_c_te_inf_rec_to_xml
+
+instance of_xml x_t_ende_emi = x_t_ende_emi_of_xml
+instance to_xml x_t_ende_emi = x_t_ende_emi_to_xml
+
+instance of_xml x_t_endereco = x_t_endereco_of_xml
+instance to_xml x_t_endereco = x_t_endereco_to_xml
+
+instance of_xml x_t_endernac = x_t_endernac_of_xml
+instance to_xml x_t_endernac = x_t_endernac_to_xml
+
+instance of_xml x_t_end_org = x_t_end_org_of_xml
+instance to_xml x_t_end_org = x_t_end_org_to_xml
+
+instance of_xml x_t_local = x_t_local_of_xml
+instance to_xml x_t_local = x_t_local_to_xml
+
+instance of_xml x_t_end_re_ent = x_t_end_re_ent_of_xml
+instance to_xml x_t_end_re_ent = x_t_end_re_ent_to_xml
+
+instance of_xml x_t_imp = x_t_imp_of_xml
+instance to_xml x_t_imp = x_t_imp_to_xml
+
+instance of_xml x_t_imp_choice_icms00_icmssn = x_t_imp_choice_icms00_icmssn_of_xml
+instance to_xml x_t_imp_choice_icms00_icmssn = x_t_imp_choice_icms00_icmssn_to_xml
+
+instance of_xml x_t_imp_choice_icms00_icms_outra_uf = x_t_imp_choice_icms00_icms_outra_uf_of_xml
+instance to_xml x_t_imp_choice_icms00_icms_outra_uf = x_t_imp_choice_icms00_icms_outra_uf_to_xml
+
+instance of_xml x_t_imp_choice_icms00_icms90 = x_t_imp_choice_icms00_icms90_of_xml
+instance to_xml x_t_imp_choice_icms00_icms90 = x_t_imp_choice_icms00_icms90_to_xml
+
+instance of_xml x_t_imp_choice_icms00_icms60 = x_t_imp_choice_icms00_icms60_of_xml
+instance to_xml x_t_imp_choice_icms00_icms60 = x_t_imp_choice_icms00_icms60_to_xml
+
+instance of_xml x_t_imp_choice_icms00_icms45 = x_t_imp_choice_icms00_icms45_of_xml
+instance to_xml x_t_imp_choice_icms00_icms45 = x_t_imp_choice_icms00_icms45_to_xml
+
+instance of_xml x_t_imp_choice_icms00_icms20 = x_t_imp_choice_icms00_icms20_of_xml
+instance to_xml x_t_imp_choice_icms00_icms20 = x_t_imp_choice_icms00_icms20_to_xml
+
+instance of_xml x_t_imp_choice_icms00_icms00 = x_t_imp_choice_icms00_icms00_of_xml
+instance to_xml x_t_imp_choice_icms00_icms00 = x_t_imp_choice_icms00_icms00_to_xml
+
+instance of_xml x_t_unidade_transp = x_t_unidade_transp_of_xml
+instance to_xml x_t_unidade_transp = x_t_unidade_transp_to_xml
+
+instance of_xml x_t_unidade_transp_lac_unid_transp = x_t_unidade_transp_lac_unid_transp_of_xml
+instance to_xml x_t_unidade_transp_lac_unid_transp = x_t_unidade_transp_lac_unid_transp_to_xml
+
+instance of_xml x_t_unid_carga = x_t_unid_carga_of_xml
+instance to_xml x_t_unid_carga = x_t_unid_carga_to_xml
+
+instance of_xml x_t_unid_carga_lac_unid_carga = x_t_unid_carga_lac_unid_carga_of_xml
+instance to_xml x_t_unid_carga_lac_unid_carga = x_t_unid_carga_lac_unid_carga_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_value_type = x_signature_value_type_of_xml
+instance to_xml x_signature_value_type = x_signature_value_type_to_xml
+
+instance of_xml x_signed_info_type = x_signed_info_type_of_xml
+instance to_xml x_signed_info_type = x_signed_info_type_to_xml
+
+instance of_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_of_xml
+instance to_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_to_xml
+
+instance of_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_of_xml
+instance to_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_to_xml
+
+instance of_xml x_reference_type = x_reference_type_of_xml
+instance to_xml x_reference_type = x_reference_type_to_xml
+
+instance of_xml x_reference_type_digest_method = x_reference_type_digest_method_of_xml
+instance to_xml x_reference_type_digest_method = x_reference_type_digest_method_to_xml
+
+instance of_xml x_transforms_type = x_transforms_type_of_xml
+instance to_xml x_transforms_type = x_transforms_type_to_xml
+
+instance of_xml x_transform_type = x_transform_type_of_xml
+instance to_xml x_transform_type = x_transform_type_to_xml
+
+instance of_xml x_transform_type_group_x_path = x_transform_type_group_x_path_of_xml
+instance to_xml x_transform_type_group_x_path = x_transform_type_group_x_path_to_xml
+
+instance of_xml x_key_info_type = x_key_info_type_of_xml
+instance to_xml x_key_info_type = x_key_info_type_to_xml
+
+instance of_xml x_x509_data_type = x_x509_data_type_of_xml
+instance to_xml x_x509_data_type = x_x509_data_type_to_xml
 
 
 ///> rust

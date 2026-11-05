@@ -1,0 +1,111 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:! minimum = ()
+:! basic_wl = ()
+:! basic = ()
+:! en16931 = ()
+:! extended_ctc_fr = ()
+:! extended = ()
+
+:| profile p =
+    | Minimum :: profile minimum
+    | BasicWl :: profile basic_wl
+    | Basic :: profile basic
+    | En16931 :: profile en16931
+    | ExtendedCtcFr :: profile extended_ctc_fr
+    | Extended :: profile extended
+
+:| step a b =
+    | MinimumToBasicWl :: step minimum basic_wl
+    | BasicWlToBasic :: step basic_wl basic
+    | BasicToEn16931 :: step basic en16931
+    | En16931ToCtcFr :: step en16931 extended_ctc_fr
+    | CtcFrToExtended :: step extended_ctc_fr extended
+
+:| ^ path a b =
+    | Here :: \* a. path a a
+    | Then :: \* a c. (\? b. step a b * path b c) -> path a c
+
+:! profiled p = profile p * string
+
+:= profiled_as \* p. (level : profile p) (document : string) : profiled p = profiled (level, document)
+
+:= widen \* a b. (route : path a b) (target : profile b) ((profiled (_, document)) : profiled a) : profiled b =
+    profiled (target, document)
+
+:= profile_urn \* p. (level : profile p) : option string =
+    ?= level ?|
+    | Minimum => Some "urn:factur-x.eu:1p0:minimum"
+    | BasicWl => Some "urn:factur-x.eu:1p0:basicwl"
+    | Basic => Some "urn:cen.eu:en16931:2017#compliant#urn:factur-x.eu:1p0:basic"
+    | En16931 => Some "urn:cen.eu:en16931:2017"
+    | ExtendedCtcFr => None
+    | Extended => Some "urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended"
+
+:= document_of \* p. ((profiled (_, document)) : profiled p) : string = document
+
+:= level_of \* p. ((profiled (level, _)) : profiled p) : profile p = level
+
+:| myinvois_version =
+    | MyInvoisV10
+    | MyInvoisV11
+
+:| ubl_profile =
+    | UblEn16931
+    | PeppolBis3
+    | SunatUbl20
+    | MyInvois : myinvois_version
+
+:= myinvois_version_text (v : myinvois_version) : string =
+    ?= v ?|
+    | MyInvoisV10 => "1.0"
+    | MyInvoisV11 => "1.1"
+
+:= myinvois_version_of (list_version : string) : option myinvois_version =
+    listm'::try_find_ (\ v => myinvois_version_text v = list_version) (MyInvoisV10 :: MyInvoisV11 :: [])
+
+:= peppol_bis3_urn () : string = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0"
+
+:= ubl_profile_of (customization : option string) (list_version : option string) : option ubl_profile =
+    ?= customization ?|
+    | Some urn ?& urn = "urn:cen.eu:en16931:2017" => Some UblEn16931
+    | Some urn ?& urn = peppol_bis3_urn () => Some PeppolBis3
+    | Some urn ?& urn = "2.0" => Some SunatUbl20
+    | Some _ => None
+    | None =>
+        ?= list_version ?|
+        | Some version => optionm::map (\ v => MyInvois v) (myinvois_version_of version)
+        | None => None
+
+///> rust
+test a_basic_invoice_widens_to_en16931_and_extended =
+    := invoice = profiled_as Basic "<rsm:CrossIndustryInvoice/>"
+    := to_en16931 : path basic en16931 = Then (\? (BasicToEn16931, Here))
+    := lifted = widen to_en16931 En16931 invoice
+    ? profile_urn (level_of lifted) <> Some "urn:cen.eu:en16931:2017"
+    ?> failwith "the widened invoice carries the EN 16931 guideline"
+    := to_extended : path basic extended =
+        Then (\? (BasicToEn16931, Then (\? (En16931ToCtcFr, Then (\? (CtcFrToExtended, Here))))))
+    ? document_of (widen to_extended Extended invoice) <> "<rsm:CrossIndustryInvoice/>"
+    ?> failwith "widening keeps the document"
+
+///> rust
+test ubl_documents_are_classified_by_their_customization_or_list_version =
+    ? ubl_profile_of (Some "2.0") None <> Some SunatUbl20 ?> failwith "SUNAT UBL 2.0"
+    ? ubl_profile_of (Some "urn:cen.eu:en16931:2017") None <> Some UblEn16931 ?> failwith "a CEN EN16931 example"
+    ? ubl_profile_of (Some (peppol_bis3_urn ())) None <> Some PeppolBis3 ?> failwith "PEPPOL BIS Billing 3.0"
+    ? ubl_profile_of None (Some "1.1") <> Some (MyInvois MyInvoisV11) ?> failwith "MyInvois 1.1 has no customization"
+    ? ubl_profile_of None (Some "1.0") <> Some (MyInvois MyInvoisV10) ?> failwith "MyInvois 1.0"
+    ? ubl_profile_of None (Some "2.1") <> None || ubl_profile_of (Some "x") (Some "1.1") <> None
+    ?> failwith "an unknown mark is no profile"
+
+///> rust
+test a_path_never_narrows fails "Unification failure" =
+    := narrowing : path en16931 basic = Then (\? (BasicToEn16931, Here))
+    narrowing |> ignore
+
+///> rust
+test a_widened_invoice_has_its_target_profile fails "Unification failure" =
+    := invoice = profiled_as Basic "<rsm:CrossIndustryInvoice/>"
+    (widen Here Basic invoice : profiled extended) |> ignore

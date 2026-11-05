@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -3544,7 +3546,7 @@ inl x_timbre_fiscal_digital_sello_sat_example (_ : i32) : string = "1"
 
 inl x_timbre_fiscal_digital_sello_sat_example_text (k : i32) : string = x_timbre_fiscal_digital_sello_sat_example k
 
-type x_timbre_fiscal_digital =
+nominal x_timbre_fiscal_digital =
     {
         version : string
         uuid : x_timbre_fiscal_digital_uuid
@@ -3560,7 +3562,7 @@ let rec x_timbre_fiscal_digital_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_timbre_fiscal_digital
     =
-    {
+    x_timbre_fiscal_digital {
         version = xml.required_attribute "Version" (xml.checked_fixed "Version" "1.1" attributes)
         uuid =
             xml.required_value
@@ -3608,7 +3610,7 @@ and let x_timbre_fiscal_digital_to_xml (name : string) (x : x_timbre_fiscal_digi
     xml.element name (x_timbre_fiscal_digital_attributes x) (x_timbre_fiscal_digital_children x)
 
 and let x_timbre_fiscal_digital_example (k : i32) : x_timbre_fiscal_digital =
-    {
+    x_timbre_fiscal_digital {
         version = "1.1"
         uuid = x_timbre_fiscal_digital_uuid_example k
         fecha_timbrado = x_t_fecha_h_example k
@@ -3618,6 +3620,10 @@ and let x_timbre_fiscal_digital_example (k : i32) : x_timbre_fiscal_digital =
         no_certificado_sat = x_timbre_fiscal_digital_no_certificado_sat_example k
         sello_sat = x_timbre_fiscal_digital_sello_sat_example k
     }
+
+
+instance of_xml x_timbre_fiscal_digital = x_timbre_fiscal_digital_of_xml
+instance to_xml x_timbre_fiscal_digital = x_timbre_fiscal_digital_to_xml
 
 
 ///> rust

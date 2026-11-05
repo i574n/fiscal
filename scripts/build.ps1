@@ -6,6 +6,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
 $env:FISCAL_ROOT = $root
+$env:FISCAL_BUILD_TIME = [DateTime]::UtcNow.ToString('yyyy-MM-dd HH:mm') + ' UTC'
 $Files = @($Files | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 $Exclude = @($Exclude | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 
@@ -105,7 +106,7 @@ if (-not $Files) {
     if ($drift) { $problems.Add("generated: $($drift.Count) files differ from the committed copy; commit the regenerated generated/") }
     else { Write-Output 'build.ps1 / generated / matches the committed copy' }
 }
-foreach ($source in @(Select-TestFiles { $_.BaseName -ne 'generator' })) { Invoke-TestFile $source }
+foreach ($source in @(Select-TestFiles { $_.BaseName -notin 'generator', 'reports' })) { Invoke-TestFile $source }
 
 if (!$Files -or $Files -contains 'examples') {
     $validation = @(& (Join-Path $PSScriptRoot 'family-gates.ps1'))
@@ -115,7 +116,7 @@ if (!$Files -or $Files -contains 'examples') {
     $exampleRows = [Collections.Generic.List[object]]::new()
     $current = $null
     foreach ($line in $validation) {
-        if ($line -match '^== (\S+)( :: not written)?') { $current = [pscustomobject]@{ Example = $Matches[1]; Bytes = ''; Messages = ''; SignaturePending = ''; First = $(if ($Matches[2]) { 'not written' } else { '' }) }; $exampleRows.Add($current) }
+        if ($line -match '^== (\S+)( :: not written)?') { $current = [pscustomobject]@{ Example = $Matches[1]; Bytes = ''; Messages = ''; SignaturePending = ''; First = ''; Written = $(if ($Matches[2]) { '0' } else { '1' }) }; $exampleRows.Add($current) }
         elseif ($current -and $line -match '^document (\d+) bytes; validation messages (\d+)(?:; signature pending (\d+))?') { $current.Bytes = $Matches[1]; $current.Messages = $Matches[2]; $current.SignaturePending = "$($Matches[3])" }
         elseif ($current -and -not $current.First -and $line -match '^\s+x\d+: (.*)') { $current.First = $Matches[1] }
     }
@@ -135,14 +136,13 @@ Write-Output "build.ps1 / bench / $(@($benchRows).Count) units measured (median 
 
 $fileRows | ConvertTo-Csv -Delimiter "`t" -UseQuotes Never | Set-Content (Join-Path $metrics "files$labelSuffix.tsv")
 $testRows | ConvertTo-Csv -Delimiter "`t" -UseQuotes Never | Set-Content (Join-Path $metrics "tests$labelSuffix.tsv")
+$env:FISCAL_METRICS_SUFFIX = $labelSuffix
+foreach ($source in @(Select-TestFiles { $_.BaseName -eq 'reports' })) { Invoke-TestFile $source }
 if ($env:GITHUB_STEP_SUMMARY) {
     $minutes = [math]::Round(($fileRows | Measure-Object Seconds -Sum).Sum / 60, 1)
-    $summary = @("### fiscal $Label", "", "$($fileRows.Count) files in $minutes min", "", "| slowest file | s |", "|---|---|")
-    $summary += $fileRows | Sort-Object Seconds -Descending | Select-Object -First 8 | ForEach-Object { "| $($_.File) | $($_.Seconds) |" }
-    if (@($benchRows).Count) {
-        $summary += @('', '| unit | parse µs | write µs | bytes |', '|---|---|---|---|')
-        $summary += @($benchRows | Sort-Object Unit) | ForEach-Object { "| $($_.Unit) | $($_.ParseUs) | $($_.WriteUs) | $($_.Bytes) |" }
-    }
+    $summary = @("### fiscal $Label", "", "$($fileRows.Count) files in $minutes min", "")
+    $report = Join-Path $metrics 'reports.md'
+    if (Test-Path -LiteralPath $report) { $summary += Get-Content -LiteralPath $report | Select-Object -Skip 1 }
     $summary | Add-Content $env:GITHUB_STEP_SUMMARY
 }
 if (!$tested.Count) { throw "build.ps1 / no test files matched $($Files -join ', ')" }

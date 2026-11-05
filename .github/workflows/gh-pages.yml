@@ -78,6 +78,11 @@ jobs:
           name: gh-pages
           path: gh-pages
 
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: ci-metrics-*
+          path: gh-pages/target
+
       - run: echo "$GITHUB_SHA" > gh-pages/_deploy.txt
 
       - uses: peaceiris/actions-gh-pages@v4.1.0

@@ -43,6 +43,9 @@ pairs; the CT-e 4.00 family units have 33,518 lines each.
 
 Every CI run on `main` rebuilds these from the official sources and publishes them with this page:
 
+- [`target/ci-metrics/reports.md`](target/ci-metrics/reports.md): the run at a glance, with its commit, run and build
+  time, the test counts and every test that did not pass, the slowest files, the bench and every example's verdict.
+  `src/reports.spi` renders it from the tables below as typed rows.
 - [`target/ci-metrics/bench.tsv`](target/ci-metrics/bench.tsv): parse and write medians (µs) of each generated unit
   reading back and re-writing its own example, 31 runs per unit.
 - [`target/ci-metrics/examples.tsv`](target/ci-metrics/examples.tsv): every unit's example checked against the official
@@ -168,7 +171,15 @@ from the committed copy. Example documents and the pattern oracle's output are b
 
 | Path | What |
 |---|---|
-| `src/generator.spi` | schema-to-Spiral generator and the family roots it writes |
+| `src/generator.spi` | schema-to-Spiral generator: writes each family's module, examples and checks |
+| `src/families.spi` | every family as data (schema, root, namespace, documents), indexed by regime (Brazil, UBL, Mexico) |
+| `src/generated_runtime.spi` | the shared runtime unit the generated modules use |
+| `src/canon.spi`, `src/document.spi` | EN 16931 terms and the typed canonical document every family projects to, with measured loss |
+| `src/lifecycle.spi` | document lifecycle as types (issued, authorized, cancelled), events and the durable outbox |
+| `src/p2p.spi`, `src/posting.spi` | purchase-to-payment typestate and the double-entry journal an invoice books, per regime |
+| `src/profiles.spi` | the Factur-X / ZUGFeRD profile lattice as types (widening only along proven steps), and the UBL profiles (EN 16931, PEPPOL BIS 3, SUNAT, MyInvois 1.0/1.1) |
+| `src/sunat.spi` | Peru's SUNAT catalogs (01, 05, 07, 09, 10) as types: IGV affectation indexed by its group, so only a taxed line can charge IGV; the 07 → 05 tax-scheme rule checked over the 58 homologation cases |
+| `src/reports.spi` | renders the CI tables as `target/ci-metrics/reports.md` |
 | `generated/<module>/` | one generated module and its one-module package (committed; the build checks it for drift) |
 | `src/corpus.spi`, `src/corpus_checks.spi` | corpus census and oracle checks |
 | `src/fiscal_paths.spi` | repository root (`FISCAL_ROOT`, or the folder above that holds `src/generator.spi`) |
@@ -178,8 +189,8 @@ from the committed copy. Example documents and the pattern oracle's output are b
 ## Known limits
 
 - EU coverage is UBL only. CII and its Factur-X / ZUGFeRD profiles (France's 2026 B2B mandate, Germany) are the next
-  system, chosen because their five profiles are restricted XSDs of one document, a dimension the generic model does
-  not express yet.
+  system: the CII D16B schemas and examples are pinned (`deps/corpus/eu/en16931-cii`) and the six-profile lattice is
+  modeled as types (`src/profiles.spi`), but no CII family is generated yet.
 - Facet-constrained values are plain string aliases, and the generated readers do not call their validators, so an
   invalid value reads without error. Each constrained type is planned to become a nominal type built only through its
   validator, which makes a raw string where a validated value is expected a type error.

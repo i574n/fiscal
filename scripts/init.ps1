@@ -361,6 +361,103 @@ if (-not (Test-Path $verifactu)) {
     Save-Pinned "${aeat}SuministroInformacion.xsd" (Join-Path $verifactu 'SuministroInformacion.xsd') 'EE4C1655175644DE'
     "deps/corpus/es/verifactu: AEAT VeriFactu SuministroLR + SuministroInformacion"
 }
+$ciiCorpus = Join-Path $deps 'corpus/eu/en16931-cii'
+if (-not (Test-Path $ciiCorpus)) {
+    $filling = $ciiCorpus
+    New-Item -ItemType Directory -Force $ciiCorpus | Out-Null
+    $en16931 = 'https://raw.githubusercontent.com/ConnectingEurope/eInvoicing-EN16931/6e35e0ab8b09eb183f7d84b282e24ef95f9f5715/'
+    $ciiPins = [ordered]@{
+        'cii/examples/CII-BR-CO-10-RoundingIssue.xml' = '04711E7A649E3F28'
+        'cii/examples/CII_business_example_01.xml' = '2CE8286333F4C201'
+        'cii/examples/CII_business_example_02.xml' = '53A636AC10592AA6'
+        'cii/examples/CII_business_example_Z.xml' = '68222346E14DFFF6'
+        'cii/examples/CII_example1.xml' = '0C12E3CA9AAB5829'
+        'cii/examples/CII_example2.xml' = '2CE8286333F4C201'
+        'cii/examples/CII_example3.xml' = '5C2E9DE624DC72FC'
+        'cii/examples/CII_example4.xml' = 'DEB7101F27855D21'
+        'cii/examples/CII_example5.xml' = '473B2F9BD47B8078'
+        'cii/examples/CII_example6.xml' = '23EF86C42478EDD7'
+        'cii/examples/CII_example7.xml' = '0F3CCC7DD0F96E87'
+        'cii/examples/CII_example8.xml' = '28AF1D24E201BE9C'
+        'cii/examples/CII_example9.xml' = 'E43F32E9307D7977'
+        'cii/examples/XRechnung-O.xml' = '399ACF31A9C7CE47'
+        'cii/examples/huf_example_cii.xml' = 'FAD73604FC1FF6AC'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/EDIFICAS-EU_AccountingAccountType_D11A.xsd' = 'B361D255F47705F6'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/EDIFICAS-EU_AccountingAmountType_D11A.xsd' = '92D067BA81B98697'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/ISO_ISO3AlphaCurrencyCode_2012-08-31.xsd' = 'AA9CBC3E4BA0DEF7'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_ActionCode_D16A.xsd' = '5CD5ABCBA783A09D'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_AdjustmentReasonDescriptionCode_D16A.xsd' = '166049478C09D64C'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_AllowanceChargeIdentificationCode_D16A.xsd' = '636FE3EDAFD159D5'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_AllowanceChargeReasonCode_D16A.xsd' = 'C2C444EB7ECD086F'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_AutomaticDataCaptureMethodCode_D16A.xsd' = 'B1DC8D783F4FDA8B'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_CargoOperationalCategoryCode_D16A.xsd' = 'CAB6E7D436617500'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_CargoTypeCode_1996Rev2Final.xsd' = 'AAA666B36E590FA1'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_CommodityIdentificationCode_D16A.xsd' = '482155316EEFBBF1'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_CommunicationMeansTypeCode_D16A.xsd' = 'EB44F72BD9BA8772'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_ContactFunctionCode_D16A.xsd' = 'D384D467BC164281'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_DeliveryTermsCode_2010.xsd' = '408859328850274E'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_DimensionTypeCode_D16A.xsd' = '076690B1F51A15BB'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_DocumentNameCode_Accounting_D16A.xsd' = '6C6BD43FEE17DD35'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_DocumentNameCode_D16A.xsd' = '213ED454CCDD6386'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_DocumentStatusCode_D16A.xsd' = 'F253EEABC2120310'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_DutyTaxFeeTypeCode_D16A.xsd' = 'B2BD6B78FAA666B0'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_DutyorTaxorFeeCategoryCode_D16A.xsd' = '9C067673378BB8B5'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_EquipmentSizeTypeDescriptionCode_D16A.xsd' = '7936B66984DF6922'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_EventTimeReferenceCodePaymentTermsEvent_D16A.xsd' = '739BFDA0EF837695'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_EventTimeReferenceCode_D16A.xsd' = '2BD1AAFB7FF7DD00'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_FreightChargeQuantityUnitBasisCode_D16A.xsd' = 'BC73D4F16067D57C'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_FreightChargeTariffCode_D16A.xsd' = 'AEF84F453A450528'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_GoodsTypeCode_D16A.xsd' = '1FAA4D576617FB8C'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_GoodsTypeExtensionCode_D16A.xsd' = '1B464672338AE2A7'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_MeasurementUnitCommonCodeLinear_4.xsd' = 'D4E48AB51445AE02'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_MeasurementUnitCommonCodeVolume_4.xsd' = '96B42244D774BBBD'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_MeasurementUnitCommonCodeWeight_4.xsd' = 'A1E85E992E9D071B'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_MessageFunctionCode_D16A.xsd' = '884E2DE87556D44E'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PackageTypeCode_2006.xsd' = '24B52C6DAA4E25C8'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PackagingMarkingCode_D16A.xsd' = '23264A849C7D1C10'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PartyRoleCode_ChargePaying_D16A.xsd' = '9B0FDC65DC42B632'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PartyRoleCode_D16A.xsd' = '6964994CBDDCF4BD'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PaymentGuaranteeMeansCode_D16A.xsd' = '410D9664834C4386'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PaymentMeansChannelCode_D16A.xsd' = '32096394AA869A68'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PaymentMeansCode_D16A.xsd' = '6C3B02F1B0900F40'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PaymentTermsTypeCode_D16A.xsd' = 'F53F9B980EAA3ADF'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_PriceTypeCode_D16A.xsd' = '9753C0E3350B2140'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_ReferenceTypeCode_D16A.xsd' = 'D23F6D424F0B050E'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_TimePointFormatCode_D16A.xsd' = '43E8C9BF574BFFE7'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_TransportEquipmentCategoryCode_D16A.xsd' = 'B05E90441F1FB520'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_TransportEquipmentFullnessCode_D16A.xsd' = '7CEAF04B36E28594'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_TransportMeansTypeCode_2007.xsd' = '74840FC911E38EFC'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_TransportModeCode_2.xsd' = '73784D1E62B6CAC2'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/codelist/standard/UNECE_TransportMovementStageCode_D16A.xsd' = '745E2E548ADE9C3A'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/data/standard/CrossIndustryInvoice_100pD16B.xsd' = 'B9798AAFCBA039D0'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/data/standard/CrossIndustryInvoice_QualifiedDataType_100pD16B.xsd' = 'A39E0662C31FBDCA'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/data/standard/CrossIndustryInvoice_ReusableAggregateBusinessInformationEntity_100pD16B.xsd' = 'CC682D67791FFE16'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/data/standard/CrossIndustryInvoice_UnqualifiedDataType_100pD16B.xsd' = '5D4CE8A6445CAA4B'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/identifierlist/standard/ISO_ISOTwo-letterCountryCode_SecondEdition2006.xsd' = '9260E5B7ABD9A419'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/identifierlist/standard/UNECE_FreightCostCode_4.xsd' = '30778D3ED87F425C'
+        'cii/schema/D16B SCRDM (Subset)/uncoupled clm/CII/uncefact/identifierlist/standard/UNECE_PaymentTermsDescriptionIdentifier_D16A.xsd' = '8C5500644C0ECE33'
+    }
+    foreach ($file in $ciiPins.Keys) {
+        $target = Join-Path $ciiCorpus $file
+        New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
+        Save-Pinned ($en16931 + (($file -split '/' | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/')) $target $ciiPins[$file]
+    }
+    "deps/corpus/eu/en16931-cii: CEN EN 16931 validation artefacts 1.3.17 (EUPL 1.2): UN/CEFACT CII D16B (uncoupled code lists) + 15 CII examples"
+}
+$facturaeSamples = Join-Path $deps 'corpus/es/facturae/samples'
+if (-not (Test-Path $facturaeSamples)) {
+    $filling = $facturaeSamples
+    New-Item -ItemType Directory -Force $facturaeSamples | Out-Null
+    $gobl = 'https://raw.githubusercontent.com/invopop/gobl.facturae/b702b599515357b1b682756bc2f0cff9701ade90/test/data/convert/out/'
+    $pins = [ordered]@{
+        'corrective.xml' = '2A1260BE34C04B2A'; 'credit-note.xml' = '74147B72B1C725EA'; 'invoice-complete.xml' = 'CF175071A21F9ABB'
+        'invoice-face.xml' = '47BE48317E98228E'; 'invoice-overseas-individual.xml' = '98C425809B1050FD'
+        'invoice-usd.xml' = 'BFAD2E5E1D1BA3F7'; 'invoice-vat-irpf-inc.xml' = '34189F69F6011C11'
+        'invoice-vat-irpf.xml' = 'EBB32E8046A92595'; 'invoice-vat-provider.xml' = '8DB07EF2051B3EF1'; 'invoice-vat.xml' = 'AFA5D0B988F1A0B3'
+    }
+    foreach ($name in $pins.Keys) { Save-Pinned "$gobl$name" (Join-Path $facturaeSamples $name) $pins[$name] }
+    "deps/corpus/es/facturae/samples: 10 signed Facturae 3.2.2 documents (invopop/gobl.facturae test data, Apache-2.0); facturae.gob.es publishes no example"
+}
 $chileExamples = Join-Path $deps 'corpus/cl/examples'
 if (-not (Test-Path $chileExamples)) {
     $filling = $chileExamples

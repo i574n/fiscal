@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -2906,29 +2908,34 @@ inl x_attachment_compression_algorithm_type_example (k : i32) : x_attachment_com
 inl x_attachment_compression_algorithm_type_example_text (k : i32) : string =
     x_attachment_compression_algorithm_type_to_string (x_attachment_compression_algorithm_type_example k)
 
-type x_x509_data_type =
+nominal x_x509_data_type =
     {
         x509_certificate : string
     }
 
-type x_key_info_type =
+nominal x_key_info_type =
     {
         x509_data : x_x509_data_type
         id : option (string)
     }
 
-type x_transform_type =
+nominal x_transform_type_group_x_path =
     {
         x_path : string
+    }
+
+nominal x_transform_type =
+    {
+        group_x_path : list (x_transform_type_group_x_path)
         algorithm : x_t_transform_uri
     }
 
-type x_transforms_type =
+nominal x_transforms_type =
     {
         transform : list (x_transform_type)
     }
 
-type x_reference_type_digest_method =
+nominal x_reference_type_digest_method =
     {
         algorithm : string
     }
@@ -2949,7 +2956,7 @@ inl x_reference_type_uri_example (_ : i32) : x_reference_type_uri = x_reference_
 inl x_reference_type_uri_example_text (k : i32) : string =
     x_reference_type_uri_to_string (x_reference_type_uri_example k)
 
-type x_reference_type =
+nominal x_reference_type =
     {
         transforms : x_transforms_type
         digest_method : x_reference_type_digest_method
@@ -2959,17 +2966,17 @@ type x_reference_type =
         type_value : option (string)
     }
 
-type x_signed_info_type_canonicalization_method =
+nominal x_signed_info_type_canonicalization_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type_signature_method =
+nominal x_signed_info_type_signature_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type =
+nominal x_signed_info_type =
     {
         canonicalization_method : x_signed_info_type_canonicalization_method
         signature_method : x_signed_info_type_signature_method
@@ -2977,13 +2984,13 @@ type x_signed_info_type =
         id : option (string)
     }
 
-type x_signature_value_type =
+nominal x_signature_value_type =
     {
         base : string
         id : option (string)
     }
 
-type x_signature_type =
+nominal x_signature_type =
     {
         signed_info : x_signed_info_type
         signature_value : x_signature_value_type
@@ -2991,20 +2998,20 @@ type x_signature_type =
         id : option (string)
     }
 
-type x_payment_in_kind_type =
+nominal x_payment_in_kind_type =
     {
         payment_in_kind_reason : x_text_max2500_type
         payment_in_kind_amount : x_double_up_to_eight_decimal_type
     }
 
-type x_repository_type =
+nominal x_repository_type =
     {
         repository_name : x_text_max20_type
         url : option (x_text_max250_type)
         reference : x_text_max250_type
     }
 
-type x_factoring_assignment_document_type =
+nominal x_factoring_assignment_document_type =
     {
         document_character : x_text_max50_type
         representation_identity : option (x_text_max80_type)
@@ -3012,7 +3019,7 @@ type x_factoring_assignment_document_type =
         repository : option (x_repository_type)
     }
 
-type x_period_dates =
+nominal x_period_dates =
     {
         start_date : string
         end_date : string
@@ -3022,18 +3029,18 @@ union x_account_type_choice_iban =
     | AccountType_choice_IBAN_IBAN : x_text_min5_max34_type
     | AccountType_choice_IBAN_AccountNumber : x_text_min5_max34_type
 
-type x_extensions_type =
+nominal x_extensions_type =
     {
         any : any_content
     }
 
-type x_amount_type =
+nominal x_amount_type =
     {
         total_amount : x_double_up_to_eight_decimal_type
         equivalent_in_euros : option (x_double_two_decimal_type)
     }
 
-type x_tax_output_type =
+nominal x_tax_output_type =
     {
         tax_type_code : x_tax_type_code_type
         tax_rate : x_double_up_to_eight_decimal_type
@@ -3045,7 +3052,7 @@ type x_tax_output_type =
         equivalence_surcharge_amount : option (x_amount_type)
     }
 
-type x_tax_type =
+nominal x_tax_type =
     {
         tax_type_code : x_tax_type_code_type
         tax_rate : x_double_up_to_eight_decimal_type
@@ -3053,36 +3060,36 @@ type x_tax_type =
         tax_amount : option (x_amount_type)
     }
 
-type x_taxes_type =
+nominal x_taxes_type =
     {
         tax : list (x_tax_type)
     }
 
-type x_charge_type =
+nominal x_charge_type =
     {
         charge_reason : x_text_max2500_type
         charge_rate : option (x_double_up_to_eight_decimal_type)
         charge_amount : x_double_up_to_eight_decimal_type
     }
 
-type x_charges_type =
+nominal x_charges_type =
     {
         charge : list (x_charge_type)
     }
 
-type x_discount_type =
+nominal x_discount_type =
     {
         discount_reason : x_text_max2500_type
         discount_rate : option (x_double_up_to_eight_decimal_type)
         discount_amount : x_double_up_to_eight_decimal_type
     }
 
-type x_discounts_and_rebates_type =
+nominal x_discounts_and_rebates_type =
     {
         discount : list (x_discount_type)
     }
 
-type x_contact_details_type =
+nominal x_contact_details_type =
     {
         telephone : option (x_text_max15_type)
         tele_fax : option (x_text_max15_type)
@@ -3094,7 +3101,7 @@ type x_contact_details_type =
         additional_contact_details : option (x_text_max60_type)
     }
 
-type x_overseas_address_type =
+nominal x_overseas_address_type =
     {
         address : x_text_max80_type
         post_code_and_town : x_text_max50_type
@@ -3102,7 +3109,7 @@ type x_overseas_address_type =
         country_code : x_country_type
     }
 
-type x_address_type =
+nominal x_address_type =
     {
         address : x_text_max80_type
         post_code : x_post_code_type
@@ -3111,7 +3118,7 @@ type x_address_type =
         country_code : x_country_type
     }
 
-type x_registration_data_type =
+nominal x_registration_data_type =
     {
         book : option (x_text_max20_type)
         register_of_companies_location : option (x_text_max20_type)
@@ -3126,7 +3133,7 @@ union x_individual_type_choice_address_in_spain =
     | IndividualType_choice_AddressInSpain_AddressInSpain : x_address_type
     | IndividualType_choice_AddressInSpain_OverseasAddress : x_overseas_address_type
 
-type x_individual_type =
+nominal x_individual_type =
     {
         name : x_text_max40_type
         first_surname : x_text_max40_type
@@ -3139,7 +3146,7 @@ union x_legal_entity_type_choice_address_in_spain =
     | LegalEntityType_choice_AddressInSpain_AddressInSpain : x_address_type
     | LegalEntityType_choice_AddressInSpain_OverseasAddress : x_overseas_address_type
 
-type x_legal_entity_type =
+nominal x_legal_entity_type =
     {
         corporate_name : x_text_max80_type
         trade_name : option (x_text_max40_type)
@@ -3148,14 +3155,14 @@ type x_legal_entity_type =
         contact_details : option (x_contact_details_type)
     }
 
-type x_tax_identification_type =
+nominal x_tax_identification_type =
     {
         person_type_code : x_person_type_code_type
         residence_type_code : x_residence_type_code_type
         tax_identification_number : x_text_min3_max30_type
     }
 
-type x_attachment_type =
+nominal x_attachment_type =
     {
         attachment_compression_algorithm : option (x_attachment_compression_algorithm_type)
         attachment_format : x_attachment_format_type
@@ -3164,12 +3171,12 @@ type x_attachment_type =
         attachment_data : string
     }
 
-type x_attached_documents_type =
+nominal x_attached_documents_type =
     {
         attachment : list (x_attachment_type)
     }
 
-type x_additional_data_type =
+nominal x_additional_data_type =
     {
         related_invoice : option (x_text_max40_type)
         related_documents : option (x_attached_documents_type)
@@ -3177,12 +3184,12 @@ type x_additional_data_type =
         extensions : option (x_extensions_type)
     }
 
-type x_legal_literals_type =
+nominal x_legal_literals_type =
     {
         legal_reference : list (x_text_max250_type)
     }
 
-type x_reimbursable_expenses_type =
+nominal x_reimbursable_expenses_type =
     {
         reimbursable_expenses_seller_party : option (x_tax_identification_type)
         reimbursable_expenses_buyer_party : option (x_tax_identification_type)
@@ -3192,42 +3199,42 @@ type x_reimbursable_expenses_type =
         reimbursable_expenses_amount : x_double_up_to_eight_decimal_type
     }
 
-type x_reimbursable_expenses =
+nominal x_reimbursable_expenses =
     {
         reimbursable_expenses : list (x_reimbursable_expenses_type)
     }
 
-type x_amounts_withheld_type =
+nominal x_amounts_withheld_type =
     {
         withholding_reason : x_text_max2500_type
         withholding_rate : option (x_double_up_to_eight_decimal_type)
         withholding_amount : x_double_up_to_eight_decimal_type
     }
 
-type x_payment_on_account_type =
+nominal x_payment_on_account_type =
     {
         payment_on_account_date : string
         payment_on_account_amount : x_double_up_to_eight_decimal_type
     }
 
-type x_payments_on_account_type =
+nominal x_payments_on_account_type =
     {
         payment_on_account : list (x_payment_on_account_type)
     }
 
-type x_subsidy_type =
+nominal x_subsidy_type =
     {
         subsidy_description : x_text_max2500_type
         subsidy_rate : option (x_double_up_to_eight_decimal_type)
         subsidy_amount : x_double_up_to_eight_decimal_type
     }
 
-type x_subsidies_type =
+nominal x_subsidies_type =
     {
         subsidy : list (x_subsidy_type)
     }
 
-type x_invoice_totals_type =
+nominal x_invoice_totals_type =
     {
         total_gross_amount : x_double_up_to_eight_decimal_type
         general_discounts : option (x_discounts_and_rebates_type)
@@ -3250,34 +3257,34 @@ type x_invoice_totals_type =
         payment_in_kind : option (x_payment_in_kind_type)
     }
 
-type x_special_taxable_event_type =
+nominal x_special_taxable_event_type =
     {
         special_taxable_event_code : x_special_taxable_event_code_type
         special_taxable_event_reason : x_text_max2500_type
     }
 
-type x_delivery_note_type =
+nominal x_delivery_note_type =
     {
         delivery_note_number : x_text_max30_type
         delivery_note_date : option (string)
     }
 
-type x_delivery_notes_references_type =
+nominal x_delivery_notes_references_type =
     {
         delivery_note : list (x_delivery_note_type)
     }
 
-type x_invoice_line_type_taxes_outputs_tax =
+nominal x_invoice_line_type_taxes_outputs_tax =
     {
         base : x_tax_output_type
     }
 
-type x_invoice_line_type_taxes_outputs =
+nominal x_invoice_line_type_taxes_outputs =
     {
         tax : list (x_invoice_line_type_taxes_outputs_tax)
     }
 
-type x_invoice_line_type =
+nominal x_invoice_line_type =
     {
         issuer_contract_reference : option (x_text_max20_type)
         issuer_contract_date : option (string)
@@ -3309,13 +3316,13 @@ type x_invoice_line_type =
         extensions : option (x_extensions_type)
     }
 
-type x_place_of_issue_type =
+nominal x_place_of_issue_type =
     {
         post_code : x_post_code_type
         place_of_issue_description : option (x_text_max20_type)
     }
 
-type x_corrective_type =
+nominal x_corrective_type =
     {
         invoice_number : option (x_text_max20_type)
         invoice_series_code : option (x_text_max20_type)
@@ -3328,18 +3335,18 @@ type x_corrective_type =
         invoice_issue_date : option (string)
     }
 
-type x_exchange_rate_details_type =
+nominal x_exchange_rate_details_type =
     {
         exchange_rate : x_double_up_to_eight_decimal_type
         exchange_rate_date : string
     }
 
-type x_items_type =
+nominal x_items_type =
     {
         invoice_line : list (x_invoice_line_type)
     }
 
-type x_invoice_issue_data_type =
+nominal x_invoice_issue_data_type =
     {
         issue_date : string
         operation_date : option (string)
@@ -3355,7 +3362,7 @@ type x_invoice_issue_data_type =
         receiver_contract_reference : option (x_text_max20_type)
     }
 
-type x_invoice_header_type =
+nominal x_invoice_header_type =
     {
         invoice_number : x_text_max20_type
         invoice_series_code : option (x_text_max20_type)
@@ -3364,7 +3371,7 @@ type x_invoice_header_type =
         corrective : option (x_corrective_type)
     }
 
-type x_invoice_type_taxes_outputs =
+nominal x_invoice_type_taxes_outputs =
     {
         tax : list (x_tax_output_type)
     }
@@ -3377,13 +3384,13 @@ union x_assignee_type_choice_legal_entity =
     | AssigneeType_choice_LegalEntity_LegalEntity : x_legal_entity_type
     | AssigneeType_choice_LegalEntity_Individual : x_individual_type
 
-type x_assignee_type =
+nominal x_assignee_type =
     {
         tax_identification : x_tax_identification_type
         choice_legal_entity : x_assignee_type_choice_legal_entity
     }
 
-type x_batch_type =
+nominal x_batch_type =
     {
         batch_identifier : x_text_max70_type
         invoices_count : string
@@ -3397,7 +3404,7 @@ union x_third_party_type_choice_legal_entity =
     | ThirdPartyType_choice_LegalEntity_LegalEntity : x_legal_entity_type
     | ThirdPartyType_choice_LegalEntity_Individual : x_individual_type
 
-type x_third_party_type =
+nominal x_third_party_type =
     {
         tax_identification : x_tax_identification_type
         choice_legal_entity : x_third_party_type_choice_legal_entity
@@ -3407,7 +3414,7 @@ union x_account_type_choice_branch_in_spain_address =
     | AccountType_choice_BranchInSpainAddress_BranchInSpainAddress : option (x_address_type)
     | AccountType_choice_BranchInSpainAddress_OverseasBranchAddress : option (x_overseas_address_type)
 
-type x_account_type =
+nominal x_account_type =
     {
         choice_iban : x_account_type_choice_iban
         bank_code : option (x_text_max60_type)
@@ -3420,7 +3427,7 @@ union x_administrative_centre_type_choice_address_in_spain =
     | AdministrativeCentreType_choice_AddressInSpain_AddressInSpain : x_address_type
     | AdministrativeCentreType_choice_AddressInSpain_OverseasAddress : x_overseas_address_type
 
-type x_administrative_centre_type =
+nominal x_administrative_centre_type =
     {
         centre_code : option (x_text_max10_type)
         role_type_code : option (x_role_type_code_type)
@@ -3434,12 +3441,12 @@ type x_administrative_centre_type =
         centre_description : option (x_text_max2500_type)
     }
 
-type x_administrative_centres_type =
+nominal x_administrative_centres_type =
     {
         administrative_centre : list (x_administrative_centre_type)
     }
 
-type x_installment_type =
+nominal x_installment_type =
     {
         installment_due_date : string
         installment_amount : x_double_two_decimal_type
@@ -3452,12 +3459,12 @@ type x_installment_type =
         debit_reconciliation_reference : option (x_text_max60_type)
     }
 
-type x_installments_type =
+nominal x_installments_type =
     {
         installment : list (x_installment_type)
     }
 
-type x_invoice_type =
+nominal x_invoice_type =
     {
         invoice_header : x_invoice_header_type
         invoice_issue_data : x_invoice_issue_data_type
@@ -3470,12 +3477,12 @@ type x_invoice_type =
         additional_data : option (x_additional_data_type)
     }
 
-type x_invoices_type =
+nominal x_invoices_type =
     {
         invoice : list (x_invoice_type)
     }
 
-type x_business_type =
+nominal x_business_type =
     {
         tax_identification : x_tax_identification_type
         party_identification : option (x_party_identification_type)
@@ -3483,13 +3490,13 @@ type x_business_type =
         choice_legal_entity : x_business_type_choice_legal_entity
     }
 
-type x_parties_type =
+nominal x_parties_type =
     {
         seller_party : x_business_type
         buyer_party : x_business_type
     }
 
-type x_factoring_assignment_data_type =
+nominal x_factoring_assignment_data_type =
     {
         assignee : x_assignee_type
         payment_details : x_installments_type
@@ -3497,7 +3504,7 @@ type x_factoring_assignment_data_type =
         factoring_assignment_document : list (x_factoring_assignment_document_type)
     }
 
-type x_file_header_type =
+nominal x_file_header_type =
     {
         schema_version : x_schema_version_type
         modality : x_modality_type
@@ -3507,7 +3514,7 @@ type x_file_header_type =
         factoring_assignment_data : option (x_factoring_assignment_data_type)
     }
 
-type x_facturae =
+nominal x_facturae =
     {
         file_header : x_file_header_type
         parties : x_parties_type
@@ -4447,11 +4454,21 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     | TransformsType_field_Transform => x.transform
 
 union x_transform_type_field r =
-    | TransformType_field_XPath :: x_transform_type_field (string)
+    | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
-    | TransformType_field_XPath => x.x_path
+    | TransformType_field_group_x_path => x.group_x_path
+
+union x_transform_type_group_x_path_field r =
+    | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
+
+inl x_transform_type_group_x_path_get forall r.
+    (f : x_transform_type_group_x_path_field r) (x : x_transform_type_group_x_path)
+    : r
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => x.x_path
 
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
@@ -4468,7 +4485,7 @@ inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_da
     | X509DataType_field_X509Certificate => x.x509_certificate
 
 let rec x_facturae_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_facturae =
-    {
+    x_facturae {
         file_header = (fun c => x_file_header_type_of_xml c) (xml.required_child "FileHeader" children)
         parties = (fun c => x_parties_type_of_xml c) (xml.required_child "Parties" children)
         invoices = (fun c => x_invoices_type_of_xml c) (xml.required_child "Invoices" children)
@@ -4483,7 +4500,7 @@ and let x_file_header_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_file_header_type
     =
-    {
+    x_file_header_type {
         schema_version =
             (fun c => xml.required_value "x_schema_version_type" (x_schema_version_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SchemaVersion" children)
         modality =
@@ -4505,7 +4522,7 @@ and let x_third_party_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_third_party_type
     =
-    {
+    x_third_party_type {
         tax_identification =
             (fun c => x_tax_identification_type_of_xml c) (xml.required_child "TaxIdentification" children)
         choice_legal_entity = x_third_party_type_choice_legal_entity_of_children attributes children
@@ -4530,7 +4547,7 @@ and let x_third_party_type_choice_legal_entity_of_children
     else failwith "x_third_party_type_choice_legal_entity: no alternative present"
 
 and let x_batch_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_batch_type =
-    {
+    x_batch_type {
         batch_identifier =
             (fun c => xml.required_value "x_text_max70_type" (x_text_max70_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "BatchIdentifier" children)
         invoices_count = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "InvoicesCount" children)
@@ -4550,7 +4567,7 @@ and let x_factoring_assignment_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factoring_assignment_data_type
     =
-    {
+    x_factoring_assignment_data_type {
         assignee = (fun c => x_assignee_type_of_xml c) (xml.required_child "Assignee" children)
         payment_details = (fun c => x_installments_type_of_xml c) (xml.required_child "PaymentDetails" children)
         factoring_assignment_clauses =
@@ -4568,7 +4585,7 @@ and let x_assignee_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_assignee_type
     =
-    {
+    x_assignee_type {
         tax_identification =
             (fun c => x_tax_identification_type_of_xml c) (xml.required_child "TaxIdentification" children)
         choice_legal_entity = x_assignee_type_choice_legal_entity_of_children attributes children
@@ -4596,7 +4613,7 @@ and let x_parties_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_parties_type
     =
-    {
+    x_parties_type {
         seller_party = (fun c => x_business_type_of_xml c) (xml.required_child "SellerParty" children)
         buyer_party = (fun c => x_business_type_of_xml c) (xml.required_child "BuyerParty" children)
     }
@@ -4608,7 +4625,7 @@ and let x_business_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_business_type
     =
-    {
+    x_business_type {
         tax_identification =
             (fun c => x_tax_identification_type_of_xml c) (xml.required_child "TaxIdentification" children)
         party_identification =
@@ -4646,7 +4663,7 @@ and let x_invoices_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoices_type
     =
-    {
+    x_invoices_type {
         invoice = listm.map (fun c => x_invoice_type_of_xml c) (xml.children_named "Invoice" children)
     }
 
@@ -4657,7 +4674,7 @@ and let x_invoice_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_type
     =
-    {
+    x_invoice_type {
         invoice_header = (fun c => x_invoice_header_type_of_xml c) (xml.required_child "InvoiceHeader" children)
         invoice_issue_data =
             (fun c => x_invoice_issue_data_type_of_xml c) (xml.required_child "InvoiceIssueData" children)
@@ -4680,7 +4697,7 @@ and let x_invoice_type_taxes_outputs_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_type_taxes_outputs
     =
-    {
+    x_invoice_type_taxes_outputs {
         tax = listm.map (fun c => x_tax_output_type_of_xml c) (xml.children_named "Tax" children)
     }
 
@@ -4691,7 +4708,7 @@ and let x_invoice_header_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_header_type
     =
-    {
+    x_invoice_header_type {
         invoice_number =
             (fun c => xml.required_value "x_text_max20_type" (x_text_max20_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvoiceNumber" children)
         invoice_series_code =
@@ -4714,7 +4731,7 @@ and let x_invoice_issue_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_issue_data_type
     =
-    {
+    x_invoice_issue_data_type {
         issue_date = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "IssueDate" children)
         operation_date =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "OperationDate" children)
@@ -4760,7 +4777,7 @@ and let x_invoice_issue_data_type_of_xml (c : xml.xml_node) : x_invoice_issue_da
     x_invoice_issue_data_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_items_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_items_type =
-    {
+    x_items_type {
         invoice_line = listm.map (fun c => x_invoice_line_type_of_xml c) (xml.children_named "InvoiceLine" children)
     }
 
@@ -4771,7 +4788,7 @@ and let x_exchange_rate_details_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_exchange_rate_details_type
     =
-    {
+    x_exchange_rate_details_type {
         exchange_rate =
             (fun c => xml.required_value "x_double_up_to_eight_decimal_type" (x_double_up_to_eight_decimal_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ExchangeRate" children)
         exchange_rate_date =
@@ -4785,7 +4802,7 @@ and let x_corrective_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_corrective_type
     =
-    {
+    x_corrective_type {
         invoice_number =
             optionm.map
                 fun c =>
@@ -4824,7 +4841,7 @@ and let x_place_of_issue_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_place_of_issue_type
     =
-    {
+    x_place_of_issue_type {
         post_code =
             (fun c => xml.required_value "x_post_code_type" (x_post_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PostCode" children)
         place_of_issue_description =
@@ -4842,7 +4859,7 @@ and let x_invoice_line_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_line_type
     =
-    {
+    x_invoice_line_type {
         issuer_contract_reference =
             optionm.map
                 fun c =>
@@ -4946,7 +4963,7 @@ and let x_invoice_line_type_taxes_outputs_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_line_type_taxes_outputs
     =
-    {
+    x_invoice_line_type_taxes_outputs {
         tax = listm.map (fun c => x_invoice_line_type_taxes_outputs_tax_of_xml c) (xml.children_named "Tax" children)
     }
 
@@ -4957,7 +4974,7 @@ and let x_invoice_line_type_taxes_outputs_tax_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_line_type_taxes_outputs_tax
     =
-    {
+    x_invoice_line_type_taxes_outputs_tax {
         base = x_tax_output_type_of_children attributes children
     }
 
@@ -4968,7 +4985,7 @@ and let x_delivery_notes_references_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_delivery_notes_references_type
     =
-    {
+    x_delivery_notes_references_type {
         delivery_note = listm.map (fun c => x_delivery_note_type_of_xml c) (xml.children_named "DeliveryNote" children)
     }
 
@@ -4979,7 +4996,7 @@ and let x_delivery_note_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_delivery_note_type
     =
-    {
+    x_delivery_note_type {
         delivery_note_number =
             (fun c => xml.required_value "x_text_max30_type" (x_text_max30_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DeliveryNoteNumber" children)
         delivery_note_date =
@@ -4993,7 +5010,7 @@ and let x_special_taxable_event_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_special_taxable_event_type
     =
-    {
+    x_special_taxable_event_type {
         special_taxable_event_code =
             (fun c => xml.required_value "x_special_taxable_event_code_type" (x_special_taxable_event_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SpecialTaxableEventCode" children)
         special_taxable_event_reason =
@@ -5007,7 +5024,7 @@ and let x_invoice_totals_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_totals_type
     =
-    {
+    x_invoice_totals_type {
         total_gross_amount =
             (fun c => xml.required_value "x_double_up_to_eight_decimal_type" (x_double_up_to_eight_decimal_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TotalGrossAmount" children)
         general_discounts =
@@ -5074,7 +5091,7 @@ and let x_subsidies_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_subsidies_type
     =
-    {
+    x_subsidies_type {
         subsidy = listm.map (fun c => x_subsidy_type_of_xml c) (xml.children_named "Subsidy" children)
     }
 
@@ -5085,7 +5102,7 @@ and let x_subsidy_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_subsidy_type
     =
-    {
+    x_subsidy_type {
         subsidy_description =
             (fun c => xml.required_value "x_text_max2500_type" (x_text_max2500_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SubsidyDescription" children)
         subsidy_rate =
@@ -5105,7 +5122,7 @@ and let x_payments_on_account_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_payments_on_account_type
     =
-    {
+    x_payments_on_account_type {
         payment_on_account =
             listm.map (fun c => x_payment_on_account_type_of_xml c) (xml.children_named "PaymentOnAccount" children)
     }
@@ -5117,7 +5134,7 @@ and let x_payment_on_account_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_payment_on_account_type
     =
-    {
+    x_payment_on_account_type {
         payment_on_account_date =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "PaymentOnAccountDate" children)
         payment_on_account_amount =
@@ -5131,7 +5148,7 @@ and let x_amounts_withheld_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_amounts_withheld_type
     =
-    {
+    x_amounts_withheld_type {
         withholding_reason =
             (fun c => xml.required_value "x_text_max2500_type" (x_text_max2500_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "WithholdingReason" children)
         withholding_rate =
@@ -5151,7 +5168,7 @@ and let x_reimbursable_expenses_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reimbursable_expenses
     =
-    {
+    x_reimbursable_expenses {
         reimbursable_expenses =
             listm.map
                 fun c => x_reimbursable_expenses_type_of_xml c
@@ -5165,7 +5182,7 @@ and let x_reimbursable_expenses_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reimbursable_expenses_type
     =
-    {
+    x_reimbursable_expenses_type {
         reimbursable_expenses_seller_party =
             optionm.map
                 fun c => x_tax_identification_type_of_xml c
@@ -5198,7 +5215,7 @@ and let x_installments_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_installments_type
     =
-    {
+    x_installments_type {
         installment = listm.map (fun c => x_installment_type_of_xml c) (xml.children_named "Installment" children)
     }
 
@@ -5209,7 +5226,7 @@ and let x_installment_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_installment_type
     =
-    {
+    x_installment_type {
         installment_due_date =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "InstallmentDueDate" children)
         installment_amount =
@@ -5253,7 +5270,7 @@ and let x_legal_literals_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_legal_literals_type
     =
-    {
+    x_legal_literals_type {
         legal_reference =
             listm.map
                 fun c =>
@@ -5269,7 +5286,7 @@ and let x_additional_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_additional_data_type
     =
-    {
+    x_additional_data_type {
         related_invoice =
             optionm.map
                 fun c =>
@@ -5294,7 +5311,7 @@ and let x_attached_documents_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_attached_documents_type
     =
-    {
+    x_attached_documents_type {
         attachment = listm.map (fun c => x_attachment_type_of_xml c) (xml.children_named "Attachment" children)
     }
 
@@ -5305,7 +5322,7 @@ and let x_attachment_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_attachment_type
     =
-    {
+    x_attachment_type {
         attachment_compression_algorithm =
             optionm.map
                 fun c =>
@@ -5336,7 +5353,7 @@ and let x_tax_identification_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tax_identification_type
     =
-    {
+    x_tax_identification_type {
         person_type_code =
             (fun c => xml.required_value "x_person_type_code_type" (x_person_type_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PersonTypeCode" children)
         residence_type_code =
@@ -5352,7 +5369,7 @@ and let x_legal_entity_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_legal_entity_type
     =
-    {
+    x_legal_entity_type {
         corporate_name =
             (fun c => xml.required_value "x_text_max80_type" (x_text_max80_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CorporateName" children)
         trade_name =
@@ -5390,7 +5407,7 @@ and let x_individual_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_individual_type
     =
-    {
+    x_individual_type {
         name =
             (fun c => xml.required_value "x_text_max40_type" (x_text_max40_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Name" children)
         first_surname =
@@ -5428,7 +5445,7 @@ and let x_registration_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registration_data_type
     =
-    {
+    x_registration_data_type {
         book =
             optionm.map
                 fun c =>
@@ -5480,7 +5497,7 @@ and let x_address_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_address_type
     =
-    {
+    x_address_type {
         address =
             (fun c => xml.required_value "x_text_max80_type" (x_text_max80_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Address" children)
         post_code =
@@ -5500,7 +5517,7 @@ and let x_overseas_address_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_overseas_address_type
     =
-    {
+    x_overseas_address_type {
         address =
             (fun c => xml.required_value "x_text_max80_type" (x_text_max80_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Address" children)
         post_code_and_town =
@@ -5518,7 +5535,7 @@ and let x_contact_details_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_contact_details_type
     =
-    {
+    x_contact_details_type {
         telephone =
             optionm.map
                 fun c =>
@@ -5577,7 +5594,7 @@ and let x_administrative_centres_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_administrative_centres_type
     =
-    {
+    x_administrative_centres_type {
         administrative_centre =
             listm.map
                 fun c => x_administrative_centre_type_of_xml c
@@ -5591,7 +5608,7 @@ and let x_administrative_centre_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_administrative_centre_type
     =
-    {
+    x_administrative_centre_type {
         centre_code =
             optionm.map
                 fun c =>
@@ -5667,7 +5684,7 @@ and let x_discounts_and_rebates_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_discounts_and_rebates_type
     =
-    {
+    x_discounts_and_rebates_type {
         discount = listm.map (fun c => x_discount_type_of_xml c) (xml.children_named "Discount" children)
     }
 
@@ -5678,7 +5695,7 @@ and let x_discount_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_discount_type
     =
-    {
+    x_discount_type {
         discount_reason =
             (fun c => xml.required_value "x_text_max2500_type" (x_text_max2500_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DiscountReason" children)
         discount_rate =
@@ -5698,7 +5715,7 @@ and let x_charges_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_charges_type
     =
-    {
+    x_charges_type {
         charge = listm.map (fun c => x_charge_type_of_xml c) (xml.children_named "Charge" children)
     }
 
@@ -5706,7 +5723,7 @@ and let x_charges_type_of_xml (c : xml.xml_node) : x_charges_type =
     x_charges_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_charge_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_charge_type =
-    {
+    x_charge_type {
         charge_reason =
             (fun c => xml.required_value "x_text_max2500_type" (x_text_max2500_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ChargeReason" children)
         charge_rate =
@@ -5723,7 +5740,7 @@ and let x_charge_type_of_xml (c : xml.xml_node) : x_charge_type =
     x_charge_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_taxes_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_taxes_type =
-    {
+    x_taxes_type {
         tax = listm.map (fun c => x_tax_type_of_xml c) (xml.children_named "Tax" children)
     }
 
@@ -5731,7 +5748,7 @@ and let x_taxes_type_of_xml (c : xml.xml_node) : x_taxes_type =
     x_taxes_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tax_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_tax_type =
-    {
+    x_tax_type {
         tax_type_code =
             (fun c => xml.required_value "x_tax_type_code_type" (x_tax_type_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxTypeCode" children)
         tax_rate =
@@ -5747,7 +5764,7 @@ and let x_tax_output_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tax_output_type
     =
-    {
+    x_tax_output_type {
         tax_type_code =
             (fun c => xml.required_value "x_tax_type_code_type" (x_tax_type_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxTypeCode" children)
         tax_rate =
@@ -5771,7 +5788,7 @@ and let x_tax_output_type_of_xml (c : xml.xml_node) : x_tax_output_type =
     x_tax_output_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_amount_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_amount_type =
-    {
+    x_amount_type {
         total_amount =
             (fun c => xml.required_value "x_double_up_to_eight_decimal_type" (x_double_up_to_eight_decimal_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TotalAmount" children)
         equivalent_in_euros =
@@ -5789,7 +5806,7 @@ and let x_extensions_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_extensions_type
     =
-    {
+    x_extensions_type {
         any = any_content_of (xml.unclaimed_children [] children)
     }
 
@@ -5800,7 +5817,7 @@ and let x_account_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_account_type
     =
-    {
+    x_account_type {
         choice_iban = x_account_type_choice_iban_of_children attributes children
         bank_code =
             optionm.map
@@ -5864,7 +5881,7 @@ and let x_period_dates_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_period_dates
     =
-    {
+    x_period_dates {
         start_date = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "StartDate" children)
         end_date = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "EndDate" children)
     }
@@ -5876,7 +5893,7 @@ and let x_factoring_assignment_document_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factoring_assignment_document_type
     =
-    {
+    x_factoring_assignment_document_type {
         document_character =
             (fun c => xml.required_value "x_text_max50_type" (x_text_max50_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DocumentCharacter" children)
         representation_identity =
@@ -5897,7 +5914,7 @@ and let x_repository_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_repository_type
     =
-    {
+    x_repository_type {
         repository_name =
             (fun c => xml.required_value "x_text_max20_type" (x_text_max20_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RepositoryName" children)
         url =
@@ -5917,7 +5934,7 @@ and let x_payment_in_kind_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_payment_in_kind_type
     =
-    {
+    x_payment_in_kind_type {
         payment_in_kind_reason =
             (fun c => xml.required_value "x_text_max2500_type" (x_text_max2500_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PaymentInKindReason" children)
         payment_in_kind_amount =
@@ -5931,7 +5948,7 @@ and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type
     =
-    {
+    x_signature_type {
         signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
         signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
         key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
@@ -5945,7 +5962,7 @@ and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_value_type
     =
-    {
+    x_signature_value_type {
         base = xml.text_in children
         id = xml.attribute_of "Id" attributes
     }
@@ -5957,7 +5974,7 @@ and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type
     =
-    {
+    x_signed_info_type {
         canonicalization_method =
             (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
         signature_method =
@@ -5973,7 +5990,7 @@ and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_signature_method
     =
-    {
+    x_signed_info_type_signature_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -5987,7 +6004,7 @@ and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_canonicalization_method
     =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -6001,7 +6018,7 @@ and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type
     =
-    {
+    x_reference_type {
         transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
         digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
         digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
@@ -6020,7 +6037,7 @@ and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type_digest_method
     =
-    {
+    x_reference_type_digest_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -6034,7 +6051,7 @@ and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transforms_type
     =
-    {
+    x_transforms_type {
         transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
     }
 
@@ -6045,8 +6062,11 @@ and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transform_type
     =
-    {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    x_transform_type {
+        group_x_path =
+            listm.map
+                fun run => x_transform_type_group_x_path_of_children [] run
+                (xml.group_runs [ "XPath" ] children)
         algorithm =
             xml.required_value
                 "x_t_transform_uri"
@@ -6056,11 +6076,22 @@ and let x_transform_type_of_children
 and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
+and let x_transform_type_group_x_path_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transform_type_group_x_path
+    =
+    x_transform_type_group_x_path {
+        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    }
+
+and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
+
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_key_info_type
     =
-    {
+    x_key_info_type {
         x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
         id = xml.attribute_of "Id" attributes
     }
@@ -6072,7 +6103,7 @@ and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_x509_data_type
     =
-    {
+    x_x509_data_type {
         x509_certificate =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
     }
@@ -7824,20 +7855,37 @@ and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.x
 and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
     inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | TransformType_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+        | TransformType_field_group_x_path => listm.concat (listm.map x_transform_type_group_x_path_children v)
     inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
             inl exists r. f = packed
             listm.append (nodes f (x_transform_type_get f x)) (walk rest)
         | [] => []
-    walk [ exists TransformType_field_XPath ]
+    walk [ exists TransformType_field_group_x_path ]
 
 and let x_transform_type_attributes (x : x_transform_type) : list (string * string) =
     [ ("Algorithm", to_text x.algorithm) ]
 
 and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
     xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_transform_type_group_x_path_children (x : x_transform_type_group_x_path) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_group_x_path_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_group_XPath_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_transform_type_group_x_path_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_group_x_path_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_group_XPath_field_XPath ]
+
+and let x_transform_type_group_x_path_attributes (x : x_transform_type_group_x_path) : list (string * string) = []
+
+and let x_transform_type_group_x_path_to_xml (name : string) (x : x_transform_type_group_x_path) : xml.xml_node =
+    xml.element name (x_transform_type_group_x_path_attributes x) (x_transform_type_group_x_path_children x)
 
 and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
     inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
@@ -7875,7 +7923,7 @@ and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml
     xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
 
 and let x_facturae_example (k : i32) : x_facturae =
-    {
+    x_facturae {
         file_header = x_file_header_type_example k
         parties = x_parties_type_example k
         invoices = x_invoices_type_example k
@@ -7884,7 +7932,7 @@ and let x_facturae_example (k : i32) : x_facturae =
     }
 
 and let x_file_header_type_example (k : i32) : x_file_header_type =
-    {
+    x_file_header_type {
         schema_version = x_schema_version_type_example k
         modality = x_modality_type_example k
         invoice_issuer_type = x_invoice_issuer_type_type_example k
@@ -7894,7 +7942,7 @@ and let x_file_header_type_example (k : i32) : x_file_header_type =
     }
 
 and let x_third_party_type_example (k : i32) : x_third_party_type =
-    {
+    x_third_party_type {
         tax_identification = x_tax_identification_type_example k
         choice_legal_entity = x_third_party_type_choice_legal_entity_example k
     }
@@ -7903,7 +7951,7 @@ and let x_third_party_type_choice_legal_entity_example (k : i32) : x_third_party
     ThirdPartyType_choice_LegalEntity_LegalEntity (x_legal_entity_type_example k)
 
 and let x_batch_type_example (k : i32) : x_batch_type =
-    {
+    x_batch_type {
         batch_identifier = x_text_max70_type_example k
         invoices_count = "1"
         total_invoices_amount = x_amount_type_example k
@@ -7913,7 +7961,7 @@ and let x_batch_type_example (k : i32) : x_batch_type =
     }
 
 and let x_factoring_assignment_data_type_example (k : i32) : x_factoring_assignment_data_type =
-    {
+    x_factoring_assignment_data_type {
         assignee = x_assignee_type_example k
         payment_details = x_installments_type_example k
         factoring_assignment_clauses = x_text_max2500_type_example k
@@ -7921,7 +7969,7 @@ and let x_factoring_assignment_data_type_example (k : i32) : x_factoring_assignm
     }
 
 and let x_assignee_type_example (k : i32) : x_assignee_type =
-    {
+    x_assignee_type {
         tax_identification = x_tax_identification_type_example k
         choice_legal_entity = x_assignee_type_choice_legal_entity_example k
     }
@@ -7930,13 +7978,13 @@ and let x_assignee_type_choice_legal_entity_example (k : i32) : x_assignee_type_
     AssigneeType_choice_LegalEntity_LegalEntity (x_legal_entity_type_example k)
 
 and let x_parties_type_example (k : i32) : x_parties_type =
-    {
+    x_parties_type {
         seller_party = x_business_type_example k
         buyer_party = x_business_type_example k
     }
 
 and let x_business_type_example (k : i32) : x_business_type =
-    {
+    x_business_type {
         tax_identification = x_tax_identification_type_example k
         party_identification = None
         administrative_centres = None
@@ -7947,12 +7995,12 @@ and let x_business_type_choice_legal_entity_example (k : i32) : x_business_type_
     BusinessType_choice_LegalEntity_LegalEntity (x_legal_entity_type_example k)
 
 and let x_invoices_type_example (k : i32) : x_invoices_type =
-    {
+    x_invoices_type {
         invoice = [ x_invoice_type_example (k + 0i32) ]
     }
 
 and let x_invoice_type_example (k : i32) : x_invoice_type =
-    {
+    x_invoice_type {
         invoice_header = x_invoice_header_type_example k
         invoice_issue_data = x_invoice_issue_data_type_example k
         taxes_outputs = x_invoice_type_taxes_outputs_example k
@@ -7965,12 +8013,12 @@ and let x_invoice_type_example (k : i32) : x_invoice_type =
     }
 
 and let x_invoice_type_taxes_outputs_example (k : i32) : x_invoice_type_taxes_outputs =
-    {
+    x_invoice_type_taxes_outputs {
         tax = [ x_tax_output_type_example (k + 0i32) ]
     }
 
 and let x_invoice_header_type_example (k : i32) : x_invoice_header_type =
-    {
+    x_invoice_header_type {
         invoice_number = x_text_max20_type_example k
         invoice_series_code = None
         invoice_document_type = x_invoice_document_type_type_example k
@@ -7979,7 +8027,7 @@ and let x_invoice_header_type_example (k : i32) : x_invoice_header_type =
     }
 
 and let x_invoice_issue_data_type_example (k : i32) : x_invoice_issue_data_type =
-    {
+    x_invoice_issue_data_type {
         issue_date = "2026-01-01"
         operation_date = None
         place_of_issue = None
@@ -7995,18 +8043,18 @@ and let x_invoice_issue_data_type_example (k : i32) : x_invoice_issue_data_type 
     }
 
 and let x_items_type_example (k : i32) : x_items_type =
-    {
+    x_items_type {
         invoice_line = [ x_invoice_line_type_example (k + 0i32) ]
     }
 
 and let x_exchange_rate_details_type_example (k : i32) : x_exchange_rate_details_type =
-    {
+    x_exchange_rate_details_type {
         exchange_rate = x_double_up_to_eight_decimal_type_example k
         exchange_rate_date = "2026-01-01"
     }
 
 and let x_corrective_type_example (k : i32) : x_corrective_type =
-    {
+    x_corrective_type {
         invoice_number = None
         invoice_series_code = None
         reason_code = x_reason_code_type_example k
@@ -8019,13 +8067,13 @@ and let x_corrective_type_example (k : i32) : x_corrective_type =
     }
 
 and let x_place_of_issue_type_example (k : i32) : x_place_of_issue_type =
-    {
+    x_place_of_issue_type {
         post_code = x_post_code_type_example k
         place_of_issue_description = None
     }
 
 and let x_invoice_line_type_example (k : i32) : x_invoice_line_type =
-    {
+    x_invoice_line_type {
         issuer_contract_reference = None
         issuer_contract_date = None
         issuer_transaction_reference = None
@@ -8057,34 +8105,34 @@ and let x_invoice_line_type_example (k : i32) : x_invoice_line_type =
     }
 
 and let x_invoice_line_type_taxes_outputs_example (k : i32) : x_invoice_line_type_taxes_outputs =
-    {
+    x_invoice_line_type_taxes_outputs {
         tax = [ x_invoice_line_type_taxes_outputs_tax_example (k + 0i32) ]
     }
 
 and let x_invoice_line_type_taxes_outputs_tax_example (k : i32) : x_invoice_line_type_taxes_outputs_tax =
-    {
+    x_invoice_line_type_taxes_outputs_tax {
         base = x_tax_output_type_example k
     }
 
 and let x_delivery_notes_references_type_example (k : i32) : x_delivery_notes_references_type =
-    {
+    x_delivery_notes_references_type {
         delivery_note = [ x_delivery_note_type_example (k + 0i32) ]
     }
 
 and let x_delivery_note_type_example (k : i32) : x_delivery_note_type =
-    {
+    x_delivery_note_type {
         delivery_note_number = x_text_max30_type_example k
         delivery_note_date = None
     }
 
 and let x_special_taxable_event_type_example (k : i32) : x_special_taxable_event_type =
-    {
+    x_special_taxable_event_type {
         special_taxable_event_code = x_special_taxable_event_code_type_example k
         special_taxable_event_reason = x_text_max2500_type_example k
     }
 
 and let x_invoice_totals_type_example (k : i32) : x_invoice_totals_type =
-    {
+    x_invoice_totals_type {
         total_gross_amount = x_double_up_to_eight_decimal_type_example k
         general_discounts = None
         general_surcharges = None
@@ -8107,42 +8155,42 @@ and let x_invoice_totals_type_example (k : i32) : x_invoice_totals_type =
     }
 
 and let x_subsidies_type_example (k : i32) : x_subsidies_type =
-    {
+    x_subsidies_type {
         subsidy = [ x_subsidy_type_example (k + 0i32) ]
     }
 
 and let x_subsidy_type_example (k : i32) : x_subsidy_type =
-    {
+    x_subsidy_type {
         subsidy_description = x_text_max2500_type_example k
         subsidy_rate = None
         subsidy_amount = x_double_up_to_eight_decimal_type_example k
     }
 
 and let x_payments_on_account_type_example (k : i32) : x_payments_on_account_type =
-    {
+    x_payments_on_account_type {
         payment_on_account = [ x_payment_on_account_type_example (k + 0i32) ]
     }
 
 and let x_payment_on_account_type_example (k : i32) : x_payment_on_account_type =
-    {
+    x_payment_on_account_type {
         payment_on_account_date = "2026-01-01"
         payment_on_account_amount = x_double_up_to_eight_decimal_type_example k
     }
 
 and let x_amounts_withheld_type_example (k : i32) : x_amounts_withheld_type =
-    {
+    x_amounts_withheld_type {
         withholding_reason = x_text_max2500_type_example k
         withholding_rate = None
         withholding_amount = x_double_up_to_eight_decimal_type_example k
     }
 
 and let x_reimbursable_expenses_example (k : i32) : x_reimbursable_expenses =
-    {
+    x_reimbursable_expenses {
         reimbursable_expenses = [ x_reimbursable_expenses_type_example (k + 0i32) ]
     }
 
 and let x_reimbursable_expenses_type_example (k : i32) : x_reimbursable_expenses_type =
-    {
+    x_reimbursable_expenses_type {
         reimbursable_expenses_seller_party = None
         reimbursable_expenses_buyer_party = None
         issue_date = None
@@ -8152,12 +8200,12 @@ and let x_reimbursable_expenses_type_example (k : i32) : x_reimbursable_expenses
     }
 
 and let x_installments_type_example (k : i32) : x_installments_type =
-    {
+    x_installments_type {
         installment = [ x_installment_type_example (k + 0i32) ]
     }
 
 and let x_installment_type_example (k : i32) : x_installment_type =
-    {
+    x_installment_type {
         installment_due_date = "2026-01-01"
         installment_amount = x_double_two_decimal_type_example k
         payment_means = x_payment_means_type_example k
@@ -8170,12 +8218,12 @@ and let x_installment_type_example (k : i32) : x_installment_type =
     }
 
 and let x_legal_literals_type_example (k : i32) : x_legal_literals_type =
-    {
+    x_legal_literals_type {
         legal_reference = []
     }
 
 and let x_additional_data_type_example (k : i32) : x_additional_data_type =
-    {
+    x_additional_data_type {
         related_invoice = None
         related_documents = None
         invoice_additional_information = None
@@ -8183,12 +8231,12 @@ and let x_additional_data_type_example (k : i32) : x_additional_data_type =
     }
 
 and let x_attached_documents_type_example (k : i32) : x_attached_documents_type =
-    {
+    x_attached_documents_type {
         attachment = [ x_attachment_type_example (k + 0i32) ]
     }
 
 and let x_attachment_type_example (k : i32) : x_attachment_type =
-    {
+    x_attachment_type {
         attachment_compression_algorithm = None
         attachment_format = x_attachment_format_type_example k
         attachment_encoding = None
@@ -8197,14 +8245,14 @@ and let x_attachment_type_example (k : i32) : x_attachment_type =
     }
 
 and let x_tax_identification_type_example (k : i32) : x_tax_identification_type =
-    {
+    x_tax_identification_type {
         person_type_code = x_person_type_code_type_example k
         residence_type_code = x_residence_type_code_type_example k
         tax_identification_number = x_text_min3_max30_type_example k
     }
 
 and let x_legal_entity_type_example (k : i32) : x_legal_entity_type =
-    {
+    x_legal_entity_type {
         corporate_name = x_text_max80_type_example k
         trade_name = None
         registration_data = None
@@ -8216,7 +8264,7 @@ and let x_legal_entity_type_choice_address_in_spain_example (k : i32) : x_legal_
     LegalEntityType_choice_AddressInSpain_AddressInSpain (x_address_type_example k)
 
 and let x_individual_type_example (k : i32) : x_individual_type =
-    {
+    x_individual_type {
         name = x_text_max40_type_example k
         first_surname = x_text_max40_type_example k
         second_surname = None
@@ -8228,7 +8276,7 @@ and let x_individual_type_choice_address_in_spain_example (k : i32) : x_individu
     IndividualType_choice_AddressInSpain_AddressInSpain (x_address_type_example k)
 
 and let x_registration_data_type_example (k : i32) : x_registration_data_type =
-    {
+    x_registration_data_type {
         book = None
         register_of_companies_location = None
         sheet = None
@@ -8239,7 +8287,7 @@ and let x_registration_data_type_example (k : i32) : x_registration_data_type =
     }
 
 and let x_address_type_example (k : i32) : x_address_type =
-    {
+    x_address_type {
         address = x_text_max80_type_example k
         post_code = x_post_code_type_example k
         town = x_text_max50_type_example k
@@ -8248,7 +8296,7 @@ and let x_address_type_example (k : i32) : x_address_type =
     }
 
 and let x_overseas_address_type_example (k : i32) : x_overseas_address_type =
-    {
+    x_overseas_address_type {
         address = x_text_max80_type_example k
         post_code_and_town = x_text_max50_type_example k
         province = x_text_max20_type_example k
@@ -8256,7 +8304,7 @@ and let x_overseas_address_type_example (k : i32) : x_overseas_address_type =
     }
 
 and let x_contact_details_type_example (k : i32) : x_contact_details_type =
-    {
+    x_contact_details_type {
         telephone = None
         tele_fax = None
         web_address = None
@@ -8268,12 +8316,12 @@ and let x_contact_details_type_example (k : i32) : x_contact_details_type =
     }
 
 and let x_administrative_centres_type_example (k : i32) : x_administrative_centres_type =
-    {
+    x_administrative_centres_type {
         administrative_centre = [ x_administrative_centre_type_example (k + 0i32) ]
     }
 
 and let x_administrative_centre_type_example (k : i32) : x_administrative_centre_type =
-    {
+    x_administrative_centre_type {
         centre_code = None
         role_type_code = None
         name = None
@@ -8293,36 +8341,36 @@ and let x_administrative_centre_type_choice_address_in_spain_example
     AdministrativeCentreType_choice_AddressInSpain_AddressInSpain (x_address_type_example k)
 
 and let x_discounts_and_rebates_type_example (k : i32) : x_discounts_and_rebates_type =
-    {
+    x_discounts_and_rebates_type {
         discount = [ x_discount_type_example (k + 0i32) ]
     }
 
 and let x_discount_type_example (k : i32) : x_discount_type =
-    {
+    x_discount_type {
         discount_reason = x_text_max2500_type_example k
         discount_rate = None
         discount_amount = x_double_up_to_eight_decimal_type_example k
     }
 
 and let x_charges_type_example (k : i32) : x_charges_type =
-    {
+    x_charges_type {
         charge = [ x_charge_type_example (k + 0i32) ]
     }
 
 and let x_charge_type_example (k : i32) : x_charge_type =
-    {
+    x_charge_type {
         charge_reason = x_text_max2500_type_example k
         charge_rate = None
         charge_amount = x_double_up_to_eight_decimal_type_example k
     }
 
 and let x_taxes_type_example (k : i32) : x_taxes_type =
-    {
+    x_taxes_type {
         tax = [ x_tax_type_example (k + 0i32) ]
     }
 
 and let x_tax_type_example (k : i32) : x_tax_type =
-    {
+    x_tax_type {
         tax_type_code = x_tax_type_code_type_example k
         tax_rate = x_double_up_to_eight_decimal_type_example k
         taxable_base = x_amount_type_example k
@@ -8330,7 +8378,7 @@ and let x_tax_type_example (k : i32) : x_tax_type =
     }
 
 and let x_tax_output_type_example (k : i32) : x_tax_output_type =
-    {
+    x_tax_output_type {
         tax_type_code = x_tax_type_code_type_example k
         tax_rate = x_double_up_to_eight_decimal_type_example k
         taxable_base = x_amount_type_example k
@@ -8342,18 +8390,18 @@ and let x_tax_output_type_example (k : i32) : x_tax_output_type =
     }
 
 and let x_amount_type_example (k : i32) : x_amount_type =
-    {
+    x_amount_type {
         total_amount = x_double_up_to_eight_decimal_type_example k
         equivalent_in_euros = None
     }
 
 and let x_extensions_type_example (k : i32) : x_extensions_type =
-    {
+    x_extensions_type {
         any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
     }
 
 and let x_account_type_example (k : i32) : x_account_type =
-    {
+    x_account_type {
         choice_iban = x_account_type_choice_iban_example k
         bank_code = None
         branch_code = None
@@ -8368,13 +8416,13 @@ and let x_account_type_choice_iban_example (k : i32) : x_account_type_choice_iba
     AccountType_choice_IBAN_IBAN (x_text_min5_max34_type_example k)
 
 and let x_period_dates_example (k : i32) : x_period_dates =
-    {
+    x_period_dates {
         start_date = "2026-01-01"
         end_date = "2026-01-01"
     }
 
 and let x_factoring_assignment_document_type_example (k : i32) : x_factoring_assignment_document_type =
-    {
+    x_factoring_assignment_document_type {
         document_character = x_text_max50_type_example k
         representation_identity = None
         document_type = x_text_max50_type_example k
@@ -8382,20 +8430,20 @@ and let x_factoring_assignment_document_type_example (k : i32) : x_factoring_ass
     }
 
 and let x_repository_type_example (k : i32) : x_repository_type =
-    {
+    x_repository_type {
         repository_name = x_text_max20_type_example k
         url = None
         reference = x_text_max250_type_example k
     }
 
 and let x_payment_in_kind_type_example (k : i32) : x_payment_in_kind_type =
-    {
+    x_payment_in_kind_type {
         payment_in_kind_reason = x_text_max2500_type_example k
         payment_in_kind_amount = x_double_up_to_eight_decimal_type_example k
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =
-    {
+    x_signature_type {
         signed_info = x_signed_info_type_example k
         signature_value = x_signature_value_type_example k
         key_info = x_key_info_type_example k
@@ -8403,13 +8451,13 @@ and let x_signature_type_example (k : i32) : x_signature_type =
     }
 
 and let x_signature_value_type_example (k : i32) : x_signature_value_type =
-    {
+    x_signature_value_type {
         base = "AAAA"
         id = None
     }
 
 and let x_signed_info_type_example (k : i32) : x_signed_info_type =
-    {
+    x_signed_info_type {
         canonicalization_method = x_signed_info_type_canonicalization_method_example k
         signature_method = x_signed_info_type_signature_method_example k
         reference = x_reference_type_example k
@@ -8417,17 +8465,17 @@ and let x_signed_info_type_example (k : i32) : x_signed_info_type =
     }
 
 and let x_signed_info_type_signature_method_example (k : i32) : x_signed_info_type_signature_method =
-    {
+    x_signed_info_type_signature_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
     }
 
 and let x_signed_info_type_canonicalization_method_example (k : i32) : x_signed_info_type_canonicalization_method =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
     }
 
 and let x_reference_type_example (k : i32) : x_reference_type =
-    {
+    x_reference_type {
         transforms = x_transforms_type_example k
         digest_method = x_reference_type_digest_method_example k
         digest_value = x_digest_value_type_example k
@@ -8437,31 +8485,253 @@ and let x_reference_type_example (k : i32) : x_reference_type =
     }
 
 and let x_reference_type_digest_method_example (k : i32) : x_reference_type_digest_method =
-    {
+    x_reference_type_digest_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
     }
 
 and let x_transforms_type_example (k : i32) : x_transforms_type =
-    {
+    x_transforms_type {
         transform = [ x_transform_type_example (k + 0i32); x_transform_type_example (k + 1i32) ]
     }
 
 and let x_transform_type_example (k : i32) : x_transform_type =
-    {
-        x_path = "1"
+    x_transform_type {
+        group_x_path = []
         algorithm = x_t_transform_uri_example k
     }
 
+and let x_transform_type_group_x_path_example (k : i32) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path {
+        x_path = "1"
+    }
+
 and let x_key_info_type_example (k : i32) : x_key_info_type =
-    {
+    x_key_info_type {
         x509_data = x_x509_data_type_example k
         id = None
     }
 
 and let x_x509_data_type_example (k : i32) : x_x509_data_type =
-    {
+    x_x509_data_type {
         x509_certificate = "AAAA"
     }
+
+
+instance of_xml x_facturae = x_facturae_of_xml
+instance to_xml x_facturae = x_facturae_to_xml
+
+instance of_xml x_file_header_type = x_file_header_type_of_xml
+instance to_xml x_file_header_type = x_file_header_type_to_xml
+
+instance of_xml x_third_party_type = x_third_party_type_of_xml
+instance to_xml x_third_party_type = x_third_party_type_to_xml
+
+instance of_xml x_batch_type = x_batch_type_of_xml
+instance to_xml x_batch_type = x_batch_type_to_xml
+
+instance of_xml x_factoring_assignment_data_type = x_factoring_assignment_data_type_of_xml
+instance to_xml x_factoring_assignment_data_type = x_factoring_assignment_data_type_to_xml
+
+instance of_xml x_assignee_type = x_assignee_type_of_xml
+instance to_xml x_assignee_type = x_assignee_type_to_xml
+
+instance of_xml x_parties_type = x_parties_type_of_xml
+instance to_xml x_parties_type = x_parties_type_to_xml
+
+instance of_xml x_business_type = x_business_type_of_xml
+instance to_xml x_business_type = x_business_type_to_xml
+
+instance of_xml x_invoices_type = x_invoices_type_of_xml
+instance to_xml x_invoices_type = x_invoices_type_to_xml
+
+instance of_xml x_invoice_type = x_invoice_type_of_xml
+instance to_xml x_invoice_type = x_invoice_type_to_xml
+
+instance of_xml x_invoice_type_taxes_outputs = x_invoice_type_taxes_outputs_of_xml
+instance to_xml x_invoice_type_taxes_outputs = x_invoice_type_taxes_outputs_to_xml
+
+instance of_xml x_invoice_header_type = x_invoice_header_type_of_xml
+instance to_xml x_invoice_header_type = x_invoice_header_type_to_xml
+
+instance of_xml x_invoice_issue_data_type = x_invoice_issue_data_type_of_xml
+instance to_xml x_invoice_issue_data_type = x_invoice_issue_data_type_to_xml
+
+instance of_xml x_items_type = x_items_type_of_xml
+instance to_xml x_items_type = x_items_type_to_xml
+
+instance of_xml x_exchange_rate_details_type = x_exchange_rate_details_type_of_xml
+instance to_xml x_exchange_rate_details_type = x_exchange_rate_details_type_to_xml
+
+instance of_xml x_corrective_type = x_corrective_type_of_xml
+instance to_xml x_corrective_type = x_corrective_type_to_xml
+
+instance of_xml x_place_of_issue_type = x_place_of_issue_type_of_xml
+instance to_xml x_place_of_issue_type = x_place_of_issue_type_to_xml
+
+instance of_xml x_invoice_line_type = x_invoice_line_type_of_xml
+instance to_xml x_invoice_line_type = x_invoice_line_type_to_xml
+
+instance of_xml x_invoice_line_type_taxes_outputs = x_invoice_line_type_taxes_outputs_of_xml
+instance to_xml x_invoice_line_type_taxes_outputs = x_invoice_line_type_taxes_outputs_to_xml
+
+instance of_xml x_invoice_line_type_taxes_outputs_tax = x_invoice_line_type_taxes_outputs_tax_of_xml
+instance to_xml x_invoice_line_type_taxes_outputs_tax = x_invoice_line_type_taxes_outputs_tax_to_xml
+
+instance of_xml x_delivery_notes_references_type = x_delivery_notes_references_type_of_xml
+instance to_xml x_delivery_notes_references_type = x_delivery_notes_references_type_to_xml
+
+instance of_xml x_delivery_note_type = x_delivery_note_type_of_xml
+instance to_xml x_delivery_note_type = x_delivery_note_type_to_xml
+
+instance of_xml x_special_taxable_event_type = x_special_taxable_event_type_of_xml
+instance to_xml x_special_taxable_event_type = x_special_taxable_event_type_to_xml
+
+instance of_xml x_invoice_totals_type = x_invoice_totals_type_of_xml
+instance to_xml x_invoice_totals_type = x_invoice_totals_type_to_xml
+
+instance of_xml x_subsidies_type = x_subsidies_type_of_xml
+instance to_xml x_subsidies_type = x_subsidies_type_to_xml
+
+instance of_xml x_subsidy_type = x_subsidy_type_of_xml
+instance to_xml x_subsidy_type = x_subsidy_type_to_xml
+
+instance of_xml x_payments_on_account_type = x_payments_on_account_type_of_xml
+instance to_xml x_payments_on_account_type = x_payments_on_account_type_to_xml
+
+instance of_xml x_payment_on_account_type = x_payment_on_account_type_of_xml
+instance to_xml x_payment_on_account_type = x_payment_on_account_type_to_xml
+
+instance of_xml x_amounts_withheld_type = x_amounts_withheld_type_of_xml
+instance to_xml x_amounts_withheld_type = x_amounts_withheld_type_to_xml
+
+instance of_xml x_reimbursable_expenses = x_reimbursable_expenses_of_xml
+instance to_xml x_reimbursable_expenses = x_reimbursable_expenses_to_xml
+
+instance of_xml x_reimbursable_expenses_type = x_reimbursable_expenses_type_of_xml
+instance to_xml x_reimbursable_expenses_type = x_reimbursable_expenses_type_to_xml
+
+instance of_xml x_installments_type = x_installments_type_of_xml
+instance to_xml x_installments_type = x_installments_type_to_xml
+
+instance of_xml x_installment_type = x_installment_type_of_xml
+instance to_xml x_installment_type = x_installment_type_to_xml
+
+instance of_xml x_legal_literals_type = x_legal_literals_type_of_xml
+instance to_xml x_legal_literals_type = x_legal_literals_type_to_xml
+
+instance of_xml x_additional_data_type = x_additional_data_type_of_xml
+instance to_xml x_additional_data_type = x_additional_data_type_to_xml
+
+instance of_xml x_attached_documents_type = x_attached_documents_type_of_xml
+instance to_xml x_attached_documents_type = x_attached_documents_type_to_xml
+
+instance of_xml x_attachment_type = x_attachment_type_of_xml
+instance to_xml x_attachment_type = x_attachment_type_to_xml
+
+instance of_xml x_tax_identification_type = x_tax_identification_type_of_xml
+instance to_xml x_tax_identification_type = x_tax_identification_type_to_xml
+
+instance of_xml x_legal_entity_type = x_legal_entity_type_of_xml
+instance to_xml x_legal_entity_type = x_legal_entity_type_to_xml
+
+instance of_xml x_individual_type = x_individual_type_of_xml
+instance to_xml x_individual_type = x_individual_type_to_xml
+
+instance of_xml x_registration_data_type = x_registration_data_type_of_xml
+instance to_xml x_registration_data_type = x_registration_data_type_to_xml
+
+instance of_xml x_address_type = x_address_type_of_xml
+instance to_xml x_address_type = x_address_type_to_xml
+
+instance of_xml x_overseas_address_type = x_overseas_address_type_of_xml
+instance to_xml x_overseas_address_type = x_overseas_address_type_to_xml
+
+instance of_xml x_contact_details_type = x_contact_details_type_of_xml
+instance to_xml x_contact_details_type = x_contact_details_type_to_xml
+
+instance of_xml x_administrative_centres_type = x_administrative_centres_type_of_xml
+instance to_xml x_administrative_centres_type = x_administrative_centres_type_to_xml
+
+instance of_xml x_administrative_centre_type = x_administrative_centre_type_of_xml
+instance to_xml x_administrative_centre_type = x_administrative_centre_type_to_xml
+
+instance of_xml x_discounts_and_rebates_type = x_discounts_and_rebates_type_of_xml
+instance to_xml x_discounts_and_rebates_type = x_discounts_and_rebates_type_to_xml
+
+instance of_xml x_discount_type = x_discount_type_of_xml
+instance to_xml x_discount_type = x_discount_type_to_xml
+
+instance of_xml x_charges_type = x_charges_type_of_xml
+instance to_xml x_charges_type = x_charges_type_to_xml
+
+instance of_xml x_charge_type = x_charge_type_of_xml
+instance to_xml x_charge_type = x_charge_type_to_xml
+
+instance of_xml x_taxes_type = x_taxes_type_of_xml
+instance to_xml x_taxes_type = x_taxes_type_to_xml
+
+instance of_xml x_tax_type = x_tax_type_of_xml
+instance to_xml x_tax_type = x_tax_type_to_xml
+
+instance of_xml x_tax_output_type = x_tax_output_type_of_xml
+instance to_xml x_tax_output_type = x_tax_output_type_to_xml
+
+instance of_xml x_amount_type = x_amount_type_of_xml
+instance to_xml x_amount_type = x_amount_type_to_xml
+
+instance of_xml x_extensions_type = x_extensions_type_of_xml
+instance to_xml x_extensions_type = x_extensions_type_to_xml
+
+instance of_xml x_account_type = x_account_type_of_xml
+instance to_xml x_account_type = x_account_type_to_xml
+
+instance of_xml x_period_dates = x_period_dates_of_xml
+instance to_xml x_period_dates = x_period_dates_to_xml
+
+instance of_xml x_factoring_assignment_document_type = x_factoring_assignment_document_type_of_xml
+instance to_xml x_factoring_assignment_document_type = x_factoring_assignment_document_type_to_xml
+
+instance of_xml x_repository_type = x_repository_type_of_xml
+instance to_xml x_repository_type = x_repository_type_to_xml
+
+instance of_xml x_payment_in_kind_type = x_payment_in_kind_type_of_xml
+instance to_xml x_payment_in_kind_type = x_payment_in_kind_type_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_value_type = x_signature_value_type_of_xml
+instance to_xml x_signature_value_type = x_signature_value_type_to_xml
+
+instance of_xml x_signed_info_type = x_signed_info_type_of_xml
+instance to_xml x_signed_info_type = x_signed_info_type_to_xml
+
+instance of_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_of_xml
+instance to_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_to_xml
+
+instance of_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_of_xml
+instance to_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_to_xml
+
+instance of_xml x_reference_type = x_reference_type_of_xml
+instance to_xml x_reference_type = x_reference_type_to_xml
+
+instance of_xml x_reference_type_digest_method = x_reference_type_digest_method_of_xml
+instance to_xml x_reference_type_digest_method = x_reference_type_digest_method_to_xml
+
+instance of_xml x_transforms_type = x_transforms_type_of_xml
+instance to_xml x_transforms_type = x_transforms_type_to_xml
+
+instance of_xml x_transform_type = x_transform_type_of_xml
+instance to_xml x_transform_type = x_transform_type_to_xml
+
+instance of_xml x_transform_type_group_x_path = x_transform_type_group_x_path_of_xml
+instance to_xml x_transform_type_group_x_path = x_transform_type_group_x_path_to_xml
+
+instance of_xml x_key_info_type = x_key_info_type_of_xml
+instance to_xml x_key_info_type = x_key_info_type_to_xml
+
+instance of_xml x_x509_data_type = x_x509_data_type_of_xml
+instance to_xml x_x509_data_type = x_x509_data_type_to_xml
 
 
 ///> rust

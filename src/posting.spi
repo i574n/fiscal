@@ -1,0 +1,58 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< document
+
+:= tax_account \* r. (regime : families::regime_witness r) : string =
+    ?= regime ?|
+    | families::Brazil => "ICMS a recolher"
+    | families::EuropeUbl => "VAT payable"
+    | families::Mexico => "IVA trasladado por pagar"
+
+:= invoice_lines \* e p c.
+    (tax : string) (currency : money::currency c) (terms : canon_document)
+    : list (ledger::line e p c)
+    =
+    := in_currency (v : term_value amount_data) : money::amount c = money::amount_of currency (amount_in v)
+    [
+        ledger::debit "receivable" (in_currency terms::with_tax)
+        ledger::credit "revenue" (in_currency terms::without_tax)
+        ledger::credit tax (in_currency terms::tax_total)
+    ]
+
+:= invoice_journal \* e p c f {canon_of}. (currency : money::currency c) (doc : f) : option (ledger::journal e p c) =
+    ledger::balanced (invoice_lines "tax payable" currency (canon_of doc))
+
+:= regime_journal \* r e p c f {canon_of}.
+    (regime : families::regime_witness r) (currency : money::currency c) (doc : f)
+    : option (ledger::journal e p c)
+    =
+    ledger::balanced (invoice_lines (tax_account regime) currency (canon_of doc))
+
+:= cents (units : i64) : decimal::decimal = { units = units; scale = 2i32 }
+
+///> rust
+test a_reconciling_invoice_books_a_balanced_journal_of_its_bt_112 =
+    := doc = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 10000i64, cents 1800i64)
+    ?= (invoice_journal money::Brl doc : option (ledger::journal ledger::seller ledger::july_2026 money::brl)) ?|
+    | Some j =>
+        ? decimal::compare (ledger::turnover j) (amount_in (canon_of doc)::with_tax) <> 0i32
+        ?> failwith "the journal turns over the invoice's BT-112"
+    | None => failwith "BT-112 = BT-109 + BT-110, so receivable = revenue + tax payable"
+
+///> rust
+test a_brl_invoice_does_not_book_into_a_eur_journal fails "Unification failure" =
+    := doc = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 100i64, cents 0i64)
+    (invoice_journal money::Brl doc : option (ledger::journal ledger::seller ledger::july_2026 money::eur)) |> ignore
+
+///> rust
+test each_regime_books_tax_to_its_own_account =
+    := doc = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 10000i64, cents 1800i64)
+    := brazilian : option (ledger::journal ledger::seller ledger::july_2026 money::brl) =
+        regime_journal families::Brazil money::Brl doc
+    ?= brazilian ?|
+    | Some j =>
+        ? listm::map ledger::line_account (ledger::lines_of j) <> [ "receivable"; "revenue"; "ICMS a recolher" ]
+        ?> failwith "a Brazilian invoice credits its tax to ICMS a recolher"
+    | None => failwith "the Brazilian journal balances"
+    ? (tax_account families::EuropeUbl, tax_account families::Mexico) <> ("VAT payable", "IVA trasladado por pagar")
+    ?> failwith "UBL books VAT and CFDI books IVA"

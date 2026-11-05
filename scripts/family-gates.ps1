@@ -36,7 +36,7 @@ foreach ($document in 'Invoice', 'CreditNote', 'DebitNote', 'DespatchAdvice', 'R
 $it = Join-Path $root 'deps/corpus/it/fatturapa'
 $pl = Join-Path $root 'deps/corpus/pl/ksef'
 $regimes = @(
-    @{ Sample = 'generated_fatturapa_1_2_3_example.xml'; Schema = Join-Path $it 'Schema_VFPR12_v1.2.3.xsd'; Preload = @(Join-Path $root 'deps/corpus/DFe.NET/CTe.AppTeste/schemas/xmldsig-core-schema_v1.01.xsd') }
+    @{ Sample = 'generated_fatturapa_1_2_3_example.xml'; Schema = Join-Path $it 'Schema_VFPR12_v1.2.3.xsd'; Preload = @(Join-Path $ubl21 'common/UBL-xmldsig-core-schema-2.1.xsd') }
     @{ Sample = 'generated_ksef_fa_3_example.xml'; Schema = Join-Path $pl 'schemat_FA3.xsd'; Preload = @('ElementarneTypyDanych_v10-0E.xsd', 'KodyKrajow_v10-0E.xsd', 'StrukturyDanych_v10-0E.xsd' | ForEach-Object { Join-Path $pl $_ }) }
 )
 foreach ($regime in $regimes) {
@@ -45,7 +45,7 @@ foreach ($regime in $regimes) {
     "== $($regime.Sample)"
     & $validate -Document $document -Schema $regime.Schema -Preload $regime.Preload -Show 8
 }
-$dsig = Join-Path $root 'deps/corpus/DFe.NET/CTe.AppTeste/schemas/xmldsig-core-schema_v1.01.xsd'
+$dsig = Join-Path $ubl21 'common/UBL-xmldsig-core-schema-2.1.xsd'
 $cr = 'deps/corpus/cr/hacienda/v4.4/'
 $resolved = [ordered]@{
     'generated_cfdi_pagos_2_0_example.xml' = 'deps/corpus/mx/complements/Pagos20.xsd'

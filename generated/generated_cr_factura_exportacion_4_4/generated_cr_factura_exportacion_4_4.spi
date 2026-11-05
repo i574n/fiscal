@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -20,6 +22,10 @@ union staged s a =
 union stage s =
     | Unsigned :: stage unsigned
     | Signed :: stage signed
+
+prototype stage_of s : () -> stage s
+instance stage_of unsigned = fun () => Unsigned
+instance stage_of signed = fun () => Signed
 
 inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
     match witness with
@@ -1228,29 +1234,34 @@ inl x_decimal_dinero_type_example (_ : i32) : string = "1"
 
 inl x_decimal_dinero_type_example_text (k : i32) : string = x_decimal_dinero_type_example k
 
-type x_x509_data_type =
+nominal x_x509_data_type =
     {
         x509_certificate : string
     }
 
-type x_key_info_type =
+nominal x_key_info_type =
     {
         x509_data : x_x509_data_type
         id : option (string)
     }
 
-type x_transform_type =
+nominal x_transform_type_group_x_path =
     {
         x_path : string
+    }
+
+nominal x_transform_type =
+    {
+        group_x_path : list (x_transform_type_group_x_path)
         algorithm : x_t_transform_uri
     }
 
-type x_transforms_type =
+nominal x_transforms_type =
     {
         transform : list (x_transform_type)
     }
 
-type x_reference_type_digest_method =
+nominal x_reference_type_digest_method =
     {
         algorithm : string
     }
@@ -1271,7 +1282,7 @@ inl x_reference_type_uri_example (_ : i32) : x_reference_type_uri = x_reference_
 inl x_reference_type_uri_example_text (k : i32) : string =
     x_reference_type_uri_to_string (x_reference_type_uri_example k)
 
-type x_reference_type =
+nominal x_reference_type =
     {
         transforms : x_transforms_type
         digest_method : x_reference_type_digest_method
@@ -1281,17 +1292,17 @@ type x_reference_type =
         type_value : option (string)
     }
 
-type x_signed_info_type_canonicalization_method =
+nominal x_signed_info_type_canonicalization_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type_signature_method =
+nominal x_signed_info_type_signature_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type =
+nominal x_signed_info_type =
     {
         canonicalization_method : x_signed_info_type_canonicalization_method
         signature_method : x_signed_info_type_signature_method
@@ -1299,13 +1310,13 @@ type x_signed_info_type =
         id : option (string)
     }
 
-type x_signature_value_type =
+nominal x_signature_value_type =
     {
         base : string
         id : option (string)
     }
 
-type x_signature_type =
+nominal x_signature_type =
     {
         signed_info : x_signed_info_type
         signature_value : x_signature_value_type
@@ -1842,7 +1853,7 @@ inl x_codigo_moneda_type_codigo_moneda_example (k : i32) : x_codigo_moneda_type_
 inl x_codigo_moneda_type_codigo_moneda_example_text (k : i32) : string =
     x_codigo_moneda_type_codigo_moneda_to_string (x_codigo_moneda_type_codigo_moneda_example k)
 
-type x_codigo_moneda_type =
+nominal x_codigo_moneda_type =
     {
         codigo_moneda : x_codigo_moneda_type_codigo_moneda
         tipo_cambio : x_decimal_dinero_type
@@ -1964,7 +1975,7 @@ inl x_descuento_type_naturaleza_descuento_example (_ : i32) : x_descuento_type_n
 inl x_descuento_type_naturaleza_descuento_example_text (k : i32) : string =
     x_descuento_type_naturaleza_descuento_to_string (x_descuento_type_naturaleza_descuento_example k)
 
-type x_descuento_type =
+nominal x_descuento_type =
     {
         monto_descuento : x_decimal_dinero_type
         codigo_descuento : x_codigo_descuento_type
@@ -2023,7 +2034,7 @@ inl x_codigo_type_codigo_example (_ : i32) : x_codigo_type_codigo = x_codigo_typ
 inl x_codigo_type_codigo_example_text (k : i32) : string =
     x_codigo_type_codigo_to_string (x_codigo_type_codigo_example k)
 
-type x_codigo_type =
+nominal x_codigo_type =
     {
         tipo : x_codigo_type_tipo
         codigo : x_codigo_type_codigo
@@ -2063,7 +2074,7 @@ inl x_impuesto_type_factor_calculo_iva_example (_ : i32) : string = "1"
 
 inl x_impuesto_type_factor_calculo_iva_example_text (k : i32) : string = x_impuesto_type_factor_calculo_iva_example k
 
-type x_impuesto_type =
+nominal x_impuesto_type =
     {
         codigo : x_codigo_impuesto_type
         codigo_impuesto_otro : option (x_impuesto_type_codigo_impuesto_otro)
@@ -2166,7 +2177,7 @@ inl x_exoneracion_type_porcentaje_exoneracion_example (_ : i32) : string = "1"
 inl x_exoneracion_type_porcentaje_exoneracion_example_text (k : i32) : string =
     x_exoneracion_type_porcentaje_exoneracion_example k
 
-type x_exoneracion_type =
+nominal x_exoneracion_type =
     {
         tipo_documento : x_exoneracion_type_tipo_documento
         numero_documento : x_exoneracion_type_numero_documento
@@ -2192,7 +2203,7 @@ inl x_telefono_type_num_telefono_example (_ : i32) : string = "1"
 
 inl x_telefono_type_num_telefono_example_text (k : i32) : string = x_telefono_type_num_telefono_example k
 
-type x_telefono_type =
+nominal x_telefono_type =
     {
         codigo_pais : x_telefono_type_codigo_pais
         num_telefono : x_telefono_type_num_telefono
@@ -2309,7 +2320,7 @@ inl x_ubicacion_type_otras_senas_example (_ : i32) : x_ubicacion_type_otras_sena
 inl x_ubicacion_type_otras_senas_example_text (k : i32) : string =
     x_ubicacion_type_otras_senas_to_string (x_ubicacion_type_otras_senas_example k)
 
-type x_ubicacion_type =
+nominal x_ubicacion_type =
     {
         provincia : x_ubicacion_type_provincia
         canton : x_ubicacion_type_canton
@@ -2375,7 +2386,7 @@ inl x_identificacion_type_numero_example (_ : i32) : x_identificacion_type_numer
 inl x_identificacion_type_numero_example_text (k : i32) : string =
     x_identificacion_type_numero_to_string (x_identificacion_type_numero_example k)
 
-type x_identificacion_type =
+nominal x_identificacion_type =
     {
         tipo : x_identificacion_type_tipo
         numero : x_identificacion_type_numero
@@ -2449,7 +2460,7 @@ inl x_receptor_type_correo_electronico_example (_ : i32) : x_receptor_type_corre
 inl x_receptor_type_correo_electronico_example_text (k : i32) : string =
     x_receptor_type_correo_electronico_to_string (x_receptor_type_correo_electronico_example k)
 
-type x_receptor_type =
+nominal x_receptor_type =
     {
         nombre : x_receptor_type_nombre
         identificacion : option (x_identificacion_type)
@@ -2526,7 +2537,7 @@ inl x_emisor_type_correo_electronico_example (_ : i32) : x_emisor_type_correo_el
 inl x_emisor_type_correo_electronico_example_text (k : i32) : string =
     x_emisor_type_correo_electronico_to_string (x_emisor_type_correo_electronico_example k)
 
-type x_emisor_type =
+nominal x_emisor_type =
     {
         nombre : x_emisor_type_nombre
         identificacion : x_identificacion_type
@@ -3172,7 +3183,7 @@ inl
                 k
         )
 
-type x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido =
+nominal x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido =
     {
         tipo_surtido : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido_tipo_surtido
         codigo_surtido : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido_codigo_surtido
@@ -3488,7 +3499,7 @@ inl
                 k
         )
 
-type x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido =
+nominal x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido =
     {
         monto_descuento_surtido : x_decimal_dinero_type
         codigo_descuento_surtido : x_codigo_descuento_type
@@ -3586,7 +3597,7 @@ inl
     x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido_tarifa_surtido_example
         k
 
-type x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido =
+nominal x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido =
     {
         codigo_impuesto_surtido : x_codigo_impuesto_type
         codigo_impuesto_otro_surtido : option (x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido_codigo_impuesto_otro_surtido)
@@ -3595,7 +3606,7 @@ type x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_su
         monto_impuesto_surtido : x_decimal_dinero_type
     }
 
-type x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido =
+nominal x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido =
     {
         codigo_cabys_surtido : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_cabys_surtido
         codigo_comercial_surtido : list (x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido)
@@ -3610,12 +3621,12 @@ type x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_su
         impuesto_surtido : list (x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido)
     }
 
-type x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido =
+nominal x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido =
     {
         linea_detalle_surtido : list (x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido)
     }
 
-type x_factura_electronica_exportacion_detalle_servicio_linea_detalle =
+nominal x_factura_electronica_exportacion_detalle_servicio_linea_detalle =
     {
         numero_linea : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_numero_linea
         partida_arancelaria : option (x_factura_electronica_exportacion_detalle_servicio_linea_detalle_partida_arancelaria)
@@ -3638,12 +3649,12 @@ type x_factura_electronica_exportacion_detalle_servicio_linea_detalle =
         monto_total_linea : x_decimal_dinero_type
     }
 
-type x_factura_electronica_exportacion_detalle_servicio =
+nominal x_factura_electronica_exportacion_detalle_servicio =
     {
         linea_detalle : list (x_factura_electronica_exportacion_detalle_servicio_linea_detalle)
     }
 
-type x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto =
+nominal x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto =
     {
         codigo : x_codigo_impuesto_type
         codigo_tarifa_iva : option (x_codigo_tarifa_iva_type)
@@ -3705,14 +3716,14 @@ inl x_factura_electronica_exportacion_resumen_factura_medio_pago_medio_pago_otro
         x_factura_electronica_exportacion_resumen_factura_medio_pago_medio_pago_otros_example k
     )
 
-type x_factura_electronica_exportacion_resumen_factura_medio_pago =
+nominal x_factura_electronica_exportacion_resumen_factura_medio_pago =
     {
         tipo_medio_pago : option (x_factura_electronica_exportacion_resumen_factura_medio_pago_tipo_medio_pago)
         medio_pago_otros : option (x_factura_electronica_exportacion_resumen_factura_medio_pago_medio_pago_otros)
         total_medio_pago : option (x_decimal_dinero_type)
     }
 
-type x_factura_electronica_exportacion_resumen_factura =
+nominal x_factura_electronica_exportacion_resumen_factura =
     {
         codigo_tipo_moneda : x_codigo_moneda_type
         total_serv_gravados : option (x_decimal_dinero_type)
@@ -3860,7 +3871,7 @@ inl x_factura_electronica_exportacion_informacion_referencia_razon_example_text 
         x_factura_electronica_exportacion_informacion_referencia_razon_example k
     )
 
-type x_factura_electronica_exportacion_informacion_referencia =
+nominal x_factura_electronica_exportacion_informacion_referencia =
     {
         tipo_doc_ir : x_tipo_doc_referencia_type
         tipo_doc_ref_otro : option (x_factura_electronica_exportacion_informacion_referencia_tipo_doc_ref_otro)
@@ -3871,25 +3882,25 @@ type x_factura_electronica_exportacion_informacion_referencia =
         razon : option (x_factura_electronica_exportacion_informacion_referencia_razon)
     }
 
-type x_factura_electronica_exportacion_otros_otro_texto =
+nominal x_factura_electronica_exportacion_otros_otro_texto =
     {
         base : x_restricted_string
         codigo : option (string)
     }
 
-type x_factura_electronica_exportacion_otros_otro_contenido =
+nominal x_factura_electronica_exportacion_otros_otro_contenido =
     {
         base : x_restricted_string
         codigo : option (string)
     }
 
-type x_factura_electronica_exportacion_otros =
+nominal x_factura_electronica_exportacion_otros =
     {
         otro_texto : list (x_factura_electronica_exportacion_otros_otro_texto)
         otro_contenido : list (x_factura_electronica_exportacion_otros_otro_contenido)
     }
 
-type x_otros_cargos_type =
+nominal x_otros_cargos_type =
     {
         tipo_documento_oc : x_otros_cargos_type_tipo_documento_oc
         tipo_documento_otros : option (x_otros_cargos_type_tipo_documento_otros)
@@ -3900,7 +3911,7 @@ type x_otros_cargos_type =
         monto_cargo : x_decimal_dinero_type
     }
 
-type x_factura_electronica_exportacion s =
+nominal x_factura_electronica_exportacion s =
     {
         clave : x_clave_type
         proveedor_sistemas : x_factura_electronica_exportacion_proveedor_sistemas
@@ -4577,11 +4588,21 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     | TransformsType_field_Transform => x.transform
 
 union x_transform_type_field r =
-    | TransformType_field_XPath :: x_transform_type_field (string)
+    | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
-    | TransformType_field_XPath => x.x_path
+    | TransformType_field_group_x_path => x.group_x_path
+
+union x_transform_type_group_x_path_field r =
+    | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
+
+inl x_transform_type_group_x_path_get forall r.
+    (f : x_transform_type_group_x_path_field r) (x : x_transform_type_group_x_path)
+    : r
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => x.x_path
 
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
@@ -4601,7 +4622,7 @@ let rec x_factura_electronica_exportacion_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion s
     =
-    {
+    x_factura_electronica_exportacion {
         clave =
             (fun c => xml.required_value "x_clave_type" (x_clave_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Clave" children)
         proveedor_sistemas =
@@ -4650,7 +4671,7 @@ and let x_factura_electronica_exportacion_otros_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_otros
     =
-    {
+    x_factura_electronica_exportacion_otros {
         otro_texto =
             listm.map
                 fun c => x_factura_electronica_exportacion_otros_otro_texto_of_xml c
@@ -4668,7 +4689,7 @@ and let x_factura_electronica_exportacion_otros_otro_contenido_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_otros_otro_contenido
     =
-    {
+    x_factura_electronica_exportacion_otros_otro_contenido {
         base = xml.required_value "x_restricted_string" (x_restricted_string_of_string (xml.text_in children))
         codigo = xml.attribute_of "codigo" attributes
     }
@@ -4685,7 +4706,7 @@ and let x_factura_electronica_exportacion_otros_otro_texto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_otros_otro_texto
     =
-    {
+    x_factura_electronica_exportacion_otros_otro_texto {
         base = xml.required_value "x_restricted_string" (x_restricted_string_of_string (xml.text_in children))
         codigo = xml.attribute_of "codigo" attributes
     }
@@ -4700,7 +4721,7 @@ and let x_factura_electronica_exportacion_informacion_referencia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_informacion_referencia
     =
-    {
+    x_factura_electronica_exportacion_informacion_referencia {
         tipo_doc_ir =
             (fun c => xml.required_value "x_tipo_doc_referencia_type" (x_tipo_doc_referencia_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDocIR" children)
         tipo_doc_ref_otro =
@@ -4757,7 +4778,7 @@ and let x_factura_electronica_exportacion_resumen_factura_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_resumen_factura
     =
-    {
+    x_factura_electronica_exportacion_resumen_factura {
         codigo_tipo_moneda = (fun c => x_codigo_moneda_type_of_xml c) (xml.required_child "CodigoTipoMoneda" children)
         total_serv_gravados =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "TotalServGravados" children)
@@ -4810,7 +4831,7 @@ and let x_factura_electronica_exportacion_resumen_factura_medio_pago_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_resumen_factura_medio_pago
     =
-    {
+    x_factura_electronica_exportacion_resumen_factura_medio_pago {
         tipo_medio_pago =
             optionm.map
                 fun c =>
@@ -4841,7 +4862,7 @@ and let x_factura_electronica_exportacion_resumen_factura_total_desglose_impuest
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto
     =
-    {
+    x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto {
         codigo =
             (fun c => xml.required_value "x_codigo_impuesto_type" (x_codigo_impuesto_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Codigo" children)
         codigo_tarifa_iva =
@@ -4866,7 +4887,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_detalle_servicio
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio {
         linea_detalle =
             listm.map
                 fun c => x_factura_electronica_exportacion_detalle_servicio_linea_detalle_of_xml c
@@ -4883,7 +4904,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_linea_detalle_of_chil
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle {
         numero_linea = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumeroLinea" children)
         partida_arancelaria =
             optionm.map
@@ -4978,7 +4999,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido {
         linea_detalle_surtido =
             listm.map
                 fun c =>
@@ -4999,7 +5020,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido {
         codigo_cabys_surtido =
             (fun c => xml.required_value "x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_cabys_surtido" (x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_cabys_surtido_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CodigoCABYSSurtido" children)
         codigo_comercial_surtido =
@@ -5060,7 +5081,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido {
         codigo_impuesto_surtido =
             (fun c => xml.required_value "x_codigo_impuesto_type" (x_codigo_impuesto_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CodigoImpuestoSurtido" children)
         codigo_impuesto_otro_surtido =
@@ -5102,7 +5123,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido {
         monto_descuento_surtido =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "MontoDescuentoSurtido" children)
         codigo_descuento_surtido =
@@ -5136,7 +5157,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido {
         tipo_surtido =
             (fun c => xml.required_value "x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido_tipo_surtido" (x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido_tipo_surtido_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoSurtido" children)
         codigo_surtido =
@@ -5153,7 +5174,7 @@ and let
         (xml.element_children c)
 
 and let x_emisor_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_emisor_type =
-    {
+    x_emisor_type {
         nombre =
             (fun c => xml.required_value "x_emisor_type_nombre" (x_emisor_type_nombre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nombre" children)
         identificacion = (fun c => x_identificacion_type_of_xml c) (xml.required_child "Identificacion" children)
@@ -5186,7 +5207,7 @@ and let x_receptor_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_receptor_type
     =
-    {
+    x_receptor_type {
         nombre =
             (fun c => xml.required_value "x_receptor_type_nombre" (x_receptor_type_nombre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nombre" children)
         identificacion =
@@ -5219,7 +5240,7 @@ and let x_identificacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_identificacion_type
     =
-    {
+    x_identificacion_type {
         tipo =
             (fun c => xml.required_value "x_identificacion_type_tipo" (x_identificacion_type_tipo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Tipo" children)
         numero =
@@ -5233,7 +5254,7 @@ and let x_ubicacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_ubicacion_type
     =
-    {
+    x_ubicacion_type {
         provincia =
             (fun c => xml.required_value "x_ubicacion_type_provincia" (x_ubicacion_type_provincia_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Provincia" children)
         canton =
@@ -5257,7 +5278,7 @@ and let x_telefono_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_telefono_type
     =
-    {
+    x_telefono_type {
         codigo_pais = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "CodigoPais" children)
         num_telefono = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumTelefono" children)
     }
@@ -5269,7 +5290,7 @@ and let x_exoneracion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_exoneracion_type
     =
-    {
+    x_exoneracion_type {
         tipo_documento =
             (fun c => xml.required_value "x_exoneracion_type_tipo_documento" (x_exoneracion_type_tipo_documento_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDocumento" children)
         numero_documento =
@@ -5290,7 +5311,7 @@ and let x_impuesto_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_impuesto_type
     =
-    {
+    x_impuesto_type {
         codigo =
             (fun c => xml.required_value "x_codigo_impuesto_type" (x_codigo_impuesto_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Codigo" children)
         codigo_impuesto_otro =
@@ -5317,7 +5338,7 @@ and let x_impuesto_type_of_xml (c : xml.xml_node) : x_impuesto_type =
     x_impuesto_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_codigo_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_codigo_type =
-    {
+    x_codigo_type {
         tipo =
             (fun c => xml.required_value "x_codigo_type_tipo" (x_codigo_type_tipo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Tipo" children)
         codigo =
@@ -5331,7 +5352,7 @@ and let x_descuento_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_descuento_type
     =
-    {
+    x_descuento_type {
         monto_descuento = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "MontoDescuento" children)
         codigo_descuento =
             (fun c => xml.required_value "x_codigo_descuento_type" (x_codigo_descuento_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CodigoDescuento" children)
@@ -5356,7 +5377,7 @@ and let x_otros_cargos_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_otros_cargos_type
     =
-    {
+    x_otros_cargos_type {
         tipo_documento_oc =
             (fun c => xml.required_value "x_otros_cargos_type_tipo_documento_oc" (x_otros_cargos_type_tipo_documento_oc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDocumentoOC" children)
         tipo_documento_otros =
@@ -5387,7 +5408,7 @@ and let x_codigo_moneda_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_codigo_moneda_type
     =
-    {
+    x_codigo_moneda_type {
         codigo_moneda =
             (fun c => xml.required_value "x_codigo_moneda_type_codigo_moneda" (x_codigo_moneda_type_codigo_moneda_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CodigoMoneda" children)
         tipo_cambio = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TipoCambio" children)
@@ -5400,7 +5421,7 @@ and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type
     =
-    {
+    x_signature_type {
         signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
         signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
         key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
@@ -5414,7 +5435,7 @@ and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_value_type
     =
-    {
+    x_signature_value_type {
         base = xml.text_in children
         id = xml.attribute_of "Id" attributes
     }
@@ -5426,7 +5447,7 @@ and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type
     =
-    {
+    x_signed_info_type {
         canonicalization_method =
             (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
         signature_method =
@@ -5442,7 +5463,7 @@ and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_signature_method
     =
-    {
+    x_signed_info_type_signature_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -5456,7 +5477,7 @@ and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_canonicalization_method
     =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -5470,7 +5491,7 @@ and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type
     =
-    {
+    x_reference_type {
         transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
         digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
         digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
@@ -5489,7 +5510,7 @@ and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type_digest_method
     =
-    {
+    x_reference_type_digest_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -5503,7 +5524,7 @@ and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transforms_type
     =
-    {
+    x_transforms_type {
         transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
     }
 
@@ -5514,8 +5535,11 @@ and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transform_type
     =
-    {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    x_transform_type {
+        group_x_path =
+            listm.map
+                fun run => x_transform_type_group_x_path_of_children [] run
+                (xml.group_runs [ "XPath" ] children)
         algorithm =
             xml.required_value
                 "x_t_transform_uri"
@@ -5525,11 +5549,22 @@ and let x_transform_type_of_children
 and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
+and let x_transform_type_group_x_path_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transform_type_group_x_path
+    =
+    x_transform_type_group_x_path {
+        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    }
+
+and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
+
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_key_info_type
     =
-    {
+    x_key_info_type {
         x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
         id = xml.attribute_of "Id" attributes
     }
@@ -5541,7 +5576,7 @@ and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_x509_data_type
     =
-    {
+    x_x509_data_type {
         x509_certificate =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
     }
@@ -6804,20 +6839,37 @@ and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.x
 and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
     inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | TransformType_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+        | TransformType_field_group_x_path => listm.concat (listm.map x_transform_type_group_x_path_children v)
     inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
             inl exists r. f = packed
             listm.append (nodes f (x_transform_type_get f x)) (walk rest)
         | [] => []
-    walk [ exists TransformType_field_XPath ]
+    walk [ exists TransformType_field_group_x_path ]
 
 and let x_transform_type_attributes (x : x_transform_type) : list (string * string) =
     [ ("Algorithm", to_text x.algorithm) ]
 
 and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
     xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_transform_type_group_x_path_children (x : x_transform_type_group_x_path) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_group_x_path_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_group_XPath_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_transform_type_group_x_path_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_group_x_path_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_group_XPath_field_XPath ]
+
+and let x_transform_type_group_x_path_attributes (x : x_transform_type_group_x_path) : list (string * string) = []
+
+and let x_transform_type_group_x_path_to_xml (name : string) (x : x_transform_type_group_x_path) : xml.xml_node =
+    xml.element name (x_transform_type_group_x_path_attributes x) (x_transform_type_group_x_path_children x)
 
 and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
     inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
@@ -6855,7 +6907,7 @@ and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml
     xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
 
 and let x_factura_electronica_exportacion_example (k : i32) : x_factura_electronica_exportacion unsigned =
-    {
+    x_factura_electronica_exportacion {
         clave = x_clave_type_example k
         proveedor_sistemas = x_factura_electronica_exportacion_proveedor_sistemas_example k
         codigo_actividad_emisor = x_factura_electronica_exportacion_codigo_actividad_emisor_example k
@@ -6875,7 +6927,7 @@ and let x_factura_electronica_exportacion_example (k : i32) : x_factura_electron
     }
 
 and let x_factura_electronica_exportacion_otros_example (k : i32) : x_factura_electronica_exportacion_otros =
-    {
+    x_factura_electronica_exportacion_otros {
         otro_texto = []
         otro_contenido = []
     }
@@ -6884,7 +6936,7 @@ and let x_factura_electronica_exportacion_otros_otro_contenido_example
     (k : i32)
     : x_factura_electronica_exportacion_otros_otro_contenido
     =
-    {
+    x_factura_electronica_exportacion_otros_otro_contenido {
         base = x_restricted_string_example k
         codigo = None
     }
@@ -6893,7 +6945,7 @@ and let x_factura_electronica_exportacion_otros_otro_texto_example
     (k : i32)
     : x_factura_electronica_exportacion_otros_otro_texto
     =
-    {
+    x_factura_electronica_exportacion_otros_otro_texto {
         base = x_restricted_string_example k
         codigo = None
     }
@@ -6902,7 +6954,7 @@ and let x_factura_electronica_exportacion_informacion_referencia_example
     (k : i32)
     : x_factura_electronica_exportacion_informacion_referencia
     =
-    {
+    x_factura_electronica_exportacion_informacion_referencia {
         tipo_doc_ir = x_tipo_doc_referencia_type_example k
         tipo_doc_ref_otro = None
         numero = None
@@ -6916,7 +6968,7 @@ and let x_factura_electronica_exportacion_resumen_factura_example
     (k : i32)
     : x_factura_electronica_exportacion_resumen_factura
     =
-    {
+    x_factura_electronica_exportacion_resumen_factura {
         codigo_tipo_moneda = x_codigo_moneda_type_example k
         total_serv_gravados = None
         total_serv_exentos = None
@@ -6939,7 +6991,7 @@ and let x_factura_electronica_exportacion_resumen_factura_medio_pago_example
     (k : i32)
     : x_factura_electronica_exportacion_resumen_factura_medio_pago
     =
-    {
+    x_factura_electronica_exportacion_resumen_factura_medio_pago {
         tipo_medio_pago = None
         medio_pago_otros = None
         total_medio_pago = None
@@ -6949,7 +7001,7 @@ and let x_factura_electronica_exportacion_resumen_factura_total_desglose_impuest
     (k : i32)
     : x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto
     =
-    {
+    x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto {
         codigo = x_codigo_impuesto_type_example k
         codigo_tarifa_iva = None
         total_monto_impuesto = x_decimal_dinero_type_example k
@@ -6959,7 +7011,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_example
     (k : i32)
     : x_factura_electronica_exportacion_detalle_servicio
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio {
         linea_detalle = [ x_factura_electronica_exportacion_detalle_servicio_linea_detalle_example (k + 0i32) ]
     }
 
@@ -6967,7 +7019,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_linea_detalle_example
     (k : i32)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle {
         numero_linea = x_factura_electronica_exportacion_detalle_servicio_linea_detalle_numero_linea_example k
         partida_arancelaria = None
         codigo_cabys = x_factura_electronica_exportacion_detalle_servicio_linea_detalle_codigo_cabys_example k
@@ -6993,7 +7045,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle
     (k : i32)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido {
         linea_detalle_surtido =
             [
                 x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_example
@@ -7005,7 +7057,7 @@ and let x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle
     (k : i32)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido {
         codigo_cabys_surtido =
             x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_cabys_surtido_example
                 k
@@ -7038,7 +7090,7 @@ and let
     (k : i32)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido {
         codigo_impuesto_surtido = x_codigo_impuesto_type_example k
         codigo_impuesto_otro_surtido = None
         codigo_tarifa_iva_surtido = None
@@ -7051,7 +7103,7 @@ and let
     (k : i32)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido {
         monto_descuento_surtido = x_decimal_dinero_type_example k
         codigo_descuento_surtido = x_codigo_descuento_type_example k
         descuento_surtido_otros = None
@@ -7062,7 +7114,7 @@ and let
     (k : i32)
     : x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido
     =
-    {
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido {
         tipo_surtido =
             x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido_tipo_surtido_example
                 k
@@ -7072,7 +7124,7 @@ and let
     }
 
 and let x_emisor_type_example (k : i32) : x_emisor_type =
-    {
+    x_emisor_type {
         nombre = x_emisor_type_nombre_example k
         identificacion = x_identificacion_type_example k
         registrofiscal8707 = None
@@ -7083,7 +7135,7 @@ and let x_emisor_type_example (k : i32) : x_emisor_type =
     }
 
 and let x_receptor_type_example (k : i32) : x_receptor_type =
-    {
+    x_receptor_type {
         nombre = x_receptor_type_nombre_example k
         identificacion = None
         nombre_comercial = None
@@ -7093,13 +7145,13 @@ and let x_receptor_type_example (k : i32) : x_receptor_type =
     }
 
 and let x_identificacion_type_example (k : i32) : x_identificacion_type =
-    {
+    x_identificacion_type {
         tipo = x_identificacion_type_tipo_example k
         numero = x_identificacion_type_numero_example k
     }
 
 and let x_ubicacion_type_example (k : i32) : x_ubicacion_type =
-    {
+    x_ubicacion_type {
         provincia = x_ubicacion_type_provincia_example k
         canton = x_ubicacion_type_canton_example k
         distrito = x_ubicacion_type_distrito_example k
@@ -7108,13 +7160,13 @@ and let x_ubicacion_type_example (k : i32) : x_ubicacion_type =
     }
 
 and let x_telefono_type_example (k : i32) : x_telefono_type =
-    {
+    x_telefono_type {
         codigo_pais = x_telefono_type_codigo_pais_example k
         num_telefono = x_telefono_type_num_telefono_example k
     }
 
 and let x_exoneracion_type_example (k : i32) : x_exoneracion_type =
-    {
+    x_exoneracion_type {
         tipo_documento = x_exoneracion_type_tipo_documento_example k
         numero_documento = x_exoneracion_type_numero_documento_example k
         nombre_institucion = x_exoneracion_type_nombre_institucion_example k
@@ -7124,7 +7176,7 @@ and let x_exoneracion_type_example (k : i32) : x_exoneracion_type =
     }
 
 and let x_impuesto_type_example (k : i32) : x_impuesto_type =
-    {
+    x_impuesto_type {
         codigo = x_codigo_impuesto_type_example k
         codigo_impuesto_otro = None
         codigo_tarifa_iva = None
@@ -7135,13 +7187,13 @@ and let x_impuesto_type_example (k : i32) : x_impuesto_type =
     }
 
 and let x_codigo_type_example (k : i32) : x_codigo_type =
-    {
+    x_codigo_type {
         tipo = x_codigo_type_tipo_example k
         codigo = x_codigo_type_codigo_example k
     }
 
 and let x_descuento_type_example (k : i32) : x_descuento_type =
-    {
+    x_descuento_type {
         monto_descuento = x_decimal_dinero_type_example k
         codigo_descuento = x_codigo_descuento_type_example k
         codigo_descuento_otro = None
@@ -7149,7 +7201,7 @@ and let x_descuento_type_example (k : i32) : x_descuento_type =
     }
 
 and let x_otros_cargos_type_example (k : i32) : x_otros_cargos_type =
-    {
+    x_otros_cargos_type {
         tipo_documento_oc = x_otros_cargos_type_tipo_documento_oc_example k
         tipo_documento_otros = None
         identificacion_tercero = None
@@ -7160,13 +7212,13 @@ and let x_otros_cargos_type_example (k : i32) : x_otros_cargos_type =
     }
 
 and let x_codigo_moneda_type_example (k : i32) : x_codigo_moneda_type =
-    {
+    x_codigo_moneda_type {
         codigo_moneda = x_codigo_moneda_type_codigo_moneda_example k
         tipo_cambio = x_decimal_dinero_type_example k
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =
-    {
+    x_signature_type {
         signed_info = x_signed_info_type_example k
         signature_value = x_signature_value_type_example k
         key_info = x_key_info_type_example k
@@ -7174,13 +7226,13 @@ and let x_signature_type_example (k : i32) : x_signature_type =
     }
 
 and let x_signature_value_type_example (k : i32) : x_signature_value_type =
-    {
+    x_signature_value_type {
         base = "AAAA"
         id = None
     }
 
 and let x_signed_info_type_example (k : i32) : x_signed_info_type =
-    {
+    x_signed_info_type {
         canonicalization_method = x_signed_info_type_canonicalization_method_example k
         signature_method = x_signed_info_type_signature_method_example k
         reference = x_reference_type_example k
@@ -7188,17 +7240,17 @@ and let x_signed_info_type_example (k : i32) : x_signed_info_type =
     }
 
 and let x_signed_info_type_signature_method_example (k : i32) : x_signed_info_type_signature_method =
-    {
+    x_signed_info_type_signature_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
     }
 
 and let x_signed_info_type_canonicalization_method_example (k : i32) : x_signed_info_type_canonicalization_method =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
     }
 
 and let x_reference_type_example (k : i32) : x_reference_type =
-    {
+    x_reference_type {
         transforms = x_transforms_type_example k
         digest_method = x_reference_type_digest_method_example k
         digest_value = x_digest_value_type_example k
@@ -7208,31 +7260,196 @@ and let x_reference_type_example (k : i32) : x_reference_type =
     }
 
 and let x_reference_type_digest_method_example (k : i32) : x_reference_type_digest_method =
-    {
+    x_reference_type_digest_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
     }
 
 and let x_transforms_type_example (k : i32) : x_transforms_type =
-    {
+    x_transforms_type {
         transform = [ x_transform_type_example (k + 0i32); x_transform_type_example (k + 1i32) ]
     }
 
 and let x_transform_type_example (k : i32) : x_transform_type =
-    {
-        x_path = "1"
+    x_transform_type {
+        group_x_path = []
         algorithm = x_t_transform_uri_example k
     }
 
+and let x_transform_type_group_x_path_example (k : i32) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path {
+        x_path = "1"
+    }
+
 and let x_key_info_type_example (k : i32) : x_key_info_type =
-    {
+    x_key_info_type {
         x509_data = x_x509_data_type_example k
         id = None
     }
 
 and let x_x509_data_type_example (k : i32) : x_x509_data_type =
-    {
+    x_x509_data_type {
         x509_certificate = "AAAA"
     }
+
+
+instance of_xml x_factura_electronica_exportacion s {stage_of} =
+    fun c => x_factura_electronica_exportacion_of_xml (stage_of ()) c
+instance to_xml x_factura_electronica_exportacion s = x_factura_electronica_exportacion_to_xml
+
+instance of_xml x_factura_electronica_exportacion_otros = x_factura_electronica_exportacion_otros_of_xml
+instance to_xml x_factura_electronica_exportacion_otros = x_factura_electronica_exportacion_otros_to_xml
+
+instance of_xml x_factura_electronica_exportacion_otros_otro_contenido =
+    x_factura_electronica_exportacion_otros_otro_contenido_of_xml
+instance to_xml x_factura_electronica_exportacion_otros_otro_contenido =
+    x_factura_electronica_exportacion_otros_otro_contenido_to_xml
+
+instance of_xml x_factura_electronica_exportacion_otros_otro_texto =
+    x_factura_electronica_exportacion_otros_otro_texto_of_xml
+instance to_xml x_factura_electronica_exportacion_otros_otro_texto =
+    x_factura_electronica_exportacion_otros_otro_texto_to_xml
+
+instance of_xml x_factura_electronica_exportacion_informacion_referencia =
+    x_factura_electronica_exportacion_informacion_referencia_of_xml
+instance to_xml x_factura_electronica_exportacion_informacion_referencia =
+    x_factura_electronica_exportacion_informacion_referencia_to_xml
+
+instance of_xml x_factura_electronica_exportacion_resumen_factura =
+    x_factura_electronica_exportacion_resumen_factura_of_xml
+instance to_xml x_factura_electronica_exportacion_resumen_factura =
+    x_factura_electronica_exportacion_resumen_factura_to_xml
+
+instance of_xml x_factura_electronica_exportacion_resumen_factura_medio_pago =
+    x_factura_electronica_exportacion_resumen_factura_medio_pago_of_xml
+instance to_xml x_factura_electronica_exportacion_resumen_factura_medio_pago =
+    x_factura_electronica_exportacion_resumen_factura_medio_pago_to_xml
+
+instance of_xml x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto =
+    x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto_of_xml
+instance to_xml x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto =
+    x_factura_electronica_exportacion_resumen_factura_total_desglose_impuesto_to_xml
+
+instance of_xml x_factura_electronica_exportacion_detalle_servicio =
+    x_factura_electronica_exportacion_detalle_servicio_of_xml
+instance to_xml x_factura_electronica_exportacion_detalle_servicio =
+    x_factura_electronica_exportacion_detalle_servicio_to_xml
+
+instance of_xml x_factura_electronica_exportacion_detalle_servicio_linea_detalle =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_of_xml
+instance to_xml x_factura_electronica_exportacion_detalle_servicio_linea_detalle =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_to_xml
+
+instance of_xml x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_of_xml
+instance to_xml x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_to_xml
+
+instance of_xml x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_of_xml
+instance to_xml x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_to_xml
+
+instance
+    of_xml
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido
+    =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido_of_xml
+instance
+    to_xml
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido
+    =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_impuesto_surtido_to_xml
+
+instance
+    of_xml
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido
+    =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido_of_xml
+instance
+    to_xml
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido
+    =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_descuento_surtido_to_xml
+
+instance
+    of_xml
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido
+    =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido_of_xml
+instance
+    to_xml
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido
+    =
+    x_factura_electronica_exportacion_detalle_servicio_linea_detalle_detalle_surtido_linea_detalle_surtido_codigo_comercial_surtido_to_xml
+
+instance of_xml x_emisor_type = x_emisor_type_of_xml
+instance to_xml x_emisor_type = x_emisor_type_to_xml
+
+instance of_xml x_receptor_type = x_receptor_type_of_xml
+instance to_xml x_receptor_type = x_receptor_type_to_xml
+
+instance of_xml x_identificacion_type = x_identificacion_type_of_xml
+instance to_xml x_identificacion_type = x_identificacion_type_to_xml
+
+instance of_xml x_ubicacion_type = x_ubicacion_type_of_xml
+instance to_xml x_ubicacion_type = x_ubicacion_type_to_xml
+
+instance of_xml x_telefono_type = x_telefono_type_of_xml
+instance to_xml x_telefono_type = x_telefono_type_to_xml
+
+instance of_xml x_exoneracion_type = x_exoneracion_type_of_xml
+instance to_xml x_exoneracion_type = x_exoneracion_type_to_xml
+
+instance of_xml x_impuesto_type = x_impuesto_type_of_xml
+instance to_xml x_impuesto_type = x_impuesto_type_to_xml
+
+instance of_xml x_codigo_type = x_codigo_type_of_xml
+instance to_xml x_codigo_type = x_codigo_type_to_xml
+
+instance of_xml x_descuento_type = x_descuento_type_of_xml
+instance to_xml x_descuento_type = x_descuento_type_to_xml
+
+instance of_xml x_otros_cargos_type = x_otros_cargos_type_of_xml
+instance to_xml x_otros_cargos_type = x_otros_cargos_type_to_xml
+
+instance of_xml x_codigo_moneda_type = x_codigo_moneda_type_of_xml
+instance to_xml x_codigo_moneda_type = x_codigo_moneda_type_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_value_type = x_signature_value_type_of_xml
+instance to_xml x_signature_value_type = x_signature_value_type_to_xml
+
+instance of_xml x_signed_info_type = x_signed_info_type_of_xml
+instance to_xml x_signed_info_type = x_signed_info_type_to_xml
+
+instance of_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_of_xml
+instance to_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_to_xml
+
+instance of_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_of_xml
+instance to_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_to_xml
+
+instance of_xml x_reference_type = x_reference_type_of_xml
+instance to_xml x_reference_type = x_reference_type_to_xml
+
+instance of_xml x_reference_type_digest_method = x_reference_type_digest_method_of_xml
+instance to_xml x_reference_type_digest_method = x_reference_type_digest_method_to_xml
+
+instance of_xml x_transforms_type = x_transforms_type_of_xml
+instance to_xml x_transforms_type = x_transforms_type_to_xml
+
+instance of_xml x_transform_type = x_transform_type_of_xml
+instance to_xml x_transform_type = x_transform_type_to_xml
+
+instance of_xml x_transform_type_group_x_path = x_transform_type_group_x_path_of_xml
+instance to_xml x_transform_type_group_x_path = x_transform_type_group_x_path_to_xml
+
+instance of_xml x_key_info_type = x_key_info_type_of_xml
+instance to_xml x_key_info_type = x_key_info_type_to_xml
+
+instance of_xml x_x509_data_type = x_x509_data_type_of_xml
+instance to_xml x_x509_data_type = x_x509_data_type_to_xml
 
 
 ///> rust

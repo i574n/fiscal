@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -1954,7 +1956,7 @@ inl x_withholding_tax_withholding_tax_type_example (k : i32) : x_withholding_tax
 inl x_withholding_tax_withholding_tax_type_example_text (k : i32) : string =
     x_withholding_tax_withholding_tax_type_to_string (x_withholding_tax_withholding_tax_type_example k)
 
-type x_withholding_tax =
+nominal x_withholding_tax =
     {
         withholding_tax_type : option (x_withholding_tax_withholding_tax_type)
         withholding_tax_description : option (x_safp_ttext_type_mandatory_max60_car)
@@ -2352,7 +2354,7 @@ union x_tax_choice_tax_percentage =
     | Tax_choice_TaxPercentage_TaxPercentage : x_sa_fdecimal_type
     | Tax_choice_TaxPercentage_TaxAmount : x_sa_fmonetary_type
 
-type x_tax =
+nominal x_tax =
     {
         tax_type : x_tax_tax_type
         tax_country_region : x_tax_tax_country_region
@@ -2387,14 +2389,20 @@ inl x_special_regimes_third_parties_billing_indicator_example (_ : i32) : string
 inl x_special_regimes_third_parties_billing_indicator_example_text (k : i32) : string =
     x_special_regimes_third_parties_billing_indicator_example k
 
-type x_special_regimes =
+nominal x_special_regimes =
     {
         self_billing_indicator : x_special_regimes_self_billing_indicator
         cash_vat_scheme_indicator : x_special_regimes_cash_vat_scheme_indicator
         third_parties_billing_indicator : x_special_regimes_third_parties_billing_indicator
     }
 
-type x_settlement =
+nominal x_shipping_point_structure_group_warehouse_id =
+    {
+        warehouse_id : option (x_safp_ttext_type_mandatory_max50_car)
+        location_id : option (x_safp_ttext_type_mandatory_max30_car)
+    }
+
+nominal x_settlement =
     {
         settlement_discount : option (x_safp_ttext_type_mandatory_max30_car)
         settlement_amount : option (x_sa_fmonetary_type)
@@ -2402,13 +2410,13 @@ type x_settlement =
         payment_terms : option (x_safp_ttext_type_mandatory_max100_car)
     }
 
-type x_references =
+nominal x_references =
     {
         reference : option (x_safp_ttext_type_mandatory_max60_car)
         reason : option (x_safp_ttext_type_mandatory_max50_car)
     }
 
-type x_product_serial_number =
+nominal x_product_serial_number =
     {
         serial_number : list (x_safp_ttext_type_mandatory_max100_car)
     }
@@ -2444,7 +2452,7 @@ union x_payment_tax_choice_tax_percentage =
     | PaymentTax_choice_TaxPercentage_TaxPercentage : x_sa_fdecimal_type
     | PaymentTax_choice_TaxPercentage_TaxAmount : x_sa_fmonetary_type
 
-type x_payment_tax =
+nominal x_payment_tax =
     {
         tax_type : x_payment_tax_tax_type
         tax_country_region : x_payment_tax_tax_country_region
@@ -2519,14 +2527,14 @@ inl x_payment_method_payment_mechanism_example (k : i32) : x_payment_method_paym
 inl x_payment_method_payment_mechanism_example_text (k : i32) : string =
     x_payment_method_payment_mechanism_to_string (x_payment_method_payment_mechanism_example k)
 
-type x_payment_method =
+nominal x_payment_method =
     {
         payment_mechanism : option (x_payment_method_payment_mechanism)
         payment_amount : x_sa_fmonetary_type
         payment_date : x_sa_fdate_type
     }
 
-type x_order_references =
+nominal x_order_references =
     {
         originating_on : option (x_safp_ttext_type_mandatory_max60_car)
         order_date : option (x_sa_fdate_type)
@@ -2549,7 +2557,7 @@ inl x_movement_tax_tax_country_region_example (_ : i32) : x_movement_tax_tax_cou
 inl x_movement_tax_tax_country_region_example_text (k : i32) : string =
     x_movement_tax_tax_country_region_to_string (x_movement_tax_tax_country_region_example k)
 
-type x_movement_tax =
+nominal x_movement_tax =
     {
         tax_type : x_saftpt_movement_tax_type
         tax_country_region : x_movement_tax_tax_country_region
@@ -2557,13 +2565,13 @@ type x_movement_tax =
         tax_percentage : x_sa_fdecimal_type
     }
 
-type x_customs_information =
+nominal x_customs_information =
     {
         arc_no : list (x_safp_ttext_type_mandatory_max21_car)
         iec_amount : option (x_sa_fmonetary_type)
     }
 
-type x_customs_details =
+nominal x_customs_details =
     {
         cn_code : list (x_safptcn_code)
         un_number : list (x_safptun_number)
@@ -2983,14 +2991,14 @@ inl x_currency_currency_code_example (_ : i32) : x_currency_currency_code = x_cu
 inl x_currency_currency_code_example_text (k : i32) : string =
     x_currency_currency_code_to_string (x_currency_currency_code_example k)
 
-type x_currency =
+nominal x_currency =
     {
         currency_code : x_currency_currency_code
         currency_amount : x_sa_fmonetary_type
         exchange_rate : x_sa_fdecimal_type
     }
 
-type x_customer_address_structure =
+nominal x_customer_address_structure =
     {
         building_number : option (x_safp_ttext_type_mandatory_max10_car)
         street_name : option (x_safp_ttext_type_mandatory_max200_car)
@@ -3223,7 +3231,7 @@ inl x_address_structure_country_example (_ : i32) : x_address_structure_country 
 inl x_address_structure_country_example_text (k : i32) : string =
     x_address_structure_country_to_string (x_address_structure_country_example k)
 
-type x_address_structure =
+nominal x_address_structure =
     {
         building_number : option (x_safp_ttext_type_mandatory_max10_car)
         street_name : option (x_safp_ttext_type_mandatory_max200_car)
@@ -4289,7 +4297,7 @@ inl x_source_documents_sales_invoices_invoice_document_status_invoice_status_exa
 inl x_source_documents_sales_invoices_invoice_document_status_invoice_status_example_text (k : i32) : string =
     x_invoice_status_example_text k
 
-type x_source_documents_sales_invoices_invoice_document_status =
+nominal x_source_documents_sales_invoices_invoice_document_status =
     {
         invoice_status : x_source_documents_sales_invoices_invoice_document_status_invoice_status
         invoice_status_date : x_sa_fdate_time_type
@@ -4366,7 +4374,7 @@ union x_source_documents_sales_invoices_invoice_line_choice_debit_amount =
     | SourceDocuments_SalesInvoices_Invoice_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | SourceDocuments_SalesInvoices_Invoice_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_source_documents_sales_invoices_invoice_line =
+nominal x_source_documents_sales_invoices_invoice_line =
     {
         line_number : string
         order_references : list (x_order_references)
@@ -4388,7 +4396,7 @@ type x_source_documents_sales_invoices_invoice_line =
         customs_information : option (x_customs_information)
     }
 
-type x_source_documents_sales_invoices_invoice_document_totals =
+nominal x_source_documents_sales_invoices_invoice_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -4456,7 +4464,7 @@ inl x_source_documents_movement_of_goods_stock_movement_document_status_movement
     =
     x_movement_status_example_text k
 
-type x_source_documents_movement_of_goods_stock_movement_document_status =
+nominal x_source_documents_movement_of_goods_stock_movement_document_status =
     {
         movement_status : x_source_documents_movement_of_goods_stock_movement_document_status_movement_status
         movement_status_date : x_sa_fdate_time_type
@@ -4537,7 +4545,7 @@ union x_source_documents_movement_of_goods_stock_movement_line_choice_debit_amou
     | SourceDocuments_MovementOfGoods_StockMovement_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | SourceDocuments_MovementOfGoods_StockMovement_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_source_documents_movement_of_goods_stock_movement_line =
+nominal x_source_documents_movement_of_goods_stock_movement_line =
     {
         line_number : string
         order_references : list (x_order_references)
@@ -4556,7 +4564,7 @@ type x_source_documents_movement_of_goods_stock_movement_line =
         customs_information : option (x_customs_information)
     }
 
-type x_source_documents_movement_of_goods_stock_movement_document_totals =
+nominal x_source_documents_movement_of_goods_stock_movement_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -4619,7 +4627,7 @@ inl x_source_documents_working_documents_work_document_document_status_work_stat
 inl x_source_documents_working_documents_work_document_document_status_work_status_example_text (k : i32) : string =
     x_work_status_example_text k
 
-type x_source_documents_working_documents_work_document_document_status =
+nominal x_source_documents_working_documents_work_document_document_status =
     {
         work_status : x_source_documents_working_documents_work_document_document_status_work_status
         work_status_date : x_sa_fdate_time_type
@@ -4696,7 +4704,7 @@ union x_source_documents_working_documents_work_document_line_choice_debit_amoun
     | SourceDocuments_WorkingDocuments_WorkDocument_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | SourceDocuments_WorkingDocuments_WorkDocument_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_source_documents_working_documents_work_document_line =
+nominal x_source_documents_working_documents_work_document_line =
     {
         line_number : string
         order_references : list (x_order_references)
@@ -4718,7 +4726,7 @@ type x_source_documents_working_documents_work_document_line =
         customs_information : option (x_customs_information)
     }
 
-type x_source_documents_working_documents_work_document_document_totals =
+nominal x_source_documents_working_documents_work_document_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -4726,7 +4734,7 @@ type x_source_documents_working_documents_work_document_document_totals =
         currency : option (x_currency)
     }
 
-type x_source_documents_working_documents_work_document =
+nominal x_source_documents_working_documents_work_document =
     {
         document_number : x_source_documents_working_documents_work_document_document_number
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -4745,7 +4753,7 @@ type x_source_documents_working_documents_work_document =
         document_totals : x_source_documents_working_documents_work_document_document_totals
     }
 
-type x_source_documents_working_documents =
+nominal x_source_documents_working_documents =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -4817,7 +4825,7 @@ inl x_source_documents_payments_payment_document_status_payment_status_example
 inl x_source_documents_payments_payment_document_status_payment_status_example_text (k : i32) : string =
     x_payment_status_example_text k
 
-type x_source_documents_payments_payment_document_status =
+nominal x_source_documents_payments_payment_document_status =
     {
         payment_status : x_source_documents_payments_payment_document_status_payment_status
         payment_status_date : x_sa_fdate_time_type
@@ -4826,7 +4834,7 @@ type x_source_documents_payments_payment_document_status =
         source_payment : x_saftpt_source_payment
     }
 
-type x_source_documents_payments_payment_line_source_document_id =
+nominal x_source_documents_payments_payment_line_source_document_id =
     {
         originating_on : x_safp_ttext_type_mandatory_max60_car
         invoice_date : x_sa_fdate_type
@@ -4837,7 +4845,7 @@ union x_source_documents_payments_payment_line_choice_debit_amount =
     | SourceDocuments_Payments_Payment_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | SourceDocuments_Payments_Payment_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_source_documents_payments_payment_line =
+nominal x_source_documents_payments_payment_line =
     {
         line_number : string
         source_document_id : list (x_source_documents_payments_payment_line_source_document_id)
@@ -4848,12 +4856,12 @@ type x_source_documents_payments_payment_line =
         tax_exemption_code : option (x_safpt_portuguese_tax_exemption_code)
     }
 
-type x_source_documents_payments_payment_document_totals_settlement =
+nominal x_source_documents_payments_payment_document_totals_settlement =
     {
         settlement_amount : x_sa_fmonetary_type
     }
 
-type x_source_documents_payments_payment_document_totals =
+nominal x_source_documents_payments_payment_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -4862,7 +4870,7 @@ type x_source_documents_payments_payment_document_totals =
         currency : option (x_currency)
     }
 
-type x_source_documents_payments_payment =
+nominal x_source_documents_payments_payment =
     {
         payment_ref_no : x_source_documents_payments_payment_payment_ref_no
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -4882,7 +4890,7 @@ type x_source_documents_payments_payment =
         withholding_tax : list (x_withholding_tax)
     }
 
-type x_source_documents_payments =
+nominal x_source_documents_payments =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -4919,7 +4927,7 @@ union x_general_ledger_entries_journal_transaction_choice_customer_id =
     | GeneralLedgerEntries_Journal_Transaction_choice_CustomerID_SupplierID :
         option (x_safp_ttext_type_mandatory_max30_car)
 
-type x_general_ledger_entries_journal_transaction_lines_debit_line =
+nominal x_general_ledger_entries_journal_transaction_lines_debit_line =
     {
         record_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_safptgl_account_id
@@ -4929,7 +4937,7 @@ type x_general_ledger_entries_journal_transaction_lines_debit_line =
         debit_amount : x_sa_fmonetary_type
     }
 
-type x_general_ledger_entries_journal_transaction_lines_credit_line =
+nominal x_general_ledger_entries_journal_transaction_lines_credit_line =
     {
         record_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_safptgl_account_id
@@ -4939,13 +4947,13 @@ type x_general_ledger_entries_journal_transaction_lines_credit_line =
         credit_amount : x_sa_fmonetary_type
     }
 
-type x_general_ledger_entries_journal_transaction_lines =
+nominal x_general_ledger_entries_journal_transaction_lines =
     {
         debit_line : list (x_general_ledger_entries_journal_transaction_lines_debit_line)
         credit_line : list (x_general_ledger_entries_journal_transaction_lines_credit_line)
     }
 
-type x_general_ledger_entries_journal_transaction =
+nominal x_general_ledger_entries_journal_transaction =
     {
         transaction_id : x_safpt_transaction_id
         period : x_safpt_accounting_period
@@ -4959,14 +4967,14 @@ type x_general_ledger_entries_journal_transaction =
         lines : x_general_ledger_entries_journal_transaction_lines
     }
 
-type x_general_ledger_entries_journal =
+nominal x_general_ledger_entries_journal =
     {
         journal_id : x_safpt_journal_id
         description : x_safp_ttext_type_mandatory_max200_car
         transaction : list (x_general_ledger_entries_journal_transaction)
     }
 
-type x_general_ledger_entries =
+nominal x_general_ledger_entries =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -5005,7 +5013,7 @@ union x_tax_table_entry_choice_tax_percentage =
     | TaxTableEntry_choice_TaxPercentage_TaxPercentage : x_sa_fdecimal_type
     | TaxTableEntry_choice_TaxPercentage_TaxAmount : x_sa_fmonetary_type
 
-type x_tax_table_entry =
+nominal x_tax_table_entry =
     {
         tax_type : x_tax_table_entry_tax_type
         tax_country_region : x_tax_table_entry_tax_country_region
@@ -5058,7 +5066,7 @@ union x_tax_table_tax_table_entry_choice_tax_percentage =
     | TaxTable_TaxTableEntry_choice_TaxPercentage_TaxPercentage : x_sa_fdecimal_type
     | TaxTable_TaxTableEntry_choice_TaxPercentage_TaxAmount : x_sa_fmonetary_type
 
-type x_tax_table_tax_table_entry =
+nominal x_tax_table_tax_table_entry =
     {
         tax_type : x_tax_table_tax_table_entry_tax_type
         tax_country_region : x_tax_table_tax_table_entry_tax_country_region
@@ -5068,7 +5076,7 @@ type x_tax_table_tax_table_entry =
         choice_tax_percentage : x_tax_table_tax_table_entry_choice_tax_percentage
     }
 
-type x_tax_table =
+nominal x_tax_table =
     {
         tax_table_entry : list (x_tax_table_tax_table_entry)
     }
@@ -5083,7 +5091,7 @@ inl x_product_product_type_example (k : i32) : x_product_product_type = x_produc
 
 inl x_product_product_type_example_text (k : i32) : string = x_product_type_example_text k
 
-type x_product =
+nominal x_product =
     {
         product_type : x_product_product_type
         product_code : x_safp_ttext_type_mandatory_max60_car
@@ -5117,7 +5125,7 @@ inl x_supplier_self_billing_indicator_example (_ : i32) : string = "1"
 
 inl x_supplier_self_billing_indicator_example_text (k : i32) : string = x_supplier_self_billing_indicator_example k
 
-type x_supplier =
+nominal x_supplier =
     {
         supplier_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_supplier_account_id
@@ -5157,7 +5165,7 @@ inl x_customer_self_billing_indicator_example (_ : i32) : string = "1"
 
 inl x_customer_self_billing_indicator_example_text (k : i32) : string = x_customer_self_billing_indicator_example k
 
-type x_customer =
+nominal x_customer =
     {
         customer_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_customer_account_id
@@ -5212,7 +5220,7 @@ inl x_general_ledger_accounts_account_grouping_category_example
 inl x_general_ledger_accounts_account_grouping_category_example_text (k : i32) : string =
     x_grouping_category_example_text k
 
-type x_general_ledger_accounts_account =
+nominal x_general_ledger_accounts_account =
     {
         account_id : x_safptgl_account_id
         account_description : x_safp_ttext_type_mandatory_max100_car
@@ -5225,7 +5233,7 @@ type x_general_ledger_accounts_account =
         taxonomy_code : option (x_safpt_taxonomy_code)
     }
 
-type x_general_ledger_accounts =
+nominal x_general_ledger_accounts =
     {
         taxonomy_reference : x_general_ledger_accounts_taxonomy_reference
         account : list (x_general_ledger_accounts_account)
@@ -5282,7 +5290,7 @@ inl x_header_fiscal_year_example (_ : i32) : string = "1"
 
 inl x_header_fiscal_year_example_text (k : i32) : string = x_header_fiscal_year_example k
 
-type x_header =
+nominal x_header =
     {
         audit_file_version : x_header_audit_file_version
         company_id : x_header_company_id
@@ -5364,7 +5372,7 @@ inl x_audit_file_header_fiscal_year_example (_ : i32) : string = "1"
 
 inl x_audit_file_header_fiscal_year_example_text (k : i32) : string = x_audit_file_header_fiscal_year_example k
 
-type x_audit_file_header =
+nominal x_audit_file_header =
     {
         audit_file_version : x_audit_file_header_audit_file_version
         company_id : x_audit_file_header_company_id
@@ -5436,7 +5444,7 @@ inl x_audit_file_master_files_general_ledger_accounts_account_grouping_category_
 inl x_audit_file_master_files_general_ledger_accounts_account_grouping_category_example_text (k : i32) : string =
     x_grouping_category_example_text k
 
-type x_audit_file_master_files_general_ledger_accounts_account =
+nominal x_audit_file_master_files_general_ledger_accounts_account =
     {
         account_id : x_safptgl_account_id
         account_description : x_safp_ttext_type_mandatory_max100_car
@@ -5449,7 +5457,7 @@ type x_audit_file_master_files_general_ledger_accounts_account =
         taxonomy_code : option (x_safpt_taxonomy_code)
     }
 
-type x_audit_file_master_files_general_ledger_accounts =
+nominal x_audit_file_master_files_general_ledger_accounts =
     {
         taxonomy_reference : x_audit_file_master_files_general_ledger_accounts_taxonomy_reference
         account : list (x_audit_file_master_files_general_ledger_accounts_account)
@@ -5491,7 +5499,7 @@ inl x_audit_file_master_files_customer_self_billing_indicator_example (_ : i32) 
 inl x_audit_file_master_files_customer_self_billing_indicator_example_text (k : i32) : string =
     x_audit_file_master_files_customer_self_billing_indicator_example k
 
-type x_audit_file_master_files_customer =
+nominal x_audit_file_master_files_customer =
     {
         customer_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_audit_file_master_files_customer_account_id
@@ -5543,7 +5551,7 @@ inl x_audit_file_master_files_supplier_self_billing_indicator_example (_ : i32) 
 inl x_audit_file_master_files_supplier_self_billing_indicator_example_text (k : i32) : string =
     x_audit_file_master_files_supplier_self_billing_indicator_example k
 
-type x_audit_file_master_files_supplier =
+nominal x_audit_file_master_files_supplier =
     {
         supplier_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_audit_file_master_files_supplier_account_id
@@ -5578,7 +5586,7 @@ inl x_audit_file_master_files_product_product_type_example (k : i32) : x_audit_f
 
 inl x_audit_file_master_files_product_product_type_example_text (k : i32) : string = x_product_type_example_text k
 
-type x_audit_file_master_files_product =
+nominal x_audit_file_master_files_product =
     {
         product_type : x_audit_file_master_files_product_product_type
         product_code : x_safp_ttext_type_mandatory_max60_car
@@ -5647,7 +5655,7 @@ union x_audit_file_master_files_tax_table_tax_table_entry_choice_tax_percentage 
     | AuditFile_MasterFiles_TaxTable_TaxTableEntry_choice_TaxPercentage_TaxPercentage : x_sa_fdecimal_type
     | AuditFile_MasterFiles_TaxTable_TaxTableEntry_choice_TaxPercentage_TaxAmount : x_sa_fmonetary_type
 
-type x_audit_file_master_files_tax_table_tax_table_entry =
+nominal x_audit_file_master_files_tax_table_tax_table_entry =
     {
         tax_type : x_audit_file_master_files_tax_table_tax_table_entry_tax_type
         tax_country_region : x_audit_file_master_files_tax_table_tax_table_entry_tax_country_region
@@ -5657,12 +5665,12 @@ type x_audit_file_master_files_tax_table_tax_table_entry =
         choice_tax_percentage : x_audit_file_master_files_tax_table_tax_table_entry_choice_tax_percentage
     }
 
-type x_audit_file_master_files_tax_table =
+nominal x_audit_file_master_files_tax_table =
     {
         tax_table_entry : list (x_audit_file_master_files_tax_table_tax_table_entry)
     }
 
-type x_audit_file_master_files =
+nominal x_audit_file_master_files =
     {
         general_ledger_accounts : option (x_audit_file_master_files_general_ledger_accounts)
         customer : list (x_audit_file_master_files_customer)
@@ -5700,7 +5708,7 @@ union x_audit_file_general_ledger_entries_journal_transaction_choice_customer_id
     | AuditFile_GeneralLedgerEntries_Journal_Transaction_choice_CustomerID_SupplierID :
         option (x_safp_ttext_type_mandatory_max30_car)
 
-type x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line =
+nominal x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line =
     {
         record_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_safptgl_account_id
@@ -5710,7 +5718,7 @@ type x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line =
         debit_amount : x_sa_fmonetary_type
     }
 
-type x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line =
+nominal x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line =
     {
         record_id : x_safp_ttext_type_mandatory_max30_car
         account_id : x_safptgl_account_id
@@ -5720,13 +5728,13 @@ type x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line =
         credit_amount : x_sa_fmonetary_type
     }
 
-type x_audit_file_general_ledger_entries_journal_transaction_lines =
+nominal x_audit_file_general_ledger_entries_journal_transaction_lines =
     {
         debit_line : list (x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line)
         credit_line : list (x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line)
     }
 
-type x_audit_file_general_ledger_entries_journal_transaction =
+nominal x_audit_file_general_ledger_entries_journal_transaction =
     {
         transaction_id : x_safpt_transaction_id
         period : x_safpt_accounting_period
@@ -5740,14 +5748,14 @@ type x_audit_file_general_ledger_entries_journal_transaction =
         lines : x_audit_file_general_ledger_entries_journal_transaction_lines
     }
 
-type x_audit_file_general_ledger_entries_journal =
+nominal x_audit_file_general_ledger_entries_journal =
     {
         journal_id : x_safpt_journal_id
         description : x_safp_ttext_type_mandatory_max200_car
         transaction : list (x_audit_file_general_ledger_entries_journal_transaction)
     }
 
-type x_audit_file_general_ledger_entries =
+nominal x_audit_file_general_ledger_entries =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -5813,7 +5821,7 @@ inl x_audit_file_source_documents_sales_invoices_invoice_document_status_invoice
     =
     x_invoice_status_example_text k
 
-type x_audit_file_source_documents_sales_invoices_invoice_document_status =
+nominal x_audit_file_source_documents_sales_invoices_invoice_document_status =
     {
         invoice_status : x_audit_file_source_documents_sales_invoices_invoice_document_status_invoice_status
         invoice_status_date : x_sa_fdate_time_type
@@ -5890,7 +5898,7 @@ union x_audit_file_source_documents_sales_invoices_invoice_line_choice_debit_amo
     | AuditFile_SourceDocuments_SalesInvoices_Invoice_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | AuditFile_SourceDocuments_SalesInvoices_Invoice_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_audit_file_source_documents_sales_invoices_invoice_line =
+nominal x_audit_file_source_documents_sales_invoices_invoice_line =
     {
         line_number : string
         order_references : list (x_order_references)
@@ -5912,7 +5920,7 @@ type x_audit_file_source_documents_sales_invoices_invoice_line =
         customs_information : option (x_customs_information)
     }
 
-type x_audit_file_source_documents_sales_invoices_invoice_document_totals =
+nominal x_audit_file_source_documents_sales_invoices_invoice_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -5980,7 +5988,7 @@ inl x_audit_file_source_documents_movement_of_goods_stock_movement_document_stat
     =
     x_movement_status_example_text k
 
-type x_audit_file_source_documents_movement_of_goods_stock_movement_document_status =
+nominal x_audit_file_source_documents_movement_of_goods_stock_movement_document_status =
     {
         movement_status : x_audit_file_source_documents_movement_of_goods_stock_movement_document_status_movement_status
         movement_status_date : x_sa_fdate_time_type
@@ -6063,7 +6071,7 @@ union x_audit_file_source_documents_movement_of_goods_stock_movement_line_choice
     | AuditFile_SourceDocuments_MovementOfGoods_StockMovement_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | AuditFile_SourceDocuments_MovementOfGoods_StockMovement_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_audit_file_source_documents_movement_of_goods_stock_movement_line =
+nominal x_audit_file_source_documents_movement_of_goods_stock_movement_line =
     {
         line_number : string
         order_references : list (x_order_references)
@@ -6082,7 +6090,7 @@ type x_audit_file_source_documents_movement_of_goods_stock_movement_line =
         customs_information : option (x_customs_information)
     }
 
-type x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals =
+nominal x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -6148,7 +6156,7 @@ inl x_audit_file_source_documents_working_documents_work_document_document_statu
     =
     x_work_status_example_text k
 
-type x_audit_file_source_documents_working_documents_work_document_document_status =
+nominal x_audit_file_source_documents_working_documents_work_document_document_status =
     {
         work_status : x_audit_file_source_documents_working_documents_work_document_document_status_work_status
         work_status_date : x_sa_fdate_time_type
@@ -6225,7 +6233,7 @@ union x_audit_file_source_documents_working_documents_work_document_line_choice_
     | AuditFile_SourceDocuments_WorkingDocuments_WorkDocument_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | AuditFile_SourceDocuments_WorkingDocuments_WorkDocument_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_audit_file_source_documents_working_documents_work_document_line =
+nominal x_audit_file_source_documents_working_documents_work_document_line =
     {
         line_number : string
         order_references : list (x_order_references)
@@ -6247,7 +6255,7 @@ type x_audit_file_source_documents_working_documents_work_document_line =
         customs_information : option (x_customs_information)
     }
 
-type x_audit_file_source_documents_working_documents_work_document_document_totals =
+nominal x_audit_file_source_documents_working_documents_work_document_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -6255,7 +6263,7 @@ type x_audit_file_source_documents_working_documents_work_document_document_tota
         currency : option (x_currency)
     }
 
-type x_audit_file_source_documents_working_documents_work_document =
+nominal x_audit_file_source_documents_working_documents_work_document =
     {
         document_number : x_audit_file_source_documents_working_documents_work_document_document_number
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -6274,7 +6282,7 @@ type x_audit_file_source_documents_working_documents_work_document =
         document_totals : x_audit_file_source_documents_working_documents_work_document_document_totals
     }
 
-type x_audit_file_source_documents_working_documents =
+nominal x_audit_file_source_documents_working_documents =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -6346,7 +6354,7 @@ inl x_audit_file_source_documents_payments_payment_document_status_payment_statu
 inl x_audit_file_source_documents_payments_payment_document_status_payment_status_example_text (k : i32) : string =
     x_payment_status_example_text k
 
-type x_audit_file_source_documents_payments_payment_document_status =
+nominal x_audit_file_source_documents_payments_payment_document_status =
     {
         payment_status : x_audit_file_source_documents_payments_payment_document_status_payment_status
         payment_status_date : x_sa_fdate_time_type
@@ -6355,7 +6363,7 @@ type x_audit_file_source_documents_payments_payment_document_status =
         source_payment : x_saftpt_source_payment
     }
 
-type x_audit_file_source_documents_payments_payment_line_source_document_id =
+nominal x_audit_file_source_documents_payments_payment_line_source_document_id =
     {
         originating_on : x_safp_ttext_type_mandatory_max60_car
         invoice_date : x_sa_fdate_type
@@ -6366,7 +6374,7 @@ union x_audit_file_source_documents_payments_payment_line_choice_debit_amount =
     | AuditFile_SourceDocuments_Payments_Payment_Line_choice_DebitAmount_DebitAmount : x_sa_fmonetary_type
     | AuditFile_SourceDocuments_Payments_Payment_Line_choice_DebitAmount_CreditAmount : x_sa_fmonetary_type
 
-type x_audit_file_source_documents_payments_payment_line =
+nominal x_audit_file_source_documents_payments_payment_line =
     {
         line_number : string
         source_document_id : list (x_audit_file_source_documents_payments_payment_line_source_document_id)
@@ -6377,12 +6385,12 @@ type x_audit_file_source_documents_payments_payment_line =
         tax_exemption_code : option (x_safpt_portuguese_tax_exemption_code)
     }
 
-type x_audit_file_source_documents_payments_payment_document_totals_settlement =
+nominal x_audit_file_source_documents_payments_payment_document_totals_settlement =
     {
         settlement_amount : x_sa_fmonetary_type
     }
 
-type x_audit_file_source_documents_payments_payment_document_totals =
+nominal x_audit_file_source_documents_payments_payment_document_totals =
     {
         tax_payable : x_sa_fmonetary_type
         net_total : x_sa_fmonetary_type
@@ -6391,7 +6399,7 @@ type x_audit_file_source_documents_payments_payment_document_totals =
         currency : option (x_currency)
     }
 
-type x_audit_file_source_documents_payments_payment =
+nominal x_audit_file_source_documents_payments_payment =
     {
         payment_ref_no : x_audit_file_source_documents_payments_payment_payment_ref_no
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -6411,7 +6419,7 @@ type x_audit_file_source_documents_payments_payment =
         withholding_tax : list (x_withholding_tax)
     }
 
-type x_audit_file_source_documents_payments =
+nominal x_audit_file_source_documents_payments =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -6419,16 +6427,15 @@ type x_audit_file_source_documents_payments =
         payment : list (x_audit_file_source_documents_payments_payment)
     }
 
-type x_shipping_point_structure =
+nominal x_shipping_point_structure =
     {
         delivery_id : list (x_safp_ttext_type_mandatory_max255_car)
         delivery_date : option (x_sa_fdate_type)
-        warehouse_id : option (x_safp_ttext_type_mandatory_max50_car)
-        location_id : option (x_safp_ttext_type_mandatory_max30_car)
+        group_warehouse_id : list (x_shipping_point_structure_group_warehouse_id)
         address : option (x_customer_address_structure)
     }
 
-type x_source_documents_sales_invoices_invoice =
+nominal x_source_documents_sales_invoices_invoice =
     {
         invoice_no : x_source_documents_sales_invoices_invoice_invoice_no
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -6453,7 +6460,7 @@ type x_source_documents_sales_invoices_invoice =
         withholding_tax : list (x_withholding_tax)
     }
 
-type x_source_documents_sales_invoices =
+nominal x_source_documents_sales_invoices =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -6461,7 +6468,7 @@ type x_source_documents_sales_invoices =
         invoice : list (x_source_documents_sales_invoices_invoice)
     }
 
-type x_source_documents_movement_of_goods_stock_movement =
+nominal x_source_documents_movement_of_goods_stock_movement =
     {
         document_number : x_source_documents_movement_of_goods_stock_movement_document_number
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -6486,14 +6493,14 @@ type x_source_documents_movement_of_goods_stock_movement =
         document_totals : x_source_documents_movement_of_goods_stock_movement_document_totals
     }
 
-type x_source_documents_movement_of_goods =
+nominal x_source_documents_movement_of_goods =
     {
         number_of_movement_lines : string
         total_quantity_issued : x_sa_fdecimal_type
         stock_movement : list (x_source_documents_movement_of_goods_stock_movement)
     }
 
-type x_source_documents =
+nominal x_source_documents =
     {
         sales_invoices : option (x_source_documents_sales_invoices)
         movement_of_goods : option (x_source_documents_movement_of_goods)
@@ -6501,7 +6508,7 @@ type x_source_documents =
         payments : option (x_source_documents_payments)
     }
 
-type x_audit_file_source_documents_sales_invoices_invoice =
+nominal x_audit_file_source_documents_sales_invoices_invoice =
     {
         invoice_no : x_audit_file_source_documents_sales_invoices_invoice_invoice_no
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -6526,7 +6533,7 @@ type x_audit_file_source_documents_sales_invoices_invoice =
         withholding_tax : list (x_withholding_tax)
     }
 
-type x_audit_file_source_documents_sales_invoices =
+nominal x_audit_file_source_documents_sales_invoices =
     {
         number_of_entries : string
         total_debit : x_sa_fmonetary_type
@@ -6534,7 +6541,7 @@ type x_audit_file_source_documents_sales_invoices =
         invoice : list (x_audit_file_source_documents_sales_invoices_invoice)
     }
 
-type x_audit_file_source_documents_movement_of_goods_stock_movement =
+nominal x_audit_file_source_documents_movement_of_goods_stock_movement =
     {
         document_number : x_audit_file_source_documents_movement_of_goods_stock_movement_document_number
         atcud : x_safp_ttext_type_mandatory_max100_car
@@ -6559,14 +6566,14 @@ type x_audit_file_source_documents_movement_of_goods_stock_movement =
         document_totals : x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals
     }
 
-type x_audit_file_source_documents_movement_of_goods =
+nominal x_audit_file_source_documents_movement_of_goods =
     {
         number_of_movement_lines : string
         total_quantity_issued : x_sa_fdecimal_type
         stock_movement : list (x_audit_file_source_documents_movement_of_goods_stock_movement)
     }
 
-type x_audit_file_source_documents =
+nominal x_audit_file_source_documents =
     {
         sales_invoices : option (x_audit_file_source_documents_sales_invoices)
         movement_of_goods : option (x_audit_file_source_documents_movement_of_goods)
@@ -6574,7 +6581,7 @@ type x_audit_file_source_documents =
         payments : option (x_audit_file_source_documents_payments)
     }
 
-type x_audit_file =
+nominal x_audit_file =
     {
         header : x_audit_file_header
         master_files : x_audit_file_master_files
@@ -9176,10 +9183,8 @@ union x_shipping_point_structure_field r =
     | ShippingPointStructure_field_DeliveryID ::
         x_shipping_point_structure_field (list (x_safp_ttext_type_mandatory_max255_car))
     | ShippingPointStructure_field_DeliveryDate :: x_shipping_point_structure_field (option (x_sa_fdate_type))
-    | ShippingPointStructure_field_WarehouseID ::
-        x_shipping_point_structure_field (option (x_safp_ttext_type_mandatory_max50_car))
-    | ShippingPointStructure_field_LocationID ::
-        x_shipping_point_structure_field (option (x_safp_ttext_type_mandatory_max30_car))
+    | ShippingPointStructure_field_group_warehouse_id ::
+        x_shipping_point_structure_field (list (x_shipping_point_structure_group_warehouse_id))
     | ShippingPointStructure_field_Address :: x_shipping_point_structure_field (option (x_customer_address_structure))
 
 inl x_shipping_point_structure_get forall r.
@@ -9189,9 +9194,22 @@ inl x_shipping_point_structure_get forall r.
     match f with
     | ShippingPointStructure_field_DeliveryID => x.delivery_id
     | ShippingPointStructure_field_DeliveryDate => x.delivery_date
-    | ShippingPointStructure_field_WarehouseID => x.warehouse_id
-    | ShippingPointStructure_field_LocationID => x.location_id
+    | ShippingPointStructure_field_group_warehouse_id => x.group_warehouse_id
     | ShippingPointStructure_field_Address => x.address
+
+union x_shipping_point_structure_group_warehouse_id_field r =
+    | ShippingPointStructure_group_WarehouseID_field_WarehouseID ::
+        x_shipping_point_structure_group_warehouse_id_field (option (x_safp_ttext_type_mandatory_max50_car))
+    | ShippingPointStructure_group_WarehouseID_field_LocationID ::
+        x_shipping_point_structure_group_warehouse_id_field (option (x_safp_ttext_type_mandatory_max30_car))
+
+inl x_shipping_point_structure_group_warehouse_id_get forall r.
+    (f : x_shipping_point_structure_group_warehouse_id_field r) (x : x_shipping_point_structure_group_warehouse_id)
+    : r
+    =
+    match f with
+    | ShippingPointStructure_group_WarehouseID_field_WarehouseID => x.warehouse_id
+    | ShippingPointStructure_group_WarehouseID_field_LocationID => x.location_id
 
 union x_special_regimes_field r =
     | SpecialRegimes_field_SelfBillingIndicator :: x_special_regimes_field (x_special_regimes_self_billing_indicator)
@@ -9233,7 +9251,7 @@ inl x_withholding_tax_get forall r. (f : x_withholding_tax_field r) (x : x_withh
     | WithholdingTax_field_WithholdingTaxAmount => x.withholding_tax_amount
 
 let rec x_audit_file_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_audit_file =
-    {
+    x_audit_file {
         header = (fun c => x_audit_file_header_of_xml c) (xml.required_child "Header" children)
         master_files = (fun c => x_audit_file_master_files_of_xml c) (xml.required_child "MasterFiles" children)
         general_ledger_entries =
@@ -9251,7 +9269,7 @@ and let x_audit_file_source_documents_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents
     =
-    {
+    x_audit_file_source_documents {
         sales_invoices =
             optionm.map
                 fun c => x_audit_file_source_documents_sales_invoices_of_xml c
@@ -9275,7 +9293,7 @@ and let x_audit_file_source_documents_payments_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_payments
     =
-    {
+    x_audit_file_source_documents_payments {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -9293,7 +9311,7 @@ and let x_audit_file_source_documents_payments_payment_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_payments_payment
     =
-    {
+    x_audit_file_source_documents_payments_payment {
         payment_ref_no =
             (fun c => xml.required_value "x_audit_file_source_documents_payments_payment_payment_ref_no" (x_audit_file_source_documents_payments_payment_payment_ref_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PaymentRefNo" children)
         atcud =
@@ -9349,7 +9367,7 @@ and let x_audit_file_source_documents_payments_payment_document_totals_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_payments_payment_document_totals
     =
-    {
+    x_audit_file_source_documents_payments_payment_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -9372,7 +9390,7 @@ and let x_audit_file_source_documents_payments_payment_document_totals_settlemen
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_payments_payment_document_totals_settlement
     =
-    {
+    x_audit_file_source_documents_payments_payment_document_totals_settlement {
         settlement_amount =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SettlementAmount" children)
     }
@@ -9389,7 +9407,7 @@ and let x_audit_file_source_documents_payments_payment_line_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_payments_payment_line
     =
-    {
+    x_audit_file_source_documents_payments_payment_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         source_document_id =
             listm.map
@@ -9439,7 +9457,7 @@ and let x_audit_file_source_documents_payments_payment_line_source_document_id_o
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_payments_payment_line_source_document_id
     =
-    {
+    x_audit_file_source_documents_payments_payment_line_source_document_id {
         originating_on =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max60_car" (x_safp_ttext_type_mandatory_max60_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "OriginatingON" children)
         invoice_date = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "InvoiceDate" children)
@@ -9463,7 +9481,7 @@ and let x_audit_file_source_documents_payments_payment_document_status_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_payments_payment_document_status
     =
-    {
+    x_audit_file_source_documents_payments_payment_document_status {
         payment_status =
             (fun c => xml.required_value "x_audit_file_source_documents_payments_payment_document_status_payment_status" (x_audit_file_source_documents_payments_payment_document_status_payment_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PaymentStatus" children)
         payment_status_date =
@@ -9492,7 +9510,7 @@ and let x_audit_file_source_documents_working_documents_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_working_documents
     =
-    {
+    x_audit_file_source_documents_working_documents {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -9513,7 +9531,7 @@ and let x_audit_file_source_documents_working_documents_work_document_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_working_documents_work_document
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document {
         document_number =
             (fun c => xml.required_value "x_audit_file_source_documents_working_documents_work_document_document_number" (x_audit_file_source_documents_working_documents_work_document_document_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DocumentNumber" children)
         atcud =
@@ -9567,7 +9585,7 @@ and let x_audit_file_source_documents_working_documents_work_document_document_t
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_working_documents_work_document_document_totals
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -9586,7 +9604,7 @@ and let x_audit_file_source_documents_working_documents_work_document_line_of_ch
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_working_documents_work_document_line
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         order_references =
             listm.map (fun c => x_order_references_of_xml c) (xml.children_named "OrderReferences" children)
@@ -9659,7 +9677,7 @@ and let x_audit_file_source_documents_working_documents_work_document_document_s
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_working_documents_work_document_document_status
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document_document_status {
         work_status =
             (fun c => xml.required_value "x_audit_file_source_documents_working_documents_work_document_document_status_work_status" (x_audit_file_source_documents_working_documents_work_document_document_status_work_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "WorkStatus" children)
         work_status_date =
@@ -9688,7 +9706,7 @@ and let x_audit_file_source_documents_movement_of_goods_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_movement_of_goods
     =
-    {
+    x_audit_file_source_documents_movement_of_goods {
         number_of_movement_lines =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfMovementLines" children)
         total_quantity_issued =
@@ -9709,7 +9727,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_movement_of_goods_stock_movement
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement {
         document_number =
             (fun c => xml.required_value "x_audit_file_source_documents_movement_of_goods_stock_movement_document_number" (x_audit_file_source_documents_movement_of_goods_stock_movement_document_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DocumentNumber" children)
         atcud =
@@ -9783,7 +9801,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_document_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -9802,7 +9820,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_line_of_c
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_movement_of_goods_stock_movement_line
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         order_references =
             listm.map (fun c => x_order_references_of_xml c) (xml.children_named "OrderReferences" children)
@@ -9889,7 +9907,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_document_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_movement_of_goods_stock_movement_document_status
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_status {
         movement_status =
             (fun c => xml.required_value "x_audit_file_source_documents_movement_of_goods_stock_movement_document_status_movement_status" (x_audit_file_source_documents_movement_of_goods_stock_movement_document_status_movement_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "MovementStatus" children)
         movement_status_date =
@@ -9918,7 +9936,7 @@ and let x_audit_file_source_documents_sales_invoices_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_sales_invoices
     =
-    {
+    x_audit_file_source_documents_sales_invoices {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -9939,7 +9957,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_sales_invoices_invoice
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice {
         invoice_no =
             (fun c => xml.required_value "x_audit_file_source_documents_sales_invoices_invoice_invoice_no" (x_audit_file_source_documents_sales_invoices_invoice_invoice_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvoiceNo" children)
         atcud =
@@ -9999,7 +10017,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_document_totals_of_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_sales_invoices_invoice_document_totals
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -10020,7 +10038,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_line_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_sales_invoices_invoice_line
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         order_references =
             listm.map (fun c => x_order_references_of_xml c) (xml.children_named "OrderReferences" children)
@@ -10090,7 +10108,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_document_status_of_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_source_documents_sales_invoices_invoice_document_status
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice_document_status {
         invoice_status =
             (fun c => xml.required_value "x_audit_file_source_documents_sales_invoices_invoice_document_status_invoice_status" (x_audit_file_source_documents_sales_invoices_invoice_document_status_invoice_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvoiceStatus" children)
         invoice_status_date =
@@ -10119,7 +10137,7 @@ and let x_audit_file_general_ledger_entries_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_general_ledger_entries
     =
-    {
+    x_audit_file_general_ledger_entries {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -10137,7 +10155,7 @@ and let x_audit_file_general_ledger_entries_journal_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_general_ledger_entries_journal
     =
-    {
+    x_audit_file_general_ledger_entries_journal {
         journal_id =
             (fun c => xml.required_value "x_safpt_journal_id" (x_safpt_journal_id_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "JournalID" children)
         description =
@@ -10158,7 +10176,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_general_ledger_entries_journal_transaction
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction {
         transaction_id =
             (fun c => xml.required_value "x_safpt_transaction_id" (x_safpt_transaction_id_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TransactionID" children)
         period = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Period" children)
@@ -10191,7 +10209,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_lines_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_general_ledger_entries_journal_transaction_lines
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction_lines {
         debit_line =
             listm.map
                 fun c => x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line_of_xml c
@@ -10214,7 +10232,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_lines_credit_lin
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line {
         record_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RecordID" children)
         account_id =
@@ -10244,7 +10262,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line {
         record_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RecordID" children)
         account_id =
@@ -10304,7 +10322,7 @@ and let x_audit_file_master_files_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files
     =
-    {
+    x_audit_file_master_files {
         general_ledger_accounts =
             optionm.map
                 fun c => x_audit_file_master_files_general_ledger_accounts_of_xml c
@@ -10326,7 +10344,7 @@ and let x_audit_file_master_files_tax_table_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files_tax_table
     =
-    {
+    x_audit_file_master_files_tax_table {
         tax_table_entry =
             listm.map
                 fun c => x_audit_file_master_files_tax_table_tax_table_entry_of_xml c
@@ -10340,7 +10358,7 @@ and let x_audit_file_master_files_tax_table_tax_table_entry_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files_tax_table_tax_table_entry
     =
-    {
+    x_audit_file_master_files_tax_table_tax_table_entry {
         tax_type =
             (fun c => xml.required_value "x_audit_file_master_files_tax_table_tax_table_entry_tax_type" (x_audit_file_master_files_tax_table_tax_table_entry_tax_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxType" children)
         tax_country_region =
@@ -10380,7 +10398,7 @@ and let x_audit_file_master_files_product_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files_product
     =
-    {
+    x_audit_file_master_files_product {
         product_type =
             (fun c => xml.required_value "x_audit_file_master_files_product_product_type" (x_audit_file_master_files_product_product_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ProductType" children)
         product_code =
@@ -10405,7 +10423,7 @@ and let x_audit_file_master_files_supplier_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files_supplier
     =
-    {
+    x_audit_file_master_files_supplier {
         supplier_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SupplierID" children)
         account_id =
@@ -10458,7 +10476,7 @@ and let x_audit_file_master_files_customer_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files_customer
     =
-    {
+    x_audit_file_master_files_customer {
         customer_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CustomerID" children)
         account_id =
@@ -10512,7 +10530,7 @@ and let x_audit_file_master_files_general_ledger_accounts_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files_general_ledger_accounts
     =
-    {
+    x_audit_file_master_files_general_ledger_accounts {
         taxonomy_reference =
             (fun c => xml.required_value "x_audit_file_master_files_general_ledger_accounts_taxonomy_reference" (x_audit_file_master_files_general_ledger_accounts_taxonomy_reference_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxonomyReference" children)
         account =
@@ -10531,7 +10549,7 @@ and let x_audit_file_master_files_general_ledger_accounts_account_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_master_files_general_ledger_accounts_account
     =
-    {
+    x_audit_file_master_files_general_ledger_accounts_account {
         account_id =
             (fun c => xml.required_value "x_safptgl_account_id" (x_safptgl_account_id_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "AccountID" children)
         account_description =
@@ -10568,7 +10586,7 @@ and let x_audit_file_header_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_audit_file_header
     =
-    {
+    x_audit_file_header {
         audit_file_version =
             (fun c => xml.required_value "x_audit_file_header_audit_file_version" (x_audit_file_header_audit_file_version_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "AuditFileVersion" children)
         company_id =
@@ -10638,7 +10656,7 @@ and let x_audit_file_header_of_xml (c : xml.xml_node) : x_audit_file_header =
     x_audit_file_header_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_header_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_header =
-    {
+    x_header {
         audit_file_version =
             (fun c => xml.required_value "x_header_audit_file_version" (x_header_audit_file_version_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "AuditFileVersion" children)
         company_id =
@@ -10711,7 +10729,7 @@ and let x_general_ledger_accounts_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_accounts
     =
-    {
+    x_general_ledger_accounts {
         taxonomy_reference =
             (fun c => xml.required_value "x_general_ledger_accounts_taxonomy_reference" (x_general_ledger_accounts_taxonomy_reference_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxonomyReference" children)
         account =
@@ -10725,7 +10743,7 @@ and let x_general_ledger_accounts_account_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_accounts_account
     =
-    {
+    x_general_ledger_accounts_account {
         account_id =
             (fun c => xml.required_value "x_safptgl_account_id" (x_safptgl_account_id_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "AccountID" children)
         account_description =
@@ -10754,7 +10772,7 @@ and let x_general_ledger_accounts_account_of_xml (c : xml.xml_node) : x_general_
     x_general_ledger_accounts_account_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_customer_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_customer =
-    {
+    x_customer {
         customer_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CustomerID" children)
         account_id =
@@ -10805,7 +10823,7 @@ and let x_customer_of_xml (c : xml.xml_node) : x_customer =
     x_customer_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_supplier_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_supplier =
-    {
+    x_supplier {
         supplier_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SupplierID" children)
         account_id =
@@ -10855,7 +10873,7 @@ and let x_supplier_of_xml (c : xml.xml_node) : x_supplier =
     x_supplier_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_product_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_product =
-    {
+    x_product {
         product_type =
             (fun c => xml.required_value "x_product_product_type" (x_product_product_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "ProductType" children)
         product_code =
@@ -10877,7 +10895,7 @@ and let x_product_of_xml (c : xml.xml_node) : x_product =
     x_product_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tax_table_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_tax_table =
-    {
+    x_tax_table {
         tax_table_entry =
             listm.map (fun c => x_tax_table_tax_table_entry_of_xml c) (xml.children_named "TaxTableEntry" children)
     }
@@ -10889,7 +10907,7 @@ and let x_tax_table_tax_table_entry_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tax_table_tax_table_entry
     =
-    {
+    x_tax_table_tax_table_entry {
         tax_type =
             (fun c => xml.required_value "x_tax_table_tax_table_entry_tax_type" (x_tax_table_tax_table_entry_tax_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxType" children)
         tax_country_region =
@@ -10925,7 +10943,7 @@ and let x_tax_table_entry_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tax_table_entry
     =
-    {
+    x_tax_table_entry {
         tax_type =
             (fun c => xml.required_value "x_tax_table_entry_tax_type" (x_tax_table_entry_tax_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxType" children)
         tax_country_region =
@@ -10961,7 +10979,7 @@ and let x_general_ledger_entries_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_entries
     =
-    {
+    x_general_ledger_entries {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -10976,7 +10994,7 @@ and let x_general_ledger_entries_journal_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_entries_journal
     =
-    {
+    x_general_ledger_entries_journal {
         journal_id =
             (fun c => xml.required_value "x_safpt_journal_id" (x_safpt_journal_id_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "JournalID" children)
         description =
@@ -10994,7 +11012,7 @@ and let x_general_ledger_entries_journal_transaction_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_entries_journal_transaction
     =
-    {
+    x_general_ledger_entries_journal_transaction {
         transaction_id =
             (fun c => xml.required_value "x_safpt_transaction_id" (x_safpt_transaction_id_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TransactionID" children)
         period = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Period" children)
@@ -11025,7 +11043,7 @@ and let x_general_ledger_entries_journal_transaction_lines_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_entries_journal_transaction_lines
     =
-    {
+    x_general_ledger_entries_journal_transaction_lines {
         debit_line =
             listm.map
                 fun c => x_general_ledger_entries_journal_transaction_lines_debit_line_of_xml c
@@ -11046,7 +11064,7 @@ and let x_general_ledger_entries_journal_transaction_lines_credit_line_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_entries_journal_transaction_lines_credit_line
     =
-    {
+    x_general_ledger_entries_journal_transaction_lines_credit_line {
         record_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RecordID" children)
         account_id =
@@ -11076,7 +11094,7 @@ and let x_general_ledger_entries_journal_transaction_lines_debit_line_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_entries_journal_transaction_lines_debit_line
     =
-    {
+    x_general_ledger_entries_journal_transaction_lines_debit_line {
         record_id =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max30_car" (x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RecordID" children)
         account_id =
@@ -11136,7 +11154,7 @@ and let x_source_documents_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents
     =
-    {
+    x_source_documents {
         sales_invoices =
             optionm.map (fun c => x_source_documents_sales_invoices_of_xml c) (xml.first_child "SalesInvoices" children)
         movement_of_goods =
@@ -11157,7 +11175,7 @@ and let x_source_documents_payments_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_payments
     =
-    {
+    x_source_documents_payments {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -11173,7 +11191,7 @@ and let x_source_documents_payments_payment_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_payments_payment
     =
-    {
+    x_source_documents_payments_payment {
         payment_ref_no =
             (fun c => xml.required_value "x_source_documents_payments_payment_payment_ref_no" (x_source_documents_payments_payment_payment_ref_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PaymentRefNo" children)
         atcud =
@@ -11224,7 +11242,7 @@ and let x_source_documents_payments_payment_document_totals_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_payments_payment_document_totals
     =
-    {
+    x_source_documents_payments_payment_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -11245,7 +11263,7 @@ and let x_source_documents_payments_payment_document_totals_settlement_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_payments_payment_document_totals_settlement
     =
-    {
+    x_source_documents_payments_payment_document_totals_settlement {
         settlement_amount =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SettlementAmount" children)
     }
@@ -11262,7 +11280,7 @@ and let x_source_documents_payments_payment_line_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_payments_payment_line
     =
-    {
+    x_source_documents_payments_payment_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         source_document_id =
             listm.map
@@ -11309,7 +11327,7 @@ and let x_source_documents_payments_payment_line_source_document_id_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_payments_payment_line_source_document_id
     =
-    {
+    x_source_documents_payments_payment_line_source_document_id {
         originating_on =
             (fun c => xml.required_value "x_safp_ttext_type_mandatory_max60_car" (x_safp_ttext_type_mandatory_max60_car_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "OriginatingON" children)
         invoice_date = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "InvoiceDate" children)
@@ -11333,7 +11351,7 @@ and let x_source_documents_payments_payment_document_status_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_payments_payment_document_status
     =
-    {
+    x_source_documents_payments_payment_document_status {
         payment_status =
             (fun c => xml.required_value "x_source_documents_payments_payment_document_status_payment_status" (x_source_documents_payments_payment_document_status_payment_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "PaymentStatus" children)
         payment_status_date =
@@ -11360,7 +11378,7 @@ and let x_source_documents_working_documents_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_working_documents
     =
-    {
+    x_source_documents_working_documents {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -11378,7 +11396,7 @@ and let x_source_documents_working_documents_work_document_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_working_documents_work_document
     =
-    {
+    x_source_documents_working_documents_work_document {
         document_number =
             (fun c => xml.required_value "x_source_documents_working_documents_work_document_document_number" (x_source_documents_working_documents_work_document_document_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DocumentNumber" children)
         atcud =
@@ -11430,7 +11448,7 @@ and let x_source_documents_working_documents_work_document_document_totals_of_ch
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_working_documents_work_document_document_totals
     =
-    {
+    x_source_documents_working_documents_work_document_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -11449,7 +11467,7 @@ and let x_source_documents_working_documents_work_document_line_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_working_documents_work_document_line
     =
-    {
+    x_source_documents_working_documents_work_document_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         order_references =
             listm.map (fun c => x_order_references_of_xml c) (xml.children_named "OrderReferences" children)
@@ -11516,7 +11534,7 @@ and let x_source_documents_working_documents_work_document_document_status_of_ch
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_working_documents_work_document_document_status
     =
-    {
+    x_source_documents_working_documents_work_document_document_status {
         work_status =
             (fun c => xml.required_value "x_source_documents_working_documents_work_document_document_status_work_status" (x_source_documents_working_documents_work_document_document_status_work_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "WorkStatus" children)
         work_status_date =
@@ -11545,7 +11563,7 @@ and let x_source_documents_movement_of_goods_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_movement_of_goods
     =
-    {
+    x_source_documents_movement_of_goods {
         number_of_movement_lines =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfMovementLines" children)
         total_quantity_issued =
@@ -11563,7 +11581,7 @@ and let x_source_documents_movement_of_goods_stock_movement_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_movement_of_goods_stock_movement
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement {
         document_number =
             (fun c => xml.required_value "x_source_documents_movement_of_goods_stock_movement_document_number" (x_source_documents_movement_of_goods_stock_movement_document_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "DocumentNumber" children)
         atcud =
@@ -11633,7 +11651,7 @@ and let x_source_documents_movement_of_goods_stock_movement_document_totals_of_c
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_movement_of_goods_stock_movement_document_totals
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -11652,7 +11670,7 @@ and let x_source_documents_movement_of_goods_stock_movement_line_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_movement_of_goods_stock_movement_line
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         order_references =
             listm.map (fun c => x_order_references_of_xml c) (xml.children_named "OrderReferences" children)
@@ -11731,7 +11749,7 @@ and let x_source_documents_movement_of_goods_stock_movement_document_status_of_c
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_movement_of_goods_stock_movement_document_status
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement_document_status {
         movement_status =
             (fun c => xml.required_value "x_source_documents_movement_of_goods_stock_movement_document_status_movement_status" (x_source_documents_movement_of_goods_stock_movement_document_status_movement_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "MovementStatus" children)
         movement_status_date =
@@ -11760,7 +11778,7 @@ and let x_source_documents_sales_invoices_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_sales_invoices
     =
-    {
+    x_source_documents_sales_invoices {
         number_of_entries =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NumberOfEntries" children)
         total_debit = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotalDebit" children)
@@ -11778,7 +11796,7 @@ and let x_source_documents_sales_invoices_invoice_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_sales_invoices_invoice
     =
-    {
+    x_source_documents_sales_invoices_invoice {
         invoice_no =
             (fun c => xml.required_value "x_source_documents_sales_invoices_invoice_invoice_no" (x_source_documents_sales_invoices_invoice_invoice_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvoiceNo" children)
         atcud =
@@ -11835,7 +11853,7 @@ and let x_source_documents_sales_invoices_invoice_document_totals_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_sales_invoices_invoice_document_totals
     =
-    {
+    x_source_documents_sales_invoices_invoice_document_totals {
         tax_payable = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TaxPayable" children)
         net_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NetTotal" children)
         gross_total = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GrossTotal" children)
@@ -11856,7 +11874,7 @@ and let x_source_documents_sales_invoices_invoice_line_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_sales_invoices_invoice_line
     =
-    {
+    x_source_documents_sales_invoices_invoice_line {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "LineNumber" children)
         order_references =
             listm.map (fun c => x_order_references_of_xml c) (xml.children_named "OrderReferences" children)
@@ -11921,7 +11939,7 @@ and let x_source_documents_sales_invoices_invoice_document_status_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_source_documents_sales_invoices_invoice_document_status
     =
-    {
+    x_source_documents_sales_invoices_invoice_document_status {
         invoice_status =
             (fun c => xml.required_value "x_source_documents_sales_invoices_invoice_document_status_invoice_status" (x_source_documents_sales_invoices_invoice_document_status_invoice_status_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvoiceStatus" children)
         invoice_status_date =
@@ -11950,7 +11968,7 @@ and let x_address_structure_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_address_structure
     =
-    {
+    x_address_structure {
         building_number =
             optionm.map
                 fun c =>
@@ -11986,7 +12004,7 @@ and let x_customer_address_structure_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customer_address_structure
     =
-    {
+    x_customer_address_structure {
         building_number =
             optionm.map
                 fun c =>
@@ -12019,7 +12037,7 @@ and let x_customer_address_structure_of_xml (c : xml.xml_node) : x_customer_addr
     x_customer_address_structure_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_currency_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_currency =
-    {
+    x_currency {
         currency_code =
             (fun c => xml.required_value "x_currency_currency_code" (x_currency_currency_code_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CurrencyCode" children)
         currency_amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "CurrencyAmount" children)
@@ -12033,7 +12051,7 @@ and let x_customs_details_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customs_details
     =
-    {
+    x_customs_details {
         cn_code =
             listm.map
                 fun c =>
@@ -12056,7 +12074,7 @@ and let x_customs_information_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customs_information
     =
-    {
+    x_customs_information {
         arc_no =
             listm.map
                 fun c =>
@@ -12073,7 +12091,7 @@ and let x_movement_tax_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_movement_tax
     =
-    {
+    x_movement_tax {
         tax_type =
             (fun c => xml.required_value "x_saftpt_movement_tax_type" (x_saftpt_movement_tax_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxType" children)
         tax_country_region =
@@ -12090,7 +12108,7 @@ and let x_order_references_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_order_references
     =
-    {
+    x_order_references {
         originating_on =
             optionm.map
                 fun c =>
@@ -12107,7 +12125,7 @@ and let x_payment_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_payment_method
     =
-    {
+    x_payment_method {
         payment_mechanism =
             optionm.map
                 fun c =>
@@ -12122,7 +12140,7 @@ and let x_payment_method_of_xml (c : xml.xml_node) : x_payment_method =
     x_payment_method_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_payment_tax_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_payment_tax =
-    {
+    x_payment_tax {
         tax_type =
             (fun c => xml.required_value "x_payment_tax_tax_type" (x_payment_tax_tax_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxType" children)
         tax_country_region =
@@ -12154,7 +12172,7 @@ and let x_product_serial_number_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_product_serial_number
     =
-    {
+    x_product_serial_number {
         serial_number =
             listm.map
                 fun c =>
@@ -12167,7 +12185,7 @@ and let x_product_serial_number_of_xml (c : xml.xml_node) : x_product_serial_num
     x_product_serial_number_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_references_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_references =
-    {
+    x_references {
         reference =
             optionm.map
                 fun c =>
@@ -12186,7 +12204,7 @@ and let x_references_of_xml (c : xml.xml_node) : x_references =
     x_references_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_settlement_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_settlement =
-    {
+    x_settlement {
         settlement_discount =
             optionm.map
                 fun c =>
@@ -12212,7 +12230,7 @@ and let x_shipping_point_structure_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_shipping_point_structure
     =
-    {
+    x_shipping_point_structure {
         delivery_id =
             listm.map
                 fun c =>
@@ -12221,6 +12239,21 @@ and let x_shipping_point_structure_of_children
                 (xml.children_named "DeliveryID" children)
         delivery_date =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "DeliveryDate" children)
+        group_warehouse_id =
+            listm.map
+                fun run => x_shipping_point_structure_group_warehouse_id_of_children [] run
+                (xml.group_runs [ "WarehouseID"; "LocationID" ] children)
+        address = optionm.map (fun c => x_customer_address_structure_of_xml c) (xml.first_child "Address" children)
+    }
+
+and let x_shipping_point_structure_of_xml (c : xml.xml_node) : x_shipping_point_structure =
+    x_shipping_point_structure_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_shipping_point_structure_group_warehouse_id_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_shipping_point_structure_group_warehouse_id
+    =
+    x_shipping_point_structure_group_warehouse_id {
         warehouse_id =
             optionm.map
                 fun c =>
@@ -12233,17 +12266,19 @@ and let x_shipping_point_structure_of_children
                     xml.required_value "x_safp_ttext_type_mandatory_max30_car" (
                         x_safp_ttext_type_mandatory_max30_car_of_string (xml.text_in (xml.element_children c)))
                 (xml.first_child "LocationID" children)
-        address = optionm.map (fun c => x_customer_address_structure_of_xml c) (xml.first_child "Address" children)
     }
 
-and let x_shipping_point_structure_of_xml (c : xml.xml_node) : x_shipping_point_structure =
-    x_shipping_point_structure_of_children (xml.element_attributes c) (xml.element_children c)
+and let x_shipping_point_structure_group_warehouse_id_of_xml
+    (c : xml.xml_node)
+    : x_shipping_point_structure_group_warehouse_id
+    =
+    x_shipping_point_structure_group_warehouse_id_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_special_regimes_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_special_regimes
     =
-    {
+    x_special_regimes {
         self_billing_indicator =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SelfBillingIndicator" children)
         cash_vat_scheme_indicator =
@@ -12256,7 +12291,7 @@ and let x_special_regimes_of_xml (c : xml.xml_node) : x_special_regimes =
     x_special_regimes_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tax_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_tax =
-    {
+    x_tax {
         tax_type =
             (fun c => xml.required_value "x_tax_tax_type" (x_tax_tax_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxType" children)
         tax_country_region =
@@ -12287,7 +12322,7 @@ and let x_withholding_tax_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_withholding_tax
     =
-    {
+    x_withholding_tax {
         withholding_tax_type =
             optionm.map
                 fun c =>
@@ -16529,8 +16564,8 @@ and let x_shipping_point_structure_children (x : x_shipping_point_structure) : l
         | ShippingPointStructure_field_DeliveryID => repeated_text_nodes "DeliveryID" v
         | ShippingPointStructure_field_DeliveryDate =>
             xml.option_list (optionm.map (fun v => xml.element "DeliveryDate" [] (xml.text_children v)) v)
-        | ShippingPointStructure_field_WarehouseID => optional_text_nodes "WarehouseID" v
-        | ShippingPointStructure_field_LocationID => optional_text_nodes "LocationID" v
+        | ShippingPointStructure_field_group_warehouse_id =>
+            listm.concat (listm.map x_shipping_point_structure_group_warehouse_id_children v)
         | ShippingPointStructure_field_Address =>
             xml.option_list (optionm.map (fun v => x_customer_address_structure_to_xml "Address" v) v)
     inl rec walk (fields : list (exists r. x_shipping_point_structure_field r)) : list xml.xml_node =
@@ -16542,8 +16577,7 @@ and let x_shipping_point_structure_children (x : x_shipping_point_structure) : l
     walk [
         exists ShippingPointStructure_field_DeliveryID
         exists ShippingPointStructure_field_DeliveryDate
-        exists ShippingPointStructure_field_WarehouseID
-        exists ShippingPointStructure_field_LocationID
+        exists ShippingPointStructure_field_group_warehouse_id
         exists ShippingPointStructure_field_Address
     ]
 
@@ -16551,6 +16585,39 @@ and let x_shipping_point_structure_attributes (x : x_shipping_point_structure) :
 
 and let x_shipping_point_structure_to_xml (name : string) (x : x_shipping_point_structure) : xml.xml_node =
     xml.element name (x_shipping_point_structure_attributes x) (x_shipping_point_structure_children x)
+
+and let x_shipping_point_structure_group_warehouse_id_children
+    (x : x_shipping_point_structure_group_warehouse_id)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_shipping_point_structure_group_warehouse_id_field r) (v : r) : list xml.xml_node =
+        match f with
+        | ShippingPointStructure_group_WarehouseID_field_WarehouseID => optional_text_nodes "WarehouseID" v
+        | ShippingPointStructure_group_WarehouseID_field_LocationID => optional_text_nodes "LocationID" v
+    inl rec walk (fields : list (exists r. x_shipping_point_structure_group_warehouse_id_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_shipping_point_structure_group_warehouse_id_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists ShippingPointStructure_group_WarehouseID_field_WarehouseID
+        exists ShippingPointStructure_group_WarehouseID_field_LocationID
+    ]
+
+and let x_shipping_point_structure_group_warehouse_id_attributes
+    (x : x_shipping_point_structure_group_warehouse_id)
+    : list (string * string)
+    =
+    []
+
+and let x_shipping_point_structure_group_warehouse_id_to_xml
+    (name : string) (x : x_shipping_point_structure_group_warehouse_id)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_shipping_point_structure_group_warehouse_id_attributes x)
+        (x_shipping_point_structure_group_warehouse_id_children x)
 
 and let x_special_regimes_children (x : x_special_regimes) : list xml.xml_node =
     inl nodes forall r. (f : x_special_regimes_field r) (v : r) : list xml.xml_node =
@@ -16631,7 +16698,7 @@ and let x_withholding_tax_to_xml (name : string) (x : x_withholding_tax) : xml.x
     xml.element name (x_withholding_tax_attributes x) (x_withholding_tax_children x)
 
 and let x_audit_file_example (k : i32) : x_audit_file =
-    {
+    x_audit_file {
         header = x_audit_file_header_example k
         master_files = x_audit_file_master_files_example k
         general_ledger_entries = None
@@ -16639,7 +16706,7 @@ and let x_audit_file_example (k : i32) : x_audit_file =
     }
 
 and let x_audit_file_source_documents_example (k : i32) : x_audit_file_source_documents =
-    {
+    x_audit_file_source_documents {
         sales_invoices = None
         movement_of_goods = None
         working_documents = None
@@ -16647,7 +16714,7 @@ and let x_audit_file_source_documents_example (k : i32) : x_audit_file_source_do
     }
 
 and let x_audit_file_source_documents_payments_example (k : i32) : x_audit_file_source_documents_payments =
-    {
+    x_audit_file_source_documents_payments {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -16655,7 +16722,7 @@ and let x_audit_file_source_documents_payments_example (k : i32) : x_audit_file_
     }
 
 and let x_audit_file_source_documents_payments_payment_example (k : i32) : x_audit_file_source_documents_payments_payment =
-    {
+    x_audit_file_source_documents_payments_payment {
         payment_ref_no = x_audit_file_source_documents_payments_payment_payment_ref_no_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         period = None
@@ -16678,7 +16745,7 @@ and let x_audit_file_source_documents_payments_payment_document_totals_example
     (k : i32)
     : x_audit_file_source_documents_payments_payment_document_totals
     =
-    {
+    x_audit_file_source_documents_payments_payment_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -16690,7 +16757,7 @@ and let x_audit_file_source_documents_payments_payment_document_totals_settlemen
     (k : i32)
     : x_audit_file_source_documents_payments_payment_document_totals_settlement
     =
-    {
+    x_audit_file_source_documents_payments_payment_document_totals_settlement {
         settlement_amount = x_sa_fmonetary_type_example k
     }
 
@@ -16698,7 +16765,7 @@ and let x_audit_file_source_documents_payments_payment_line_example
     (k : i32)
     : x_audit_file_source_documents_payments_payment_line
     =
-    {
+    x_audit_file_source_documents_payments_payment_line {
         line_number = "1"
         source_document_id =
             [ x_audit_file_source_documents_payments_payment_line_source_document_id_example (k + 0i32) ]
@@ -16719,7 +16786,7 @@ and let x_audit_file_source_documents_payments_payment_line_source_document_id_e
     (k : i32)
     : x_audit_file_source_documents_payments_payment_line_source_document_id
     =
-    {
+    x_audit_file_source_documents_payments_payment_line_source_document_id {
         originating_on = x_safp_ttext_type_mandatory_max60_car_example k
         invoice_date = x_sa_fdate_type_example k
         description = None
@@ -16729,7 +16796,7 @@ and let x_audit_file_source_documents_payments_payment_document_status_example
     (k : i32)
     : x_audit_file_source_documents_payments_payment_document_status
     =
-    {
+    x_audit_file_source_documents_payments_payment_document_status {
         payment_status = x_audit_file_source_documents_payments_payment_document_status_payment_status_example k
         payment_status_date = x_sa_fdate_time_type_example k
         reason = None
@@ -16741,7 +16808,7 @@ and let x_audit_file_source_documents_working_documents_example
     (k : i32)
     : x_audit_file_source_documents_working_documents
     =
-    {
+    x_audit_file_source_documents_working_documents {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -16752,7 +16819,7 @@ and let x_audit_file_source_documents_working_documents_work_document_example
     (k : i32)
     : x_audit_file_source_documents_working_documents_work_document
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document {
         document_number = x_audit_file_source_documents_working_documents_work_document_document_number_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         document_status = x_audit_file_source_documents_working_documents_work_document_document_status_example k
@@ -16774,7 +16841,7 @@ and let x_audit_file_source_documents_working_documents_work_document_document_t
     (k : i32)
     : x_audit_file_source_documents_working_documents_work_document_document_totals
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -16785,7 +16852,7 @@ and let x_audit_file_source_documents_working_documents_work_document_line_examp
     (k : i32)
     : x_audit_file_source_documents_working_documents_work_document_line
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document_line {
         line_number = "1"
         order_references = []
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
@@ -16819,7 +16886,7 @@ and let x_audit_file_source_documents_working_documents_work_document_document_s
     (k : i32)
     : x_audit_file_source_documents_working_documents_work_document_document_status
     =
-    {
+    x_audit_file_source_documents_working_documents_work_document_document_status {
         work_status =
             x_audit_file_source_documents_working_documents_work_document_document_status_work_status_example k
         work_status_date = x_sa_fdate_time_type_example k
@@ -16832,7 +16899,7 @@ and let x_audit_file_source_documents_movement_of_goods_example
     (k : i32)
     : x_audit_file_source_documents_movement_of_goods
     =
-    {
+    x_audit_file_source_documents_movement_of_goods {
         number_of_movement_lines = "1"
         total_quantity_issued = x_sa_fdecimal_type_example k
         stock_movement = []
@@ -16842,7 +16909,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_example
     (k : i32)
     : x_audit_file_source_documents_movement_of_goods_stock_movement
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement {
         document_number = x_audit_file_source_documents_movement_of_goods_stock_movement_document_number_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         document_status = x_audit_file_source_documents_movement_of_goods_stock_movement_document_status_example k
@@ -16870,7 +16937,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_document_
     (k : i32)
     : x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -16881,7 +16948,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_line_exam
     (k : i32)
     : x_audit_file_source_documents_movement_of_goods_stock_movement_line
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement_line {
         line_number = "1"
         order_references = []
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
@@ -16920,7 +16987,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_document_
     (k : i32)
     : x_audit_file_source_documents_movement_of_goods_stock_movement_document_status
     =
-    {
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_status {
         movement_status =
             x_audit_file_source_documents_movement_of_goods_stock_movement_document_status_movement_status_example k
         movement_status_date = x_sa_fdate_time_type_example k
@@ -16930,7 +16997,7 @@ and let x_audit_file_source_documents_movement_of_goods_stock_movement_document_
     }
 
 and let x_audit_file_source_documents_sales_invoices_example (k : i32) : x_audit_file_source_documents_sales_invoices =
-    {
+    x_audit_file_source_documents_sales_invoices {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -16941,7 +17008,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_example
     (k : i32)
     : x_audit_file_source_documents_sales_invoices_invoice
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice {
         invoice_no = x_audit_file_source_documents_sales_invoices_invoice_invoice_no_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         document_status = x_audit_file_source_documents_sales_invoices_invoice_document_status_example k
@@ -16969,7 +17036,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_document_totals_exa
     (k : i32)
     : x_audit_file_source_documents_sales_invoices_invoice_document_totals
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -16982,7 +17049,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_line_example
     (k : i32)
     : x_audit_file_source_documents_sales_invoices_invoice_line
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice_line {
         line_number = "1"
         order_references = []
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
@@ -17013,7 +17080,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_document_status_exa
     (k : i32)
     : x_audit_file_source_documents_sales_invoices_invoice_document_status
     =
-    {
+    x_audit_file_source_documents_sales_invoices_invoice_document_status {
         invoice_status = x_audit_file_source_documents_sales_invoices_invoice_document_status_invoice_status_example k
         invoice_status_date = x_sa_fdate_time_type_example k
         reason = None
@@ -17022,7 +17089,7 @@ and let x_audit_file_source_documents_sales_invoices_invoice_document_status_exa
     }
 
 and let x_audit_file_general_ledger_entries_example (k : i32) : x_audit_file_general_ledger_entries =
-    {
+    x_audit_file_general_ledger_entries {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -17030,7 +17097,7 @@ and let x_audit_file_general_ledger_entries_example (k : i32) : x_audit_file_gen
     }
 
 and let x_audit_file_general_ledger_entries_journal_example (k : i32) : x_audit_file_general_ledger_entries_journal =
-    {
+    x_audit_file_general_ledger_entries_journal {
         journal_id = x_safpt_journal_id_example k
         description = x_safp_ttext_type_mandatory_max200_car_example k
         transaction = []
@@ -17040,7 +17107,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_example
     (k : i32)
     : x_audit_file_general_ledger_entries_journal_transaction
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction {
         transaction_id = x_safpt_transaction_id_example k
         period = x_safpt_accounting_period_example k
         transaction_date = x_sa_fdate_type_example k
@@ -17057,7 +17124,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_lines_example
     (k : i32)
     : x_audit_file_general_ledger_entries_journal_transaction_lines
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction_lines {
         debit_line = [ x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line_example (k + 0i32) ]
         credit_line = [ x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line_example (k + 0i32) ]
     }
@@ -17066,7 +17133,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_lines_credit_lin
     (k : i32)
     : x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line {
         record_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_safptgl_account_id_example k
         source_document_id = None
@@ -17079,7 +17146,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line
     (k : i32)
     : x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line
     =
-    {
+    x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line {
         record_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_safptgl_account_id_example k
         source_document_id = None
@@ -17095,7 +17162,7 @@ and let x_audit_file_general_ledger_entries_journal_transaction_choice_customer_
     AuditFile_GeneralLedgerEntries_Journal_Transaction_choice_CustomerID_CustomerID (None)
 
 and let x_audit_file_master_files_example (k : i32) : x_audit_file_master_files =
-    {
+    x_audit_file_master_files {
         general_ledger_accounts = None
         customer = []
         supplier = []
@@ -17104,7 +17171,7 @@ and let x_audit_file_master_files_example (k : i32) : x_audit_file_master_files 
     }
 
 and let x_audit_file_master_files_tax_table_example (k : i32) : x_audit_file_master_files_tax_table =
-    {
+    x_audit_file_master_files_tax_table {
         tax_table_entry = [ x_audit_file_master_files_tax_table_tax_table_entry_example (k + 0i32) ]
     }
 
@@ -17112,7 +17179,7 @@ and let x_audit_file_master_files_tax_table_tax_table_entry_example
     (k : i32)
     : x_audit_file_master_files_tax_table_tax_table_entry
     =
-    {
+    x_audit_file_master_files_tax_table_tax_table_entry {
         tax_type = x_audit_file_master_files_tax_table_tax_table_entry_tax_type_example k
         tax_country_region = x_audit_file_master_files_tax_table_tax_table_entry_tax_country_region_example k
         tax_code = x_tax_table_entry_tax_code_example k
@@ -17128,7 +17195,7 @@ and let x_audit_file_master_files_tax_table_tax_table_entry_choice_tax_percentag
     AuditFile_MasterFiles_TaxTable_TaxTableEntry_choice_TaxPercentage_TaxPercentage (x_sa_fdecimal_type_example k)
 
 and let x_audit_file_master_files_product_example (k : i32) : x_audit_file_master_files_product =
-    {
+    x_audit_file_master_files_product {
         product_type = x_audit_file_master_files_product_product_type_example k
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
         product_group = None
@@ -17138,7 +17205,7 @@ and let x_audit_file_master_files_product_example (k : i32) : x_audit_file_maste
     }
 
 and let x_audit_file_master_files_supplier_example (k : i32) : x_audit_file_master_files_supplier =
-    {
+    x_audit_file_master_files_supplier {
         supplier_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_audit_file_master_files_supplier_account_id_example k
         supplier_tax_id = x_safp_ttext_type_mandatory_max30_car_example k
@@ -17154,7 +17221,7 @@ and let x_audit_file_master_files_supplier_example (k : i32) : x_audit_file_mast
     }
 
 and let x_audit_file_master_files_customer_example (k : i32) : x_audit_file_master_files_customer =
-    {
+    x_audit_file_master_files_customer {
         customer_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_audit_file_master_files_customer_account_id_example k
         customer_tax_id = x_safp_ttext_type_mandatory_max30_car_example k
@@ -17173,7 +17240,7 @@ and let x_audit_file_master_files_general_ledger_accounts_example
     (k : i32)
     : x_audit_file_master_files_general_ledger_accounts
     =
-    {
+    x_audit_file_master_files_general_ledger_accounts {
         taxonomy_reference = x_audit_file_master_files_general_ledger_accounts_taxonomy_reference_example k
         account = [ x_audit_file_master_files_general_ledger_accounts_account_example (k + 0i32) ]
     }
@@ -17182,7 +17249,7 @@ and let x_audit_file_master_files_general_ledger_accounts_account_example
     (k : i32)
     : x_audit_file_master_files_general_ledger_accounts_account
     =
-    {
+    x_audit_file_master_files_general_ledger_accounts_account {
         account_id = x_safptgl_account_id_example k
         account_description = x_safp_ttext_type_mandatory_max100_car_example k
         opening_debit_balance = x_sa_fmonetary_type_example k
@@ -17195,7 +17262,7 @@ and let x_audit_file_master_files_general_ledger_accounts_account_example
     }
 
 and let x_audit_file_header_example (k : i32) : x_audit_file_header =
-    {
+    x_audit_file_header {
         audit_file_version = x_audit_file_header_audit_file_version_example k
         company_id = x_audit_file_header_company_id_example k
         tax_registration_number = x_safpt_portuguese_vat_number_example k
@@ -17221,7 +17288,7 @@ and let x_audit_file_header_example (k : i32) : x_audit_file_header =
     }
 
 and let x_header_example (k : i32) : x_header =
-    {
+    x_header {
         audit_file_version = x_header_audit_file_version_example k
         company_id = x_header_company_id_example k
         tax_registration_number = x_safpt_portuguese_vat_number_example k
@@ -17247,13 +17314,13 @@ and let x_header_example (k : i32) : x_header =
     }
 
 and let x_general_ledger_accounts_example (k : i32) : x_general_ledger_accounts =
-    {
+    x_general_ledger_accounts {
         taxonomy_reference = x_general_ledger_accounts_taxonomy_reference_example k
         account = [ x_general_ledger_accounts_account_example (k + 0i32) ]
     }
 
 and let x_general_ledger_accounts_account_example (k : i32) : x_general_ledger_accounts_account =
-    {
+    x_general_ledger_accounts_account {
         account_id = x_safptgl_account_id_example k
         account_description = x_safp_ttext_type_mandatory_max100_car_example k
         opening_debit_balance = x_sa_fmonetary_type_example k
@@ -17266,7 +17333,7 @@ and let x_general_ledger_accounts_account_example (k : i32) : x_general_ledger_a
     }
 
 and let x_customer_example (k : i32) : x_customer =
-    {
+    x_customer {
         customer_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_customer_account_id_example k
         customer_tax_id = x_safp_ttext_type_mandatory_max30_car_example k
@@ -17282,7 +17349,7 @@ and let x_customer_example (k : i32) : x_customer =
     }
 
 and let x_supplier_example (k : i32) : x_supplier =
-    {
+    x_supplier {
         supplier_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_supplier_account_id_example k
         supplier_tax_id = x_safp_ttext_type_mandatory_max30_car_example k
@@ -17298,7 +17365,7 @@ and let x_supplier_example (k : i32) : x_supplier =
     }
 
 and let x_product_example (k : i32) : x_product =
-    {
+    x_product {
         product_type = x_product_product_type_example k
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
         product_group = None
@@ -17308,12 +17375,12 @@ and let x_product_example (k : i32) : x_product =
     }
 
 and let x_tax_table_example (k : i32) : x_tax_table =
-    {
+    x_tax_table {
         tax_table_entry = [ x_tax_table_tax_table_entry_example (k + 0i32) ]
     }
 
 and let x_tax_table_tax_table_entry_example (k : i32) : x_tax_table_tax_table_entry =
-    {
+    x_tax_table_tax_table_entry {
         tax_type = x_tax_table_tax_table_entry_tax_type_example k
         tax_country_region = x_tax_table_tax_table_entry_tax_country_region_example k
         tax_code = x_tax_table_entry_tax_code_example k
@@ -17329,7 +17396,7 @@ and let x_tax_table_tax_table_entry_choice_tax_percentage_example
     TaxTable_TaxTableEntry_choice_TaxPercentage_TaxPercentage (x_sa_fdecimal_type_example k)
 
 and let x_tax_table_entry_example (k : i32) : x_tax_table_entry =
-    {
+    x_tax_table_entry {
         tax_type = x_tax_table_entry_tax_type_example k
         tax_country_region = x_tax_table_entry_tax_country_region_example k
         tax_code = x_tax_table_entry_tax_code_example k
@@ -17342,7 +17409,7 @@ and let x_tax_table_entry_choice_tax_percentage_example (k : i32) : x_tax_table_
     TaxTableEntry_choice_TaxPercentage_TaxPercentage (x_sa_fdecimal_type_example k)
 
 and let x_general_ledger_entries_example (k : i32) : x_general_ledger_entries =
-    {
+    x_general_ledger_entries {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -17350,14 +17417,14 @@ and let x_general_ledger_entries_example (k : i32) : x_general_ledger_entries =
     }
 
 and let x_general_ledger_entries_journal_example (k : i32) : x_general_ledger_entries_journal =
-    {
+    x_general_ledger_entries_journal {
         journal_id = x_safpt_journal_id_example k
         description = x_safp_ttext_type_mandatory_max200_car_example k
         transaction = []
     }
 
 and let x_general_ledger_entries_journal_transaction_example (k : i32) : x_general_ledger_entries_journal_transaction =
-    {
+    x_general_ledger_entries_journal_transaction {
         transaction_id = x_safpt_transaction_id_example k
         period = x_safpt_accounting_period_example k
         transaction_date = x_sa_fdate_type_example k
@@ -17374,7 +17441,7 @@ and let x_general_ledger_entries_journal_transaction_lines_example
     (k : i32)
     : x_general_ledger_entries_journal_transaction_lines
     =
-    {
+    x_general_ledger_entries_journal_transaction_lines {
         debit_line = [ x_general_ledger_entries_journal_transaction_lines_debit_line_example (k + 0i32) ]
         credit_line = [ x_general_ledger_entries_journal_transaction_lines_credit_line_example (k + 0i32) ]
     }
@@ -17383,7 +17450,7 @@ and let x_general_ledger_entries_journal_transaction_lines_credit_line_example
     (k : i32)
     : x_general_ledger_entries_journal_transaction_lines_credit_line
     =
-    {
+    x_general_ledger_entries_journal_transaction_lines_credit_line {
         record_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_safptgl_account_id_example k
         source_document_id = None
@@ -17396,7 +17463,7 @@ and let x_general_ledger_entries_journal_transaction_lines_debit_line_example
     (k : i32)
     : x_general_ledger_entries_journal_transaction_lines_debit_line
     =
-    {
+    x_general_ledger_entries_journal_transaction_lines_debit_line {
         record_id = x_safp_ttext_type_mandatory_max30_car_example k
         account_id = x_safptgl_account_id_example k
         source_document_id = None
@@ -17412,7 +17479,7 @@ and let x_general_ledger_entries_journal_transaction_choice_customer_id_example
     GeneralLedgerEntries_Journal_Transaction_choice_CustomerID_CustomerID (None)
 
 and let x_source_documents_example (k : i32) : x_source_documents =
-    {
+    x_source_documents {
         sales_invoices = None
         movement_of_goods = None
         working_documents = None
@@ -17420,7 +17487,7 @@ and let x_source_documents_example (k : i32) : x_source_documents =
     }
 
 and let x_source_documents_payments_example (k : i32) : x_source_documents_payments =
-    {
+    x_source_documents_payments {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -17428,7 +17495,7 @@ and let x_source_documents_payments_example (k : i32) : x_source_documents_payme
     }
 
 and let x_source_documents_payments_payment_example (k : i32) : x_source_documents_payments_payment =
-    {
+    x_source_documents_payments_payment {
         payment_ref_no = x_source_documents_payments_payment_payment_ref_no_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         period = None
@@ -17451,7 +17518,7 @@ and let x_source_documents_payments_payment_document_totals_example
     (k : i32)
     : x_source_documents_payments_payment_document_totals
     =
-    {
+    x_source_documents_payments_payment_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -17463,12 +17530,12 @@ and let x_source_documents_payments_payment_document_totals_settlement_example
     (k : i32)
     : x_source_documents_payments_payment_document_totals_settlement
     =
-    {
+    x_source_documents_payments_payment_document_totals_settlement {
         settlement_amount = x_sa_fmonetary_type_example k
     }
 
 and let x_source_documents_payments_payment_line_example (k : i32) : x_source_documents_payments_payment_line =
-    {
+    x_source_documents_payments_payment_line {
         line_number = "1"
         source_document_id = [ x_source_documents_payments_payment_line_source_document_id_example (k + 0i32) ]
         settlement_amount = None
@@ -17488,7 +17555,7 @@ and let x_source_documents_payments_payment_line_source_document_id_example
     (k : i32)
     : x_source_documents_payments_payment_line_source_document_id
     =
-    {
+    x_source_documents_payments_payment_line_source_document_id {
         originating_on = x_safp_ttext_type_mandatory_max60_car_example k
         invoice_date = x_sa_fdate_type_example k
         description = None
@@ -17498,7 +17565,7 @@ and let x_source_documents_payments_payment_document_status_example
     (k : i32)
     : x_source_documents_payments_payment_document_status
     =
-    {
+    x_source_documents_payments_payment_document_status {
         payment_status = x_source_documents_payments_payment_document_status_payment_status_example k
         payment_status_date = x_sa_fdate_time_type_example k
         reason = None
@@ -17507,7 +17574,7 @@ and let x_source_documents_payments_payment_document_status_example
     }
 
 and let x_source_documents_working_documents_example (k : i32) : x_source_documents_working_documents =
-    {
+    x_source_documents_working_documents {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -17518,7 +17585,7 @@ and let x_source_documents_working_documents_work_document_example
     (k : i32)
     : x_source_documents_working_documents_work_document
     =
-    {
+    x_source_documents_working_documents_work_document {
         document_number = x_source_documents_working_documents_work_document_document_number_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         document_status = x_source_documents_working_documents_work_document_document_status_example k
@@ -17540,7 +17607,7 @@ and let x_source_documents_working_documents_work_document_document_totals_examp
     (k : i32)
     : x_source_documents_working_documents_work_document_document_totals
     =
-    {
+    x_source_documents_working_documents_work_document_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -17551,7 +17618,7 @@ and let x_source_documents_working_documents_work_document_line_example
     (k : i32)
     : x_source_documents_working_documents_work_document_line
     =
-    {
+    x_source_documents_working_documents_work_document_line {
         line_number = "1"
         order_references = []
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
@@ -17582,7 +17649,7 @@ and let x_source_documents_working_documents_work_document_document_status_examp
     (k : i32)
     : x_source_documents_working_documents_work_document_document_status
     =
-    {
+    x_source_documents_working_documents_work_document_document_status {
         work_status = x_source_documents_working_documents_work_document_document_status_work_status_example k
         work_status_date = x_sa_fdate_time_type_example k
         reason = None
@@ -17591,7 +17658,7 @@ and let x_source_documents_working_documents_work_document_document_status_examp
     }
 
 and let x_source_documents_movement_of_goods_example (k : i32) : x_source_documents_movement_of_goods =
-    {
+    x_source_documents_movement_of_goods {
         number_of_movement_lines = "1"
         total_quantity_issued = x_sa_fdecimal_type_example k
         stock_movement = []
@@ -17601,7 +17668,7 @@ and let x_source_documents_movement_of_goods_stock_movement_example
     (k : i32)
     : x_source_documents_movement_of_goods_stock_movement
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement {
         document_number = x_source_documents_movement_of_goods_stock_movement_document_number_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         document_status = x_source_documents_movement_of_goods_stock_movement_document_status_example k
@@ -17629,7 +17696,7 @@ and let x_source_documents_movement_of_goods_stock_movement_document_totals_exam
     (k : i32)
     : x_source_documents_movement_of_goods_stock_movement_document_totals
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -17640,7 +17707,7 @@ and let x_source_documents_movement_of_goods_stock_movement_line_example
     (k : i32)
     : x_source_documents_movement_of_goods_stock_movement_line
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement_line {
         line_number = "1"
         order_references = []
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
@@ -17676,7 +17743,7 @@ and let x_source_documents_movement_of_goods_stock_movement_document_status_exam
     (k : i32)
     : x_source_documents_movement_of_goods_stock_movement_document_status
     =
-    {
+    x_source_documents_movement_of_goods_stock_movement_document_status {
         movement_status = x_source_documents_movement_of_goods_stock_movement_document_status_movement_status_example k
         movement_status_date = x_sa_fdate_time_type_example k
         reason = None
@@ -17685,7 +17752,7 @@ and let x_source_documents_movement_of_goods_stock_movement_document_status_exam
     }
 
 and let x_source_documents_sales_invoices_example (k : i32) : x_source_documents_sales_invoices =
-    {
+    x_source_documents_sales_invoices {
         number_of_entries = "1"
         total_debit = x_sa_fmonetary_type_example k
         total_credit = x_sa_fmonetary_type_example k
@@ -17693,7 +17760,7 @@ and let x_source_documents_sales_invoices_example (k : i32) : x_source_documents
     }
 
 and let x_source_documents_sales_invoices_invoice_example (k : i32) : x_source_documents_sales_invoices_invoice =
-    {
+    x_source_documents_sales_invoices_invoice {
         invoice_no = x_source_documents_sales_invoices_invoice_invoice_no_example k
         atcud = x_safp_ttext_type_mandatory_max100_car_example k
         document_status = x_source_documents_sales_invoices_invoice_document_status_example k
@@ -17721,7 +17788,7 @@ and let x_source_documents_sales_invoices_invoice_document_totals_example
     (k : i32)
     : x_source_documents_sales_invoices_invoice_document_totals
     =
-    {
+    x_source_documents_sales_invoices_invoice_document_totals {
         tax_payable = x_sa_fmonetary_type_example k
         net_total = x_sa_fmonetary_type_example k
         gross_total = x_sa_fmonetary_type_example k
@@ -17731,7 +17798,7 @@ and let x_source_documents_sales_invoices_invoice_document_totals_example
     }
 
 and let x_source_documents_sales_invoices_invoice_line_example (k : i32) : x_source_documents_sales_invoices_invoice_line =
-    {
+    x_source_documents_sales_invoices_invoice_line {
         line_number = "1"
         order_references = []
         product_code = x_safp_ttext_type_mandatory_max60_car_example k
@@ -17762,7 +17829,7 @@ and let x_source_documents_sales_invoices_invoice_document_status_example
     (k : i32)
     : x_source_documents_sales_invoices_invoice_document_status
     =
-    {
+    x_source_documents_sales_invoices_invoice_document_status {
         invoice_status = x_source_documents_sales_invoices_invoice_document_status_invoice_status_example k
         invoice_status_date = x_sa_fdate_time_type_example k
         reason = None
@@ -17771,7 +17838,7 @@ and let x_source_documents_sales_invoices_invoice_document_status_example
     }
 
 and let x_address_structure_example (k : i32) : x_address_structure =
-    {
+    x_address_structure {
         building_number = None
         street_name = None
         address_detail = x_safp_ttext_type_mandatory_max210_car_example k
@@ -17782,7 +17849,7 @@ and let x_address_structure_example (k : i32) : x_address_structure =
     }
 
 and let x_customer_address_structure_example (k : i32) : x_customer_address_structure =
-    {
+    x_customer_address_structure {
         building_number = None
         street_name = None
         address_detail = x_safp_ttext_type_mandatory_max210_car_example k
@@ -17793,26 +17860,26 @@ and let x_customer_address_structure_example (k : i32) : x_customer_address_stru
     }
 
 and let x_currency_example (k : i32) : x_currency =
-    {
+    x_currency {
         currency_code = x_currency_currency_code_example k
         currency_amount = x_sa_fmonetary_type_example k
         exchange_rate = x_sa_fdecimal_type_example k
     }
 
 and let x_customs_details_example (k : i32) : x_customs_details =
-    {
+    x_customs_details {
         cn_code = []
         un_number = []
     }
 
 and let x_customs_information_example (k : i32) : x_customs_information =
-    {
+    x_customs_information {
         arc_no = []
         iec_amount = None
     }
 
 and let x_movement_tax_example (k : i32) : x_movement_tax =
-    {
+    x_movement_tax {
         tax_type = x_saftpt_movement_tax_type_example k
         tax_country_region = x_movement_tax_tax_country_region_example k
         tax_code = x_saftpt_movement_tax_code_example k
@@ -17820,20 +17887,20 @@ and let x_movement_tax_example (k : i32) : x_movement_tax =
     }
 
 and let x_order_references_example (k : i32) : x_order_references =
-    {
+    x_order_references {
         originating_on = None
         order_date = None
     }
 
 and let x_payment_method_example (k : i32) : x_payment_method =
-    {
+    x_payment_method {
         payment_mechanism = None
         payment_amount = x_sa_fmonetary_type_example k
         payment_date = x_sa_fdate_type_example k
     }
 
 and let x_payment_tax_example (k : i32) : x_payment_tax =
-    {
+    x_payment_tax {
         tax_type = x_payment_tax_tax_type_example k
         tax_country_region = x_payment_tax_tax_country_region_example k
         tax_code = x_payment_tax_code_example k
@@ -17844,18 +17911,18 @@ and let x_payment_tax_choice_tax_percentage_example (k : i32) : x_payment_tax_ch
     PaymentTax_choice_TaxPercentage_TaxPercentage (x_sa_fdecimal_type_example k)
 
 and let x_product_serial_number_example (k : i32) : x_product_serial_number =
-    {
+    x_product_serial_number {
         serial_number = [ x_safp_ttext_type_mandatory_max100_car_example (k + 0i32) ]
     }
 
 and let x_references_example (k : i32) : x_references =
-    {
+    x_references {
         reference = None
         reason = None
     }
 
 and let x_settlement_example (k : i32) : x_settlement =
-    {
+    x_settlement {
         settlement_discount = None
         settlement_amount = None
         settlement_date = None
@@ -17863,23 +17930,28 @@ and let x_settlement_example (k : i32) : x_settlement =
     }
 
 and let x_shipping_point_structure_example (k : i32) : x_shipping_point_structure =
-    {
+    x_shipping_point_structure {
         delivery_id = []
         delivery_date = None
-        warehouse_id = None
-        location_id = None
+        group_warehouse_id = []
         address = None
     }
 
+and let x_shipping_point_structure_group_warehouse_id_example (k : i32) : x_shipping_point_structure_group_warehouse_id =
+    x_shipping_point_structure_group_warehouse_id {
+        warehouse_id = None
+        location_id = None
+    }
+
 and let x_special_regimes_example (k : i32) : x_special_regimes =
-    {
+    x_special_regimes {
         self_billing_indicator = x_special_regimes_self_billing_indicator_example k
         cash_vat_scheme_indicator = x_special_regimes_cash_vat_scheme_indicator_example k
         third_parties_billing_indicator = x_special_regimes_third_parties_billing_indicator_example k
     }
 
 and let x_tax_example (k : i32) : x_tax =
-    {
+    x_tax {
         tax_type = x_tax_tax_type_example k
         tax_country_region = x_tax_tax_country_region_example k
         tax_code = x_tax_tax_code_example k
@@ -17890,11 +17962,376 @@ and let x_tax_choice_tax_percentage_example (k : i32) : x_tax_choice_tax_percent
     Tax_choice_TaxPercentage_TaxPercentage (x_sa_fdecimal_type_example k)
 
 and let x_withholding_tax_example (k : i32) : x_withholding_tax =
-    {
+    x_withholding_tax {
         withholding_tax_type = None
         withholding_tax_description = None
         withholding_tax_amount = x_sa_fmonetary_type_example k
     }
+
+
+instance of_xml x_audit_file = x_audit_file_of_xml
+instance to_xml x_audit_file = x_audit_file_to_xml
+
+instance of_xml x_audit_file_source_documents = x_audit_file_source_documents_of_xml
+instance to_xml x_audit_file_source_documents = x_audit_file_source_documents_to_xml
+
+instance of_xml x_audit_file_source_documents_payments = x_audit_file_source_documents_payments_of_xml
+instance to_xml x_audit_file_source_documents_payments = x_audit_file_source_documents_payments_to_xml
+
+instance of_xml x_audit_file_source_documents_payments_payment = x_audit_file_source_documents_payments_payment_of_xml
+instance to_xml x_audit_file_source_documents_payments_payment = x_audit_file_source_documents_payments_payment_to_xml
+
+instance of_xml x_audit_file_source_documents_payments_payment_document_totals =
+    x_audit_file_source_documents_payments_payment_document_totals_of_xml
+instance to_xml x_audit_file_source_documents_payments_payment_document_totals =
+    x_audit_file_source_documents_payments_payment_document_totals_to_xml
+
+instance of_xml x_audit_file_source_documents_payments_payment_document_totals_settlement =
+    x_audit_file_source_documents_payments_payment_document_totals_settlement_of_xml
+instance to_xml x_audit_file_source_documents_payments_payment_document_totals_settlement =
+    x_audit_file_source_documents_payments_payment_document_totals_settlement_to_xml
+
+instance of_xml x_audit_file_source_documents_payments_payment_line =
+    x_audit_file_source_documents_payments_payment_line_of_xml
+instance to_xml x_audit_file_source_documents_payments_payment_line =
+    x_audit_file_source_documents_payments_payment_line_to_xml
+
+instance of_xml x_audit_file_source_documents_payments_payment_line_source_document_id =
+    x_audit_file_source_documents_payments_payment_line_source_document_id_of_xml
+instance to_xml x_audit_file_source_documents_payments_payment_line_source_document_id =
+    x_audit_file_source_documents_payments_payment_line_source_document_id_to_xml
+
+instance of_xml x_audit_file_source_documents_payments_payment_document_status =
+    x_audit_file_source_documents_payments_payment_document_status_of_xml
+instance to_xml x_audit_file_source_documents_payments_payment_document_status =
+    x_audit_file_source_documents_payments_payment_document_status_to_xml
+
+instance of_xml x_audit_file_source_documents_working_documents = x_audit_file_source_documents_working_documents_of_xml
+instance to_xml x_audit_file_source_documents_working_documents = x_audit_file_source_documents_working_documents_to_xml
+
+instance of_xml x_audit_file_source_documents_working_documents_work_document =
+    x_audit_file_source_documents_working_documents_work_document_of_xml
+instance to_xml x_audit_file_source_documents_working_documents_work_document =
+    x_audit_file_source_documents_working_documents_work_document_to_xml
+
+instance of_xml x_audit_file_source_documents_working_documents_work_document_document_totals =
+    x_audit_file_source_documents_working_documents_work_document_document_totals_of_xml
+instance to_xml x_audit_file_source_documents_working_documents_work_document_document_totals =
+    x_audit_file_source_documents_working_documents_work_document_document_totals_to_xml
+
+instance of_xml x_audit_file_source_documents_working_documents_work_document_line =
+    x_audit_file_source_documents_working_documents_work_document_line_of_xml
+instance to_xml x_audit_file_source_documents_working_documents_work_document_line =
+    x_audit_file_source_documents_working_documents_work_document_line_to_xml
+
+instance of_xml x_audit_file_source_documents_working_documents_work_document_document_status =
+    x_audit_file_source_documents_working_documents_work_document_document_status_of_xml
+instance to_xml x_audit_file_source_documents_working_documents_work_document_document_status =
+    x_audit_file_source_documents_working_documents_work_document_document_status_to_xml
+
+instance of_xml x_audit_file_source_documents_movement_of_goods = x_audit_file_source_documents_movement_of_goods_of_xml
+instance to_xml x_audit_file_source_documents_movement_of_goods = x_audit_file_source_documents_movement_of_goods_to_xml
+
+instance of_xml x_audit_file_source_documents_movement_of_goods_stock_movement =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_of_xml
+instance to_xml x_audit_file_source_documents_movement_of_goods_stock_movement =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_to_xml
+
+instance of_xml x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals_of_xml
+instance to_xml x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_totals_to_xml
+
+instance of_xml x_audit_file_source_documents_movement_of_goods_stock_movement_line =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_line_of_xml
+instance to_xml x_audit_file_source_documents_movement_of_goods_stock_movement_line =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_line_to_xml
+
+instance of_xml x_audit_file_source_documents_movement_of_goods_stock_movement_document_status =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_status_of_xml
+instance to_xml x_audit_file_source_documents_movement_of_goods_stock_movement_document_status =
+    x_audit_file_source_documents_movement_of_goods_stock_movement_document_status_to_xml
+
+instance of_xml x_audit_file_source_documents_sales_invoices = x_audit_file_source_documents_sales_invoices_of_xml
+instance to_xml x_audit_file_source_documents_sales_invoices = x_audit_file_source_documents_sales_invoices_to_xml
+
+instance of_xml x_audit_file_source_documents_sales_invoices_invoice =
+    x_audit_file_source_documents_sales_invoices_invoice_of_xml
+instance to_xml x_audit_file_source_documents_sales_invoices_invoice =
+    x_audit_file_source_documents_sales_invoices_invoice_to_xml
+
+instance of_xml x_audit_file_source_documents_sales_invoices_invoice_document_totals =
+    x_audit_file_source_documents_sales_invoices_invoice_document_totals_of_xml
+instance to_xml x_audit_file_source_documents_sales_invoices_invoice_document_totals =
+    x_audit_file_source_documents_sales_invoices_invoice_document_totals_to_xml
+
+instance of_xml x_audit_file_source_documents_sales_invoices_invoice_line =
+    x_audit_file_source_documents_sales_invoices_invoice_line_of_xml
+instance to_xml x_audit_file_source_documents_sales_invoices_invoice_line =
+    x_audit_file_source_documents_sales_invoices_invoice_line_to_xml
+
+instance of_xml x_audit_file_source_documents_sales_invoices_invoice_document_status =
+    x_audit_file_source_documents_sales_invoices_invoice_document_status_of_xml
+instance to_xml x_audit_file_source_documents_sales_invoices_invoice_document_status =
+    x_audit_file_source_documents_sales_invoices_invoice_document_status_to_xml
+
+instance of_xml x_audit_file_general_ledger_entries = x_audit_file_general_ledger_entries_of_xml
+instance to_xml x_audit_file_general_ledger_entries = x_audit_file_general_ledger_entries_to_xml
+
+instance of_xml x_audit_file_general_ledger_entries_journal = x_audit_file_general_ledger_entries_journal_of_xml
+instance to_xml x_audit_file_general_ledger_entries_journal = x_audit_file_general_ledger_entries_journal_to_xml
+
+instance of_xml x_audit_file_general_ledger_entries_journal_transaction =
+    x_audit_file_general_ledger_entries_journal_transaction_of_xml
+instance to_xml x_audit_file_general_ledger_entries_journal_transaction =
+    x_audit_file_general_ledger_entries_journal_transaction_to_xml
+
+instance of_xml x_audit_file_general_ledger_entries_journal_transaction_lines =
+    x_audit_file_general_ledger_entries_journal_transaction_lines_of_xml
+instance to_xml x_audit_file_general_ledger_entries_journal_transaction_lines =
+    x_audit_file_general_ledger_entries_journal_transaction_lines_to_xml
+
+instance of_xml x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line =
+    x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line_of_xml
+instance to_xml x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line =
+    x_audit_file_general_ledger_entries_journal_transaction_lines_credit_line_to_xml
+
+instance of_xml x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line =
+    x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line_of_xml
+instance to_xml x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line =
+    x_audit_file_general_ledger_entries_journal_transaction_lines_debit_line_to_xml
+
+instance of_xml x_audit_file_master_files = x_audit_file_master_files_of_xml
+instance to_xml x_audit_file_master_files = x_audit_file_master_files_to_xml
+
+instance of_xml x_audit_file_master_files_tax_table = x_audit_file_master_files_tax_table_of_xml
+instance to_xml x_audit_file_master_files_tax_table = x_audit_file_master_files_tax_table_to_xml
+
+instance of_xml x_audit_file_master_files_tax_table_tax_table_entry =
+    x_audit_file_master_files_tax_table_tax_table_entry_of_xml
+instance to_xml x_audit_file_master_files_tax_table_tax_table_entry =
+    x_audit_file_master_files_tax_table_tax_table_entry_to_xml
+
+instance of_xml x_audit_file_master_files_product = x_audit_file_master_files_product_of_xml
+instance to_xml x_audit_file_master_files_product = x_audit_file_master_files_product_to_xml
+
+instance of_xml x_audit_file_master_files_supplier = x_audit_file_master_files_supplier_of_xml
+instance to_xml x_audit_file_master_files_supplier = x_audit_file_master_files_supplier_to_xml
+
+instance of_xml x_audit_file_master_files_customer = x_audit_file_master_files_customer_of_xml
+instance to_xml x_audit_file_master_files_customer = x_audit_file_master_files_customer_to_xml
+
+instance of_xml x_audit_file_master_files_general_ledger_accounts =
+    x_audit_file_master_files_general_ledger_accounts_of_xml
+instance to_xml x_audit_file_master_files_general_ledger_accounts =
+    x_audit_file_master_files_general_ledger_accounts_to_xml
+
+instance of_xml x_audit_file_master_files_general_ledger_accounts_account =
+    x_audit_file_master_files_general_ledger_accounts_account_of_xml
+instance to_xml x_audit_file_master_files_general_ledger_accounts_account =
+    x_audit_file_master_files_general_ledger_accounts_account_to_xml
+
+instance of_xml x_audit_file_header = x_audit_file_header_of_xml
+instance to_xml x_audit_file_header = x_audit_file_header_to_xml
+
+instance of_xml x_header = x_header_of_xml
+instance to_xml x_header = x_header_to_xml
+
+instance of_xml x_general_ledger_accounts = x_general_ledger_accounts_of_xml
+instance to_xml x_general_ledger_accounts = x_general_ledger_accounts_to_xml
+
+instance of_xml x_general_ledger_accounts_account = x_general_ledger_accounts_account_of_xml
+instance to_xml x_general_ledger_accounts_account = x_general_ledger_accounts_account_to_xml
+
+instance of_xml x_customer = x_customer_of_xml
+instance to_xml x_customer = x_customer_to_xml
+
+instance of_xml x_supplier = x_supplier_of_xml
+instance to_xml x_supplier = x_supplier_to_xml
+
+instance of_xml x_product = x_product_of_xml
+instance to_xml x_product = x_product_to_xml
+
+instance of_xml x_tax_table = x_tax_table_of_xml
+instance to_xml x_tax_table = x_tax_table_to_xml
+
+instance of_xml x_tax_table_tax_table_entry = x_tax_table_tax_table_entry_of_xml
+instance to_xml x_tax_table_tax_table_entry = x_tax_table_tax_table_entry_to_xml
+
+instance of_xml x_tax_table_entry = x_tax_table_entry_of_xml
+instance to_xml x_tax_table_entry = x_tax_table_entry_to_xml
+
+instance of_xml x_general_ledger_entries = x_general_ledger_entries_of_xml
+instance to_xml x_general_ledger_entries = x_general_ledger_entries_to_xml
+
+instance of_xml x_general_ledger_entries_journal = x_general_ledger_entries_journal_of_xml
+instance to_xml x_general_ledger_entries_journal = x_general_ledger_entries_journal_to_xml
+
+instance of_xml x_general_ledger_entries_journal_transaction = x_general_ledger_entries_journal_transaction_of_xml
+instance to_xml x_general_ledger_entries_journal_transaction = x_general_ledger_entries_journal_transaction_to_xml
+
+instance of_xml x_general_ledger_entries_journal_transaction_lines =
+    x_general_ledger_entries_journal_transaction_lines_of_xml
+instance to_xml x_general_ledger_entries_journal_transaction_lines =
+    x_general_ledger_entries_journal_transaction_lines_to_xml
+
+instance of_xml x_general_ledger_entries_journal_transaction_lines_credit_line =
+    x_general_ledger_entries_journal_transaction_lines_credit_line_of_xml
+instance to_xml x_general_ledger_entries_journal_transaction_lines_credit_line =
+    x_general_ledger_entries_journal_transaction_lines_credit_line_to_xml
+
+instance of_xml x_general_ledger_entries_journal_transaction_lines_debit_line =
+    x_general_ledger_entries_journal_transaction_lines_debit_line_of_xml
+instance to_xml x_general_ledger_entries_journal_transaction_lines_debit_line =
+    x_general_ledger_entries_journal_transaction_lines_debit_line_to_xml
+
+instance of_xml x_source_documents = x_source_documents_of_xml
+instance to_xml x_source_documents = x_source_documents_to_xml
+
+instance of_xml x_source_documents_payments = x_source_documents_payments_of_xml
+instance to_xml x_source_documents_payments = x_source_documents_payments_to_xml
+
+instance of_xml x_source_documents_payments_payment = x_source_documents_payments_payment_of_xml
+instance to_xml x_source_documents_payments_payment = x_source_documents_payments_payment_to_xml
+
+instance of_xml x_source_documents_payments_payment_document_totals =
+    x_source_documents_payments_payment_document_totals_of_xml
+instance to_xml x_source_documents_payments_payment_document_totals =
+    x_source_documents_payments_payment_document_totals_to_xml
+
+instance of_xml x_source_documents_payments_payment_document_totals_settlement =
+    x_source_documents_payments_payment_document_totals_settlement_of_xml
+instance to_xml x_source_documents_payments_payment_document_totals_settlement =
+    x_source_documents_payments_payment_document_totals_settlement_to_xml
+
+instance of_xml x_source_documents_payments_payment_line = x_source_documents_payments_payment_line_of_xml
+instance to_xml x_source_documents_payments_payment_line = x_source_documents_payments_payment_line_to_xml
+
+instance of_xml x_source_documents_payments_payment_line_source_document_id =
+    x_source_documents_payments_payment_line_source_document_id_of_xml
+instance to_xml x_source_documents_payments_payment_line_source_document_id =
+    x_source_documents_payments_payment_line_source_document_id_to_xml
+
+instance of_xml x_source_documents_payments_payment_document_status =
+    x_source_documents_payments_payment_document_status_of_xml
+instance to_xml x_source_documents_payments_payment_document_status =
+    x_source_documents_payments_payment_document_status_to_xml
+
+instance of_xml x_source_documents_working_documents = x_source_documents_working_documents_of_xml
+instance to_xml x_source_documents_working_documents = x_source_documents_working_documents_to_xml
+
+instance of_xml x_source_documents_working_documents_work_document =
+    x_source_documents_working_documents_work_document_of_xml
+instance to_xml x_source_documents_working_documents_work_document =
+    x_source_documents_working_documents_work_document_to_xml
+
+instance of_xml x_source_documents_working_documents_work_document_document_totals =
+    x_source_documents_working_documents_work_document_document_totals_of_xml
+instance to_xml x_source_documents_working_documents_work_document_document_totals =
+    x_source_documents_working_documents_work_document_document_totals_to_xml
+
+instance of_xml x_source_documents_working_documents_work_document_line =
+    x_source_documents_working_documents_work_document_line_of_xml
+instance to_xml x_source_documents_working_documents_work_document_line =
+    x_source_documents_working_documents_work_document_line_to_xml
+
+instance of_xml x_source_documents_working_documents_work_document_document_status =
+    x_source_documents_working_documents_work_document_document_status_of_xml
+instance to_xml x_source_documents_working_documents_work_document_document_status =
+    x_source_documents_working_documents_work_document_document_status_to_xml
+
+instance of_xml x_source_documents_movement_of_goods = x_source_documents_movement_of_goods_of_xml
+instance to_xml x_source_documents_movement_of_goods = x_source_documents_movement_of_goods_to_xml
+
+instance of_xml x_source_documents_movement_of_goods_stock_movement =
+    x_source_documents_movement_of_goods_stock_movement_of_xml
+instance to_xml x_source_documents_movement_of_goods_stock_movement =
+    x_source_documents_movement_of_goods_stock_movement_to_xml
+
+instance of_xml x_source_documents_movement_of_goods_stock_movement_document_totals =
+    x_source_documents_movement_of_goods_stock_movement_document_totals_of_xml
+instance to_xml x_source_documents_movement_of_goods_stock_movement_document_totals =
+    x_source_documents_movement_of_goods_stock_movement_document_totals_to_xml
+
+instance of_xml x_source_documents_movement_of_goods_stock_movement_line =
+    x_source_documents_movement_of_goods_stock_movement_line_of_xml
+instance to_xml x_source_documents_movement_of_goods_stock_movement_line =
+    x_source_documents_movement_of_goods_stock_movement_line_to_xml
+
+instance of_xml x_source_documents_movement_of_goods_stock_movement_document_status =
+    x_source_documents_movement_of_goods_stock_movement_document_status_of_xml
+instance to_xml x_source_documents_movement_of_goods_stock_movement_document_status =
+    x_source_documents_movement_of_goods_stock_movement_document_status_to_xml
+
+instance of_xml x_source_documents_sales_invoices = x_source_documents_sales_invoices_of_xml
+instance to_xml x_source_documents_sales_invoices = x_source_documents_sales_invoices_to_xml
+
+instance of_xml x_source_documents_sales_invoices_invoice = x_source_documents_sales_invoices_invoice_of_xml
+instance to_xml x_source_documents_sales_invoices_invoice = x_source_documents_sales_invoices_invoice_to_xml
+
+instance of_xml x_source_documents_sales_invoices_invoice_document_totals =
+    x_source_documents_sales_invoices_invoice_document_totals_of_xml
+instance to_xml x_source_documents_sales_invoices_invoice_document_totals =
+    x_source_documents_sales_invoices_invoice_document_totals_to_xml
+
+instance of_xml x_source_documents_sales_invoices_invoice_line = x_source_documents_sales_invoices_invoice_line_of_xml
+instance to_xml x_source_documents_sales_invoices_invoice_line = x_source_documents_sales_invoices_invoice_line_to_xml
+
+instance of_xml x_source_documents_sales_invoices_invoice_document_status =
+    x_source_documents_sales_invoices_invoice_document_status_of_xml
+instance to_xml x_source_documents_sales_invoices_invoice_document_status =
+    x_source_documents_sales_invoices_invoice_document_status_to_xml
+
+instance of_xml x_address_structure = x_address_structure_of_xml
+instance to_xml x_address_structure = x_address_structure_to_xml
+
+instance of_xml x_customer_address_structure = x_customer_address_structure_of_xml
+instance to_xml x_customer_address_structure = x_customer_address_structure_to_xml
+
+instance of_xml x_currency = x_currency_of_xml
+instance to_xml x_currency = x_currency_to_xml
+
+instance of_xml x_customs_details = x_customs_details_of_xml
+instance to_xml x_customs_details = x_customs_details_to_xml
+
+instance of_xml x_customs_information = x_customs_information_of_xml
+instance to_xml x_customs_information = x_customs_information_to_xml
+
+instance of_xml x_movement_tax = x_movement_tax_of_xml
+instance to_xml x_movement_tax = x_movement_tax_to_xml
+
+instance of_xml x_order_references = x_order_references_of_xml
+instance to_xml x_order_references = x_order_references_to_xml
+
+instance of_xml x_payment_method = x_payment_method_of_xml
+instance to_xml x_payment_method = x_payment_method_to_xml
+
+instance of_xml x_payment_tax = x_payment_tax_of_xml
+instance to_xml x_payment_tax = x_payment_tax_to_xml
+
+instance of_xml x_product_serial_number = x_product_serial_number_of_xml
+instance to_xml x_product_serial_number = x_product_serial_number_to_xml
+
+instance of_xml x_references = x_references_of_xml
+instance to_xml x_references = x_references_to_xml
+
+instance of_xml x_settlement = x_settlement_of_xml
+instance to_xml x_settlement = x_settlement_to_xml
+
+instance of_xml x_shipping_point_structure = x_shipping_point_structure_of_xml
+instance to_xml x_shipping_point_structure = x_shipping_point_structure_to_xml
+
+instance of_xml x_shipping_point_structure_group_warehouse_id = x_shipping_point_structure_group_warehouse_id_of_xml
+instance to_xml x_shipping_point_structure_group_warehouse_id = x_shipping_point_structure_group_warehouse_id_to_xml
+
+instance of_xml x_special_regimes = x_special_regimes_of_xml
+instance to_xml x_special_regimes = x_special_regimes_to_xml
+
+instance of_xml x_tax = x_tax_of_xml
+instance to_xml x_tax = x_tax_to_xml
+
+instance of_xml x_withholding_tax = x_withholding_tax_of_xml
+instance to_xml x_withholding_tax = x_withholding_tax_to_xml
 
 
 ///> rust
@@ -17909,6 +18346,23 @@ test generated_pt_saft_1_04_01_writes_its_example =
     file_system.write_all_text
         (generated_fiscal_runtime.sample_path "generated_pt_saft_1_04_01_example.xml")
         (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+    inl documents = [ "deps/corpus/pt/saft/samples/saft_idemo599999999.xml" ]
+    inl check (path : string) : list string =
+        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) "../" path))
+        match xml.read_xml text with
+        | node :: [] =>
+            match xml.first_difference node (x_audit_file_to_xml "AuditFile" (x_audit_file_of_xml node)) with
+            | Some difference => [ sm'.(++#) path (sm'.(++#) ": " difference) ]
+            | None => []
+        | _ => [ sm'.(++#) path ": not one root element" ]
+    inl failures = listm.concat (listm.map check documents)
+    inl _ =
+        match failures with
+        | first :: _ =>
+            inl count = sm'.obj_to_string (listm.length failures : i32)
+            inl message = sm'.(++#) " real documents do not read back unchanged; first: " first
+            failwith (sm'.(++#) count message)
+        | [] => ()
     inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path "generated_pt_saft_1_04_01_example.xml")
     let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64) : list i64 * list i64 * i64 =
         if left = 0i32 then parses, writes, bytes

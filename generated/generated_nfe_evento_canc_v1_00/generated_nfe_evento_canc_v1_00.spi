@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -20,6 +22,10 @@ union staged s a =
 union stage s =
     | Unsigned :: stage unsigned
     | Signed :: stage signed
+
+prototype stage_of s : () -> stage s
+instance stage_of unsigned = fun () => Unsigned
+instance stage_of signed = fun () => Signed
 
 inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
     match witness with
@@ -4249,29 +4255,34 @@ inl x_t_ver_env_evento_example (_ : i32) : x_t_ver_env_evento = x_t_ver_env_even
 
 inl x_t_ver_env_evento_example_text (k : i32) : string = x_t_ver_env_evento_to_string (x_t_ver_env_evento_example k)
 
-type x_x509_data_type =
+nominal x_x509_data_type =
     {
         x509_certificate : string
     }
 
-type x_key_info_type =
+nominal x_key_info_type =
     {
         x509_data : x_x509_data_type
         id : option (string)
     }
 
-type x_transform_type =
+nominal x_transform_type_group_x_path =
     {
         x_path : string
+    }
+
+nominal x_transform_type =
+    {
+        group_x_path : list (x_transform_type_group_x_path)
         algorithm : x_t_transform_uri
     }
 
-type x_transforms_type =
+nominal x_transforms_type =
     {
         transform : list (x_transform_type)
     }
 
-type x_reference_type_digest_method =
+nominal x_reference_type_digest_method =
     {
         algorithm : string
     }
@@ -4292,7 +4303,7 @@ inl x_reference_type_uri_example (_ : i32) : x_reference_type_uri = x_reference_
 inl x_reference_type_uri_example_text (k : i32) : string =
     x_reference_type_uri_to_string (x_reference_type_uri_example k)
 
-type x_reference_type =
+nominal x_reference_type =
     {
         transforms : x_transforms_type
         digest_method : x_reference_type_digest_method
@@ -4302,17 +4313,17 @@ type x_reference_type =
         type_value : option (string)
     }
 
-type x_signed_info_type_canonicalization_method =
+nominal x_signed_info_type_canonicalization_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type_signature_method =
+nominal x_signed_info_type_signature_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type =
+nominal x_signed_info_type =
     {
         canonicalization_method : x_signed_info_type_canonicalization_method
         signature_method : x_signed_info_type_signature_method
@@ -4320,13 +4331,13 @@ type x_signed_info_type =
         id : option (string)
     }
 
-type x_signature_value_type =
+nominal x_signature_value_type =
     {
         base : string
         id : option (string)
     }
 
-type x_signature_type =
+nominal x_signature_type =
     {
         signed_info : x_signed_info_type
         signature_value : x_signature_value_type
@@ -4334,7 +4345,7 @@ type x_signature_type =
         id : option (string)
     }
 
-type x_trsa_key_value_type =
+nominal x_trsa_key_value_type =
     {
         modulus : string
         exponent : string
@@ -4846,7 +4857,7 @@ inl x_t_ret_evento_inf_evento_id_example (_ : i32) : x_t_ret_evento_inf_evento_i
 inl x_t_ret_evento_inf_evento_id_example_text (k : i32) : string =
     x_t_ret_evento_inf_evento_id_to_string (x_t_ret_evento_inf_evento_id_example k)
 
-type x_t_ret_evento_inf_evento =
+nominal x_t_ret_evento_inf_evento =
     {
         tp_amb : x_t_amb
         ver_aplic : x_t_ver_aplic
@@ -4864,7 +4875,7 @@ type x_t_ret_evento_inf_evento =
         id : option (x_t_ret_evento_inf_evento_id)
     }
 
-type x_t_ret_evento =
+nominal x_t_ret_evento =
     {
         inf_evento : x_t_ret_evento_inf_evento
         signature : option (x_signature_type)
@@ -4993,7 +5004,7 @@ inl x_t_evento_inf_evento_det_evento_versao_example (k : i32) : x_t_evento_inf_e
 inl x_t_evento_inf_evento_det_evento_versao_example_text (k : i32) : string =
     x_t_evento_inf_evento_ver_evento_example_text k
 
-type x_t_evento_inf_evento_det_evento =
+nominal x_t_evento_inf_evento_det_evento =
     {
         desc_evento : x_t_evento_inf_evento_det_evento_desc_evento
         n_prot : x_t_prot
@@ -5190,7 +5201,7 @@ inl x_t_evento_inf_evento_id_example (_ : i32) : x_t_evento_inf_evento_id =
 inl x_t_evento_inf_evento_id_example_text (k : i32) : string =
     x_t_evento_inf_evento_id_to_string (x_t_evento_inf_evento_id_example k)
 
-type x_t_evento_inf_evento =
+nominal x_t_evento_inf_evento =
     {
         c_orgao : x_tc_orgao_ibge
         tp_amb : x_t_amb
@@ -5204,21 +5215,21 @@ type x_t_evento_inf_evento =
         id : x_t_evento_inf_evento_id
     }
 
-type x_t_evento s =
+nominal x_t_evento s =
     {
         inf_evento : x_t_evento_inf_evento
         signature : staged s x_signature_type
         versao : x_t_ver_evento
     }
 
-type x_t_proc_evento s =
+nominal x_t_proc_evento s =
     {
         evento : x_t_evento s
         ret_evento : x_t_ret_evento
         versao : x_t_ver_evento
     }
 
-type x_t_ret_env_evento =
+nominal x_t_ret_env_evento =
     {
         id_lote : x_t_ret_env_evento_id_lote
         tp_amb : x_t_amb
@@ -5230,7 +5241,7 @@ type x_t_ret_env_evento =
         versao : x_t_ver_env_evento
     }
 
-type x_t_env_evento s =
+nominal x_t_env_evento s =
     {
         id_lote : x_t_env_evento_id_lote
         evento : list (x_t_evento s)
@@ -5394,11 +5405,21 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     | TransformsType_field_Transform => x.transform
 
 union x_transform_type_field r =
-    | TransformType_field_XPath :: x_transform_type_field (string)
+    | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
-    | TransformType_field_XPath => x.x_path
+    | TransformType_field_group_x_path => x.group_x_path
+
+union x_transform_type_group_x_path_field r =
+    | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
+
+inl x_transform_type_group_x_path_get forall r.
+    (f : x_transform_type_group_x_path_field r) (x : x_transform_type_group_x_path)
+    : r
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => x.x_path
 
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
@@ -5418,7 +5439,7 @@ let rec x_t_evento_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_evento s
     =
-    {
+    x_t_evento {
         inf_evento = (fun c => x_t_evento_inf_evento_of_xml c) (xml.required_child "infEvento" children)
         signature =
             staged_of witness fun () =>
@@ -5434,7 +5455,7 @@ and let x_t_evento_inf_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_evento_inf_evento
     =
-    {
+    x_t_evento_inf_evento {
         c_orgao =
             (fun c => xml.required_value "x_tc_orgao_ibge" (x_tc_orgao_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cOrgao" children)
         tp_amb =
@@ -5464,7 +5485,7 @@ and let x_t_evento_inf_evento_det_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_evento_inf_evento_det_evento
     =
-    {
+    x_t_evento_inf_evento_det_evento {
         desc_evento =
             (fun c => xml.required_value "x_t_evento_inf_evento_det_evento_desc_evento" (x_t_evento_inf_evento_det_evento_desc_evento_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "descEvento" children)
         n_prot =
@@ -5499,7 +5520,7 @@ and let x_t_ret_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_evento
     =
-    {
+    x_t_ret_evento {
         inf_evento = (fun c => x_t_ret_evento_inf_evento_of_xml c) (xml.required_child "infEvento" children)
         signature = optionm.map (fun c => x_signature_type_of_xml c) (xml.first_child "ds:Signature" children)
         versao =
@@ -5513,7 +5534,7 @@ and let x_t_ret_evento_inf_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_evento_inf_evento
     =
-    {
+    x_t_ret_evento_inf_evento {
         tp_amb =
             (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
         ver_aplic =
@@ -5590,7 +5611,7 @@ and let x_t_env_evento_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_env_evento s
     =
-    {
+    x_t_env_evento {
         id_lote =
             (fun c => xml.required_value "x_t_env_evento_id_lote" (x_t_env_evento_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
         evento = listm.map (fun c => x_t_evento_of_xml witness c) (xml.children_named "evento" children)
@@ -5607,7 +5628,7 @@ and let x_t_ret_env_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_env_evento
     =
-    {
+    x_t_ret_env_evento {
         id_lote =
             (fun c => xml.required_value "x_t_ret_env_evento_id_lote" (x_t_ret_env_evento_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
         tp_amb =
@@ -5634,7 +5655,7 @@ and let x_t_proc_evento_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_proc_evento s
     =
-    {
+    x_t_proc_evento {
         evento = (fun c => x_t_evento_of_xml witness c) (xml.required_child "evento" children)
         ret_evento = (fun c => x_t_ret_evento_of_xml c) (xml.required_child "retEvento" children)
         versao =
@@ -5648,7 +5669,7 @@ and let x_trsa_key_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_trsa_key_value_type
     =
-    {
+    x_trsa_key_value_type {
         modulus = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Modulus" children)
         exponent = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Exponent" children)
     }
@@ -5660,7 +5681,7 @@ and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type
     =
-    {
+    x_signature_type {
         signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
         signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
         key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
@@ -5674,7 +5695,7 @@ and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_value_type
     =
-    {
+    x_signature_value_type {
         base = xml.text_in children
         id = xml.attribute_of "Id" attributes
     }
@@ -5686,7 +5707,7 @@ and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type
     =
-    {
+    x_signed_info_type {
         canonicalization_method =
             (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
         signature_method =
@@ -5702,7 +5723,7 @@ and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_signature_method
     =
-    {
+    x_signed_info_type_signature_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -5716,7 +5737,7 @@ and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_canonicalization_method
     =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -5730,7 +5751,7 @@ and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type
     =
-    {
+    x_reference_type {
         transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
         digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
         digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
@@ -5749,7 +5770,7 @@ and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type_digest_method
     =
-    {
+    x_reference_type_digest_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -5763,7 +5784,7 @@ and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transforms_type
     =
-    {
+    x_transforms_type {
         transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
     }
 
@@ -5774,8 +5795,11 @@ and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transform_type
     =
-    {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    x_transform_type {
+        group_x_path =
+            listm.map
+                fun run => x_transform_type_group_x_path_of_children [] run
+                (xml.group_runs [ "XPath" ] children)
         algorithm =
             xml.required_value
                 "x_t_transform_uri"
@@ -5785,11 +5809,22 @@ and let x_transform_type_of_children
 and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
+and let x_transform_type_group_x_path_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transform_type_group_x_path
+    =
+    x_transform_type_group_x_path {
+        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    }
+
+and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
+
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_key_info_type
     =
-    {
+    x_key_info_type {
         x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
         id = xml.attribute_of "Id" attributes
     }
@@ -5801,7 +5836,7 @@ and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_x509_data_type
     =
-    {
+    x_x509_data_type {
         x509_certificate =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
     }
@@ -6168,20 +6203,37 @@ and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.x
 and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
     inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | TransformType_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+        | TransformType_field_group_x_path => listm.concat (listm.map x_transform_type_group_x_path_children v)
     inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
             inl exists r. f = packed
             listm.append (nodes f (x_transform_type_get f x)) (walk rest)
         | [] => []
-    walk [ exists TransformType_field_XPath ]
+    walk [ exists TransformType_field_group_x_path ]
 
 and let x_transform_type_attributes (x : x_transform_type) : list (string * string) =
     [ ("Algorithm", to_text x.algorithm) ]
 
 and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
     xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_transform_type_group_x_path_children (x : x_transform_type_group_x_path) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_group_x_path_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_group_XPath_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_transform_type_group_x_path_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_group_x_path_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_group_XPath_field_XPath ]
+
+and let x_transform_type_group_x_path_attributes (x : x_transform_type_group_x_path) : list (string * string) = []
+
+and let x_transform_type_group_x_path_to_xml (name : string) (x : x_transform_type_group_x_path) : xml.xml_node =
+    xml.element name (x_transform_type_group_x_path_attributes x) (x_transform_type_group_x_path_children x)
 
 and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
     inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
@@ -6219,14 +6271,14 @@ and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml
     xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
 
 and let x_t_evento_example (k : i32) : x_t_evento unsigned =
-    {
+    x_t_evento {
         inf_evento = x_t_evento_inf_evento_example k
         signature = Pending "an unsigned example"
         versao = x_t_ver_evento_example k
     }
 
 and let x_t_evento_inf_evento_example (k : i32) : x_t_evento_inf_evento =
-    {
+    x_t_evento_inf_evento {
         c_orgao = x_tc_orgao_ibge_example k
         tp_amb = x_t_amb_example k
         choice_cnpj = x_t_evento_inf_evento_choice_cnpj_example k
@@ -6240,7 +6292,7 @@ and let x_t_evento_inf_evento_example (k : i32) : x_t_evento_inf_evento =
     }
 
 and let x_t_evento_inf_evento_det_evento_example (k : i32) : x_t_evento_inf_evento_det_evento =
-    {
+    x_t_evento_inf_evento_det_evento {
         desc_evento = x_t_evento_inf_evento_det_evento_desc_evento_example k
         n_prot = x_t_prot_example k
         x_just = x_t_just_example k
@@ -6251,14 +6303,14 @@ and let x_t_evento_inf_evento_choice_cnpj_example (k : i32) : x_t_evento_inf_eve
     TEvento_infEvento_choice_CNPJ_CNPJ (x_t_cnpj_opc_example k)
 
 and let x_t_ret_evento_example (k : i32) : x_t_ret_evento =
-    {
+    x_t_ret_evento {
         inf_evento = x_t_ret_evento_inf_evento_example k
         signature = None
         versao = x_t_ver_evento_example k
     }
 
 and let x_t_ret_evento_inf_evento_example (k : i32) : x_t_ret_evento_inf_evento =
-    {
+    x_t_ret_evento_inf_evento {
         tp_amb = x_t_amb_example k
         ver_aplic = x_t_ver_aplic_example k
         c_orgao = x_tc_orgao_ibge_example k
@@ -6279,14 +6331,14 @@ and let x_t_ret_evento_inf_evento_choice_cnpj_dest_example (k : i32) : x_t_ret_e
     TRetEvento_infEvento_choice_CNPJDest_CNPJDest (x_t_cnpj_opc_example k)
 
 and let x_t_env_evento_example (k : i32) : x_t_env_evento unsigned =
-    {
+    x_t_env_evento {
         id_lote = x_t_env_evento_id_lote_example k
         evento = [ x_t_evento_example (k + 0i32) ]
         versao = x_t_ver_env_evento_example k
     }
 
 and let x_t_ret_env_evento_example (k : i32) : x_t_ret_env_evento =
-    {
+    x_t_ret_env_evento {
         id_lote = x_t_ret_env_evento_id_lote_example k
         tp_amb = x_t_amb_example k
         ver_aplic = x_t_ver_aplic_example k
@@ -6298,20 +6350,20 @@ and let x_t_ret_env_evento_example (k : i32) : x_t_ret_env_evento =
     }
 
 and let x_t_proc_evento_example (k : i32) : x_t_proc_evento unsigned =
-    {
+    x_t_proc_evento {
         evento = x_t_evento_example k
         ret_evento = x_t_ret_evento_example k
         versao = x_t_ver_evento_example k
     }
 
 and let x_trsa_key_value_type_example (k : i32) : x_trsa_key_value_type =
-    {
+    x_trsa_key_value_type {
         modulus = "AAAA"
         exponent = "AAAA"
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =
-    {
+    x_signature_type {
         signed_info = x_signed_info_type_example k
         signature_value = x_signature_value_type_example k
         key_info = x_key_info_type_example k
@@ -6319,13 +6371,13 @@ and let x_signature_type_example (k : i32) : x_signature_type =
     }
 
 and let x_signature_value_type_example (k : i32) : x_signature_value_type =
-    {
+    x_signature_value_type {
         base = "AAAA"
         id = None
     }
 
 and let x_signed_info_type_example (k : i32) : x_signed_info_type =
-    {
+    x_signed_info_type {
         canonicalization_method = x_signed_info_type_canonicalization_method_example k
         signature_method = x_signed_info_type_signature_method_example k
         reference = x_reference_type_example k
@@ -6333,17 +6385,17 @@ and let x_signed_info_type_example (k : i32) : x_signed_info_type =
     }
 
 and let x_signed_info_type_signature_method_example (k : i32) : x_signed_info_type_signature_method =
-    {
+    x_signed_info_type_signature_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
     }
 
 and let x_signed_info_type_canonicalization_method_example (k : i32) : x_signed_info_type_canonicalization_method =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
     }
 
 and let x_reference_type_example (k : i32) : x_reference_type =
-    {
+    x_reference_type {
         transforms = x_transforms_type_example k
         digest_method = x_reference_type_digest_method_example k
         digest_value = x_digest_value_type_example k
@@ -6353,31 +6405,100 @@ and let x_reference_type_example (k : i32) : x_reference_type =
     }
 
 and let x_reference_type_digest_method_example (k : i32) : x_reference_type_digest_method =
-    {
+    x_reference_type_digest_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
     }
 
 and let x_transforms_type_example (k : i32) : x_transforms_type =
-    {
+    x_transforms_type {
         transform = [ x_transform_type_example (k + 0i32); x_transform_type_example (k + 1i32) ]
     }
 
 and let x_transform_type_example (k : i32) : x_transform_type =
-    {
-        x_path = "1"
+    x_transform_type {
+        group_x_path = []
         algorithm = x_t_transform_uri_example k
     }
 
+and let x_transform_type_group_x_path_example (k : i32) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path {
+        x_path = "1"
+    }
+
 and let x_key_info_type_example (k : i32) : x_key_info_type =
-    {
+    x_key_info_type {
         x509_data = x_x509_data_type_example k
         id = None
     }
 
 and let x_x509_data_type_example (k : i32) : x_x509_data_type =
-    {
+    x_x509_data_type {
         x509_certificate = "AAAA"
     }
+
+
+instance of_xml x_t_evento s {stage_of} = fun c => x_t_evento_of_xml (stage_of ()) c
+instance to_xml x_t_evento s = x_t_evento_to_xml
+
+instance of_xml x_t_evento_inf_evento = x_t_evento_inf_evento_of_xml
+instance to_xml x_t_evento_inf_evento = x_t_evento_inf_evento_to_xml
+
+instance of_xml x_t_evento_inf_evento_det_evento = x_t_evento_inf_evento_det_evento_of_xml
+instance to_xml x_t_evento_inf_evento_det_evento = x_t_evento_inf_evento_det_evento_to_xml
+
+instance of_xml x_t_ret_evento = x_t_ret_evento_of_xml
+instance to_xml x_t_ret_evento = x_t_ret_evento_to_xml
+
+instance of_xml x_t_ret_evento_inf_evento = x_t_ret_evento_inf_evento_of_xml
+instance to_xml x_t_ret_evento_inf_evento = x_t_ret_evento_inf_evento_to_xml
+
+instance of_xml x_t_env_evento s {stage_of} = fun c => x_t_env_evento_of_xml (stage_of ()) c
+instance to_xml x_t_env_evento s = x_t_env_evento_to_xml
+
+instance of_xml x_t_ret_env_evento = x_t_ret_env_evento_of_xml
+instance to_xml x_t_ret_env_evento = x_t_ret_env_evento_to_xml
+
+instance of_xml x_t_proc_evento s {stage_of} = fun c => x_t_proc_evento_of_xml (stage_of ()) c
+instance to_xml x_t_proc_evento s = x_t_proc_evento_to_xml
+
+instance of_xml x_trsa_key_value_type = x_trsa_key_value_type_of_xml
+instance to_xml x_trsa_key_value_type = x_trsa_key_value_type_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_value_type = x_signature_value_type_of_xml
+instance to_xml x_signature_value_type = x_signature_value_type_to_xml
+
+instance of_xml x_signed_info_type = x_signed_info_type_of_xml
+instance to_xml x_signed_info_type = x_signed_info_type_to_xml
+
+instance of_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_of_xml
+instance to_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_to_xml
+
+instance of_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_of_xml
+instance to_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_to_xml
+
+instance of_xml x_reference_type = x_reference_type_of_xml
+instance to_xml x_reference_type = x_reference_type_to_xml
+
+instance of_xml x_reference_type_digest_method = x_reference_type_digest_method_of_xml
+instance to_xml x_reference_type_digest_method = x_reference_type_digest_method_to_xml
+
+instance of_xml x_transforms_type = x_transforms_type_of_xml
+instance to_xml x_transforms_type = x_transforms_type_to_xml
+
+instance of_xml x_transform_type = x_transform_type_of_xml
+instance to_xml x_transform_type = x_transform_type_to_xml
+
+instance of_xml x_transform_type_group_x_path = x_transform_type_group_x_path_of_xml
+instance to_xml x_transform_type_group_x_path = x_transform_type_group_x_path_to_xml
+
+instance of_xml x_key_info_type = x_key_info_type_of_xml
+instance to_xml x_key_info_type = x_key_info_type_to_xml
+
+instance of_xml x_x509_data_type = x_x509_data_type_of_xml
+instance to_xml x_x509_data_type = x_x509_data_type_to_xml
 
 
 ///> rust

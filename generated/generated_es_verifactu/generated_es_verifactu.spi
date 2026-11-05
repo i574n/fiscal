@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -2467,29 +2469,34 @@ inl x_version_type_example (k : i32) : x_version_type =
 
 inl x_version_type_example_text (k : i32) : string = x_version_type_to_string (x_version_type_example k)
 
-type x_x509_data_type =
+nominal x_x509_data_type =
     {
         x509_certificate : string
     }
 
-type x_key_info_type =
+nominal x_key_info_type =
     {
         x509_data : x_x509_data_type
         id : option (string)
     }
 
-type x_transform_type =
+nominal x_transform_type_group_x_path =
     {
         x_path : string
+    }
+
+nominal x_transform_type =
+    {
+        group_x_path : list (x_transform_type_group_x_path)
         algorithm : x_t_transform_uri
     }
 
-type x_transforms_type =
+nominal x_transforms_type =
     {
         transform : list (x_transform_type)
     }
 
-type x_reference_type_digest_method =
+nominal x_reference_type_digest_method =
     {
         algorithm : string
     }
@@ -2510,7 +2517,7 @@ inl x_reference_type_uri_example (_ : i32) : x_reference_type_uri = x_reference_
 inl x_reference_type_uri_example_text (k : i32) : string =
     x_reference_type_uri_to_string (x_reference_type_uri_example k)
 
-type x_reference_type =
+nominal x_reference_type =
     {
         transforms : x_transforms_type
         digest_method : x_reference_type_digest_method
@@ -2520,17 +2527,17 @@ type x_reference_type =
         type_value : option (string)
     }
 
-type x_signed_info_type_canonicalization_method =
+nominal x_signed_info_type_canonicalization_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type_signature_method =
+nominal x_signed_info_type_signature_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type =
+nominal x_signed_info_type =
     {
         canonicalization_method : x_signed_info_type_canonicalization_method
         signature_method : x_signed_info_type_signature_method
@@ -2538,13 +2545,13 @@ type x_signed_info_type =
         id : option (string)
     }
 
-type x_signature_value_type =
+nominal x_signature_value_type =
     {
         base : string
         id : option (string)
     }
 
-type x_signature_type =
+nominal x_signature_type =
     {
         signed_info : x_signed_info_type
         signature_value : x_signature_value_type
@@ -2552,7 +2559,7 @@ type x_signature_type =
         id : option (string)
     }
 
-type x_operacion_type =
+nominal x_operacion_type =
     {
         tipo_operacion : x_tipo_operacion_type
         subsanacion : option (x_subsanacion_type)
@@ -2560,19 +2567,19 @@ type x_operacion_type =
         sin_registro_previo : option (x_sin_registro_previo_type)
     }
 
-type x_obligado_generacion_type =
+nominal x_obligado_generacion_type =
     {
         nombre_razon : x_text_max120_type
         nif : x_nif_type
     }
 
-type x_obligado_emision_consulta_type =
+nominal x_obligado_emision_consulta_type =
     {
         nombre_razon : x_text_max120_type
         nif : x_nif_type
     }
 
-type x_registro_duplicado_type =
+nominal x_registro_duplicado_type =
     {
         id_peticion_registro_duplicado : x_text_max20_type
         estado_registro_duplicado : x_estado_registro_sf_type
@@ -2580,13 +2587,13 @@ type x_registro_duplicado_type =
         descripcion_error_registro : option (x_text_max500_type)
     }
 
-type x_rango_fecha_expedicion_type =
+nominal x_rango_fecha_expedicion_type =
     {
         desde : option (x_fecha)
         hasta : option (x_fecha)
     }
 
-type x_id_otro_type =
+nominal x_id_otro_type =
     {
         codigo_pais : option (x_country_type2)
         id_type : x_persona_fisica_juridica_id_type_type
@@ -2597,19 +2604,19 @@ union x_persona_fisica_juridica_type_choice_sf_nif =
     | PersonaFisicaJuridicaType_choice_sf_NIF_sf_NIF : x_nif_type
     | PersonaFisicaJuridicaType_choice_sf_NIF_sf_IDOtro : x_id_otro_type
 
-type x_persona_fisica_juridica_type =
+nominal x_persona_fisica_juridica_type =
     {
         nombre_razon : x_text_max120_type
         choice_nif : x_persona_fisica_juridica_type_choice_sf_nif
     }
 
-type x_persona_fisica_juridica_es_type =
+nominal x_persona_fisica_juridica_es_type =
     {
         nombre_razon : x_text_max120_type
         nif : x_nif_type
     }
 
-type x_desglose_rectificacion_type =
+nominal x_desglose_rectificacion_type =
     {
         base_rectificada : x_importe_sgn12_2_type
         cuota_rectificada : x_importe_sgn12_2_type
@@ -2620,7 +2627,7 @@ union x_detalle_type_choice_sf_calificacion_operacion =
     | DetalleType_choice_sf_CalificacionOperacion_sf_CalificacionOperacion : x_calificacion_operacion_type
     | DetalleType_choice_sf_CalificacionOperacion_sf_OperacionExenta : x_operacion_exenta_type
 
-type x_detalle_type =
+nominal x_detalle_type =
     {
         impuesto : option (x_impuesto_type)
         clave_regimen : option (x_id_operaciones_trascendencia_tributaria_type)
@@ -2633,14 +2640,14 @@ type x_detalle_type =
         cuota_recargo_equivalencia : option (x_importe_sgn12_2_type)
     }
 
-type x_id_factura_ar_type =
+nominal x_id_factura_ar_type =
     {
         id_emisor_factura : x_nif_type
         num_serie_factura : x_texto_id_factura_type
         fecha_expedicion_factura : x_fecha
     }
 
-type x_id_factura_expedida_type =
+nominal x_id_factura_expedida_type =
     {
         id_emisor_factura : x_nif_type
         num_serie_factura : x_texto_id_factura_type
@@ -2651,7 +2658,7 @@ union x_sistema_informatico_consulta_type_choice_sf_nif =
     | SistemaInformaticoConsultaType_choice_sf_NIF_sf_NIF : x_nif_type
     | SistemaInformaticoConsultaType_choice_sf_NIF_sf_IDOtro : x_id_otro_type
 
-type x_sistema_informatico_consulta_type =
+nominal x_sistema_informatico_consulta_type =
     {
         nombre_razon : x_text_max120_type
         choice_nif : x_sistema_informatico_consulta_type_choice_sf_nif
@@ -2668,7 +2675,7 @@ union x_sistema_informatico_type_choice_sf_nif =
     | SistemaInformaticoType_choice_sf_NIF_sf_NIF : x_nif_type
     | SistemaInformaticoType_choice_sf_NIF_sf_IDOtro : x_id_otro_type
 
-type x_sistema_informatico_type =
+nominal x_sistema_informatico_type =
     {
         nombre_razon : x_text_max120_type
         choice_nif : x_sistema_informatico_type_choice_sf_nif
@@ -2681,7 +2688,7 @@ type x_sistema_informatico_type =
         indicador_multiples_ot : x_si_no_type
     }
 
-type x_encadenamiento_factura_anterior_type =
+nominal x_encadenamiento_factura_anterior_type =
     {
         id_emisor_factura : x_nif_type
         num_serie_factura : x_text_max60_type
@@ -2695,22 +2702,22 @@ union x_registro_facturacion_anulacion_type_sf_encadenamiento_choice_sf_primer_r
     | RegistroFacturacionAnulacionType_sf_Encadenamiento_choice_sf_PrimerRegistro_sf_RegistroAnterior :
         x_encadenamiento_factura_anterior_type
 
-type x_registro_facturacion_anulacion_type_sf_encadenamiento =
+nominal x_registro_facturacion_anulacion_type_sf_encadenamiento =
     {
         choice_primer_registro : x_registro_facturacion_anulacion_type_sf_encadenamiento_choice_sf_primer_registro
     }
 
-type x_registro_facturacion_alta_type_sf_facturas_rectificadas =
+nominal x_registro_facturacion_alta_type_sf_facturas_rectificadas =
     {
         id_factura_rectificada : list (x_id_factura_ar_type)
     }
 
-type x_registro_facturacion_alta_type_sf_facturas_sustituidas =
+nominal x_registro_facturacion_alta_type_sf_facturas_sustituidas =
     {
         id_factura_sustituida : list (x_id_factura_ar_type)
     }
 
-type x_registro_facturacion_alta_type_sf_destinatarios =
+nominal x_registro_facturacion_alta_type_sf_destinatarios =
     {
         id_destinatario : list (x_persona_fisica_juridica_type)
     }
@@ -2721,57 +2728,57 @@ union x_registro_facturacion_alta_type_sf_encadenamiento_choice_sf_primer_regist
     | RegistroFacturacionAltaType_sf_Encadenamiento_choice_sf_PrimerRegistro_sf_RegistroAnterior :
         x_encadenamiento_factura_anterior_type
 
-type x_registro_facturacion_alta_type_sf_encadenamiento =
+nominal x_registro_facturacion_alta_type_sf_encadenamiento =
     {
         choice_primer_registro : x_registro_facturacion_alta_type_sf_encadenamiento_choice_sf_primer_registro
     }
 
-type x_id_factura_expedida_baja_type =
+nominal x_id_factura_expedida_baja_type =
     {
         id_emisor_factura_anulada : x_nif_type
         num_serie_factura_anulada : x_texto_id_factura_type
         fecha_expedicion_factura_anulada : x_fecha
     }
 
-type x_id_factura_expedida_bc_type =
+nominal x_id_factura_expedida_bc_type =
     {
         id_emisor_factura : x_nif_type
         num_serie_factura : x_texto_id_factura_type
         fecha_expedicion_factura : x_fecha
     }
 
-type x_periodo_imputacion_type =
+nominal x_periodo_imputacion_type =
     {
         ejercicio : x_year_type
         periodo : x_tipo_periodo_type
     }
 
-type x_datos_presentacion2_type =
+nominal x_datos_presentacion2_type =
     {
         nif_presentador : x_nif_type
         timestamp_presentacion : string
         id_peticion : x_text_max20_type
     }
 
-type x_datos_presentacion_type =
+nominal x_datos_presentacion_type =
     {
         nif_presentador : x_nif_type
         timestamp_presentacion : string
     }
 
-type x_cabecera_type_sf_remision_voluntaria =
+nominal x_cabecera_type_sf_remision_voluntaria =
     {
         fecha_fin_veri_factu : option (x_fecha)
         incidencia : option (x_incidencia_type)
     }
 
-type x_cabecera_type_sf_remision_requerimiento =
+nominal x_cabecera_type_sf_remision_requerimiento =
     {
         ref_requerimiento : x_text_max18_type
         fin_requerimiento : option (x_fin_requerimiento_type)
     }
 
-type x_cabecera_type =
+nominal x_cabecera_type =
     {
         obligado_emision : x_persona_fisica_juridica_es_type
         representante : option (x_persona_fisica_juridica_es_type)
@@ -2783,7 +2790,7 @@ union x_cabecera_consulta_sf_choice_sf_obligado_emision =
     | CabeceraConsultaSf_choice_sf_ObligadoEmision_sf_ObligadoEmision : option (x_obligado_emision_consulta_type)
     | CabeceraConsultaSf_choice_sf_ObligadoEmision_sf_Destinatario : option (x_persona_fisica_juridica_es_type)
 
-type x_cabecera_consulta_sf =
+nominal x_cabecera_consulta_sf =
     {
         id_version : x_version_type
         choice_obligado_emision : x_cabecera_consulta_sf_choice_sf_obligado_emision
@@ -2794,13 +2801,13 @@ union x_contraparte_consulta_type_choice_sf_nif =
     | ContraparteConsultaType_choice_sf_NIF_sf_NIF : x_nif_type
     | ContraparteConsultaType_choice_sf_NIF_sf_IDOtro : x_id_otro_type
 
-type x_contraparte_consulta_type =
+nominal x_contraparte_consulta_type =
     {
         nombre_razon : x_text_max120_type
         choice_nif : x_contraparte_consulta_type_choice_sf_nif
     }
 
-type x_desglose_type =
+nominal x_desglose_type =
     {
         detalle_desglose : list (x_detalle_type)
     }
@@ -2810,12 +2817,12 @@ union x_fecha_expedicion_consulta_type_choice_sf_fecha_expedicion_factura =
     | FechaExpedicionConsultaType_choice_sf_FechaExpedicionFactura_sf_RangoFechaExpedicion :
         option (x_rango_fecha_expedicion_type)
 
-type x_fecha_expedicion_consulta_type =
+nominal x_fecha_expedicion_consulta_type =
     {
         choice_fecha_expedicion_factura : x_fecha_expedicion_consulta_type_choice_sf_fecha_expedicion_factura
     }
 
-type x_registro_facturacion_anulacion_type =
+nominal x_registro_facturacion_anulacion_type =
     {
         id_version : x_version_type
         id_factura : x_id_factura_expedida_baja_type
@@ -2832,7 +2839,7 @@ type x_registro_facturacion_anulacion_type =
         signature : option (x_signature_type)
     }
 
-type x_registro_facturacion_alta_type =
+nominal x_registro_facturacion_alta_type =
     {
         id_version : x_version_type
         id_factura : x_id_factura_expedida_type
@@ -2871,12 +2878,12 @@ union x_registro_factura_type_choice_sf_registro_alta =
     | RegistroFacturaType_choice_sf_RegistroAlta_sf_RegistroAlta : x_registro_facturacion_alta_type
     | RegistroFacturaType_choice_sf_RegistroAlta_sf_RegistroAnulacion : x_registro_facturacion_anulacion_type
 
-type x_registro_factura_type =
+nominal x_registro_factura_type =
     {
         choice_registro_alta : x_registro_factura_type_choice_sf_registro_alta
     }
 
-type x_reg_factu_sistema_facturacion =
+nominal x_reg_factu_sistema_facturacion =
     {
         cabecera : x_cabecera_type
         registro_factura : list (x_registro_factura_type)
@@ -3555,11 +3562,21 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     | TransformsType_field_Transform => x.transform
 
 union x_transform_type_field r =
-    | TransformType_field_XPath :: x_transform_type_field (string)
+    | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
-    | TransformType_field_XPath => x.x_path
+    | TransformType_field_group_x_path => x.group_x_path
+
+union x_transform_type_group_x_path_field r =
+    | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
+
+inl x_transform_type_group_x_path_get forall r.
+    (f : x_transform_type_group_x_path_field r) (x : x_transform_type_group_x_path)
+    : r
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => x.x_path
 
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
@@ -3579,7 +3596,7 @@ let rec x_reg_factu_sistema_facturacion_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reg_factu_sistema_facturacion
     =
-    {
+    x_reg_factu_sistema_facturacion {
         cabecera = (fun c => x_cabecera_type_of_xml c) (xml.required_child "Cabecera" children)
         registro_factura =
             listm.map (fun c => x_registro_factura_type_of_xml c) (xml.children_named "RegistroFactura" children)
@@ -3592,7 +3609,7 @@ and let x_registro_factura_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_factura_type
     =
-    {
+    x_registro_factura_type {
         choice_registro_alta = x_registro_factura_type_choice_sf_registro_alta_of_children attributes children
     }
 
@@ -3618,7 +3635,7 @@ and let x_cabecera_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_cabecera_type
     =
-    {
+    x_cabecera_type {
         obligado_emision =
             (fun c => x_persona_fisica_juridica_es_type_of_xml c) (xml.required_child "sf:ObligadoEmision" children)
         representante =
@@ -3642,7 +3659,7 @@ and let x_cabecera_type_sf_remision_requerimiento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_cabecera_type_sf_remision_requerimiento
     =
-    {
+    x_cabecera_type_sf_remision_requerimiento {
         ref_requerimiento =
             (fun c => xml.required_value "x_text_max18_type" (x_text_max18_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:RefRequerimiento" children)
         fin_requerimiento =
@@ -3660,7 +3677,7 @@ and let x_cabecera_type_sf_remision_voluntaria_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_cabecera_type_sf_remision_voluntaria
     =
-    {
+    x_cabecera_type_sf_remision_voluntaria {
         fecha_fin_veri_factu =
             optionm.map
                 fun c => xml.required_value "x_fecha" (x_fecha_of_string (xml.text_in (xml.element_children c)))
@@ -3680,7 +3697,7 @@ and let x_datos_presentacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_datos_presentacion_type
     =
-    {
+    x_datos_presentacion_type {
         nif_presentador =
             (fun c => xml.required_value "x_nif_type" (x_nif_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NIFPresentador" children)
         timestamp_presentacion =
@@ -3694,7 +3711,7 @@ and let x_datos_presentacion2_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_datos_presentacion2_type
     =
-    {
+    x_datos_presentacion2_type {
         nif_presentador =
             (fun c => xml.required_value "x_nif_type" (x_nif_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NIFPresentador" children)
         timestamp_presentacion =
@@ -3710,7 +3727,7 @@ and let x_periodo_imputacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_periodo_imputacion_type
     =
-    {
+    x_periodo_imputacion_type {
         ejercicio =
             (fun c => xml.required_value "x_year_type" (x_year_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:Ejercicio" children)
         periodo =
@@ -3724,7 +3741,7 @@ and let x_id_factura_expedida_bc_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_id_factura_expedida_bc_type
     =
-    {
+    x_id_factura_expedida_bc_type {
         id_emisor_factura =
             (fun c => xml.required_value "x_nif_type" (x_nif_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDEmisorFactura" children)
         num_serie_factura =
@@ -3740,7 +3757,7 @@ and let x_id_factura_expedida_baja_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_id_factura_expedida_baja_type
     =
-    {
+    x_id_factura_expedida_baja_type {
         id_emisor_factura_anulada =
             (fun c => xml.required_value "x_nif_type" (x_nif_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDEmisorFacturaAnulada" children)
         num_serie_factura_anulada =
@@ -3756,7 +3773,7 @@ and let x_registro_facturacion_alta_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_facturacion_alta_type
     =
-    {
+    x_registro_facturacion_alta_type {
         id_version =
             (fun c => xml.required_value "x_version_type" (x_version_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDVersion" children)
         id_factura = (fun c => x_id_factura_expedida_type_of_xml c) (xml.required_child "sf:IDFactura" children)
@@ -3877,7 +3894,7 @@ and let x_registro_facturacion_alta_type_sf_encadenamiento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_facturacion_alta_type_sf_encadenamiento
     =
-    {
+    x_registro_facturacion_alta_type_sf_encadenamiento {
         choice_primer_registro =
             x_registro_facturacion_alta_type_sf_encadenamiento_choice_sf_primer_registro_of_children attributes children
     }
@@ -3907,7 +3924,7 @@ and let x_registro_facturacion_alta_type_sf_destinatarios_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_facturacion_alta_type_sf_destinatarios
     =
-    {
+    x_registro_facturacion_alta_type_sf_destinatarios {
         id_destinatario =
             listm.map
                 fun c => x_persona_fisica_juridica_type_of_xml c
@@ -3924,7 +3941,7 @@ and let x_registro_facturacion_alta_type_sf_facturas_sustituidas_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_facturacion_alta_type_sf_facturas_sustituidas
     =
-    {
+    x_registro_facturacion_alta_type_sf_facturas_sustituidas {
         id_factura_sustituida =
             listm.map (fun c => x_id_factura_ar_type_of_xml c) (xml.children_named "sf:IDFacturaSustituida" children)
     }
@@ -3941,7 +3958,7 @@ and let x_registro_facturacion_alta_type_sf_facturas_rectificadas_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_facturacion_alta_type_sf_facturas_rectificadas
     =
-    {
+    x_registro_facturacion_alta_type_sf_facturas_rectificadas {
         id_factura_rectificada =
             listm.map (fun c => x_id_factura_ar_type_of_xml c) (xml.children_named "sf:IDFacturaRectificada" children)
     }
@@ -3958,7 +3975,7 @@ and let x_registro_facturacion_anulacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_facturacion_anulacion_type
     =
-    {
+    x_registro_facturacion_anulacion_type {
         id_version =
             (fun c => xml.required_value "x_version_type" (x_version_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDVersion" children)
         id_factura = (fun c => x_id_factura_expedida_baja_type_of_xml c) (xml.required_child "sf:IDFactura" children)
@@ -4008,7 +4025,7 @@ and let x_registro_facturacion_anulacion_type_sf_encadenamiento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_facturacion_anulacion_type_sf_encadenamiento
     =
-    {
+    x_registro_facturacion_anulacion_type_sf_encadenamiento {
         choice_primer_registro =
             x_registro_facturacion_anulacion_type_sf_encadenamiento_choice_sf_primer_registro_of_children
                 attributes
@@ -4044,7 +4061,7 @@ and let x_encadenamiento_factura_anterior_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_encadenamiento_factura_anterior_type
     =
-    {
+    x_encadenamiento_factura_anterior_type {
         id_emisor_factura =
             (fun c => xml.required_value "x_nif_type" (x_nif_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDEmisorFactura" children)
         num_serie_factura =
@@ -4062,7 +4079,7 @@ and let x_sistema_informatico_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_sistema_informatico_type
     =
-    {
+    x_sistema_informatico_type {
         nombre_razon =
             (fun c => xml.required_value "x_text_max120_type" (x_text_max120_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NombreRazon" children)
         choice_nif = x_sistema_informatico_type_choice_sf_nif_of_children attributes children
@@ -4104,7 +4121,7 @@ and let x_sistema_informatico_consulta_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_sistema_informatico_consulta_type
     =
-    {
+    x_sistema_informatico_consulta_type {
         nombre_razon =
             (fun c => xml.required_value "x_text_max120_type" (x_text_max120_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NombreRazon" children)
         choice_nif = x_sistema_informatico_consulta_type_choice_sf_nif_of_children attributes children
@@ -4163,7 +4180,7 @@ and let x_id_factura_expedida_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_id_factura_expedida_type
     =
-    {
+    x_id_factura_expedida_type {
         id_emisor_factura =
             (fun c => xml.required_value "x_nif_type" (x_nif_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDEmisorFactura" children)
         num_serie_factura =
@@ -4179,7 +4196,7 @@ and let x_id_factura_ar_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_id_factura_ar_type
     =
-    {
+    x_id_factura_ar_type {
         id_emisor_factura =
             (fun c => xml.required_value "x_nif_type" (x_nif_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDEmisorFactura" children)
         num_serie_factura =
@@ -4195,7 +4212,7 @@ and let x_detalle_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_detalle_type
     =
-    {
+    x_detalle_type {
         impuesto =
             optionm.map
                 fun c =>
@@ -4268,7 +4285,7 @@ and let x_desglose_rectificacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_desglose_rectificacion_type
     =
-    {
+    x_desglose_rectificacion_type {
         base_rectificada =
             (fun c => xml.required_value "x_importe_sgn12_2_type" (x_importe_sgn12_2_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:BaseRectificada" children)
         cuota_rectificada =
@@ -4288,7 +4305,7 @@ and let x_persona_fisica_juridica_es_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_persona_fisica_juridica_es_type
     =
-    {
+    x_persona_fisica_juridica_es_type {
         nombre_razon =
             (fun c => xml.required_value "x_text_max120_type" (x_text_max120_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NombreRazon" children)
         nif =
@@ -4302,7 +4319,7 @@ and let x_persona_fisica_juridica_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_persona_fisica_juridica_type
     =
-    {
+    x_persona_fisica_juridica_type {
         nombre_razon =
             (fun c => xml.required_value "x_text_max120_type" (x_text_max120_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NombreRazon" children)
         choice_nif = x_persona_fisica_juridica_type_choice_sf_nif_of_children attributes children
@@ -4330,7 +4347,7 @@ and let x_id_otro_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_id_otro_type
     =
-    {
+    x_id_otro_type {
         codigo_pais =
             optionm.map
                 fun c =>
@@ -4351,7 +4368,7 @@ and let x_rango_fecha_expedicion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_rango_fecha_expedicion_type
     =
-    {
+    x_rango_fecha_expedicion_type {
         desde =
             optionm.map
                 fun c => xml.required_value "x_fecha" (x_fecha_of_string (xml.text_in (xml.element_children c)))
@@ -4369,7 +4386,7 @@ and let x_fecha_expedicion_consulta_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_fecha_expedicion_consulta_type
     =
-    {
+    x_fecha_expedicion_consulta_type {
         choice_fecha_expedicion_factura =
             x_fecha_expedicion_consulta_type_choice_sf_fecha_expedicion_factura_of_children attributes children
     }
@@ -4405,7 +4422,7 @@ and let x_registro_duplicado_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_registro_duplicado_type
     =
-    {
+    x_registro_duplicado_type {
         id_peticion_registro_duplicado =
             (fun c => xml.required_value "x_text_max20_type" (x_text_max20_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IdPeticionRegistroDuplicado" children)
         estado_registro_duplicado =
@@ -4429,7 +4446,7 @@ and let x_desglose_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_desglose_type
     =
-    {
+    x_desglose_type {
         detalle_desglose =
             listm.map (fun c => x_detalle_type_of_xml c) (xml.children_named "sf:DetalleDesglose" children)
     }
@@ -4441,7 +4458,7 @@ and let x_contraparte_consulta_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_contraparte_consulta_type
     =
-    {
+    x_contraparte_consulta_type {
         nombre_razon =
             (fun c => xml.required_value "x_text_max120_type" (x_text_max120_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NombreRazon" children)
         choice_nif = x_contraparte_consulta_type_choice_sf_nif_of_children attributes children
@@ -4469,7 +4486,7 @@ and let x_cabecera_consulta_sf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_cabecera_consulta_sf
     =
-    {
+    x_cabecera_consulta_sf {
         id_version =
             (fun c => xml.required_value "x_version_type" (x_version_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:IDVersion" children)
         choice_obligado_emision = x_cabecera_consulta_sf_choice_sf_obligado_emision_of_children attributes children
@@ -4512,7 +4529,7 @@ and let x_obligado_emision_consulta_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_obligado_emision_consulta_type
     =
-    {
+    x_obligado_emision_consulta_type {
         nombre_razon =
             (fun c => xml.required_value "x_text_max120_type" (x_text_max120_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NombreRazon" children)
         nif =
@@ -4526,7 +4543,7 @@ and let x_obligado_generacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_obligado_generacion_type
     =
-    {
+    x_obligado_generacion_type {
         nombre_razon =
             (fun c => xml.required_value "x_text_max120_type" (x_text_max120_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:NombreRazon" children)
         nif =
@@ -4540,7 +4557,7 @@ and let x_operacion_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_operacion_type
     =
-    {
+    x_operacion_type {
         tipo_operacion =
             (fun c => xml.required_value "x_tipo_operacion_type" (x_tipo_operacion_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "sf:TipoOperacion" children)
         subsanacion =
@@ -4570,7 +4587,7 @@ and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type
     =
-    {
+    x_signature_type {
         signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
         signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
         key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
@@ -4584,7 +4601,7 @@ and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_value_type
     =
-    {
+    x_signature_value_type {
         base = xml.text_in children
         id = xml.attribute_of "Id" attributes
     }
@@ -4596,7 +4613,7 @@ and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type
     =
-    {
+    x_signed_info_type {
         canonicalization_method =
             (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
         signature_method =
@@ -4612,7 +4629,7 @@ and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_signature_method
     =
-    {
+    x_signed_info_type_signature_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -4626,7 +4643,7 @@ and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_canonicalization_method
     =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -4640,7 +4657,7 @@ and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type
     =
-    {
+    x_reference_type {
         transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
         digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
         digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
@@ -4659,7 +4676,7 @@ and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type_digest_method
     =
-    {
+    x_reference_type_digest_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -4673,7 +4690,7 @@ and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transforms_type
     =
-    {
+    x_transforms_type {
         transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
     }
 
@@ -4684,8 +4701,11 @@ and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transform_type
     =
-    {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    x_transform_type {
+        group_x_path =
+            listm.map
+                fun run => x_transform_type_group_x_path_of_children [] run
+                (xml.group_runs [ "XPath" ] children)
         algorithm =
             xml.required_value
                 "x_t_transform_uri"
@@ -4695,11 +4715,22 @@ and let x_transform_type_of_children
 and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
+and let x_transform_type_group_x_path_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transform_type_group_x_path
+    =
+    x_transform_type_group_x_path {
+        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    }
+
+and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
+
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_key_info_type
     =
-    {
+    x_key_info_type {
         x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
         id = xml.attribute_of "Id" attributes
     }
@@ -4711,7 +4742,7 @@ and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_x509_data_type
     =
-    {
+    x_x509_data_type {
         x509_certificate =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
     }
@@ -5990,20 +6021,37 @@ and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.x
 and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
     inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | TransformType_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+        | TransformType_field_group_x_path => listm.concat (listm.map x_transform_type_group_x_path_children v)
     inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
             inl exists r. f = packed
             listm.append (nodes f (x_transform_type_get f x)) (walk rest)
         | [] => []
-    walk [ exists TransformType_field_XPath ]
+    walk [ exists TransformType_field_group_x_path ]
 
 and let x_transform_type_attributes (x : x_transform_type) : list (string * string) =
     [ ("Algorithm", to_text x.algorithm) ]
 
 and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
     xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_transform_type_group_x_path_children (x : x_transform_type_group_x_path) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_group_x_path_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_group_XPath_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_transform_type_group_x_path_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_group_x_path_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_group_XPath_field_XPath ]
+
+and let x_transform_type_group_x_path_attributes (x : x_transform_type_group_x_path) : list (string * string) = []
+
+and let x_transform_type_group_x_path_to_xml (name : string) (x : x_transform_type_group_x_path) : xml.xml_node =
+    xml.element name (x_transform_type_group_x_path_attributes x) (x_transform_type_group_x_path_children x)
 
 and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
     inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
@@ -6041,13 +6089,13 @@ and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml
     xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
 
 and let x_reg_factu_sistema_facturacion_example (k : i32) : x_reg_factu_sistema_facturacion =
-    {
+    x_reg_factu_sistema_facturacion {
         cabecera = x_cabecera_type_example k
         registro_factura = [ x_registro_factura_type_example (k + 0i32) ]
     }
 
 and let x_registro_factura_type_example (k : i32) : x_registro_factura_type =
-    {
+    x_registro_factura_type {
         choice_registro_alta = x_registro_factura_type_choice_sf_registro_alta_example k
     }
 
@@ -6058,7 +6106,7 @@ and let x_registro_factura_type_choice_sf_registro_alta_example
     RegistroFacturaType_choice_sf_RegistroAlta_sf_RegistroAlta (x_registro_facturacion_alta_type_example k)
 
 and let x_cabecera_type_example (k : i32) : x_cabecera_type =
-    {
+    x_cabecera_type {
         obligado_emision = x_persona_fisica_juridica_es_type_example k
         representante = None
         remision_voluntaria = None
@@ -6066,52 +6114,52 @@ and let x_cabecera_type_example (k : i32) : x_cabecera_type =
     }
 
 and let x_cabecera_type_sf_remision_requerimiento_example (k : i32) : x_cabecera_type_sf_remision_requerimiento =
-    {
+    x_cabecera_type_sf_remision_requerimiento {
         ref_requerimiento = x_text_max18_type_example k
         fin_requerimiento = None
     }
 
 and let x_cabecera_type_sf_remision_voluntaria_example (k : i32) : x_cabecera_type_sf_remision_voluntaria =
-    {
+    x_cabecera_type_sf_remision_voluntaria {
         fecha_fin_veri_factu = None
         incidencia = None
     }
 
 and let x_datos_presentacion_type_example (k : i32) : x_datos_presentacion_type =
-    {
+    x_datos_presentacion_type {
         nif_presentador = x_nif_type_example k
         timestamp_presentacion = "2026-01-01T00:00:00"
     }
 
 and let x_datos_presentacion2_type_example (k : i32) : x_datos_presentacion2_type =
-    {
+    x_datos_presentacion2_type {
         nif_presentador = x_nif_type_example k
         timestamp_presentacion = "2026-01-01T00:00:00"
         id_peticion = x_text_max20_type_example k
     }
 
 and let x_periodo_imputacion_type_example (k : i32) : x_periodo_imputacion_type =
-    {
+    x_periodo_imputacion_type {
         ejercicio = x_year_type_example k
         periodo = x_tipo_periodo_type_example k
     }
 
 and let x_id_factura_expedida_bc_type_example (k : i32) : x_id_factura_expedida_bc_type =
-    {
+    x_id_factura_expedida_bc_type {
         id_emisor_factura = x_nif_type_example k
         num_serie_factura = x_texto_id_factura_type_example k
         fecha_expedicion_factura = x_fecha_example k
     }
 
 and let x_id_factura_expedida_baja_type_example (k : i32) : x_id_factura_expedida_baja_type =
-    {
+    x_id_factura_expedida_baja_type {
         id_emisor_factura_anulada = x_nif_type_example k
         num_serie_factura_anulada = x_texto_id_factura_type_example k
         fecha_expedicion_factura_anulada = x_fecha_example k
     }
 
 and let x_registro_facturacion_alta_type_example (k : i32) : x_registro_facturacion_alta_type =
-    {
+    x_registro_facturacion_alta_type {
         id_version = x_version_type_example k
         id_factura = x_id_factura_expedida_type_example k
         ref_externa = None
@@ -6149,7 +6197,7 @@ and let x_registro_facturacion_alta_type_sf_encadenamiento_example
     (k : i32)
     : x_registro_facturacion_alta_type_sf_encadenamiento
     =
-    {
+    x_registro_facturacion_alta_type_sf_encadenamiento {
         choice_primer_registro = x_registro_facturacion_alta_type_sf_encadenamiento_choice_sf_primer_registro_example k
     }
 
@@ -6165,7 +6213,7 @@ and let x_registro_facturacion_alta_type_sf_destinatarios_example
     (k : i32)
     : x_registro_facturacion_alta_type_sf_destinatarios
     =
-    {
+    x_registro_facturacion_alta_type_sf_destinatarios {
         id_destinatario = [ x_persona_fisica_juridica_type_example (k + 0i32) ]
     }
 
@@ -6173,7 +6221,7 @@ and let x_registro_facturacion_alta_type_sf_facturas_sustituidas_example
     (k : i32)
     : x_registro_facturacion_alta_type_sf_facturas_sustituidas
     =
-    {
+    x_registro_facturacion_alta_type_sf_facturas_sustituidas {
         id_factura_sustituida = [ x_id_factura_ar_type_example (k + 0i32) ]
     }
 
@@ -6181,12 +6229,12 @@ and let x_registro_facturacion_alta_type_sf_facturas_rectificadas_example
     (k : i32)
     : x_registro_facturacion_alta_type_sf_facturas_rectificadas
     =
-    {
+    x_registro_facturacion_alta_type_sf_facturas_rectificadas {
         id_factura_rectificada = [ x_id_factura_ar_type_example (k + 0i32) ]
     }
 
 and let x_registro_facturacion_anulacion_type_example (k : i32) : x_registro_facturacion_anulacion_type =
-    {
+    x_registro_facturacion_anulacion_type {
         id_version = x_version_type_example k
         id_factura = x_id_factura_expedida_baja_type_example k
         ref_externa = None
@@ -6206,7 +6254,7 @@ and let x_registro_facturacion_anulacion_type_sf_encadenamiento_example
     (k : i32)
     : x_registro_facturacion_anulacion_type_sf_encadenamiento
     =
-    {
+    x_registro_facturacion_anulacion_type_sf_encadenamiento {
         choice_primer_registro =
             x_registro_facturacion_anulacion_type_sf_encadenamiento_choice_sf_primer_registro_example k
     }
@@ -6220,7 +6268,7 @@ and let x_registro_facturacion_anulacion_type_sf_encadenamiento_choice_sf_primer
     )
 
 and let x_encadenamiento_factura_anterior_type_example (k : i32) : x_encadenamiento_factura_anterior_type =
-    {
+    x_encadenamiento_factura_anterior_type {
         id_emisor_factura = x_nif_type_example k
         num_serie_factura = x_text_max60_type_example k
         fecha_expedicion_factura = x_fecha_example k
@@ -6228,7 +6276,7 @@ and let x_encadenamiento_factura_anterior_type_example (k : i32) : x_encadenamie
     }
 
 and let x_sistema_informatico_type_example (k : i32) : x_sistema_informatico_type =
-    {
+    x_sistema_informatico_type {
         nombre_razon = x_text_max120_type_example k
         choice_nif = x_sistema_informatico_type_choice_sf_nif_example k
         nombre_sistema_informatico = x_text_max30_type_example k
@@ -6244,7 +6292,7 @@ and let x_sistema_informatico_type_choice_sf_nif_example (k : i32) : x_sistema_i
     SistemaInformaticoType_choice_sf_NIF_sf_NIF (x_nif_type_example k)
 
 and let x_sistema_informatico_consulta_type_example (k : i32) : x_sistema_informatico_consulta_type =
-    {
+    x_sistema_informatico_consulta_type {
         nombre_razon = x_text_max120_type_example k
         choice_nif = x_sistema_informatico_consulta_type_choice_sf_nif_example k
         nombre_sistema_informatico = None
@@ -6263,21 +6311,21 @@ and let x_sistema_informatico_consulta_type_choice_sf_nif_example
     SistemaInformaticoConsultaType_choice_sf_NIF_sf_NIF (x_nif_type_example k)
 
 and let x_id_factura_expedida_type_example (k : i32) : x_id_factura_expedida_type =
-    {
+    x_id_factura_expedida_type {
         id_emisor_factura = x_nif_type_example k
         num_serie_factura = x_texto_id_factura_type_example k
         fecha_expedicion_factura = x_fecha_example k
     }
 
 and let x_id_factura_ar_type_example (k : i32) : x_id_factura_ar_type =
-    {
+    x_id_factura_ar_type {
         id_emisor_factura = x_nif_type_example k
         num_serie_factura = x_texto_id_factura_type_example k
         fecha_expedicion_factura = x_fecha_example k
     }
 
 and let x_detalle_type_example (k : i32) : x_detalle_type =
-    {
+    x_detalle_type {
         impuesto = None
         clave_regimen = None
         choice_calificacion_operacion = x_detalle_type_choice_sf_calificacion_operacion_example k
@@ -6296,20 +6344,20 @@ and let x_detalle_type_choice_sf_calificacion_operacion_example
     DetalleType_choice_sf_CalificacionOperacion_sf_CalificacionOperacion (x_calificacion_operacion_type_example k)
 
 and let x_desglose_rectificacion_type_example (k : i32) : x_desglose_rectificacion_type =
-    {
+    x_desglose_rectificacion_type {
         base_rectificada = x_importe_sgn12_2_type_example k
         cuota_rectificada = x_importe_sgn12_2_type_example k
         cuota_recargo_rectificado = None
     }
 
 and let x_persona_fisica_juridica_es_type_example (k : i32) : x_persona_fisica_juridica_es_type =
-    {
+    x_persona_fisica_juridica_es_type {
         nombre_razon = x_text_max120_type_example k
         nif = x_nif_type_example k
     }
 
 and let x_persona_fisica_juridica_type_example (k : i32) : x_persona_fisica_juridica_type =
-    {
+    x_persona_fisica_juridica_type {
         nombre_razon = x_text_max120_type_example k
         choice_nif = x_persona_fisica_juridica_type_choice_sf_nif_example k
     }
@@ -6318,20 +6366,20 @@ and let x_persona_fisica_juridica_type_choice_sf_nif_example (k : i32) : x_perso
     PersonaFisicaJuridicaType_choice_sf_NIF_sf_NIF (x_nif_type_example k)
 
 and let x_id_otro_type_example (k : i32) : x_id_otro_type =
-    {
+    x_id_otro_type {
         codigo_pais = None
         id_type = x_persona_fisica_juridica_id_type_type_example k
         id = x_text_max20_type_example k
     }
 
 and let x_rango_fecha_expedicion_type_example (k : i32) : x_rango_fecha_expedicion_type =
-    {
+    x_rango_fecha_expedicion_type {
         desde = None
         hasta = None
     }
 
 and let x_fecha_expedicion_consulta_type_example (k : i32) : x_fecha_expedicion_consulta_type =
-    {
+    x_fecha_expedicion_consulta_type {
         choice_fecha_expedicion_factura = x_fecha_expedicion_consulta_type_choice_sf_fecha_expedicion_factura_example k
     }
 
@@ -6342,7 +6390,7 @@ and let x_fecha_expedicion_consulta_type_choice_sf_fecha_expedicion_factura_exam
     FechaExpedicionConsultaType_choice_sf_FechaExpedicionFactura_sf_FechaExpedicionFactura (None)
 
 and let x_registro_duplicado_type_example (k : i32) : x_registro_duplicado_type =
-    {
+    x_registro_duplicado_type {
         id_peticion_registro_duplicado = x_text_max20_type_example k
         estado_registro_duplicado = x_estado_registro_sf_type_example k
         codigo_error_registro = None
@@ -6350,12 +6398,12 @@ and let x_registro_duplicado_type_example (k : i32) : x_registro_duplicado_type 
     }
 
 and let x_desglose_type_example (k : i32) : x_desglose_type =
-    {
+    x_desglose_type {
         detalle_desglose = [ x_detalle_type_example (k + 0i32) ]
     }
 
 and let x_contraparte_consulta_type_example (k : i32) : x_contraparte_consulta_type =
-    {
+    x_contraparte_consulta_type {
         nombre_razon = x_text_max120_type_example k
         choice_nif = x_contraparte_consulta_type_choice_sf_nif_example k
     }
@@ -6364,7 +6412,7 @@ and let x_contraparte_consulta_type_choice_sf_nif_example (k : i32) : x_contrapa
     ContraparteConsultaType_choice_sf_NIF_sf_NIF (x_nif_type_example k)
 
 and let x_cabecera_consulta_sf_example (k : i32) : x_cabecera_consulta_sf =
-    {
+    x_cabecera_consulta_sf {
         id_version = x_version_type_example k
         choice_obligado_emision = x_cabecera_consulta_sf_choice_sf_obligado_emision_example k
         indicador_representante = None
@@ -6377,19 +6425,19 @@ and let x_cabecera_consulta_sf_choice_sf_obligado_emision_example
     CabeceraConsultaSf_choice_sf_ObligadoEmision_sf_ObligadoEmision (None)
 
 and let x_obligado_emision_consulta_type_example (k : i32) : x_obligado_emision_consulta_type =
-    {
+    x_obligado_emision_consulta_type {
         nombre_razon = x_text_max120_type_example k
         nif = x_nif_type_example k
     }
 
 and let x_obligado_generacion_type_example (k : i32) : x_obligado_generacion_type =
-    {
+    x_obligado_generacion_type {
         nombre_razon = x_text_max120_type_example k
         nif = x_nif_type_example k
     }
 
 and let x_operacion_type_example (k : i32) : x_operacion_type =
-    {
+    x_operacion_type {
         tipo_operacion = x_tipo_operacion_type_example k
         subsanacion = None
         rechazo_previo = None
@@ -6397,7 +6445,7 @@ and let x_operacion_type_example (k : i32) : x_operacion_type =
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =
-    {
+    x_signature_type {
         signed_info = x_signed_info_type_example k
         signature_value = x_signature_value_type_example k
         key_info = x_key_info_type_example k
@@ -6405,13 +6453,13 @@ and let x_signature_type_example (k : i32) : x_signature_type =
     }
 
 and let x_signature_value_type_example (k : i32) : x_signature_value_type =
-    {
+    x_signature_value_type {
         base = "AAAA"
         id = None
     }
 
 and let x_signed_info_type_example (k : i32) : x_signed_info_type =
-    {
+    x_signed_info_type {
         canonicalization_method = x_signed_info_type_canonicalization_method_example k
         signature_method = x_signed_info_type_signature_method_example k
         reference = x_reference_type_example k
@@ -6419,17 +6467,17 @@ and let x_signed_info_type_example (k : i32) : x_signed_info_type =
     }
 
 and let x_signed_info_type_signature_method_example (k : i32) : x_signed_info_type_signature_method =
-    {
+    x_signed_info_type_signature_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
     }
 
 and let x_signed_info_type_canonicalization_method_example (k : i32) : x_signed_info_type_canonicalization_method =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
     }
 
 and let x_reference_type_example (k : i32) : x_reference_type =
-    {
+    x_reference_type {
         transforms = x_transforms_type_example k
         digest_method = x_reference_type_digest_method_example k
         digest_value = x_digest_value_type_example k
@@ -6439,31 +6487,191 @@ and let x_reference_type_example (k : i32) : x_reference_type =
     }
 
 and let x_reference_type_digest_method_example (k : i32) : x_reference_type_digest_method =
-    {
+    x_reference_type_digest_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
     }
 
 and let x_transforms_type_example (k : i32) : x_transforms_type =
-    {
+    x_transforms_type {
         transform = [ x_transform_type_example (k + 0i32); x_transform_type_example (k + 1i32) ]
     }
 
 and let x_transform_type_example (k : i32) : x_transform_type =
-    {
-        x_path = "1"
+    x_transform_type {
+        group_x_path = []
         algorithm = x_t_transform_uri_example k
     }
 
+and let x_transform_type_group_x_path_example (k : i32) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path {
+        x_path = "1"
+    }
+
 and let x_key_info_type_example (k : i32) : x_key_info_type =
-    {
+    x_key_info_type {
         x509_data = x_x509_data_type_example k
         id = None
     }
 
 and let x_x509_data_type_example (k : i32) : x_x509_data_type =
-    {
+    x_x509_data_type {
         x509_certificate = "AAAA"
     }
+
+
+instance of_xml x_reg_factu_sistema_facturacion = x_reg_factu_sistema_facturacion_of_xml
+instance to_xml x_reg_factu_sistema_facturacion = x_reg_factu_sistema_facturacion_to_xml
+
+instance of_xml x_registro_factura_type = x_registro_factura_type_of_xml
+instance to_xml x_registro_factura_type = x_registro_factura_type_to_xml
+
+instance of_xml x_cabecera_type = x_cabecera_type_of_xml
+instance to_xml x_cabecera_type = x_cabecera_type_to_xml
+
+instance of_xml x_cabecera_type_sf_remision_requerimiento = x_cabecera_type_sf_remision_requerimiento_of_xml
+instance to_xml x_cabecera_type_sf_remision_requerimiento = x_cabecera_type_sf_remision_requerimiento_to_xml
+
+instance of_xml x_cabecera_type_sf_remision_voluntaria = x_cabecera_type_sf_remision_voluntaria_of_xml
+instance to_xml x_cabecera_type_sf_remision_voluntaria = x_cabecera_type_sf_remision_voluntaria_to_xml
+
+instance of_xml x_datos_presentacion_type = x_datos_presentacion_type_of_xml
+instance to_xml x_datos_presentacion_type = x_datos_presentacion_type_to_xml
+
+instance of_xml x_datos_presentacion2_type = x_datos_presentacion2_type_of_xml
+instance to_xml x_datos_presentacion2_type = x_datos_presentacion2_type_to_xml
+
+instance of_xml x_periodo_imputacion_type = x_periodo_imputacion_type_of_xml
+instance to_xml x_periodo_imputacion_type = x_periodo_imputacion_type_to_xml
+
+instance of_xml x_id_factura_expedida_bc_type = x_id_factura_expedida_bc_type_of_xml
+instance to_xml x_id_factura_expedida_bc_type = x_id_factura_expedida_bc_type_to_xml
+
+instance of_xml x_id_factura_expedida_baja_type = x_id_factura_expedida_baja_type_of_xml
+instance to_xml x_id_factura_expedida_baja_type = x_id_factura_expedida_baja_type_to_xml
+
+instance of_xml x_registro_facturacion_alta_type = x_registro_facturacion_alta_type_of_xml
+instance to_xml x_registro_facturacion_alta_type = x_registro_facturacion_alta_type_to_xml
+
+instance of_xml x_registro_facturacion_alta_type_sf_encadenamiento =
+    x_registro_facturacion_alta_type_sf_encadenamiento_of_xml
+instance to_xml x_registro_facturacion_alta_type_sf_encadenamiento =
+    x_registro_facturacion_alta_type_sf_encadenamiento_to_xml
+
+instance of_xml x_registro_facturacion_alta_type_sf_destinatarios =
+    x_registro_facturacion_alta_type_sf_destinatarios_of_xml
+instance to_xml x_registro_facturacion_alta_type_sf_destinatarios =
+    x_registro_facturacion_alta_type_sf_destinatarios_to_xml
+
+instance of_xml x_registro_facturacion_alta_type_sf_facturas_sustituidas =
+    x_registro_facturacion_alta_type_sf_facturas_sustituidas_of_xml
+instance to_xml x_registro_facturacion_alta_type_sf_facturas_sustituidas =
+    x_registro_facturacion_alta_type_sf_facturas_sustituidas_to_xml
+
+instance of_xml x_registro_facturacion_alta_type_sf_facturas_rectificadas =
+    x_registro_facturacion_alta_type_sf_facturas_rectificadas_of_xml
+instance to_xml x_registro_facturacion_alta_type_sf_facturas_rectificadas =
+    x_registro_facturacion_alta_type_sf_facturas_rectificadas_to_xml
+
+instance of_xml x_registro_facturacion_anulacion_type = x_registro_facturacion_anulacion_type_of_xml
+instance to_xml x_registro_facturacion_anulacion_type = x_registro_facturacion_anulacion_type_to_xml
+
+instance of_xml x_registro_facturacion_anulacion_type_sf_encadenamiento =
+    x_registro_facturacion_anulacion_type_sf_encadenamiento_of_xml
+instance to_xml x_registro_facturacion_anulacion_type_sf_encadenamiento =
+    x_registro_facturacion_anulacion_type_sf_encadenamiento_to_xml
+
+instance of_xml x_encadenamiento_factura_anterior_type = x_encadenamiento_factura_anterior_type_of_xml
+instance to_xml x_encadenamiento_factura_anterior_type = x_encadenamiento_factura_anterior_type_to_xml
+
+instance of_xml x_sistema_informatico_type = x_sistema_informatico_type_of_xml
+instance to_xml x_sistema_informatico_type = x_sistema_informatico_type_to_xml
+
+instance of_xml x_sistema_informatico_consulta_type = x_sistema_informatico_consulta_type_of_xml
+instance to_xml x_sistema_informatico_consulta_type = x_sistema_informatico_consulta_type_to_xml
+
+instance of_xml x_id_factura_expedida_type = x_id_factura_expedida_type_of_xml
+instance to_xml x_id_factura_expedida_type = x_id_factura_expedida_type_to_xml
+
+instance of_xml x_id_factura_ar_type = x_id_factura_ar_type_of_xml
+instance to_xml x_id_factura_ar_type = x_id_factura_ar_type_to_xml
+
+instance of_xml x_detalle_type = x_detalle_type_of_xml
+instance to_xml x_detalle_type = x_detalle_type_to_xml
+
+instance of_xml x_desglose_rectificacion_type = x_desglose_rectificacion_type_of_xml
+instance to_xml x_desglose_rectificacion_type = x_desglose_rectificacion_type_to_xml
+
+instance of_xml x_persona_fisica_juridica_es_type = x_persona_fisica_juridica_es_type_of_xml
+instance to_xml x_persona_fisica_juridica_es_type = x_persona_fisica_juridica_es_type_to_xml
+
+instance of_xml x_persona_fisica_juridica_type = x_persona_fisica_juridica_type_of_xml
+instance to_xml x_persona_fisica_juridica_type = x_persona_fisica_juridica_type_to_xml
+
+instance of_xml x_id_otro_type = x_id_otro_type_of_xml
+instance to_xml x_id_otro_type = x_id_otro_type_to_xml
+
+instance of_xml x_rango_fecha_expedicion_type = x_rango_fecha_expedicion_type_of_xml
+instance to_xml x_rango_fecha_expedicion_type = x_rango_fecha_expedicion_type_to_xml
+
+instance of_xml x_fecha_expedicion_consulta_type = x_fecha_expedicion_consulta_type_of_xml
+instance to_xml x_fecha_expedicion_consulta_type = x_fecha_expedicion_consulta_type_to_xml
+
+instance of_xml x_registro_duplicado_type = x_registro_duplicado_type_of_xml
+instance to_xml x_registro_duplicado_type = x_registro_duplicado_type_to_xml
+
+instance of_xml x_desglose_type = x_desglose_type_of_xml
+instance to_xml x_desglose_type = x_desglose_type_to_xml
+
+instance of_xml x_contraparte_consulta_type = x_contraparte_consulta_type_of_xml
+instance to_xml x_contraparte_consulta_type = x_contraparte_consulta_type_to_xml
+
+instance of_xml x_cabecera_consulta_sf = x_cabecera_consulta_sf_of_xml
+instance to_xml x_cabecera_consulta_sf = x_cabecera_consulta_sf_to_xml
+
+instance of_xml x_obligado_emision_consulta_type = x_obligado_emision_consulta_type_of_xml
+instance to_xml x_obligado_emision_consulta_type = x_obligado_emision_consulta_type_to_xml
+
+instance of_xml x_obligado_generacion_type = x_obligado_generacion_type_of_xml
+instance to_xml x_obligado_generacion_type = x_obligado_generacion_type_to_xml
+
+instance of_xml x_operacion_type = x_operacion_type_of_xml
+instance to_xml x_operacion_type = x_operacion_type_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_value_type = x_signature_value_type_of_xml
+instance to_xml x_signature_value_type = x_signature_value_type_to_xml
+
+instance of_xml x_signed_info_type = x_signed_info_type_of_xml
+instance to_xml x_signed_info_type = x_signed_info_type_to_xml
+
+instance of_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_of_xml
+instance to_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_to_xml
+
+instance of_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_of_xml
+instance to_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_to_xml
+
+instance of_xml x_reference_type = x_reference_type_of_xml
+instance to_xml x_reference_type = x_reference_type_to_xml
+
+instance of_xml x_reference_type_digest_method = x_reference_type_digest_method_of_xml
+instance to_xml x_reference_type_digest_method = x_reference_type_digest_method_to_xml
+
+instance of_xml x_transforms_type = x_transforms_type_of_xml
+instance to_xml x_transforms_type = x_transforms_type_to_xml
+
+instance of_xml x_transform_type = x_transform_type_of_xml
+instance to_xml x_transform_type = x_transform_type_to_xml
+
+instance of_xml x_transform_type_group_x_path = x_transform_type_group_x_path_of_xml
+instance to_xml x_transform_type_group_x_path = x_transform_type_group_x_path_to_xml
+
+instance of_xml x_key_info_type = x_key_info_type_of_xml
+instance to_xml x_key_info_type = x_key_info_type_to_xml
+
+instance of_xml x_x509_data_type = x_x509_data_type_of_xml
+instance to_xml x_x509_data_type = x_x509_data_type_to_xml
 
 
 ///> rust

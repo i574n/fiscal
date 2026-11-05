@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -226,7 +228,7 @@ inl x_gst_invoice_tran_dtls_igst_on_intra_example (k : i32) : x_gst_invoice_tran
 inl x_gst_invoice_tran_dtls_igst_on_intra_example_text (k : i32) : string =
     x_gst_invoice_tran_dtls_reg_rev_example_text k
 
-type x_gst_invoice_tran_dtls =
+nominal x_gst_invoice_tran_dtls =
     {
         tax_sch : x_gst_invoice_tran_dtls_tax_sch
         sup_typ : x_gst_invoice_tran_dtls_sup_typ
@@ -457,7 +459,7 @@ inl x_gst_invoice_doc_dtls_dt_example (_ : i32) : x_gst_invoice_doc_dtls_dt = x_
 inl x_gst_invoice_doc_dtls_dt_example_text (k : i32) : string =
     x_gst_invoice_doc_dtls_dt_to_string (x_gst_invoice_doc_dtls_dt_example k)
 
-type x_gst_invoice_doc_dtls =
+nominal x_gst_invoice_doc_dtls =
     {
         typ : x_gst_invoice_doc_dtls_typ
         no : x_gst_invoice_doc_dtls_no
@@ -746,7 +748,7 @@ inl x_gst_invoice_seller_dtls_em_example (_ : i32) : x_gst_invoice_seller_dtls_e
 inl x_gst_invoice_seller_dtls_em_example_text (k : i32) : string =
     x_gst_invoice_seller_dtls_em_to_string (x_gst_invoice_seller_dtls_em_example k)
 
-type x_gst_invoice_seller_dtls =
+nominal x_gst_invoice_seller_dtls =
     {
         gstin : x_gst_invoice_seller_dtls_gstin
         lgl_nm : x_gst_invoice_seller_dtls_lgl_nm
@@ -1017,7 +1019,7 @@ inl x_gst_invoice_buyer_dtls_em_example (_ : i32) : x_gst_invoice_buyer_dtls_em 
 inl x_gst_invoice_buyer_dtls_em_example_text (k : i32) : string =
     x_gst_invoice_buyer_dtls_em_to_string (x_gst_invoice_buyer_dtls_em_example k)
 
-type x_gst_invoice_buyer_dtls =
+nominal x_gst_invoice_buyer_dtls =
     {
         gstin : x_gst_invoice_buyer_dtls_gstin
         lgl_nm : x_gst_invoice_buyer_dtls_lgl_nm
@@ -1126,7 +1128,7 @@ inl x_gst_invoice_disp_dtls_stcd_example (_ : i32) : x_gst_invoice_disp_dtls_stc
 inl x_gst_invoice_disp_dtls_stcd_example_text (k : i32) : string =
     x_gst_invoice_disp_dtls_stcd_to_string (x_gst_invoice_disp_dtls_stcd_example k)
 
-type x_gst_invoice_disp_dtls =
+nominal x_gst_invoice_disp_dtls =
     {
         nm : x_gst_invoice_disp_dtls_nm
         addr1 : x_gst_invoice_disp_dtls_addr1
@@ -1267,7 +1269,7 @@ inl x_gst_invoice_ship_dtls_stcd_example (_ : i32) : x_gst_invoice_ship_dtls_stc
 inl x_gst_invoice_ship_dtls_stcd_example_text (k : i32) : string =
     x_gst_invoice_ship_dtls_stcd_to_string (x_gst_invoice_ship_dtls_stcd_example k)
 
-type x_gst_invoice_ship_dtls =
+nominal x_gst_invoice_ship_dtls =
     {
         gstin : option (x_gst_invoice_ship_dtls_gstin)
         lgl_nm : x_gst_invoice_ship_dtls_lgl_nm
@@ -1804,7 +1806,7 @@ inl x_gst_invoice_item_list_bch_dtls_wr_dt_example (_ : i32) : x_gst_invoice_ite
 inl x_gst_invoice_item_list_bch_dtls_wr_dt_example_text (k : i32) : string =
     x_gst_invoice_item_list_bch_dtls_wr_dt_to_string (x_gst_invoice_item_list_bch_dtls_wr_dt_example k)
 
-type x_gst_invoice_item_list_bch_dtls =
+nominal x_gst_invoice_item_list_bch_dtls =
     {
         nm : x_gst_invoice_item_list_bch_dtls_nm
         exp_dt : option (x_gst_invoice_item_list_bch_dtls_exp_dt)
@@ -1848,13 +1850,13 @@ inl x_gst_invoice_item_list_attrib_dtls_val_example (_ : i32) : x_gst_invoice_it
 inl x_gst_invoice_item_list_attrib_dtls_val_example_text (k : i32) : string =
     x_gst_invoice_item_list_attrib_dtls_val_to_string (x_gst_invoice_item_list_attrib_dtls_val_example k)
 
-type x_gst_invoice_item_list_attrib_dtls =
+nominal x_gst_invoice_item_list_attrib_dtls =
     {
         nm : option (x_gst_invoice_item_list_attrib_dtls_nm)
         val : option (x_gst_invoice_item_list_attrib_dtls_val)
     }
 
-type x_gst_invoice_item_list =
+nominal x_gst_invoice_item_list =
     {
         sl_no : x_gst_invoice_item_list_sl_no
         prd_desc : option (x_gst_invoice_item_list_prd_desc)
@@ -1977,7 +1979,7 @@ inl x_gst_invoice_val_dtls_tot_inv_val_fc_example (_ : i32) : string = "1"
 inl x_gst_invoice_val_dtls_tot_inv_val_fc_example_text (k : i32) : string =
     x_gst_invoice_val_dtls_tot_inv_val_fc_example k
 
-type x_gst_invoice_val_dtls =
+nominal x_gst_invoice_val_dtls =
     {
         ass_val : x_gst_invoice_val_dtls_ass_val
         cgst_val : option (x_gst_invoice_val_dtls_cgst_val)
@@ -2156,7 +2158,7 @@ inl x_gst_invoice_pay_dtls_paymt_due_example (_ : i32) : string = "1"
 
 inl x_gst_invoice_pay_dtls_paymt_due_example_text (k : i32) : string = x_gst_invoice_pay_dtls_paymt_due_example k
 
-type x_gst_invoice_pay_dtls =
+nominal x_gst_invoice_pay_dtls =
     {
         nm : option (x_gst_invoice_pay_dtls_nm)
         acc_det : option (x_gst_invoice_pay_dtls_acc_det)
@@ -2248,7 +2250,7 @@ inl x_gst_invoice_ref_dtls_doc_perd_dtls_inv_end_dt_example_text (k : i32) : str
         x_gst_invoice_ref_dtls_doc_perd_dtls_inv_end_dt_example k
     )
 
-type x_gst_invoice_ref_dtls_doc_perd_dtls =
+nominal x_gst_invoice_ref_dtls_doc_perd_dtls =
     {
         inv_st_dt : x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt
         inv_end_dt : x_gst_invoice_ref_dtls_doc_perd_dtls_inv_end_dt
@@ -2451,7 +2453,7 @@ inl x_gst_invoice_ref_dtls_prec_doc_dtls_oth_ref_no_example_text (k : i32) : str
         x_gst_invoice_ref_dtls_prec_doc_dtls_oth_ref_no_example k
     )
 
-type x_gst_invoice_ref_dtls_prec_doc_dtls =
+nominal x_gst_invoice_ref_dtls_prec_doc_dtls =
     {
         inv_no : x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no
         inv_dt : x_gst_invoice_ref_dtls_prec_doc_dtls_inv_dt
@@ -2648,7 +2650,7 @@ inl x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt_example (_ : i32) : x_gst_invoic
 inl x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt_example_text (k : i32) : string =
     x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt_to_string (x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt_example k)
 
-type x_gst_invoice_ref_dtls_contr_dtls =
+nominal x_gst_invoice_ref_dtls_contr_dtls =
     {
         rec_adv_refr : option (x_gst_invoice_ref_dtls_contr_dtls_rec_adv_refr)
         rec_adv_dt : option (x_gst_invoice_ref_dtls_contr_dtls_rec_adv_dt)
@@ -2660,7 +2662,7 @@ type x_gst_invoice_ref_dtls_contr_dtls =
         po_ref_dt : option (x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt)
     }
 
-type x_gst_invoice_ref_dtls =
+nominal x_gst_invoice_ref_dtls =
     {
         inv_rm : option (x_gst_invoice_ref_dtls_inv_rm)
         doc_perd_dtls : option (x_gst_invoice_ref_dtls_doc_perd_dtls)
@@ -2722,7 +2724,7 @@ inl x_gst_invoice_addl_doc_dtls_info_example (_ : i32) : x_gst_invoice_addl_doc_
 inl x_gst_invoice_addl_doc_dtls_info_example_text (k : i32) : string =
     x_gst_invoice_addl_doc_dtls_info_to_string (x_gst_invoice_addl_doc_dtls_info_example k)
 
-type x_gst_invoice_addl_doc_dtls =
+nominal x_gst_invoice_addl_doc_dtls =
     {
         url : option (x_gst_invoice_addl_doc_dtls_url)
         docs : option (x_gst_invoice_addl_doc_dtls_docs)
@@ -3054,7 +3056,7 @@ inl x_gst_invoice_exp_dtls_exp_duty_example (_ : i32) : string = "1"
 
 inl x_gst_invoice_exp_dtls_exp_duty_example_text (k : i32) : string = x_gst_invoice_exp_dtls_exp_duty_example k
 
-type x_gst_invoice_exp_dtls =
+nominal x_gst_invoice_exp_dtls =
     {
         ship_b_no : option (x_gst_invoice_exp_dtls_ship_b_no)
         ship_b_dt : option (x_gst_invoice_exp_dtls_ship_b_dt)
@@ -3499,7 +3501,7 @@ inl x_gst_invoice_ewb_dtls_veh_type_example (k : i32) : x_gst_invoice_ewb_dtls_v
 inl x_gst_invoice_ewb_dtls_veh_type_example_text (k : i32) : string =
     x_gst_invoice_ewb_dtls_veh_type_to_string (x_gst_invoice_ewb_dtls_veh_type_example k)
 
-type x_gst_invoice_ewb_dtls =
+nominal x_gst_invoice_ewb_dtls =
     {
         trans_id : option (x_gst_invoice_ewb_dtls_trans_id)
         trans_name : option (x_gst_invoice_ewb_dtls_trans_name)
@@ -3511,7 +3513,7 @@ type x_gst_invoice_ewb_dtls =
         veh_type : option (x_gst_invoice_ewb_dtls_veh_type)
     }
 
-type x_gst_invoice =
+nominal x_gst_invoice =
     {
         version : x_gst_invoice_version
         irn : option (x_gst_invoice_irn)
@@ -3974,7 +3976,7 @@ inl x_gst_invoice_tran_dtls_get forall r. (f : x_gst_invoice_tran_dtls_field r) 
     | GstInvoice_TranDtls_field_IgstOnIntra => x.igst_on_intra
 
 let rec x_gst_invoice_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_gst_invoice =
-    {
+    x_gst_invoice {
         version =
             (fun c => xml.required_value "x_gst_invoice_version" (x_gst_invoice_version_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Version" children)
         irn =
@@ -4006,7 +4008,7 @@ and let x_gst_invoice_ewb_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_ewb_dtls
     =
-    {
+    x_gst_invoice_ewb_dtls {
         trans_id =
             optionm.map
                 fun c =>
@@ -4059,7 +4061,7 @@ and let x_gst_invoice_exp_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_exp_dtls
     =
-    {
+    x_gst_invoice_exp_dtls {
         ship_b_no =
             optionm.map
                 fun c =>
@@ -4106,7 +4108,7 @@ and let x_gst_invoice_addl_doc_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_addl_doc_dtls
     =
-    {
+    x_gst_invoice_addl_doc_dtls {
         url =
             optionm.map
                 fun c =>
@@ -4134,7 +4136,7 @@ and let x_gst_invoice_ref_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_ref_dtls
     =
-    {
+    x_gst_invoice_ref_dtls {
         inv_rm =
             optionm.map
                 fun c =>
@@ -4160,7 +4162,7 @@ and let x_gst_invoice_ref_dtls_contr_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_ref_dtls_contr_dtls
     =
-    {
+    x_gst_invoice_ref_dtls_contr_dtls {
         rec_adv_refr =
             optionm.map
                 fun c =>
@@ -4218,7 +4220,7 @@ and let x_gst_invoice_ref_dtls_prec_doc_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_ref_dtls_prec_doc_dtls
     =
-    {
+    x_gst_invoice_ref_dtls_prec_doc_dtls {
         inv_no =
             (fun c => xml.required_value "x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no" (x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvNo" children)
         inv_dt =
@@ -4243,7 +4245,7 @@ and let x_gst_invoice_ref_dtls_doc_perd_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_ref_dtls_doc_perd_dtls
     =
-    {
+    x_gst_invoice_ref_dtls_doc_perd_dtls {
         inv_st_dt =
             (fun c => xml.required_value "x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt" (x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvStDt" children)
         inv_end_dt =
@@ -4257,7 +4259,7 @@ and let x_gst_invoice_pay_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_pay_dtls
     =
-    {
+    x_gst_invoice_pay_dtls {
         nm =
             optionm.map
                 fun c =>
@@ -4318,7 +4320,7 @@ and let x_gst_invoice_val_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_val_dtls
     =
-    {
+    x_gst_invoice_val_dtls {
         ass_val = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "AssVal" children)
         cgst_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CgstVal" children)
         sgst_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "SgstVal" children)
@@ -4340,7 +4342,7 @@ and let x_gst_invoice_item_list_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_item_list
     =
-    {
+    x_gst_invoice_item_list {
         sl_no =
             (fun c => xml.required_value "x_gst_invoice_item_list_sl_no" (x_gst_invoice_item_list_sl_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SlNo" children)
         prd_desc =
@@ -4418,7 +4420,7 @@ and let x_gst_invoice_item_list_attrib_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_item_list_attrib_dtls
     =
-    {
+    x_gst_invoice_item_list_attrib_dtls {
         nm =
             optionm.map
                 fun c =>
@@ -4440,7 +4442,7 @@ and let x_gst_invoice_item_list_bch_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_item_list_bch_dtls
     =
-    {
+    x_gst_invoice_item_list_bch_dtls {
         nm =
             (fun c => xml.required_value "x_gst_invoice_item_list_bch_dtls_nm" (x_gst_invoice_item_list_bch_dtls_nm_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nm" children)
         exp_dt =
@@ -4464,7 +4466,7 @@ and let x_gst_invoice_ship_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_ship_dtls
     =
-    {
+    x_gst_invoice_ship_dtls {
         gstin =
             optionm.map
                 fun c =>
@@ -4501,7 +4503,7 @@ and let x_gst_invoice_disp_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_disp_dtls
     =
-    {
+    x_gst_invoice_disp_dtls {
         nm =
             (fun c => xml.required_value "x_gst_invoice_disp_dtls_nm" (x_gst_invoice_disp_dtls_nm_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nm" children)
         addr1 =
@@ -4526,7 +4528,7 @@ and let x_gst_invoice_buyer_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_buyer_dtls
     =
-    {
+    x_gst_invoice_buyer_dtls {
         gstin =
             (fun c => xml.required_value "x_gst_invoice_buyer_dtls_gstin" (x_gst_invoice_buyer_dtls_gstin_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Gstin" children)
         lgl_nm =
@@ -4573,7 +4575,7 @@ and let x_gst_invoice_seller_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_seller_dtls
     =
-    {
+    x_gst_invoice_seller_dtls {
         gstin =
             (fun c => xml.required_value "x_gst_invoice_seller_dtls_gstin" (x_gst_invoice_seller_dtls_gstin_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Gstin" children)
         lgl_nm =
@@ -4618,7 +4620,7 @@ and let x_gst_invoice_doc_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_doc_dtls
     =
-    {
+    x_gst_invoice_doc_dtls {
         typ =
             (fun c => xml.required_value "x_gst_invoice_doc_dtls_typ" (x_gst_invoice_doc_dtls_typ_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Typ" children)
         no =
@@ -4634,7 +4636,7 @@ and let x_gst_invoice_tran_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gst_invoice_tran_dtls
     =
-    {
+    x_gst_invoice_tran_dtls {
         tax_sch =
             (fun c => xml.required_value "x_gst_invoice_tran_dtls_tax_sch" (x_gst_invoice_tran_dtls_tax_sch_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxSch" children)
         sup_typ =
@@ -5338,7 +5340,7 @@ and let x_gst_invoice_tran_dtls_to_xml (name : string) (x : x_gst_invoice_tran_d
     xml.element name (x_gst_invoice_tran_dtls_attributes x) (x_gst_invoice_tran_dtls_children x)
 
 and let x_gst_invoice_example (k : i32) : x_gst_invoice =
-    {
+    x_gst_invoice {
         version = x_gst_invoice_version_example k
         irn = None
         tran_dtls = x_gst_invoice_tran_dtls_example k
@@ -5357,7 +5359,7 @@ and let x_gst_invoice_example (k : i32) : x_gst_invoice =
     }
 
 and let x_gst_invoice_ewb_dtls_example (k : i32) : x_gst_invoice_ewb_dtls =
-    {
+    x_gst_invoice_ewb_dtls {
         trans_id = None
         trans_name = None
         trans_mode = None
@@ -5369,7 +5371,7 @@ and let x_gst_invoice_ewb_dtls_example (k : i32) : x_gst_invoice_ewb_dtls =
     }
 
 and let x_gst_invoice_exp_dtls_example (k : i32) : x_gst_invoice_exp_dtls =
-    {
+    x_gst_invoice_exp_dtls {
         ship_b_no = None
         ship_b_dt = None
         port = None
@@ -5380,14 +5382,14 @@ and let x_gst_invoice_exp_dtls_example (k : i32) : x_gst_invoice_exp_dtls =
     }
 
 and let x_gst_invoice_addl_doc_dtls_example (k : i32) : x_gst_invoice_addl_doc_dtls =
-    {
+    x_gst_invoice_addl_doc_dtls {
         url = None
         docs = None
         info = None
     }
 
 and let x_gst_invoice_ref_dtls_example (k : i32) : x_gst_invoice_ref_dtls =
-    {
+    x_gst_invoice_ref_dtls {
         inv_rm = None
         doc_perd_dtls = None
         prec_doc_dtls = []
@@ -5395,7 +5397,7 @@ and let x_gst_invoice_ref_dtls_example (k : i32) : x_gst_invoice_ref_dtls =
     }
 
 and let x_gst_invoice_ref_dtls_contr_dtls_example (k : i32) : x_gst_invoice_ref_dtls_contr_dtls =
-    {
+    x_gst_invoice_ref_dtls_contr_dtls {
         rec_adv_refr = None
         rec_adv_dt = None
         tend_refr = None
@@ -5407,20 +5409,20 @@ and let x_gst_invoice_ref_dtls_contr_dtls_example (k : i32) : x_gst_invoice_ref_
     }
 
 and let x_gst_invoice_ref_dtls_prec_doc_dtls_example (k : i32) : x_gst_invoice_ref_dtls_prec_doc_dtls =
-    {
+    x_gst_invoice_ref_dtls_prec_doc_dtls {
         inv_no = x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no_example k
         inv_dt = x_gst_invoice_ref_dtls_prec_doc_dtls_inv_dt_example k
         oth_ref_no = None
     }
 
 and let x_gst_invoice_ref_dtls_doc_perd_dtls_example (k : i32) : x_gst_invoice_ref_dtls_doc_perd_dtls =
-    {
+    x_gst_invoice_ref_dtls_doc_perd_dtls {
         inv_st_dt = x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt_example k
         inv_end_dt = x_gst_invoice_ref_dtls_doc_perd_dtls_inv_end_dt_example k
     }
 
 and let x_gst_invoice_pay_dtls_example (k : i32) : x_gst_invoice_pay_dtls =
-    {
+    x_gst_invoice_pay_dtls {
         nm = None
         acc_det = None
         mode = None
@@ -5435,7 +5437,7 @@ and let x_gst_invoice_pay_dtls_example (k : i32) : x_gst_invoice_pay_dtls =
     }
 
 and let x_gst_invoice_val_dtls_example (k : i32) : x_gst_invoice_val_dtls =
-    {
+    x_gst_invoice_val_dtls {
         ass_val = x_gst_invoice_val_dtls_ass_val_example k
         cgst_val = None
         sgst_val = None
@@ -5450,7 +5452,7 @@ and let x_gst_invoice_val_dtls_example (k : i32) : x_gst_invoice_val_dtls =
     }
 
 and let x_gst_invoice_item_list_example (k : i32) : x_gst_invoice_item_list =
-    {
+    x_gst_invoice_item_list {
         sl_no = x_gst_invoice_item_list_sl_no_example k
         prd_desc = None
         is_servc = x_gst_invoice_item_list_is_servc_example k
@@ -5484,20 +5486,20 @@ and let x_gst_invoice_item_list_example (k : i32) : x_gst_invoice_item_list =
     }
 
 and let x_gst_invoice_item_list_attrib_dtls_example (k : i32) : x_gst_invoice_item_list_attrib_dtls =
-    {
+    x_gst_invoice_item_list_attrib_dtls {
         nm = None
         val = None
     }
 
 and let x_gst_invoice_item_list_bch_dtls_example (k : i32) : x_gst_invoice_item_list_bch_dtls =
-    {
+    x_gst_invoice_item_list_bch_dtls {
         nm = x_gst_invoice_item_list_bch_dtls_nm_example k
         exp_dt = None
         wr_dt = None
     }
 
 and let x_gst_invoice_ship_dtls_example (k : i32) : x_gst_invoice_ship_dtls =
-    {
+    x_gst_invoice_ship_dtls {
         gstin = None
         lgl_nm = x_gst_invoice_ship_dtls_lgl_nm_example k
         trd_nm = None
@@ -5509,7 +5511,7 @@ and let x_gst_invoice_ship_dtls_example (k : i32) : x_gst_invoice_ship_dtls =
     }
 
 and let x_gst_invoice_disp_dtls_example (k : i32) : x_gst_invoice_disp_dtls =
-    {
+    x_gst_invoice_disp_dtls {
         nm = x_gst_invoice_disp_dtls_nm_example k
         addr1 = x_gst_invoice_disp_dtls_addr1_example k
         addr2 = None
@@ -5519,7 +5521,7 @@ and let x_gst_invoice_disp_dtls_example (k : i32) : x_gst_invoice_disp_dtls =
     }
 
 and let x_gst_invoice_buyer_dtls_example (k : i32) : x_gst_invoice_buyer_dtls =
-    {
+    x_gst_invoice_buyer_dtls {
         gstin = x_gst_invoice_buyer_dtls_gstin_example k
         lgl_nm = x_gst_invoice_buyer_dtls_lgl_nm_example k
         trd_nm = None
@@ -5534,7 +5536,7 @@ and let x_gst_invoice_buyer_dtls_example (k : i32) : x_gst_invoice_buyer_dtls =
     }
 
 and let x_gst_invoice_seller_dtls_example (k : i32) : x_gst_invoice_seller_dtls =
-    {
+    x_gst_invoice_seller_dtls {
         gstin = x_gst_invoice_seller_dtls_gstin_example k
         lgl_nm = x_gst_invoice_seller_dtls_lgl_nm_example k
         trd_nm = None
@@ -5548,20 +5550,78 @@ and let x_gst_invoice_seller_dtls_example (k : i32) : x_gst_invoice_seller_dtls 
     }
 
 and let x_gst_invoice_doc_dtls_example (k : i32) : x_gst_invoice_doc_dtls =
-    {
+    x_gst_invoice_doc_dtls {
         typ = x_gst_invoice_doc_dtls_typ_example k
         no = x_gst_invoice_doc_dtls_no_example k
         dt = x_gst_invoice_doc_dtls_dt_example k
     }
 
 and let x_gst_invoice_tran_dtls_example (k : i32) : x_gst_invoice_tran_dtls =
-    {
+    x_gst_invoice_tran_dtls {
         tax_sch = x_gst_invoice_tran_dtls_tax_sch_example k
         sup_typ = x_gst_invoice_tran_dtls_sup_typ_example k
         reg_rev = None
         ecm_gstin = None
         igst_on_intra = None
     }
+
+
+instance of_xml x_gst_invoice = x_gst_invoice_of_xml
+instance to_xml x_gst_invoice = x_gst_invoice_to_xml
+
+instance of_xml x_gst_invoice_ewb_dtls = x_gst_invoice_ewb_dtls_of_xml
+instance to_xml x_gst_invoice_ewb_dtls = x_gst_invoice_ewb_dtls_to_xml
+
+instance of_xml x_gst_invoice_exp_dtls = x_gst_invoice_exp_dtls_of_xml
+instance to_xml x_gst_invoice_exp_dtls = x_gst_invoice_exp_dtls_to_xml
+
+instance of_xml x_gst_invoice_addl_doc_dtls = x_gst_invoice_addl_doc_dtls_of_xml
+instance to_xml x_gst_invoice_addl_doc_dtls = x_gst_invoice_addl_doc_dtls_to_xml
+
+instance of_xml x_gst_invoice_ref_dtls = x_gst_invoice_ref_dtls_of_xml
+instance to_xml x_gst_invoice_ref_dtls = x_gst_invoice_ref_dtls_to_xml
+
+instance of_xml x_gst_invoice_ref_dtls_contr_dtls = x_gst_invoice_ref_dtls_contr_dtls_of_xml
+instance to_xml x_gst_invoice_ref_dtls_contr_dtls = x_gst_invoice_ref_dtls_contr_dtls_to_xml
+
+instance of_xml x_gst_invoice_ref_dtls_prec_doc_dtls = x_gst_invoice_ref_dtls_prec_doc_dtls_of_xml
+instance to_xml x_gst_invoice_ref_dtls_prec_doc_dtls = x_gst_invoice_ref_dtls_prec_doc_dtls_to_xml
+
+instance of_xml x_gst_invoice_ref_dtls_doc_perd_dtls = x_gst_invoice_ref_dtls_doc_perd_dtls_of_xml
+instance to_xml x_gst_invoice_ref_dtls_doc_perd_dtls = x_gst_invoice_ref_dtls_doc_perd_dtls_to_xml
+
+instance of_xml x_gst_invoice_pay_dtls = x_gst_invoice_pay_dtls_of_xml
+instance to_xml x_gst_invoice_pay_dtls = x_gst_invoice_pay_dtls_to_xml
+
+instance of_xml x_gst_invoice_val_dtls = x_gst_invoice_val_dtls_of_xml
+instance to_xml x_gst_invoice_val_dtls = x_gst_invoice_val_dtls_to_xml
+
+instance of_xml x_gst_invoice_item_list = x_gst_invoice_item_list_of_xml
+instance to_xml x_gst_invoice_item_list = x_gst_invoice_item_list_to_xml
+
+instance of_xml x_gst_invoice_item_list_attrib_dtls = x_gst_invoice_item_list_attrib_dtls_of_xml
+instance to_xml x_gst_invoice_item_list_attrib_dtls = x_gst_invoice_item_list_attrib_dtls_to_xml
+
+instance of_xml x_gst_invoice_item_list_bch_dtls = x_gst_invoice_item_list_bch_dtls_of_xml
+instance to_xml x_gst_invoice_item_list_bch_dtls = x_gst_invoice_item_list_bch_dtls_to_xml
+
+instance of_xml x_gst_invoice_ship_dtls = x_gst_invoice_ship_dtls_of_xml
+instance to_xml x_gst_invoice_ship_dtls = x_gst_invoice_ship_dtls_to_xml
+
+instance of_xml x_gst_invoice_disp_dtls = x_gst_invoice_disp_dtls_of_xml
+instance to_xml x_gst_invoice_disp_dtls = x_gst_invoice_disp_dtls_to_xml
+
+instance of_xml x_gst_invoice_buyer_dtls = x_gst_invoice_buyer_dtls_of_xml
+instance to_xml x_gst_invoice_buyer_dtls = x_gst_invoice_buyer_dtls_to_xml
+
+instance of_xml x_gst_invoice_seller_dtls = x_gst_invoice_seller_dtls_of_xml
+instance to_xml x_gst_invoice_seller_dtls = x_gst_invoice_seller_dtls_to_xml
+
+instance of_xml x_gst_invoice_doc_dtls = x_gst_invoice_doc_dtls_of_xml
+instance to_xml x_gst_invoice_doc_dtls = x_gst_invoice_doc_dtls_to_xml
+
+instance of_xml x_gst_invoice_tran_dtls = x_gst_invoice_tran_dtls_of_xml
+instance to_xml x_gst_invoice_tran_dtls = x_gst_invoice_tran_dtls_to_xml
 
 
 ///> rust

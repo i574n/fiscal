@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -6329,7 +6331,7 @@ inl x_c_tipo_cadena_pago_example (k : i32) : x_c_tipo_cadena_pago =
 inl x_c_tipo_cadena_pago_example_text (k : i32) : string =
     x_c_tipo_cadena_pago_to_string (x_c_tipo_cadena_pago_example k)
 
-type x_pagos_totales =
+nominal x_pagos_totales =
     {
         total_retenciones_iva : option (x_t_importe_mxn)
         total_retenciones_isr : option (x_t_importe_mxn)
@@ -6370,7 +6372,7 @@ inl x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_tasa
     =
     x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_tasa_o_cuota_dr_example k
 
-type x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr =
+nominal x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr =
     {
         base_dr : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_base_dr
         impuesto_dr : x_c_impuesto
@@ -6379,7 +6381,7 @@ type x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr =
         importe_dr : x_t_importe
     }
 
-type x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr =
+nominal x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr =
     {
         retencion_dr : list (x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr)
     }
@@ -6407,7 +6409,7 @@ inl x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_tasa_o_
     =
     x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_tasa_o_cuota_dr_example k
 
-type x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr =
+nominal x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr =
     {
         base_dr : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_base_dr
         impuesto_dr : x_c_impuesto
@@ -6416,12 +6418,12 @@ type x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr =
         importe_dr : option (x_t_importe)
     }
 
-type x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr =
+nominal x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr =
     {
         traslado_dr : list (x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr)
     }
 
-type x_pagos_pago_docto_relacionado_impuestos_dr =
+nominal x_pagos_pago_docto_relacionado_impuestos_dr =
     {
         retenciones_dr : option (x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr)
         traslados_dr : option (x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr)
@@ -7124,7 +7126,7 @@ inl x_pagos_pago_docto_relacionado_num_parcialidad_example (_ : i32) : x_pagos_p
 inl x_pagos_pago_docto_relacionado_num_parcialidad_example_text (k : i32) : string =
     x_pagos_pago_docto_relacionado_num_parcialidad_to_string (x_pagos_pago_docto_relacionado_num_parcialidad_example k)
 
-type x_pagos_pago_docto_relacionado =
+nominal x_pagos_pago_docto_relacionado =
     {
         impuestos_dr : option (x_pagos_pago_docto_relacionado_impuestos_dr)
         id_documento : x_pagos_pago_docto_relacionado_id_documento
@@ -7139,13 +7141,13 @@ type x_pagos_pago_docto_relacionado =
         objeto_imp_dr : x_c_objeto_imp
     }
 
-type x_pagos_pago_impuestos_p_retenciones_p_retencion_p =
+nominal x_pagos_pago_impuestos_p_retenciones_p_retencion_p =
     {
         impuesto_p : x_c_impuesto
         importe_p : x_t_importe
     }
 
-type x_pagos_pago_impuestos_p_retenciones_p =
+nominal x_pagos_pago_impuestos_p_retenciones_p =
     {
         retencion_p : list (x_pagos_pago_impuestos_p_retenciones_p_retencion_p)
     }
@@ -7159,7 +7161,7 @@ inl x_pagos_pago_impuestos_p_traslados_p_traslado_p_tasa_o_cuota_p_example (_ : 
 inl x_pagos_pago_impuestos_p_traslados_p_traslado_p_tasa_o_cuota_p_example_text (k : i32) : string =
     x_pagos_pago_impuestos_p_traslados_p_traslado_p_tasa_o_cuota_p_example k
 
-type x_pagos_pago_impuestos_p_traslados_p_traslado_p =
+nominal x_pagos_pago_impuestos_p_traslados_p_traslado_p =
     {
         base_p : x_t_importe
         impuesto_p : x_c_impuesto
@@ -7168,12 +7170,12 @@ type x_pagos_pago_impuestos_p_traslados_p_traslado_p =
         importe_p : option (x_t_importe)
     }
 
-type x_pagos_pago_impuestos_p_traslados_p =
+nominal x_pagos_pago_impuestos_p_traslados_p =
     {
         traslado_p : list (x_pagos_pago_impuestos_p_traslados_p_traslado_p)
     }
 
-type x_pagos_pago_impuestos_p =
+nominal x_pagos_pago_impuestos_p =
     {
         retenciones_p : option (x_pagos_pago_impuestos_p_retenciones_p)
         traslados_p : option (x_pagos_pago_impuestos_p_traslados_p)
@@ -7828,7 +7830,7 @@ inl x_pagos_pago_sello_pago_example (_ : i32) : string = "AAAA"
 
 inl x_pagos_pago_sello_pago_example_text (k : i32) : string = x_pagos_pago_sello_pago_example k
 
-type x_pagos_pago =
+nominal x_pagos_pago =
     {
         docto_relacionado : list (x_pagos_pago_docto_relacionado)
         impuestos_p : option (x_pagos_pago_impuestos_p)
@@ -7857,7 +7859,7 @@ inl x_pagos_version_example (_ : i32) : string = "1"
 
 inl x_pagos_version_example_text (k : i32) : string = x_pagos_version_example k
 
-type x_pagos =
+nominal x_pagos =
     {
         totales : x_pagos_totales
         pago : list (x_pagos_pago)
@@ -7969,7 +7971,7 @@ inl x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_get forall r.
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_RetencionesDR_field_RetencionDR => x.retencion_dr
 
 let rec x_pagos_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_pagos =
-    {
+    x_pagos {
         totales = (fun c => x_pagos_totales_of_xml c) (xml.required_child "Totales" children)
         pago = listm.map (fun c => x_pagos_pago_of_xml c) (xml.children_named "Pago" children)
         version = xml.required_attribute "Version" (xml.checked_fixed "Version" "2.0" attributes)
@@ -7979,7 +7981,7 @@ and let x_pagos_of_xml (c : xml.xml_node) : x_pagos =
     x_pagos_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_pagos_pago =
-    {
+    x_pagos_pago {
         docto_relacionado =
             listm.map
                 fun c => x_pagos_pago_docto_relacionado_of_xml c
@@ -8039,7 +8041,7 @@ and let x_pagos_pago_impuestos_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_impuestos_p
     =
-    {
+    x_pagos_pago_impuestos_p {
         retenciones_p =
             optionm.map
                 fun c => x_pagos_pago_impuestos_p_retenciones_p_of_xml c
@@ -8055,7 +8057,7 @@ and let x_pagos_pago_impuestos_p_traslados_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_impuestos_p_traslados_p
     =
-    {
+    x_pagos_pago_impuestos_p_traslados_p {
         traslado_p =
             listm.map
                 fun c => x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_xml c
@@ -8069,7 +8071,7 @@ and let x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_impuestos_p_traslados_p_traslado_p
     =
-    {
+    x_pagos_pago_impuestos_p_traslados_p_traslado_p {
         base_p = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "BaseP" attributes))
         impuesto_p =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoP" attributes))
@@ -8094,7 +8096,7 @@ and let x_pagos_pago_impuestos_p_retenciones_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_impuestos_p_retenciones_p
     =
-    {
+    x_pagos_pago_impuestos_p_retenciones_p {
         retencion_p =
             listm.map
                 fun c => x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_xml c
@@ -8108,7 +8110,7 @@ and let x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_impuestos_p_retenciones_p_retencion_p
     =
-    {
+    x_pagos_pago_impuestos_p_retenciones_p_retencion_p {
         impuesto_p =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoP" attributes))
         importe_p =
@@ -8125,7 +8127,7 @@ and let x_pagos_pago_docto_relacionado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_docto_relacionado
     =
-    {
+    x_pagos_pago_docto_relacionado {
         impuestos_dr =
             optionm.map
                 fun c => x_pagos_pago_docto_relacionado_impuestos_dr_of_xml c
@@ -8184,7 +8186,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_docto_relacionado_impuestos_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr {
         retenciones_dr =
             optionm.map
                 fun c => x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_xml c
@@ -8205,7 +8207,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr {
         traslado_dr =
             listm.map
                 fun c => x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_xml c
@@ -8224,7 +8226,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr {
         base_dr = xml.required_attribute "BaseDR" attributes
         impuesto_dr =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoDR" attributes))
@@ -8251,7 +8253,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr {
         retencion_dr =
             listm.map
                 fun c => x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_of_xml c
@@ -8270,7 +8272,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr {
         base_dr = xml.required_attribute "BaseDR" attributes
         impuesto_dr =
             xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoDR" attributes))
@@ -8295,7 +8297,7 @@ and let x_pagos_totales_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_pagos_totales
     =
-    {
+    x_pagos_totales {
         total_retenciones_iva =
             optionm.map
                 fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
@@ -8746,14 +8748,14 @@ and let x_pagos_totales_to_xml (name : string) (x : x_pagos_totales) : xml.xml_n
     xml.element name (x_pagos_totales_attributes x) (x_pagos_totales_children x)
 
 and let x_pagos_example (k : i32) : x_pagos =
-    {
+    x_pagos {
         totales = x_pagos_totales_example k
         pago = [ x_pagos_pago_example (k + 0i32) ]
         version = "2.0"
     }
 
 and let x_pagos_pago_example (k : i32) : x_pagos_pago =
-    {
+    x_pagos_pago {
         docto_relacionado = [ x_pagos_pago_docto_relacionado_example (k + 0i32) ]
         impuestos_p = None
         fecha_pago = x_t_fecha_h_example k
@@ -8774,13 +8776,13 @@ and let x_pagos_pago_example (k : i32) : x_pagos_pago =
     }
 
 and let x_pagos_pago_impuestos_p_example (k : i32) : x_pagos_pago_impuestos_p =
-    {
+    x_pagos_pago_impuestos_p {
         retenciones_p = None
         traslados_p = None
     }
 
 and let x_pagos_pago_impuestos_p_traslados_p_example (k : i32) : x_pagos_pago_impuestos_p_traslados_p =
-    {
+    x_pagos_pago_impuestos_p_traslados_p {
         traslado_p = [ x_pagos_pago_impuestos_p_traslados_p_traslado_p_example (k + 0i32) ]
     }
 
@@ -8788,7 +8790,7 @@ and let x_pagos_pago_impuestos_p_traslados_p_traslado_p_example
     (k : i32)
     : x_pagos_pago_impuestos_p_traslados_p_traslado_p
     =
-    {
+    x_pagos_pago_impuestos_p_traslados_p_traslado_p {
         base_p = x_t_importe_example k
         impuesto_p = x_c_impuesto_example k
         tipo_factor_p = x_c_tipo_factor_example k
@@ -8797,7 +8799,7 @@ and let x_pagos_pago_impuestos_p_traslados_p_traslado_p_example
     }
 
 and let x_pagos_pago_impuestos_p_retenciones_p_example (k : i32) : x_pagos_pago_impuestos_p_retenciones_p =
-    {
+    x_pagos_pago_impuestos_p_retenciones_p {
         retencion_p = [ x_pagos_pago_impuestos_p_retenciones_p_retencion_p_example (k + 0i32) ]
     }
 
@@ -8805,13 +8807,13 @@ and let x_pagos_pago_impuestos_p_retenciones_p_retencion_p_example
     (k : i32)
     : x_pagos_pago_impuestos_p_retenciones_p_retencion_p
     =
-    {
+    x_pagos_pago_impuestos_p_retenciones_p_retencion_p {
         impuesto_p = x_c_impuesto_example k
         importe_p = x_t_importe_example k
     }
 
 and let x_pagos_pago_docto_relacionado_example (k : i32) : x_pagos_pago_docto_relacionado =
-    {
+    x_pagos_pago_docto_relacionado {
         impuestos_dr = None
         id_documento = x_pagos_pago_docto_relacionado_id_documento_example k
         serie = None
@@ -8826,7 +8828,7 @@ and let x_pagos_pago_docto_relacionado_example (k : i32) : x_pagos_pago_docto_re
     }
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_example (k : i32) : x_pagos_pago_docto_relacionado_impuestos_dr =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr {
         retenciones_dr = None
         traslados_dr = None
     }
@@ -8835,7 +8837,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_example
     (k : i32)
     : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr {
         traslado_dr = [ x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_example (k + 0i32) ]
     }
 
@@ -8843,7 +8845,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_exa
     (k : i32)
     : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr {
         base_dr = x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_base_dr_example k
         impuesto_dr = x_c_impuesto_example k
         tipo_factor_dr = x_c_tipo_factor_example k
@@ -8855,7 +8857,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_example
     (k : i32)
     : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr {
         retencion_dr = [ x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_example (k + 0i32) ]
     }
 
@@ -8863,7 +8865,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_
     (k : i32)
     : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr
     =
-    {
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr {
         base_dr = x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_base_dr_example k
         impuesto_dr = x_c_impuesto_example k
         tipo_factor_dr = x_c_tipo_factor_example k
@@ -8873,7 +8875,7 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_
     }
 
 and let x_pagos_totales_example (k : i32) : x_pagos_totales =
-    {
+    x_pagos_totales {
         total_retenciones_iva = None
         total_retenciones_isr = None
         total_retenciones_ieps = None
@@ -8886,6 +8888,59 @@ and let x_pagos_totales_example (k : i32) : x_pagos_totales =
         total_traslados_base_iva_exento = None
         monto_total_pagos = x_t_importe_mxn_example k
     }
+
+
+instance of_xml x_pagos = x_pagos_of_xml
+instance to_xml x_pagos = x_pagos_to_xml
+
+instance of_xml x_pagos_pago = x_pagos_pago_of_xml
+instance to_xml x_pagos_pago = x_pagos_pago_to_xml
+
+instance of_xml x_pagos_pago_impuestos_p = x_pagos_pago_impuestos_p_of_xml
+instance to_xml x_pagos_pago_impuestos_p = x_pagos_pago_impuestos_p_to_xml
+
+instance of_xml x_pagos_pago_impuestos_p_traslados_p = x_pagos_pago_impuestos_p_traslados_p_of_xml
+instance to_xml x_pagos_pago_impuestos_p_traslados_p = x_pagos_pago_impuestos_p_traslados_p_to_xml
+
+instance of_xml x_pagos_pago_impuestos_p_traslados_p_traslado_p = x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_xml
+instance to_xml x_pagos_pago_impuestos_p_traslados_p_traslado_p = x_pagos_pago_impuestos_p_traslados_p_traslado_p_to_xml
+
+instance of_xml x_pagos_pago_impuestos_p_retenciones_p = x_pagos_pago_impuestos_p_retenciones_p_of_xml
+instance to_xml x_pagos_pago_impuestos_p_retenciones_p = x_pagos_pago_impuestos_p_retenciones_p_to_xml
+
+instance of_xml x_pagos_pago_impuestos_p_retenciones_p_retencion_p =
+    x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_xml
+instance to_xml x_pagos_pago_impuestos_p_retenciones_p_retencion_p =
+    x_pagos_pago_impuestos_p_retenciones_p_retencion_p_to_xml
+
+instance of_xml x_pagos_pago_docto_relacionado = x_pagos_pago_docto_relacionado_of_xml
+instance to_xml x_pagos_pago_docto_relacionado = x_pagos_pago_docto_relacionado_to_xml
+
+instance of_xml x_pagos_pago_docto_relacionado_impuestos_dr = x_pagos_pago_docto_relacionado_impuestos_dr_of_xml
+instance to_xml x_pagos_pago_docto_relacionado_impuestos_dr = x_pagos_pago_docto_relacionado_impuestos_dr_to_xml
+
+instance of_xml x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_xml
+instance to_xml x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_to_xml
+
+instance of_xml x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_xml
+instance to_xml x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_to_xml
+
+instance of_xml x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_xml
+instance to_xml x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_to_xml
+
+instance of_xml x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_of_xml
+instance to_xml x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr =
+    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_to_xml
+
+instance of_xml x_pagos_totales = x_pagos_totales_of_xml
+instance to_xml x_pagos_totales = x_pagos_totales_to_xml
 
 
 ///> rust

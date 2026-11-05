@@ -78,13 +78,14 @@
         | Some n => AtMost n
         | None => failwith ("canon: unknown cardinality " ++# text)
 
+:= cardinality_parts (text : string) (at : i32) : cardinality =
+    := low = sm'::substring 0i32 at text
+    := high = sm'::substring (at + 2i32) (sm'::length text - at - 2i32) text
+    { presence = presence_of text low; bound = bound_of text high }
+
 := cardinality_of (text : string) : cardinality =
     := at = sm'::index_of ".." text
-    ? at < 0i32 ?> failwith ("canon: unknown cardinality " ++# text)
-    |:
-        := low = sm'::substring 0i32 at text
-        := high = sm'::substring (at + 2i32) (sm'::length text - at - 2i32) text
-        { presence = presence_of text low; bound = bound_of text high }
+    ? at < 0i32 ?> failwith ("canon: unknown cardinality " ++# text) |: cardinality_parts text at
 
 := presence_text (p : presence) : string =
     ?= listm'::try_find_ (\ (_, t) => t = p) (presence_names ()) ?|
@@ -119,14 +120,16 @@
         := rest = sm'::substring (at + 1i32) (sm'::length s - at - 1i32) s
         split_commas rest (sm'::trim (sm'::substring 0i32 at s) :: acc)
 
+:= term_id_from (text : string) (n : i32) : option term_id =
+    ? sm'::starts_with "BT-" text ?> Some (BusinessTerm n)
+    |? sm'::starts_with "BG-" text ?> Some (BusinessGroup n)
+    |: None
+
 := term_id_of (text : string) : option term_id =
     ? sm'::length text <= 3i32 ?> None
     |:
         ?= sm'::decimal_i32 (sm'::substring 3i32 (sm'::length text - 3i32) text) ?|
-        | Some n =>
-            ? sm'::starts_with "BT-" text ?> Some (BusinessTerm n)
-            |? sm'::starts_with "BG-" text ?> Some (BusinessGroup n)
-            |: None
+        | Some n => term_id_from text n
         | None => None
 
 := term_id_text (id : term_id) : string =
@@ -147,11 +150,16 @@
         | None => term_ids rest acc
     | [] => listm::rev acc
 
+:= is_business_term_reference (name : string) (attributes : list (string * string)) : bool =
+    local_name name = "Reference" && attribute_or "type" "" attributes = "BUSINESS_TERM"
+
+:= reference_terms (inner : list xml_node) : list term_id = term_ids (split_commas (text_in inner) []) []
+
 :~ ^ business_terms (nodes : list xml_node) (acc : list term_id) : list term_id =
     ?= nodes ?|
     | XmlElement (name, attributes, inner) :: rest =>
-        ? local_name name = "Reference" && attribute_or "type" "" attributes = "BUSINESS_TERM"
-        ?> business_terms rest (listm::append acc (term_ids (split_commas (text_in inner) []) []))
+        ? is_business_term_reference name attributes
+        ?> business_terms rest (listm::append acc (reference_terms inner))
         |: business_terms rest acc
     | _ :: rest => business_terms rest acc
     | [] => acc
@@ -180,6 +188,9 @@
     ?> listm::map (\ (r : term_row) => ? r::id = row::id ?> { r ?| ubl = with_document document path r::ubl } |: r) rows
     |: listm::append rows [ { row ?| ubl = [ (document, path) ] } ]
 
+:= term_row_of (id : term_id) (name : string) (data_type : option data_type) (cardinality : cardinality) : term_row =
+    { id = id; name = name; data_type = data_type; cardinality = cardinality; ubl = [] }
+
 :~ ^ add_terms
     (ids : list term_id) (i : i32) (names : list string) (data_type : option data_type) (cardinality : cardinality)
     (document : ubl_document) (path : ubl_path) (rows : list term_row)
@@ -187,9 +198,25 @@
     =
     ?= ids ?|
     | id :: rest =>
-        := row = { id = id; name = nth_or_last i names; data_type = data_type; cardinality = cardinality; ubl = [] }
+        := row = term_row_of id (nth_or_last i names) data_type cardinality
         add_terms rest (i + 1i32) names data_type cardinality document path (with_term row document path rows)
     | [] => rows
+
+:= term_names (ids : list term_id) (name : string) : list string =
+    := split = split_commas name []
+    ? listm::length ids > 1i32 && (listm::length split : i32) = listm::length ids ?> split |: [ name ]
+
+:= declared_data_type (declared : string) : option data_type = ? declared = "" ?> None |: Some (data_type_of declared)
+
+:= element_terms
+    (attributes : list (string * string)) (children : list xml_node) (document : ubl_document) (here : string)
+    (rows : list term_row)
+    : list term_row
+    =
+    := ids = business_terms children []
+    := data_type = declared_data_type (child_text "DataType" children)
+    := cardinality = cardinality_of (attribute_or "cardinality" "1..1" attributes)
+    add_terms ids 0i32 (term_names ids (child_text "Name" children)) data_type cardinality document (ubl_path here) rows
 
 :~ ^ visit_element
     (attributes : list (string * string)) (children : list xml_node) (path : string) (folder : string)
@@ -197,14 +224,7 @@
     : list term_row
     =
     := here = path ++# "/" ++# child_text "Term" children
-    := ids = business_terms children []
-    := name = child_text "Name" children
-    := split = split_commas name []
-    := names = ? listm::length ids > 1i32 && (listm::length split : i32) = listm::length ids ?> split |: [ name ]
-    := declared = child_text "DataType" children
-    := data_type = ? declared = "" ?> None |: Some (data_type_of declared)
-    := cardinality = cardinality_of (attribute_or "cardinality" "1..1" attributes)
-    read_children children here folder document (add_terms ids 0i32 names data_type cardinality document (ubl_path here) rows)
+    read_children children here folder document (element_terms attributes children document here rows)
 
 :& :~ read_children
     (nodes : list xml_node) (path : string) (folder : string) (document : ubl_document) (rows : list term_row)
@@ -212,27 +232,36 @@
     =
     ?= nodes ?|
     | XmlElement (name, attributes, inner) :: rest =>
-        ? local_name name = "Include" ?>
-            := file = folder ++# "/" ++# sm'::trim (text_in inner)
-            := slash = sm'::last_index_of "/" file
-            := included =
-                ?= first_named "Element" (read_xml (file_system::read_all_text file)) ?|
-                | Some (a, c) => visit_element a c path (sm'::substring 0i32 slash file) document rows
-                | None => rows
-            read_children rest path folder document included
-        |? local_name name = "Element" ?>
-            read_children rest path folder document (visit_element attributes inner path folder document rows)
+        ? local_name name = "Include"
+        ?> read_children rest path folder document (included_terms inner path folder document rows)
+        |? local_name name = "Element"
+        ?> read_children rest path folder document (visit_element attributes inner path folder document rows)
         |: read_children rest path folder document rows
     | _ :: rest => read_children rest path folder document rows
     | [] => rows
 
+:& :~ included_terms
+    (inner : list xml_node) (path : string) (folder : string) (document : ubl_document) (rows : list term_row)
+    : list term_row
+    =
+    := file = folder ++# "/" ++# sm'::trim (text_in inner)
+    := slash = sm'::last_index_of "/" file
+    ?= first_named "Element" (read_xml (file_system::read_all_text file)) ?|
+    | Some (a, c) => visit_element a c path (sm'::substring 0i32 slash file) document rows
+    | None => rows
+
+:= document_section_terms
+    (children : list xml_node) (structure : string) (document : ubl_document) (rows : list term_row)
+    : list term_row
+    =
+    ?= first_named "Document" children ?|
+    | Some (_, inner) => read_children inner (child_text "Term" inner) structure document rows
+    | None => rows
+
 :~ structure_terms (structure : string) (document : ubl_document) (rows : list term_row) : list term_row =
     := file = structure ++# "/" ++# ubl_document_name document ++# ".xml"
     ?= first_named "Structure" (read_xml (file_system::read_all_text file)) ?|
-    | Some (_, children) =>
-        ?= first_named "Document" children ?|
-        | Some (_, inner) => read_children inner (child_text "Term" inner) structure document rows
-        | None => rows
+    | Some (_, children) => document_section_terms children structure document rows
     | None => rows
 
 :~ term_order (r : term_row) : i32 =
@@ -250,13 +279,18 @@
     | r :: rest => ordered_terms rest (insert_ordered r acc)
     | [] => acc
 
+:= term_kind_text (id : term_id) : string = ? is_group id ?> "group" |: "term"
+
+:= ubl_json (ubl : list (ubl_document * ubl_path)) : json_value =
+    JsonObject (listm::map (\ (d, p) => ubl_document_name d, JsonText (path_text p)) ubl)
+
 := term_json (r : term_row) : json_value =
     JsonObject [
-        ("id", JsonText (term_id_text r::id)); ("kind", JsonText (? is_group r::id ?> "group" |: "term"))
+        ("id", JsonText (term_id_text r::id)); ("kind", JsonText (term_kind_text r::id))
         ("name", JsonText r::name)
         ("data_type", JsonText (declared_type_text r::data_type))
         ("cardinality", JsonText (cardinality_text r::cardinality))
-        ("ubl", JsonObject (listm::map (\ (d, p) => ubl_document_name d, JsonText (path_text p)) r::ubl))
+        ("ubl", ubl_json r::ubl)
     ]
 
 := en16931_terms () : list term_row =
@@ -265,7 +299,18 @@
 
 ///> rust
 test data_types_and_cardinalities_read_back_as_written =
-    := types = [ "Text"; "Identifier"; "Amount"; "Code"; "Date"; "Document Reference"; "Percentage"; "Quantity"; "Binary object" ]
+    := types =
+        [
+            "Text"
+            "Identifier"
+            "Amount"
+            "Code"
+            "Date"
+            "Document Reference"
+            "Percentage"
+            "Quantity"
+            "Binary object"
+        ]
     ? listm::length (listm'::filter (\ (t : string) => data_type_text (data_type_of t) <> t) types) <> 0i32
     ?> failwith "every EN 16931 data type reads back as written"
     := cardinalities = [ "0..1"; "1..1"; "0..n"; "1..n"; "0..2"; "1..2" ]

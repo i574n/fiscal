@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -20,6 +22,10 @@ union staged s a =
 union stage s =
     | Unsigned :: stage unsigned
     | Signed :: stage signed
+
+prototype stage_of s : () -> stage s
+instance stage_of unsigned = fun () => Unsigned
+instance stage_of signed = fun () => Signed
 
 inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
     match witness with
@@ -1269,7 +1275,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_glosa_
         x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_glosa_pagos_example k
     )
 
-type x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos =
+nominal x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos =
     {
         fch_pago : x_fecha_type
         mnt_pago : x_monto_type
@@ -1454,7 +1460,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_id_doc_term_pago_dias_e
 inl x_dte_def_type_choice_documento_documento_encabezado_id_doc_term_pago_dias_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_documento_encabezado_id_doc_term_pago_dias_example k
 
-type x_dte_def_type_choice_documento_documento_encabezado_id_doc =
+nominal x_dte_def_type_choice_documento_documento_encabezado_id_doc =
     {
         tipo_dte : x_dte_type
         folio : x_folio_type
@@ -1615,7 +1621,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export_cdg_
         x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export_cdg_traslado_example k
     )
 
-type x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export =
+nominal x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export =
     {
         cdg_traslado : option (x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export_cdg_traslado)
         folio_aut : option (x_nro_resol_type)
@@ -1759,7 +1765,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_emisor_id_adic_emisor_e
         x_dte_def_type_choice_documento_documento_encabezado_emisor_id_adic_emisor_example k
     )
 
-type x_dte_def_type_choice_documento_documento_encabezado_emisor =
+nominal x_dte_def_type_choice_documento_documento_encabezado_emisor =
     {
         rut_emisor : x_rut_type
         rzn_soc : x_dte_def_type_choice_documento_documento_encabezado_emisor_rzn_soc
@@ -1876,7 +1882,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero_nac
         x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero_nacionalidad_example k
     )
 
-type x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero =
+nominal x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero =
     {
         num_id : option (x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero_num_id)
         nacionalidad : option (x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero_nacionalidad)
@@ -2010,7 +2016,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_receptor_dir_postal_exa
         x_dte_def_type_choice_documento_documento_encabezado_receptor_dir_postal_example k
     )
 
-type x_dte_def_type_choice_documento_documento_encabezado_receptor =
+nominal x_dte_def_type_choice_documento_documento_encabezado_receptor =
     {
         rut_recep : x_rut_type
         cdg_int_recep : option (x_dte_def_type_choice_documento_documento_encabezado_receptor_cdg_int_recep)
@@ -2094,7 +2100,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_nombr
         x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_nombre_chofer_example k
     )
 
-type x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer =
+nominal x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer =
     {
         rut_chofer : x_rut_type
         nombre_chofer : x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_nombre_chofer
@@ -2749,7 +2755,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_
         x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos_emisor_sello_example k
     )
 
-type x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos =
+nominal x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos =
     {
         cod_tpo_bultos : option (x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos_cod_tpo_bultos)
         cant_bultos : option (x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos_cant_bultos)
@@ -2790,7 +2796,7 @@ inl x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_cod_p
     =
     x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_cod_pais_destin_example k
 
-type x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana =
+nominal x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana =
     {
         cod_mod_venta : option (x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_cod_mod_venta)
         cod_clau_venta : option (x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_cod_clau_venta)
@@ -2821,7 +2827,7 @@ type x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana =
         cod_pais_destin : option (x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_cod_pais_destin)
     }
 
-type x_dte_def_type_choice_documento_documento_encabezado_transporte =
+nominal x_dte_def_type_choice_documento_documento_encabezado_transporte =
     {
         patente : option (x_dte_def_type_choice_documento_documento_encabezado_transporte_patente)
         rut_trans : option (x_rut_type)
@@ -2843,21 +2849,21 @@ inl x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten_tas
 inl x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten_tasa_imp_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten_tasa_imp_example k
 
-type x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten =
+nominal x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten =
     {
         tipo_imp : x_imp_adic_dte_type
         tasa_imp : option (x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten_tasa_imp)
         monto_imp : x_mnt_imp_type
     }
 
-type x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones =
+nominal x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones =
     {
         val_com_neto : option (x_monto_type)
         val_com_exe : option (x_monto_type)
         val_com_iva : option (x_monto_type)
     }
 
-type x_dte_def_type_choice_documento_documento_encabezado_totales =
+nominal x_dte_def_type_choice_documento_documento_encabezado_totales =
     {
         mnt_neto : option (x_monto_type)
         mnt_exe : option (x_monto_type)
@@ -2879,14 +2885,14 @@ type x_dte_def_type_choice_documento_documento_encabezado_totales =
         vlr_pagar : option (x_valor_type)
     }
 
-type x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda =
+nominal x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda =
     {
         tipo_imp_otr_mnda : x_imp_adic_dte_type
         tasa_imp_otr_mnda : option (x_pct_type)
         vlr_imp_otr_mnda : x_dec14_4_type
     }
 
-type x_dte_def_type_choice_documento_documento_encabezado_otra_moneda =
+nominal x_dte_def_type_choice_documento_documento_encabezado_otra_moneda =
     {
         tpo_moneda : x_tip_mon_type
         tpo_cambio : option (x_dec6_4_type)
@@ -2900,7 +2906,7 @@ type x_dte_def_type_choice_documento_documento_encabezado_otra_moneda =
         mnt_tot_otr_mnda : x_dec14_4_type
     }
 
-type x_dte_def_type_choice_documento_documento_encabezado =
+nominal x_dte_def_type_choice_documento_documento_encabezado =
     {
         id_doc : x_dte_def_type_choice_documento_documento_encabezado_id_doc
         emisor : x_dte_def_type_choice_documento_documento_encabezado_emisor
@@ -2985,7 +2991,7 @@ inl x_dte_def_type_choice_documento_documento_detalle_cdg_item_vlr_codigo_exampl
         x_dte_def_type_choice_documento_documento_detalle_cdg_item_vlr_codigo_example k
     )
 
-type x_dte_def_type_choice_documento_documento_detalle_cdg_item =
+nominal x_dte_def_type_choice_documento_documento_detalle_cdg_item =
     {
         tpo_codigo : x_dte_def_type_choice_documento_documento_detalle_cdg_item_tpo_codigo
         vlr_codigo : x_dte_def_type_choice_documento_documento_detalle_cdg_item_vlr_codigo
@@ -3078,7 +3084,7 @@ inl x_dte_def_type_choice_documento_documento_detalle_retenedor_ind_agente_examp
         x_dte_def_type_choice_documento_documento_detalle_retenedor_ind_agente_example k
     )
 
-type x_dte_def_type_choice_documento_documento_detalle_retenedor =
+nominal x_dte_def_type_choice_documento_documento_detalle_retenedor =
     {
         ind_agente : x_dte_def_type_choice_documento_documento_detalle_retenedor_ind_agente
         mnt_base_faena : option (x_monto_type)
@@ -3214,7 +3220,7 @@ inl x_dte_def_type_choice_documento_documento_detalle_subcantidad_sub_cod_exampl
         x_dte_def_type_choice_documento_documento_detalle_subcantidad_sub_cod_example k
     )
 
-type x_dte_def_type_choice_documento_documento_detalle_subcantidad =
+nominal x_dte_def_type_choice_documento_documento_detalle_subcantidad =
     {
         sub_qty : x_dec12_6_type
         sub_cod : x_dte_def_type_choice_documento_documento_detalle_subcantidad_sub_cod
@@ -3284,7 +3290,7 @@ inl x_dte_def_type_choice_documento_documento_detalle_otr_mnda_moneda_example_te
         x_dte_def_type_choice_documento_documento_detalle_otr_mnda_moneda_example k
     )
 
-type x_dte_def_type_choice_documento_documento_detalle_otr_mnda =
+nominal x_dte_def_type_choice_documento_documento_detalle_otr_mnda =
     {
         prc_otr_mon : x_dec12_6_type
         moneda : x_dte_def_type_choice_documento_documento_detalle_otr_mnda_moneda
@@ -3294,7 +3300,7 @@ type x_dte_def_type_choice_documento_documento_detalle_otr_mnda =
         monto_item_otr_mnda : option (x_dec14_4_type)
     }
 
-type x_dte_def_type_choice_documento_documento_detalle_sub_dscto =
+nominal x_dte_def_type_choice_documento_documento_detalle_sub_dscto =
     {
         tipo_dscto : x_dinero_porcentaje_type
         valor_dscto : x_dec16_2_type
@@ -3309,13 +3315,13 @@ inl x_dte_def_type_choice_documento_documento_detalle_recargo_pct_example (k : i
 inl x_dte_def_type_choice_documento_documento_detalle_recargo_pct_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_documento_detalle_recargo_pct_example k
 
-type x_dte_def_type_choice_documento_documento_detalle_sub_recargo =
+nominal x_dte_def_type_choice_documento_documento_detalle_sub_recargo =
     {
         tipo_recargo : x_dinero_porcentaje_type
         valor_recargo : x_dec16_2_type
     }
 
-type x_dte_def_type_choice_documento_documento_detalle =
+nominal x_dte_def_type_choice_documento_documento_detalle =
     {
         nro_lin_det : x_dte_def_type_choice_documento_documento_detalle_nro_lin_det
         cdg_item : list (x_dte_def_type_choice_documento_documento_detalle_cdg_item)
@@ -3402,7 +3408,7 @@ inl x_dte_def_type_choice_documento_documento_sub_tot_info_lineas_deta_example (
 inl x_dte_def_type_choice_documento_documento_sub_tot_info_lineas_deta_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_documento_sub_tot_info_lineas_deta_example k
 
-type x_dte_def_type_choice_documento_documento_sub_tot_info =
+nominal x_dte_def_type_choice_documento_documento_sub_tot_info =
     {
         nro_sti : x_dte_def_type_choice_documento_documento_sub_tot_info_nro_sti
         glosa_sti : x_dte_def_type_choice_documento_documento_sub_tot_info_glosa_sti
@@ -3522,7 +3528,7 @@ inl x_dte_def_type_choice_documento_documento_dsc_rcg_global_ind_exe_dr_example_
         x_dte_def_type_choice_documento_documento_dsc_rcg_global_ind_exe_dr_example k
     )
 
-type x_dte_def_type_choice_documento_documento_dsc_rcg_global =
+nominal x_dte_def_type_choice_documento_documento_dsc_rcg_global =
     {
         nro_lin_dr : string
         tpo_mov : x_dte_def_type_choice_documento_documento_dsc_rcg_global_tpo_mov
@@ -3654,7 +3660,7 @@ inl x_dte_def_type_choice_documento_documento_referencia_razon_ref_example_text 
         x_dte_def_type_choice_documento_documento_referencia_razon_ref_example k
     )
 
-type x_dte_def_type_choice_documento_documento_referencia =
+nominal x_dte_def_type_choice_documento_documento_referencia =
     {
         nro_lin_ref : x_dte_def_type_choice_documento_documento_referencia_nro_lin_ref
         tpo_doc_ref : x_dte_def_type_choice_documento_documento_referencia_tpo_doc_ref
@@ -3744,7 +3750,7 @@ inl x_dte_def_type_choice_documento_documento_comisiones_glosa_example_text (k :
         x_dte_def_type_choice_documento_documento_comisiones_glosa_example k
     )
 
-type x_dte_def_type_choice_documento_documento_comisiones =
+nominal x_dte_def_type_choice_documento_documento_comisiones =
     {
         nro_lin_com : x_dte_def_type_choice_documento_documento_comisiones_nro_lin_com
         tipo_movim : x_dte_def_type_choice_documento_documento_comisiones_tipo_movim
@@ -3851,19 +3857,19 @@ inl x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rs_example_text (k :
         x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rs_example k
     )
 
-type x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng =
+nominal x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng =
     {
         d : x_folio_type
         h : x_folio_type
     }
 
-type x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk =
+nominal x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk =
     {
         m : string
         e : string
     }
 
-type x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk =
+nominal x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk =
     {
         p : string
         q : string
@@ -3877,7 +3883,7 @@ union x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk =
     | DTEDefType_choice_Documento_Documento_TED_DD_CAF_DA_choice_RSAPK_DSAPK :
         x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk
 
-type x_dte_def_type_choice_documento_documento_ted_dd_caf_da =
+nominal x_dte_def_type_choice_documento_documento_ted_dd_caf_da =
     {
         re : x_rut_type
         rs : x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rs
@@ -3888,20 +3894,20 @@ type x_dte_def_type_choice_documento_documento_ted_dd_caf_da =
         idk : string
     }
 
-type x_dte_def_type_choice_documento_documento_ted_dd_caf_frma =
+nominal x_dte_def_type_choice_documento_documento_ted_dd_caf_frma =
     {
         base : string
         algoritmo : string
     }
 
-type x_dte_def_type_choice_documento_documento_ted_dd_caf =
+nominal x_dte_def_type_choice_documento_documento_ted_dd_caf =
     {
         da : x_dte_def_type_choice_documento_documento_ted_dd_caf_da
         frma : x_dte_def_type_choice_documento_documento_ted_dd_caf_frma
         version : string
     }
 
-type x_dte_def_type_choice_documento_documento_ted_dd =
+nominal x_dte_def_type_choice_documento_documento_ted_dd =
     {
         re : x_rut_type
         td : x_dte_type
@@ -3952,20 +3958,20 @@ inl x_dte_def_type_choice_documento_documento_ted_frmt_algoritmo_example_text (k
         x_dte_def_type_choice_documento_documento_ted_frmt_algoritmo_example k
     )
 
-type x_dte_def_type_choice_documento_documento_ted_frmt =
+nominal x_dte_def_type_choice_documento_documento_ted_frmt =
     {
         base : string
         algoritmo : x_dte_def_type_choice_documento_documento_ted_frmt_algoritmo
     }
 
-type x_dte_def_type_choice_documento_documento_ted =
+nominal x_dte_def_type_choice_documento_documento_ted =
     {
         dd : x_dte_def_type_choice_documento_documento_ted_dd
         frmt : x_dte_def_type_choice_documento_documento_ted_frmt
         version : string
     }
 
-type x_dte_def_type_choice_documento_documento =
+nominal x_dte_def_type_choice_documento_documento =
     {
         encabezado : x_dte_def_type_choice_documento_documento_encabezado
         detalle : list (x_dte_def_type_choice_documento_documento_detalle)
@@ -4085,7 +4091,7 @@ inl x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos_glos
         x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos_glosa_pagos_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos =
     {
         fch_pago : x_fecha_type
         mnt_pago : x_monto_type
@@ -4253,7 +4259,7 @@ inl x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_term_pago_dias
 inl x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_term_pago_dias_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_term_pago_dias_example k
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc =
     {
         tipo_dte : x_liq_type
         folio : x_folio_type
@@ -4487,7 +4493,7 @@ inl x_dte_def_type_choice_documento_liquidacion_encabezado_emisor_cdg_vendedor_e
         x_dte_def_type_choice_documento_liquidacion_encabezado_emisor_cdg_vendedor_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado_emisor =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado_emisor =
     {
         rut_emisor : x_rut_type
         rzn_soc : x_dte_def_type_choice_documento_liquidacion_encabezado_emisor_rzn_soc
@@ -4663,7 +4669,7 @@ inl x_dte_def_type_choice_documento_liquidacion_encabezado_receptor_dir_postal_e
         x_dte_def_type_choice_documento_liquidacion_encabezado_receptor_dir_postal_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado_receptor =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado_receptor =
     {
         rut_recep : x_rut_type
         cdg_int_recep : option (x_dte_def_type_choice_documento_liquidacion_encabezado_receptor_cdg_int_recep)
@@ -4679,21 +4685,21 @@ type x_dte_def_type_choice_documento_liquidacion_encabezado_receptor =
         ciudad_postal : option (x_ciudad_type)
     }
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten =
     {
         tipo_imp : x_imp_adic_dte_type
         tasa_imp : option (x_pct_type)
         monto_imp : x_mnt_imp_type
     }
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones =
     {
         val_com_neto : option (x_valor_type)
         val_com_exe : option (x_valor_type)
         val_com_iva : option (x_valor_type)
     }
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado_totales =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado_totales =
     {
         mnt_neto : option (x_valor_type)
         mnt_exe : option (x_valor_type)
@@ -4709,7 +4715,7 @@ type x_dte_def_type_choice_documento_liquidacion_encabezado_totales =
         vlr_pagar : option (x_valor_type)
     }
 
-type x_dte_def_type_choice_documento_liquidacion_encabezado =
+nominal x_dte_def_type_choice_documento_liquidacion_encabezado =
     {
         id_doc : x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc
         emisor : x_dte_def_type_choice_documento_liquidacion_encabezado_emisor
@@ -4790,7 +4796,7 @@ inl x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_vlr_codigo_exam
         x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_vlr_codigo_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item =
+nominal x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item =
     {
         tpo_codigo : x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_tpo_codigo
         vlr_codigo : x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_vlr_codigo
@@ -4980,7 +4986,7 @@ inl x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_sub_cod_exam
         x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_sub_cod_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad =
+nominal x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad =
     {
         sub_qty : x_dec12_6_type
         sub_cod : x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_sub_cod
@@ -5018,7 +5024,7 @@ inl x_dte_def_type_choice_documento_liquidacion_detalle_unmd_item_example_text (
         x_dte_def_type_choice_documento_liquidacion_detalle_unmd_item_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_detalle =
+nominal x_dte_def_type_choice_documento_liquidacion_detalle =
     {
         nro_lin_det : x_dte_def_type_choice_documento_liquidacion_detalle_nro_lin_det
         cdg_item : list (x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item)
@@ -5098,7 +5104,7 @@ inl x_dte_def_type_choice_documento_liquidacion_sub_tot_info_lineas_deta_example
 inl x_dte_def_type_choice_documento_liquidacion_sub_tot_info_lineas_deta_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_liquidacion_sub_tot_info_lineas_deta_example k
 
-type x_dte_def_type_choice_documento_liquidacion_sub_tot_info =
+nominal x_dte_def_type_choice_documento_liquidacion_sub_tot_info =
     {
         nro_sti : x_dte_def_type_choice_documento_liquidacion_sub_tot_info_nro_sti
         glosa_sti : x_dte_def_type_choice_documento_liquidacion_sub_tot_info_glosa_sti
@@ -5232,7 +5238,7 @@ inl x_dte_def_type_choice_documento_liquidacion_referencia_razon_ref_example_tex
         x_dte_def_type_choice_documento_liquidacion_referencia_razon_ref_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_referencia =
+nominal x_dte_def_type_choice_documento_liquidacion_referencia =
     {
         nro_lin_ref : x_dte_def_type_choice_documento_liquidacion_referencia_nro_lin_ref
         tpo_doc_ref : x_dte_def_type_choice_documento_liquidacion_referencia_tpo_doc_ref
@@ -5308,7 +5314,7 @@ inl x_dte_def_type_choice_documento_liquidacion_comisiones_glosa_example_text (k
         x_dte_def_type_choice_documento_liquidacion_comisiones_glosa_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_comisiones =
+nominal x_dte_def_type_choice_documento_liquidacion_comisiones =
     {
         nro_lin_com : x_dte_def_type_choice_documento_liquidacion_comisiones_nro_lin_com
         tipo_movim : x_dte_def_type_choice_documento_liquidacion_comisiones_tipo_movim
@@ -5383,19 +5389,19 @@ inl x_dte_def_type_choice_documento_liquidacion_ted_dd_it1_example_text (k : i32
         x_dte_def_type_choice_documento_liquidacion_ted_dd_it1_example k
     )
 
-type x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng =
     {
         d : x_folio_type
         h : x_folio_type
     }
 
-type x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk =
     {
         m : string
         e : string
     }
 
-type x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk =
     {
         p : string
         q : string
@@ -5409,7 +5415,7 @@ union x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk =
     | DTEDefType_choice_Documento_Liquidacion_TED_DD_CAF_DA_choice_RSAPK_DSAPK :
         x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk
 
-type x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da =
     {
         re : x_rut_type
         rs : x_rzn_soc_corta_type
@@ -5420,20 +5426,20 @@ type x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da =
         idk : string
     }
 
-type x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma =
     {
         base : string
         algoritmo : string
     }
 
-type x_dte_def_type_choice_documento_liquidacion_ted_dd_caf =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_dd_caf =
     {
         da : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da
         frma : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma
         version : string
     }
 
-type x_dte_def_type_choice_documento_liquidacion_ted_dd =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_dd =
     {
         re : x_rut_type
         td : x_liq_type
@@ -5471,20 +5477,20 @@ inl x_dte_def_type_choice_documento_liquidacion_ted_frmt_algoritmo_example
 inl x_dte_def_type_choice_documento_liquidacion_ted_frmt_algoritmo_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_documento_ted_frmt_algoritmo_example_text k
 
-type x_dte_def_type_choice_documento_liquidacion_ted_frmt =
+nominal x_dte_def_type_choice_documento_liquidacion_ted_frmt =
     {
         base : string
         algoritmo : x_dte_def_type_choice_documento_liquidacion_ted_frmt_algoritmo
     }
 
-type x_dte_def_type_choice_documento_liquidacion_ted =
+nominal x_dte_def_type_choice_documento_liquidacion_ted =
     {
         dd : x_dte_def_type_choice_documento_liquidacion_ted_dd
         frmt : x_dte_def_type_choice_documento_liquidacion_ted_frmt
         version : string
     }
 
-type x_dte_def_type_choice_documento_liquidacion =
+nominal x_dte_def_type_choice_documento_liquidacion =
     {
         encabezado : x_dte_def_type_choice_documento_liquidacion_encabezado
         detalle : list (x_dte_def_type_choice_documento_liquidacion_detalle)
@@ -5630,7 +5636,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos_gl
         x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos_glosa_pagos_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos =
     {
         fch_pago : x_fecha_type
         mnt_pago : x_monto_type
@@ -5798,7 +5804,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_term_pago_di
 inl x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_term_pago_dias_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_term_pago_dias_example k
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc =
     {
         tipo_dte : x_exp_type
         folio : x_folio_type
@@ -6097,7 +6103,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_emisor_id_adic_emis
         x_dte_def_type_choice_documento_exportaciones_encabezado_emisor_id_adic_emisor_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_emisor =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_emisor =
     {
         rut_emisor : x_rut_type
         rzn_soc : x_dte_def_type_choice_documento_exportaciones_encabezado_emisor_rzn_soc
@@ -6258,7 +6264,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero
         x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero_id_adic_recep_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero =
     {
         num_id : option (x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero_num_id)
         nacionalidad : option (x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero_nacionalidad)
@@ -6393,7 +6399,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_dir_postal
         x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_dir_postal_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_receptor =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_receptor =
     {
         rut_recep : x_rut_type
         cdg_int_recep : option (x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_cdg_int_recep)
@@ -6480,7 +6486,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer_n
         x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer_nombre_chofer_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer =
     {
         rut_chofer : x_rut_type
         nombre_chofer : x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer_nombre_chofer
@@ -7198,7 +7204,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_t
         x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos_emisor_sello_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos =
     {
         cod_tpo_bultos : option (x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos_cod_tpo_bultos)
         cant_bultos : option (x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos_cant_bultos)
@@ -7248,7 +7254,7 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_c
     =
     x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_cod_pais_destin_example k
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana =
     {
         cod_mod_venta : option (x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_cod_mod_venta)
         cod_clau_venta : option (x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_cod_clau_venta)
@@ -7279,7 +7285,7 @@ type x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana 
         cod_pais_destin : option (x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_cod_pais_destin)
     }
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_transporte =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_transporte =
     {
         patente : option (x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_patente)
         rut_trans : option (x_rut_type)
@@ -7308,14 +7314,14 @@ inl x_dte_def_type_choice_documento_exportaciones_encabezado_totales_mnt_total_e
 inl x_dte_def_type_choice_documento_exportaciones_encabezado_totales_mnt_total_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_exportaciones_encabezado_totales_mnt_total_example k
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_totales =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_totales =
     {
         tpo_moneda : x_tip_mon_type
         mnt_exe : x_dte_def_type_choice_documento_exportaciones_encabezado_totales_mnt_exe
         mnt_total : x_dte_def_type_choice_documento_exportaciones_encabezado_totales_mnt_total
     }
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda =
     {
         tpo_moneda : x_tip_mon_type
         tpo_cambio : option (x_dec6_4_type)
@@ -7323,7 +7329,7 @@ type x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda =
         mnt_tot_otr_mnda : x_dec14_4_type
     }
 
-type x_dte_def_type_choice_documento_exportaciones_encabezado =
+nominal x_dte_def_type_choice_documento_exportaciones_encabezado =
     {
         id_doc : x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc
         emisor : x_dte_def_type_choice_documento_exportaciones_encabezado_emisor
@@ -7406,7 +7412,7 @@ inl x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_vlr_codigo_ex
         x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_vlr_codigo_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item =
+nominal x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item =
     {
         tpo_codigo : x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_tpo_codigo
         vlr_codigo : x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_vlr_codigo
@@ -7596,7 +7602,7 @@ inl x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_tip_cod_su
         x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_tip_cod_sub_qty_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad =
+nominal x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad =
     {
         sub_qty : x_dec12_6_type
         sub_cod : x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_sub_cod
@@ -7688,7 +7694,7 @@ inl x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_monto_item_ot
 inl x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_monto_item_otr_mnda_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_monto_item_otr_mnda_example k
 
-type x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda =
+nominal x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda =
     {
         prc_otr_mon : x_dec14_4_type
         moneda : x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_moneda
@@ -7735,7 +7741,7 @@ inl x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_tipo_dscto_e
         x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_tipo_dscto_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto =
+nominal x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto =
     {
         tipo_dscto : x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_tipo_dscto
         valor_dscto : x_dec16_2_type
@@ -7765,7 +7771,7 @@ inl x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_tipo_recar
 inl x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_tipo_recargo_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_tipo_dscto_example_text k
 
-type x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo =
+nominal x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo =
     {
         tipo_recargo : x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_tipo_recargo
         valor_recargo : x_dec16_2_type
@@ -7780,7 +7786,7 @@ inl x_dte_def_type_choice_documento_exportaciones_detalle_monto_item_example (_ 
 inl x_dte_def_type_choice_documento_exportaciones_detalle_monto_item_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_exportaciones_detalle_monto_item_example k
 
-type x_dte_def_type_choice_documento_exportaciones_detalle =
+nominal x_dte_def_type_choice_documento_exportaciones_detalle =
     {
         nro_lin_det : x_dte_def_type_choice_documento_exportaciones_detalle_nro_lin_det
         cdg_item : list (x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item)
@@ -7865,7 +7871,7 @@ inl x_dte_def_type_choice_documento_exportaciones_sub_tot_info_lineas_deta_examp
 inl x_dte_def_type_choice_documento_exportaciones_sub_tot_info_lineas_deta_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_exportaciones_sub_tot_info_lineas_deta_example k
 
-type x_dte_def_type_choice_documento_exportaciones_sub_tot_info =
+nominal x_dte_def_type_choice_documento_exportaciones_sub_tot_info =
     {
         nro_sti : x_dte_def_type_choice_documento_exportaciones_sub_tot_info_nro_sti
         glosa_sti : x_dte_def_type_choice_documento_exportaciones_sub_tot_info_glosa_sti
@@ -7981,7 +7987,7 @@ inl x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_ind_exe_dr_exam
 inl x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_ind_exe_dr_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_documento_dsc_rcg_global_ind_exe_dr_example_text k
 
-type x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global =
+nominal x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global =
     {
         nro_lin_dr : string
         tpo_mov : x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_tpo_mov
@@ -8154,7 +8160,7 @@ inl x_dte_def_type_choice_documento_exportaciones_referencia_razon_ref_example_t
         x_dte_def_type_choice_documento_exportaciones_referencia_razon_ref_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_referencia =
+nominal x_dte_def_type_choice_documento_exportaciones_referencia =
     {
         nro_lin_ref : x_dte_def_type_choice_documento_exportaciones_referencia_nro_lin_ref
         tpo_doc_ref : x_dte_def_type_choice_documento_exportaciones_referencia_tpo_doc_ref
@@ -8272,19 +8278,19 @@ inl x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rs_example_text 
         x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rs_example k
     )
 
-type x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng =
     {
         d : x_folio_type
         h : x_folio_type
     }
 
-type x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk =
     {
         m : string
         e : string
     }
 
-type x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk =
     {
         p : string
         q : string
@@ -8298,7 +8304,7 @@ union x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk =
     | DTEDefType_choice_Documento_Exportaciones_TED_DD_CAF_DA_choice_RSAPK_DSAPK :
         x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk
 
-type x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da =
     {
         re : x_rut_type
         rs : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rs
@@ -8309,20 +8315,20 @@ type x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da =
         idk : string
     }
 
-type x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma =
     {
         base : string
         algoritmo : string
     }
 
-type x_dte_def_type_choice_documento_exportaciones_ted_dd_caf =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_dd_caf =
     {
         da : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da
         frma : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma
         version : string
     }
 
-type x_dte_def_type_choice_documento_exportaciones_ted_dd =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_dd =
     {
         re : x_rut_type
         td : x_exp_type
@@ -8360,20 +8366,20 @@ inl x_dte_def_type_choice_documento_exportaciones_ted_frmt_algoritmo_example
 inl x_dte_def_type_choice_documento_exportaciones_ted_frmt_algoritmo_example_text (k : i32) : string =
     x_dte_def_type_choice_documento_documento_ted_frmt_algoritmo_example_text k
 
-type x_dte_def_type_choice_documento_exportaciones_ted_frmt =
+nominal x_dte_def_type_choice_documento_exportaciones_ted_frmt =
     {
         base : string
         algoritmo : x_dte_def_type_choice_documento_exportaciones_ted_frmt_algoritmo
     }
 
-type x_dte_def_type_choice_documento_exportaciones_ted =
+nominal x_dte_def_type_choice_documento_exportaciones_ted =
     {
         dd : x_dte_def_type_choice_documento_exportaciones_ted_dd
         frmt : x_dte_def_type_choice_documento_exportaciones_ted_frmt
         version : string
     }
 
-type x_dte_def_type_choice_documento_exportaciones =
+nominal x_dte_def_type_choice_documento_exportaciones =
     {
         encabezado : x_dte_def_type_choice_documento_exportaciones_encabezado
         detalle : list (x_dte_def_type_choice_documento_exportaciones_detalle)
@@ -8390,7 +8396,7 @@ union x_dte_def_type_choice_documento =
     | DTEDefType_choice_Documento_Liquidacion : x_dte_def_type_choice_documento_liquidacion
     | DTEDefType_choice_Documento_Exportaciones : x_dte_def_type_choice_documento_exportaciones
 
-type x_signature_type_signed_info_canonicalization_method =
+nominal x_signature_type_signed_info_canonicalization_method =
     {
         algorithm : string
     }
@@ -8433,27 +8439,27 @@ inl x_signature_type_signed_info_signature_method_algorithm_example_text (k : i3
         x_signature_type_signed_info_signature_method_algorithm_example k
     )
 
-type x_signature_type_signed_info_signature_method =
+nominal x_signature_type_signed_info_signature_method =
     {
         algorithm : x_signature_type_signed_info_signature_method_algorithm
     }
 
-type x_signature_type_signed_info_reference_transforms_transform =
+nominal x_signature_type_signed_info_reference_transforms_transform =
     {
         algorithm : string
     }
 
-type x_signature_type_signed_info_reference_transforms =
+nominal x_signature_type_signed_info_reference_transforms =
     {
         transform : x_signature_type_signed_info_reference_transforms_transform
     }
 
-type x_signature_type_signed_info_reference_digest_method =
+nominal x_signature_type_signed_info_reference_digest_method =
     {
         algorithm : string
     }
 
-type x_signature_type_signed_info_reference =
+nominal x_signature_type_signed_info_reference =
     {
         transforms : option (x_signature_type_signed_info_reference_transforms)
         digest_method : x_signature_type_signed_info_reference_digest_method
@@ -8461,20 +8467,20 @@ type x_signature_type_signed_info_reference =
         uri : string
     }
 
-type x_signature_type_signed_info =
+nominal x_signature_type_signed_info =
     {
         canonicalization_method : x_signature_type_signed_info_canonicalization_method
         signature_method : x_signature_type_signed_info_signature_method
         reference : x_signature_type_signed_info_reference
     }
 
-type x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value =
+nominal x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value =
     {
         modulus : string
         exponent : string
     }
 
-type x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value =
+nominal x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value =
     {
         p : string
         q : string
@@ -8488,23 +8494,23 @@ union x_signature_type_key_info_key_value_choice_rsa_key_value =
     | SignatureType_KeyInfo_KeyValue_choice_RSAKeyValue_DSAKeyValue :
         x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value
 
-type x_signature_type_key_info_key_value =
+nominal x_signature_type_key_info_key_value =
     {
         choice_rsa_key_value : x_signature_type_key_info_key_value_choice_rsa_key_value
     }
 
-type x_signature_type_key_info_x509_data =
+nominal x_signature_type_key_info_x509_data =
     {
         x509_certificate : string
     }
 
-type x_signature_type_key_info =
+nominal x_signature_type_key_info =
     {
         key_value : x_signature_type_key_info_key_value
         x509_data : x_signature_type_key_info_x509_data
     }
 
-type x_signature_type =
+nominal x_signature_type =
     {
         signed_info : x_signature_type_signed_info
         signature_value : string
@@ -8520,13 +8526,13 @@ inl x_envio_dte_set_dte_caratula_rut_emisor_example (k : i32) : string = x_rut_t
 inl x_envio_dte_set_dte_caratula_rut_emisor_example_text (k : i32) : string =
     x_envio_dte_set_dte_caratula_rut_emisor_example k
 
-type x_envio_dte_set_dte_caratula_sub_tot_dte =
+nominal x_envio_dte_set_dte_caratula_sub_tot_dte =
     {
         tpo_dte : x_doc_type
         nro_dte : string
     }
 
-type x_envio_dte_set_dte_caratula =
+nominal x_envio_dte_set_dte_caratula =
     {
         rut_emisor : x_envio_dte_set_dte_caratula_rut_emisor
         rut_envia : x_rut_type
@@ -8538,21 +8544,21 @@ type x_envio_dte_set_dte_caratula =
         version : string
     }
 
-type x_dte_def_type s =
+nominal x_dte_def_type s =
     {
         choice_documento : x_dte_def_type_choice_documento
         signature : staged s x_signature_type
         version : string
     }
 
-type x_envio_dte_set_dte s =
+nominal x_envio_dte_set_dte s =
     {
         caratula : x_envio_dte_set_dte_caratula
         dte : list (x_dte_def_type s)
         id : string
     }
 
-type x_envio_dte s =
+nominal x_envio_dte s =
     {
         set_dte : x_envio_dte_set_dte s
         signature : staged s x_signature_type
@@ -11666,7 +11672,7 @@ let rec x_envio_dte_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_envio_dte s
     =
-    {
+    x_envio_dte {
         set_dte = (fun c => x_envio_dte_set_dte_of_xml witness c) (xml.required_child "SetDTE" children)
         signature =
             staged_of witness fun () =>
@@ -11681,7 +11687,7 @@ and let x_envio_dte_set_dte_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_envio_dte_set_dte s
     =
-    {
+    x_envio_dte_set_dte {
         caratula = (fun c => x_envio_dte_set_dte_caratula_of_xml c) (xml.required_child "Caratula" children)
         dte = listm.map (fun c => x_dte_def_type_of_xml witness c) (xml.children_named "DTE" children)
         id = xml.required_attribute "ID" attributes
@@ -11694,7 +11700,7 @@ and let x_envio_dte_set_dte_caratula_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_envio_dte_set_dte_caratula
     =
-    {
+    x_envio_dte_set_dte_caratula {
         rut_emisor = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "RutEmisor" children)
         rut_envia =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RutEnvia" children)
@@ -11717,7 +11723,7 @@ and let x_envio_dte_set_dte_caratula_sub_tot_dte_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_envio_dte_set_dte_caratula_sub_tot_dte
     =
-    {
+    x_envio_dte_set_dte_caratula_sub_tot_dte {
         tpo_dte =
             (fun c => xml.required_value "x_doc_type" (x_doc_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoDTE" children)
         nro_dte = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroDTE" children)
@@ -11730,7 +11736,7 @@ and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type
     =
-    {
+    x_signature_type {
         signed_info = (fun c => x_signature_type_signed_info_of_xml c) (xml.required_child "SignedInfo" children)
         signature_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SignatureValue" children)
         key_info = (fun c => x_signature_type_key_info_of_xml c) (xml.required_child "KeyInfo" children)
@@ -11743,7 +11749,7 @@ and let x_signature_type_key_info_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_key_info
     =
-    {
+    x_signature_type_key_info {
         key_value = (fun c => x_signature_type_key_info_key_value_of_xml c) (xml.required_child "KeyValue" children)
         x509_data = (fun c => x_signature_type_key_info_x509_data_of_xml c) (xml.required_child "X509Data" children)
     }
@@ -11755,7 +11761,7 @@ and let x_signature_type_key_info_x509_data_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_key_info_x509_data
     =
-    {
+    x_signature_type_key_info_x509_data {
         x509_certificate =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
     }
@@ -11767,7 +11773,7 @@ and let x_signature_type_key_info_key_value_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_key_info_key_value
     =
-    {
+    x_signature_type_key_info_key_value {
         choice_rsa_key_value = x_signature_type_key_info_key_value_choice_rsa_key_value_of_children attributes children
     }
 
@@ -11793,7 +11799,7 @@ and let x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value_o
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value
     =
-    {
+    x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value {
         p = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "P" children)
         q = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Q" children)
         g = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "G" children)
@@ -11812,7 +11818,7 @@ and let x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value_o
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value
     =
-    {
+    x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value {
         modulus = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Modulus" children)
         exponent = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Exponent" children)
     }
@@ -11829,7 +11835,7 @@ and let x_signature_type_signed_info_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_signed_info
     =
-    {
+    x_signature_type_signed_info {
         canonicalization_method =
             (fun c => x_signature_type_signed_info_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
         signature_method =
@@ -11844,7 +11850,7 @@ and let x_signature_type_signed_info_reference_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_signed_info_reference
     =
-    {
+    x_signature_type_signed_info_reference {
         transforms =
             optionm.map
                 fun c => x_signature_type_signed_info_reference_transforms_of_xml c
@@ -11862,7 +11868,7 @@ and let x_signature_type_signed_info_reference_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_signed_info_reference_digest_method
     =
-    {
+    x_signature_type_signed_info_reference_digest_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -11879,7 +11885,7 @@ and let x_signature_type_signed_info_reference_transforms_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_signed_info_reference_transforms
     =
-    {
+    x_signature_type_signed_info_reference_transforms {
         transform =
             (fun c => x_signature_type_signed_info_reference_transforms_transform_of_xml c) (xml.required_child "Transform" children)
     }
@@ -11894,7 +11900,7 @@ and let x_signature_type_signed_info_reference_transforms_transform_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_signed_info_reference_transforms_transform
     =
-    {
+    x_signature_type_signed_info_reference_transforms_transform {
         algorithm = xml.required_attribute "Algorithm" attributes
     }
 
@@ -11910,7 +11916,7 @@ and let x_signature_type_signed_info_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_signed_info_signature_method
     =
-    {
+    x_signature_type_signed_info_signature_method {
         algorithm =
             xml.required_value
                 "x_signature_type_signed_info_signature_method_algorithm"
@@ -11931,7 +11937,7 @@ and let x_signature_type_signed_info_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type_signed_info_canonicalization_method
     =
-    {
+    x_signature_type_signed_info_canonicalization_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -11948,7 +11954,7 @@ and let x_dte_def_type_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type s
     =
-    {
+    x_dte_def_type {
         choice_documento = x_dte_def_type_choice_documento_of_children attributes children
         signature =
             staged_of witness fun () =>
@@ -11982,7 +11988,7 @@ and let x_dte_def_type_choice_documento_exportaciones_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones {
         encabezado =
             (fun c => x_dte_def_type_choice_documento_exportaciones_encabezado_of_xml c) (xml.required_child "Encabezado" children)
         detalle =
@@ -12016,7 +12022,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted {
         dd = (fun c => x_dte_def_type_choice_documento_exportaciones_ted_dd_of_xml c) (xml.required_child "DD" children)
         frmt =
             (fun c => x_dte_def_type_choice_documento_exportaciones_ted_frmt_of_xml c) (xml.required_child "FRMT" children)
@@ -12033,7 +12039,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_frmt_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_frmt
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_frmt {
         base = xml.text_in children
         algoritmo =
             xml.required_value
@@ -12057,7 +12063,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_dd_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_dd
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_dd {
         re =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RE" children)
         td =
@@ -12086,7 +12092,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf {
         da =
             (fun c => x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_of_xml c) (xml.required_child "DA" children)
         frma =
@@ -12106,7 +12112,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma {
         base = xml.text_in children
         algoritmo = xml.required_attribute "algoritmo" (xml.checked_fixed "algoritmo" "SHA1withRSA" attributes)
     }
@@ -12123,7 +12129,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da {
         re =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RE" children)
         rs =
@@ -12165,7 +12171,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk {
         p = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "P" children)
         q = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Q" children)
         g = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "G" children)
@@ -12184,7 +12190,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk {
         m = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "M" children)
         e = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "E" children)
     }
@@ -12201,7 +12207,7 @@ and let x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng {
         d = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "D" children)
         h = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "H" children)
     }
@@ -12218,7 +12224,7 @@ and let x_dte_def_type_choice_documento_exportaciones_referencia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_referencia
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_referencia {
         nro_lin_ref = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinRef" children)
         tpo_doc_ref =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_referencia_tpo_doc_ref" (x_dte_def_type_choice_documento_exportaciones_referencia_tpo_doc_ref_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoDocRef" children)
@@ -12271,7 +12277,7 @@ and let x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global {
         nro_lin_dr = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinDR" children)
         tpo_mov =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_tpo_mov" (x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_tpo_mov_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoMov" children)
@@ -12308,7 +12314,7 @@ and let x_dte_def_type_choice_documento_exportaciones_sub_tot_info_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_sub_tot_info
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_sub_tot_info {
         nro_sti = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroSTI" children)
         glosa_sti =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_sub_tot_info_glosa_sti" (x_dte_def_type_choice_documento_exportaciones_sub_tot_info_glosa_sti_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "GlosaSTI" children)
@@ -12339,7 +12345,7 @@ and let x_dte_def_type_choice_documento_exportaciones_detalle_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_detalle
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_detalle {
         nro_lin_det = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinDet" children)
         cdg_item =
             listm.map
@@ -12420,7 +12426,7 @@ and let x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_of_chi
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo {
         tipo_recargo =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_tipo_recargo" (x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_tipo_recargo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoRecargo" children)
         valor_recargo = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "ValorRecargo" children)
@@ -12438,7 +12444,7 @@ and let x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto {
         tipo_dscto =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_tipo_dscto" (x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_tipo_dscto_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDscto" children)
         valor_dscto = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "ValorDscto" children)
@@ -12456,7 +12462,7 @@ and let x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda {
         prc_otr_mon = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "PrcOtrMon" children)
         moneda =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_moneda" (x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_moneda_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Moneda" children)
@@ -12481,7 +12487,7 @@ and let x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_of_chi
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad {
         sub_qty = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SubQty" children)
         sub_cod =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_sub_cod" (x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_sub_cod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SubCod" children)
@@ -12509,7 +12515,7 @@ and let x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item {
         tpo_codigo =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_tpo_codigo" (x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_tpo_codigo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoCodigo" children)
         vlr_codigo =
@@ -12528,7 +12534,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado {
         id_doc =
             (fun c => x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_of_xml c) (xml.required_child "IdDoc" children)
         emisor =
@@ -12559,7 +12565,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda_of_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda {
         tpo_moneda =
             (fun c => xml.required_value "x_tip_mon_type" (x_tip_mon_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoMoneda" children)
         tpo_cambio = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "TpoCambio" children)
@@ -12580,7 +12586,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_totales_of_chil
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_totales
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_totales {
         tpo_moneda =
             (fun c => xml.required_value "x_tip_mon_type" (x_tip_mon_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoMoneda" children)
         mnt_exe = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "MntExe" children)
@@ -12599,7 +12605,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_of_c
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_transporte
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte {
         patente =
             optionm.map
                 fun c =>
@@ -12650,7 +12656,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_adua
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana {
         cod_mod_venta =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CodModVenta" children)
         cod_clau_venta =
@@ -12772,7 +12778,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_adua
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos {
         cod_tpo_bultos =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CodTpoBultos" children)
         cant_bultos =
@@ -12837,7 +12843,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chof
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer {
         rut_chofer =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTChofer" children)
         nombre_chofer =
@@ -12856,7 +12862,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_of_chi
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_receptor
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_receptor {
         rut_recep =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTRecep" children)
         cdg_int_recep =
@@ -12942,7 +12948,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extran
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero {
         num_id =
             optionm.map
                 fun c =>
@@ -12987,7 +12993,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_emisor_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_emisor
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_emisor {
         rut_emisor =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTEmisor" children)
         rzn_soc =
@@ -13075,7 +13081,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc {
         tipo_dte =
             (fun c => xml.required_value "x_exp_type" (x_exp_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDTE" children)
         folio = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Folio" children)
@@ -13176,7 +13182,7 @@ and let x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pago
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos
     =
-    {
+    x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos {
         fch_pago = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "FchPago" children)
         mnt_pago = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "MntPago" children)
         glosa_pagos =
@@ -13203,7 +13209,7 @@ and let x_dte_def_type_choice_documento_liquidacion_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion {
         encabezado =
             (fun c => x_dte_def_type_choice_documento_liquidacion_encabezado_of_xml c) (xml.required_child "Encabezado" children)
         detalle =
@@ -13237,7 +13243,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted {
         dd = (fun c => x_dte_def_type_choice_documento_liquidacion_ted_dd_of_xml c) (xml.required_child "DD" children)
         frmt =
             (fun c => x_dte_def_type_choice_documento_liquidacion_ted_frmt_of_xml c) (xml.required_child "FRMT" children)
@@ -13254,7 +13260,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_frmt_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_frmt
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_frmt {
         base = xml.text_in children
         algoritmo =
             xml.required_value
@@ -13276,7 +13282,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_dd_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_dd
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_dd {
         re =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RE" children)
         td =
@@ -13305,7 +13311,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf {
         da =
             (fun c => x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_of_xml c) (xml.required_child "DA" children)
         frma =
@@ -13325,7 +13331,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma {
         base = xml.text_in children
         algoritmo = xml.required_attribute "algoritmo" (xml.checked_fixed "algoritmo" "SHA1withRSA" attributes)
     }
@@ -13342,7 +13348,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da {
         re =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RE" children)
         rs =
@@ -13384,7 +13390,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_d
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk {
         p = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "P" children)
         q = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Q" children)
         g = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "G" children)
@@ -13403,7 +13409,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_r
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk {
         m = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "M" children)
         e = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "E" children)
     }
@@ -13420,7 +13426,7 @@ and let x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng {
         d = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "D" children)
         h = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "H" children)
     }
@@ -13437,7 +13443,7 @@ and let x_dte_def_type_choice_documento_liquidacion_comisiones_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_comisiones
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_comisiones {
         nro_lin_com = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinCom" children)
         tipo_movim =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_liquidacion_comisiones_tipo_movim" (x_dte_def_type_choice_documento_liquidacion_comisiones_tipo_movim_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoMovim" children)
@@ -13462,7 +13468,7 @@ and let x_dte_def_type_choice_documento_liquidacion_referencia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_referencia
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_referencia {
         nro_lin_ref = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinRef" children)
         tpo_doc_ref =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_liquidacion_referencia_tpo_doc_ref" (x_dte_def_type_choice_documento_liquidacion_referencia_tpo_doc_ref_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoDocRef" children)
@@ -13504,7 +13510,7 @@ and let x_dte_def_type_choice_documento_liquidacion_sub_tot_info_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_sub_tot_info
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_sub_tot_info {
         nro_sti = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroSTI" children)
         glosa_sti =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_liquidacion_sub_tot_info_glosa_sti" (x_dte_def_type_choice_documento_liquidacion_sub_tot_info_glosa_sti_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "GlosaSTI" children)
@@ -13535,7 +13541,7 @@ and let x_dte_def_type_choice_documento_liquidacion_detalle_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_detalle
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_detalle {
         nro_lin_det = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinDet" children)
         cdg_item =
             listm.map
@@ -13602,7 +13608,7 @@ and let x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad {
         sub_qty = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SubQty" children)
         sub_cod =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_sub_cod" (x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_sub_cod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SubCod" children)
@@ -13620,7 +13626,7 @@ and let x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item {
         tpo_codigo =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_tpo_codigo" (x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_tpo_codigo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoCodigo" children)
         vlr_codigo =
@@ -13639,7 +13645,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado {
         id_doc =
             (fun c => x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_of_xml c) (xml.required_child "IdDoc" children)
         emisor =
@@ -13662,7 +13668,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_totales_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado_totales
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales {
         mnt_neto = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "MntNeto" children)
         mnt_exe = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "MntExe" children)
         tasa_iva = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "TasaIVA" children)
@@ -13697,7 +13703,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisione
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones {
         val_com_neto =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "ValComNeto" children)
         val_com_exe = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "ValComExe" children)
@@ -13716,7 +13722,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_ret
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten {
         tipo_imp =
             (fun c => xml.required_value "x_imp_adic_dte_type" (x_imp_adic_dte_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoImp" children)
         tasa_imp = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "TasaImp" children)
@@ -13735,7 +13741,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_receptor_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado_receptor
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado_receptor {
         rut_recep =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTRecep" children)
         cdg_int_recep =
@@ -13800,7 +13806,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_emisor_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado_emisor
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado_emisor {
         rut_emisor =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTEmisor" children)
         rzn_soc =
@@ -13861,7 +13867,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc {
         tipo_dte =
             (fun c => xml.required_value "x_liq_type" (x_liq_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDTE" children)
         folio = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Folio" children)
@@ -13957,7 +13963,7 @@ and let x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos
     =
-    {
+    x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos {
         fch_pago = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "FchPago" children)
         mnt_pago = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "MntPago" children)
         glosa_pagos =
@@ -13984,7 +13990,7 @@ and let x_dte_def_type_choice_documento_documento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento
     =
-    {
+    x_dte_def_type_choice_documento_documento {
         encabezado =
             (fun c => x_dte_def_type_choice_documento_documento_encabezado_of_xml c) (xml.required_child "Encabezado" children)
         detalle =
@@ -14019,7 +14025,7 @@ and let x_dte_def_type_choice_documento_documento_ted_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted {
         dd = (fun c => x_dte_def_type_choice_documento_documento_ted_dd_of_xml c) (xml.required_child "DD" children)
         frmt =
             (fun c => x_dte_def_type_choice_documento_documento_ted_frmt_of_xml c) (xml.required_child "FRMT" children)
@@ -14036,7 +14042,7 @@ and let x_dte_def_type_choice_documento_documento_ted_frmt_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_frmt
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_frmt {
         base = xml.text_in children
         algoritmo =
             xml.required_value
@@ -14058,7 +14064,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_dd
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd {
         re =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RE" children)
         td =
@@ -14087,7 +14093,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf {
         da =
             (fun c => x_dte_def_type_choice_documento_documento_ted_dd_caf_da_of_xml c) (xml.required_child "DA" children)
         frma =
@@ -14105,7 +14111,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_frma_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_frma
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_frma {
         base = xml.text_in children
         algoritmo = xml.required_attribute "algoritmo" (xml.checked_fixed "algoritmo" "SHA1withRSA" attributes)
     }
@@ -14122,7 +14128,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_da_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_da
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da {
         re =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RE" children)
         rs =
@@ -14164,7 +14170,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsa
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk {
         p = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "P" children)
         q = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Q" children)
         g = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "G" children)
@@ -14183,7 +14189,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsa
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk {
         m = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "M" children)
         e = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "E" children)
     }
@@ -14200,7 +14206,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng {
         d = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "D" children)
         h = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "H" children)
     }
@@ -14217,7 +14223,7 @@ and let x_dte_def_type_choice_documento_documento_comisiones_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_comisiones
     =
-    {
+    x_dte_def_type_choice_documento_documento_comisiones {
         nro_lin_com = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinCom" children)
         tipo_movim =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_comisiones_tipo_movim" (x_dte_def_type_choice_documento_documento_comisiones_tipo_movim_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoMovim" children)
@@ -14240,7 +14246,7 @@ and let x_dte_def_type_choice_documento_documento_referencia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_referencia
     =
-    {
+    x_dte_def_type_choice_documento_documento_referencia {
         nro_lin_ref = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinRef" children)
         tpo_doc_ref =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_referencia_tpo_doc_ref" (x_dte_def_type_choice_documento_documento_referencia_tpo_doc_ref_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoDocRef" children)
@@ -14284,7 +14290,7 @@ and let x_dte_def_type_choice_documento_documento_dsc_rcg_global_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_dsc_rcg_global
     =
-    {
+    x_dte_def_type_choice_documento_documento_dsc_rcg_global {
         nro_lin_dr = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinDR" children)
         tpo_mov =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_dsc_rcg_global_tpo_mov" (x_dte_def_type_choice_documento_documento_dsc_rcg_global_tpo_mov_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoMov" children)
@@ -14321,7 +14327,7 @@ and let x_dte_def_type_choice_documento_documento_sub_tot_info_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_sub_tot_info
     =
-    {
+    x_dte_def_type_choice_documento_documento_sub_tot_info {
         nro_sti = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroSTI" children)
         glosa_sti =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_sub_tot_info_glosa_sti" (x_dte_def_type_choice_documento_documento_sub_tot_info_glosa_sti_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "GlosaSTI" children)
@@ -14352,7 +14358,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_detalle
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle {
         nro_lin_det = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "NroLinDet" children)
         cdg_item =
             listm.map
@@ -14441,7 +14447,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_sub_recargo_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_detalle_sub_recargo
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_sub_recargo {
         tipo_recargo =
             (fun c => xml.required_value "x_dinero_porcentaje_type" (x_dinero_porcentaje_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoRecargo" children)
         valor_recargo = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "ValorRecargo" children)
@@ -14459,7 +14465,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_sub_dscto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_detalle_sub_dscto
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_sub_dscto {
         tipo_dscto =
             (fun c => xml.required_value "x_dinero_porcentaje_type" (x_dinero_porcentaje_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDscto" children)
         valor_dscto = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "ValorDscto" children)
@@ -14477,7 +14483,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_otr_mnda_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_detalle_otr_mnda
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_otr_mnda {
         prc_otr_mon = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "PrcOtrMon" children)
         moneda =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_detalle_otr_mnda_moneda" (x_dte_def_type_choice_documento_documento_detalle_otr_mnda_moneda_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Moneda" children)
@@ -14502,7 +14508,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_subcantidad_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_detalle_subcantidad
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_subcantidad {
         sub_qty = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SubQty" children)
         sub_cod =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_detalle_subcantidad_sub_cod" (x_dte_def_type_choice_documento_documento_detalle_subcantidad_sub_cod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SubCod" children)
@@ -14520,7 +14526,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_retenedor_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_detalle_retenedor
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_retenedor {
         ind_agente =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_detalle_retenedor_ind_agente" (x_dte_def_type_choice_documento_documento_detalle_retenedor_ind_agente_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "IndAgente" children)
         mnt_base_faena =
@@ -14543,7 +14549,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_cdg_item_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_detalle_cdg_item
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_cdg_item {
         tpo_codigo =
             (fun c => xml.required_value "x_dte_def_type_choice_documento_documento_detalle_cdg_item_tpo_codigo" (x_dte_def_type_choice_documento_documento_detalle_cdg_item_tpo_codigo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoCodigo" children)
         vlr_codigo =
@@ -14562,7 +14568,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado {
         id_doc =
             (fun c => x_dte_def_type_choice_documento_documento_encabezado_id_doc_of_xml c) (xml.required_child "IdDoc" children)
         emisor =
@@ -14599,7 +14605,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_of_chil
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_otra_moneda
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda {
         tpo_moneda =
             (fun c => xml.required_value "x_tip_mon_type" (x_tip_mon_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TpoMoneda" children)
         tpo_cambio = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "TpoCambio" children)
@@ -14634,7 +14640,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda {
         tipo_imp_otr_mnda =
             (fun c => xml.required_value "x_imp_adic_dte_type" (x_imp_adic_dte_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoImpOtrMnda" children)
         tasa_imp_otr_mnda =
@@ -14654,7 +14660,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_totales_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_totales
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_totales {
         mnt_neto = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "MntNeto" children)
         mnt_exe = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "MntExe" children)
         mnt_base = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "MntBase" children)
@@ -14696,7 +14702,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones {
         val_com_neto =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "ValComNeto" children)
         val_com_exe = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "ValComExe" children)
@@ -14715,7 +14721,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten {
         tipo_imp =
             (fun c => xml.required_value "x_imp_adic_dte_type" (x_imp_adic_dte_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoImp" children)
         tasa_imp = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "TasaImp" children)
@@ -14734,7 +14740,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte {
         patente =
             optionm.map
                 fun c =>
@@ -14785,7 +14791,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_o
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana {
         cod_mod_venta =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CodModVenta" children)
         cod_clau_venta =
@@ -14909,7 +14915,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_t
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos {
         cod_tpo_bultos =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CodTpoBultos" children)
         cant_bultos =
@@ -14974,7 +14980,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_o
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer {
         rut_chofer =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTChofer" children)
         nombre_chofer =
@@ -14993,7 +14999,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_receptor_of_childre
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_receptor
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_receptor {
         rut_recep =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTRecep" children)
         cdg_int_recep =
@@ -15075,7 +15081,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero {
         num_id =
             optionm.map
                 fun c =>
@@ -15111,7 +15117,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_emisor_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_emisor
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_emisor {
         rut_emisor =
             (fun c => xml.required_value "x_rut_type" (x_rut_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "RUTEmisor" children)
         rzn_soc = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "RznSoc" children)
@@ -15187,7 +15193,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export {
         cdg_traslado =
             optionm.map
                 fun c =>
@@ -15214,7 +15220,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_id_doc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_id_doc
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc {
         tipo_dte =
             (fun c => xml.required_value "x_dte_type" (x_dte_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TipoDTE" children)
         folio = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Folio" children)
@@ -15339,7 +15345,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_of
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos {
         fch_pago = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "FchPago" children)
         mnt_pago = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "MntPago" children)
         glosa_pagos =
@@ -20788,21 +20794,21 @@ and let x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_to
         (x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_children x)
 
 and let x_envio_dte_example (k : i32) : x_envio_dte unsigned =
-    {
+    x_envio_dte {
         set_dte = x_envio_dte_set_dte_example k
         signature = Pending "an unsigned example"
         version = "1.0"
     }
 
 and let x_envio_dte_set_dte_example (k : i32) : x_envio_dte_set_dte unsigned =
-    {
+    x_envio_dte_set_dte {
         caratula = x_envio_dte_set_dte_caratula_example k
         dte = [ x_dte_def_type_example (k + 0i32) ]
         id = "ID_x_envio_dte_set_dte"
     }
 
 and let x_envio_dte_set_dte_caratula_example (k : i32) : x_envio_dte_set_dte_caratula =
-    {
+    x_envio_dte_set_dte_caratula {
         rut_emisor = x_envio_dte_set_dte_caratula_rut_emisor_example k
         rut_envia = x_rut_type_example k
         rut_receptor = x_rut_type_example k
@@ -20814,31 +20820,31 @@ and let x_envio_dte_set_dte_caratula_example (k : i32) : x_envio_dte_set_dte_car
     }
 
 and let x_envio_dte_set_dte_caratula_sub_tot_dte_example (k : i32) : x_envio_dte_set_dte_caratula_sub_tot_dte =
-    {
+    x_envio_dte_set_dte_caratula_sub_tot_dte {
         tpo_dte = x_doc_type_example k
         nro_dte = "1"
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =
-    {
+    x_signature_type {
         signed_info = x_signature_type_signed_info_example k
         signature_value = "AAAA"
         key_info = x_signature_type_key_info_example k
     }
 
 and let x_signature_type_key_info_example (k : i32) : x_signature_type_key_info =
-    {
+    x_signature_type_key_info {
         key_value = x_signature_type_key_info_key_value_example k
         x509_data = x_signature_type_key_info_x509_data_example k
     }
 
 and let x_signature_type_key_info_x509_data_example (k : i32) : x_signature_type_key_info_x509_data =
-    {
+    x_signature_type_key_info_x509_data {
         x509_certificate = "AAAA"
     }
 
 and let x_signature_type_key_info_key_value_example (k : i32) : x_signature_type_key_info_key_value =
-    {
+    x_signature_type_key_info_key_value {
         choice_rsa_key_value = x_signature_type_key_info_key_value_choice_rsa_key_value_example k
     }
 
@@ -20854,20 +20860,20 @@ and let x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value_e
     (k : i32)
     : x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value
     =
-    {
+    x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value {
         modulus = "AAAA"
         exponent = "AAAA"
     }
 
 and let x_signature_type_signed_info_example (k : i32) : x_signature_type_signed_info =
-    {
+    x_signature_type_signed_info {
         canonicalization_method = x_signature_type_signed_info_canonicalization_method_example k
         signature_method = x_signature_type_signed_info_signature_method_example k
         reference = x_signature_type_signed_info_reference_example k
     }
 
 and let x_signature_type_signed_info_reference_example (k : i32) : x_signature_type_signed_info_reference =
-    {
+    x_signature_type_signed_info_reference {
         transforms = None
         digest_method = x_signature_type_signed_info_reference_digest_method_example k
         digest_value = "AAAA"
@@ -20878,7 +20884,7 @@ and let x_signature_type_signed_info_reference_digest_method_example
     (k : i32)
     : x_signature_type_signed_info_reference_digest_method
     =
-    {
+    x_signature_type_signed_info_reference_digest_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
     }
 
@@ -20886,7 +20892,7 @@ and let x_signature_type_signed_info_reference_transforms_example
     (k : i32)
     : x_signature_type_signed_info_reference_transforms
     =
-    {
+    x_signature_type_signed_info_reference_transforms {
         transform = x_signature_type_signed_info_reference_transforms_transform_example k
     }
 
@@ -20894,12 +20900,12 @@ and let x_signature_type_signed_info_reference_transforms_transform_example
     (k : i32)
     : x_signature_type_signed_info_reference_transforms_transform
     =
-    {
+    x_signature_type_signed_info_reference_transforms_transform {
         algorithm = "http://example.com"
     }
 
 and let x_signature_type_signed_info_signature_method_example (k : i32) : x_signature_type_signed_info_signature_method =
-    {
+    x_signature_type_signed_info_signature_method {
         algorithm = x_signature_type_signed_info_signature_method_algorithm_example k
     }
 
@@ -20907,12 +20913,12 @@ and let x_signature_type_signed_info_canonicalization_method_example
     (k : i32)
     : x_signature_type_signed_info_canonicalization_method
     =
-    {
+    x_signature_type_signed_info_canonicalization_method {
         algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
     }
 
 and let x_dte_def_type_example (k : i32) : x_dte_def_type unsigned =
-    {
+    x_dte_def_type {
         choice_documento = x_dte_def_type_choice_documento_example k
         signature = Pending "an unsigned example"
         version = "1.0"
@@ -20922,7 +20928,7 @@ and let x_dte_def_type_choice_documento_example (k : i32) : x_dte_def_type_choic
     DTEDefType_choice_Documento_Documento (x_dte_def_type_choice_documento_documento_example k)
 
 and let x_dte_def_type_choice_documento_documento_example (k : i32) : x_dte_def_type_choice_documento_documento =
-    {
+    x_dte_def_type_choice_documento_documento {
         encabezado = x_dte_def_type_choice_documento_documento_encabezado_example k
         detalle = [ x_dte_def_type_choice_documento_documento_detalle_example (k + 0i32) ]
         sub_tot_info = []
@@ -20935,7 +20941,7 @@ and let x_dte_def_type_choice_documento_documento_example (k : i32) : x_dte_def_
     }
 
 and let x_dte_def_type_choice_documento_documento_ted_example (k : i32) : x_dte_def_type_choice_documento_documento_ted =
-    {
+    x_dte_def_type_choice_documento_documento_ted {
         dd = x_dte_def_type_choice_documento_documento_ted_dd_example k
         frmt = x_dte_def_type_choice_documento_documento_ted_frmt_example k
         version = "1.0"
@@ -20945,7 +20951,7 @@ and let x_dte_def_type_choice_documento_documento_ted_frmt_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_ted_frmt
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_frmt {
         base = "AAAA"
         algoritmo = x_dte_def_type_choice_documento_documento_ted_frmt_algoritmo_example k
     }
@@ -20954,7 +20960,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_ted_dd
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd {
         re = x_rut_type_example k
         td = x_dte_type_example k
         f = x_folio_type_example k
@@ -20971,7 +20977,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf {
         da = x_dte_def_type_choice_documento_documento_ted_dd_caf_da_example k
         frma = x_dte_def_type_choice_documento_documento_ted_dd_caf_frma_example k
         version = "1.0"
@@ -20981,7 +20987,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_frma_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_frma
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_frma {
         base = "AAAA"
         algoritmo = "SHA1withRSA"
     }
@@ -20990,7 +20996,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_da_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_da
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da {
         re = x_rut_type_example k
         rs = x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rs_example k
         td = x_dte_type_example k
@@ -21012,7 +21018,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsa
     (k : i32)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk {
         m = "AAAA"
         e = "AAAA"
     }
@@ -21021,7 +21027,7 @@ and let x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng
     =
-    {
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng {
         d = x_folio_type_example k
         h = x_folio_type_example k
     }
@@ -21030,7 +21036,7 @@ and let x_dte_def_type_choice_documento_documento_comisiones_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_comisiones
     =
-    {
+    x_dte_def_type_choice_documento_documento_comisiones {
         nro_lin_com = x_dte_def_type_choice_documento_documento_comisiones_nro_lin_com_example k
         tipo_movim = x_dte_def_type_choice_documento_documento_comisiones_tipo_movim_example k
         glosa = x_dte_def_type_choice_documento_documento_comisiones_glosa_example k
@@ -21044,7 +21050,7 @@ and let x_dte_def_type_choice_documento_documento_referencia_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_referencia
     =
-    {
+    x_dte_def_type_choice_documento_documento_referencia {
         nro_lin_ref = x_dte_def_type_choice_documento_documento_referencia_nro_lin_ref_example k
         tpo_doc_ref = x_dte_def_type_choice_documento_documento_referencia_tpo_doc_ref_example k
         ind_global = None
@@ -21059,7 +21065,7 @@ and let x_dte_def_type_choice_documento_documento_dsc_rcg_global_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_dsc_rcg_global
     =
-    {
+    x_dte_def_type_choice_documento_documento_dsc_rcg_global {
         nro_lin_dr = "1"
         tpo_mov = x_dte_def_type_choice_documento_documento_dsc_rcg_global_tpo_mov_example k
         glosa_dr = None
@@ -21073,7 +21079,7 @@ and let x_dte_def_type_choice_documento_documento_sub_tot_info_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_sub_tot_info
     =
-    {
+    x_dte_def_type_choice_documento_documento_sub_tot_info {
         nro_sti = x_dte_def_type_choice_documento_documento_sub_tot_info_nro_sti_example k
         glosa_sti = x_dte_def_type_choice_documento_documento_sub_tot_info_glosa_sti_example k
         orden_sti = None
@@ -21089,7 +21095,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_detalle
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle {
         nro_lin_det = x_dte_def_type_choice_documento_documento_detalle_nro_lin_det_example k
         cdg_item = []
         ind_exe = None
@@ -21120,7 +21126,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_sub_recargo_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_detalle_sub_recargo
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_sub_recargo {
         tipo_recargo = x_dinero_porcentaje_type_example k
         valor_recargo = x_dec16_2_type_example k
     }
@@ -21129,7 +21135,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_sub_dscto_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_detalle_sub_dscto
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_sub_dscto {
         tipo_dscto = x_dinero_porcentaje_type_example k
         valor_dscto = x_dec16_2_type_example k
     }
@@ -21138,7 +21144,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_otr_mnda_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_detalle_otr_mnda
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_otr_mnda {
         prc_otr_mon = x_dec12_6_type_example k
         moneda = x_dte_def_type_choice_documento_documento_detalle_otr_mnda_moneda_example k
         fct_conv = None
@@ -21151,7 +21157,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_subcantidad_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_detalle_subcantidad
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_subcantidad {
         sub_qty = x_dec12_6_type_example k
         sub_cod = x_dte_def_type_choice_documento_documento_detalle_subcantidad_sub_cod_example k
     }
@@ -21160,7 +21166,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_retenedor_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_detalle_retenedor
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_retenedor {
         ind_agente = x_dte_def_type_choice_documento_documento_detalle_retenedor_ind_agente_example k
         mnt_base_faena = None
         mnt_marg_comer = None
@@ -21171,7 +21177,7 @@ and let x_dte_def_type_choice_documento_documento_detalle_cdg_item_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_detalle_cdg_item
     =
-    {
+    x_dte_def_type_choice_documento_documento_detalle_cdg_item {
         tpo_codigo = x_dte_def_type_choice_documento_documento_detalle_cdg_item_tpo_codigo_example k
         vlr_codigo = x_dte_def_type_choice_documento_documento_detalle_cdg_item_vlr_codigo_example k
     }
@@ -21180,7 +21186,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado {
         id_doc = x_dte_def_type_choice_documento_documento_encabezado_id_doc_example k
         emisor = x_dte_def_type_choice_documento_documento_encabezado_emisor_example k
         rut_mandante = None
@@ -21195,7 +21201,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_otra_moneda
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda {
         tpo_moneda = x_tip_mon_type_example k
         tpo_cambio = None
         mnt_neto_otr_mnda = None
@@ -21212,7 +21218,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda {
         tipo_imp_otr_mnda = x_imp_adic_dte_type_example k
         tasa_imp_otr_mnda = None
         vlr_imp_otr_mnda = x_dec14_4_type_example k
@@ -21222,7 +21228,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_totales_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_totales
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_totales {
         mnt_neto = None
         mnt_exe = None
         mnt_base = None
@@ -21247,7 +21253,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones_
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones {
         val_com_neto = None
         val_com_exe = None
         val_com_iva = None
@@ -21257,7 +21263,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten {
         tipo_imp = x_imp_adic_dte_type_example k
         tasa_imp = None
         monto_imp = x_mnt_imp_type_example k
@@ -21267,7 +21273,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte {
         patente = None
         rut_trans = None
         chofer = None
@@ -21281,7 +21287,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_e
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana {
         cod_mod_venta = None
         cod_clau_venta = None
         tot_clau_venta = None
@@ -21315,7 +21321,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_t
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos {
         cod_tpo_bultos = None
         cant_bultos = None
         marcas = None
@@ -21328,7 +21334,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_e
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer {
         rut_chofer = x_rut_type_example k
         nombre_chofer = x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_nombre_chofer_example k
     }
@@ -21337,7 +21343,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_receptor_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_receptor
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_receptor {
         rut_recep = x_rut_type_example k
         cdg_int_recep = None
         rzn_soc_recep = x_rzn_soc_larga_type_example k
@@ -21357,7 +21363,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero {
         num_id = None
         nacionalidad = None
     }
@@ -21366,7 +21372,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_emisor_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_emisor
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_emisor {
         rut_emisor = x_rut_type_example k
         rzn_soc = x_dte_def_type_choice_documento_documento_encabezado_emisor_rzn_soc_example k
         giro_emis = x_dte_def_type_choice_documento_documento_encabezado_emisor_giro_emis_example k
@@ -21387,7 +21393,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export_
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export {
         cdg_traslado = None
         folio_aut = None
         fch_aut = None
@@ -21397,7 +21403,7 @@ and let x_dte_def_type_choice_documento_documento_encabezado_id_doc_example
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_id_doc
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc {
         tipo_dte = x_dte_type_example k
         folio = x_folio_type_example k
         fch_emis = x_fecha_type_example k
@@ -21429,11 +21435,528 @@ and let x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_ex
     (k : i32)
     : x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos
     =
-    {
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos {
         fch_pago = x_fecha_type_example k
         mnt_pago = x_monto_type_example k
         glosa_pagos = None
     }
+
+
+instance of_xml x_envio_dte s {stage_of} = fun c => x_envio_dte_of_xml (stage_of ()) c
+instance to_xml x_envio_dte s = x_envio_dte_to_xml
+
+instance of_xml x_envio_dte_set_dte s {stage_of} = fun c => x_envio_dte_set_dte_of_xml (stage_of ()) c
+instance to_xml x_envio_dte_set_dte s = x_envio_dte_set_dte_to_xml
+
+instance of_xml x_envio_dte_set_dte_caratula = x_envio_dte_set_dte_caratula_of_xml
+instance to_xml x_envio_dte_set_dte_caratula = x_envio_dte_set_dte_caratula_to_xml
+
+instance of_xml x_envio_dte_set_dte_caratula_sub_tot_dte = x_envio_dte_set_dte_caratula_sub_tot_dte_of_xml
+instance to_xml x_envio_dte_set_dte_caratula_sub_tot_dte = x_envio_dte_set_dte_caratula_sub_tot_dte_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_type_key_info = x_signature_type_key_info_of_xml
+instance to_xml x_signature_type_key_info = x_signature_type_key_info_to_xml
+
+instance of_xml x_signature_type_key_info_x509_data = x_signature_type_key_info_x509_data_of_xml
+instance to_xml x_signature_type_key_info_x509_data = x_signature_type_key_info_x509_data_to_xml
+
+instance of_xml x_signature_type_key_info_key_value = x_signature_type_key_info_key_value_of_xml
+instance to_xml x_signature_type_key_info_key_value = x_signature_type_key_info_key_value_to_xml
+
+instance of_xml x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value =
+    x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value_of_xml
+instance to_xml x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value =
+    x_signature_type_key_info_key_value_choice_rsa_key_value_dsa_key_value_to_xml
+
+instance of_xml x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value =
+    x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value_of_xml
+instance to_xml x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value =
+    x_signature_type_key_info_key_value_choice_rsa_key_value_rsa_key_value_to_xml
+
+instance of_xml x_signature_type_signed_info = x_signature_type_signed_info_of_xml
+instance to_xml x_signature_type_signed_info = x_signature_type_signed_info_to_xml
+
+instance of_xml x_signature_type_signed_info_reference = x_signature_type_signed_info_reference_of_xml
+instance to_xml x_signature_type_signed_info_reference = x_signature_type_signed_info_reference_to_xml
+
+instance of_xml x_signature_type_signed_info_reference_digest_method =
+    x_signature_type_signed_info_reference_digest_method_of_xml
+instance to_xml x_signature_type_signed_info_reference_digest_method =
+    x_signature_type_signed_info_reference_digest_method_to_xml
+
+instance of_xml x_signature_type_signed_info_reference_transforms =
+    x_signature_type_signed_info_reference_transforms_of_xml
+instance to_xml x_signature_type_signed_info_reference_transforms =
+    x_signature_type_signed_info_reference_transforms_to_xml
+
+instance of_xml x_signature_type_signed_info_reference_transforms_transform =
+    x_signature_type_signed_info_reference_transforms_transform_of_xml
+instance to_xml x_signature_type_signed_info_reference_transforms_transform =
+    x_signature_type_signed_info_reference_transforms_transform_to_xml
+
+instance of_xml x_signature_type_signed_info_signature_method = x_signature_type_signed_info_signature_method_of_xml
+instance to_xml x_signature_type_signed_info_signature_method = x_signature_type_signed_info_signature_method_to_xml
+
+instance of_xml x_signature_type_signed_info_canonicalization_method =
+    x_signature_type_signed_info_canonicalization_method_of_xml
+instance to_xml x_signature_type_signed_info_canonicalization_method =
+    x_signature_type_signed_info_canonicalization_method_to_xml
+
+instance of_xml x_dte_def_type s {stage_of} = fun c => x_dte_def_type_of_xml (stage_of ()) c
+instance to_xml x_dte_def_type s = x_dte_def_type_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones = x_dte_def_type_choice_documento_exportaciones_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones = x_dte_def_type_choice_documento_exportaciones_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted =
+    x_dte_def_type_choice_documento_exportaciones_ted_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted =
+    x_dte_def_type_choice_documento_exportaciones_ted_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_frmt =
+    x_dte_def_type_choice_documento_exportaciones_ted_frmt_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_frmt =
+    x_dte_def_type_choice_documento_exportaciones_ted_frmt_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_dd =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_dd =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_frma_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_dsapk_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_choice_rsapk_rsapk_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng =
+    x_dte_def_type_choice_documento_exportaciones_ted_dd_caf_da_rng_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_referencia =
+    x_dte_def_type_choice_documento_exportaciones_referencia_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_referencia =
+    x_dte_def_type_choice_documento_exportaciones_referencia_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global =
+    x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global =
+    x_dte_def_type_choice_documento_exportaciones_dsc_rcg_global_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_sub_tot_info =
+    x_dte_def_type_choice_documento_exportaciones_sub_tot_info_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_sub_tot_info =
+    x_dte_def_type_choice_documento_exportaciones_sub_tot_info_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_detalle =
+    x_dte_def_type_choice_documento_exportaciones_detalle_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_detalle =
+    x_dte_def_type_choice_documento_exportaciones_detalle_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo =
+    x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo =
+    x_dte_def_type_choice_documento_exportaciones_detalle_sub_recargo_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto =
+    x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto =
+    x_dte_def_type_choice_documento_exportaciones_detalle_sub_dscto_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda =
+    x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda =
+    x_dte_def_type_choice_documento_exportaciones_detalle_otr_mnda_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad =
+    x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad =
+    x_dte_def_type_choice_documento_exportaciones_detalle_subcantidad_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item =
+    x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item =
+    x_dte_def_type_choice_documento_exportaciones_detalle_cdg_item_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_otra_moneda_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_totales =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_totales_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_totales =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_totales_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_aduana_tipo_bultos_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_transporte_chofer_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_receptor =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_receptor =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_receptor_extranjero_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_emisor =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_emisor_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_emisor =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_emisor_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos_of_xml
+instance to_xml x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos =
+    x_dte_def_type_choice_documento_exportaciones_encabezado_id_doc_mnt_pagos_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion = x_dte_def_type_choice_documento_liquidacion_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion = x_dte_def_type_choice_documento_liquidacion_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted = x_dte_def_type_choice_documento_liquidacion_ted_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted = x_dte_def_type_choice_documento_liquidacion_ted_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_frmt =
+    x_dte_def_type_choice_documento_liquidacion_ted_frmt_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_frmt =
+    x_dte_def_type_choice_documento_liquidacion_ted_frmt_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_dd =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_dd =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_frma_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_dsapk_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_choice_rsapk_rsapk_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng =
+    x_dte_def_type_choice_documento_liquidacion_ted_dd_caf_da_rng_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_comisiones =
+    x_dte_def_type_choice_documento_liquidacion_comisiones_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_comisiones =
+    x_dte_def_type_choice_documento_liquidacion_comisiones_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_referencia =
+    x_dte_def_type_choice_documento_liquidacion_referencia_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_referencia =
+    x_dte_def_type_choice_documento_liquidacion_referencia_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_sub_tot_info =
+    x_dte_def_type_choice_documento_liquidacion_sub_tot_info_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_sub_tot_info =
+    x_dte_def_type_choice_documento_liquidacion_sub_tot_info_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_detalle =
+    x_dte_def_type_choice_documento_liquidacion_detalle_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_detalle =
+    x_dte_def_type_choice_documento_liquidacion_detalle_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad =
+    x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad =
+    x_dte_def_type_choice_documento_liquidacion_detalle_subcantidad_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item =
+    x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item =
+    x_dte_def_type_choice_documento_liquidacion_detalle_cdg_item_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado_totales =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado_totales =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_comisiones_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_totales_impto_reten_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado_receptor =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_receptor_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado_receptor =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_receptor_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado_emisor =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_emisor_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado_emisor =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_emisor_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos_of_xml
+instance to_xml x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos =
+    x_dte_def_type_choice_documento_liquidacion_encabezado_id_doc_mnt_pagos_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento = x_dte_def_type_choice_documento_documento_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento = x_dte_def_type_choice_documento_documento_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted = x_dte_def_type_choice_documento_documento_ted_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted = x_dte_def_type_choice_documento_documento_ted_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_frmt =
+    x_dte_def_type_choice_documento_documento_ted_frmt_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_frmt =
+    x_dte_def_type_choice_documento_documento_ted_frmt_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_dd =
+    x_dte_def_type_choice_documento_documento_ted_dd_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_dd =
+    x_dte_def_type_choice_documento_documento_ted_dd_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_dd_caf =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_dd_caf =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_frma =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_frma_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_frma =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_frma_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_dsapk_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_choice_rsapk_rsapk_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng =
+    x_dte_def_type_choice_documento_documento_ted_dd_caf_da_rng_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_comisiones =
+    x_dte_def_type_choice_documento_documento_comisiones_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_comisiones =
+    x_dte_def_type_choice_documento_documento_comisiones_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_referencia =
+    x_dte_def_type_choice_documento_documento_referencia_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_referencia =
+    x_dte_def_type_choice_documento_documento_referencia_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_dsc_rcg_global =
+    x_dte_def_type_choice_documento_documento_dsc_rcg_global_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_dsc_rcg_global =
+    x_dte_def_type_choice_documento_documento_dsc_rcg_global_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_sub_tot_info =
+    x_dte_def_type_choice_documento_documento_sub_tot_info_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_sub_tot_info =
+    x_dte_def_type_choice_documento_documento_sub_tot_info_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_detalle =
+    x_dte_def_type_choice_documento_documento_detalle_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_detalle =
+    x_dte_def_type_choice_documento_documento_detalle_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_detalle_sub_recargo =
+    x_dte_def_type_choice_documento_documento_detalle_sub_recargo_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_detalle_sub_recargo =
+    x_dte_def_type_choice_documento_documento_detalle_sub_recargo_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_detalle_sub_dscto =
+    x_dte_def_type_choice_documento_documento_detalle_sub_dscto_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_detalle_sub_dscto =
+    x_dte_def_type_choice_documento_documento_detalle_sub_dscto_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_detalle_otr_mnda =
+    x_dte_def_type_choice_documento_documento_detalle_otr_mnda_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_detalle_otr_mnda =
+    x_dte_def_type_choice_documento_documento_detalle_otr_mnda_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_detalle_subcantidad =
+    x_dte_def_type_choice_documento_documento_detalle_subcantidad_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_detalle_subcantidad =
+    x_dte_def_type_choice_documento_documento_detalle_subcantidad_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_detalle_retenedor =
+    x_dte_def_type_choice_documento_documento_detalle_retenedor_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_detalle_retenedor =
+    x_dte_def_type_choice_documento_documento_detalle_retenedor_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_detalle_cdg_item =
+    x_dte_def_type_choice_documento_documento_detalle_cdg_item_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_detalle_cdg_item =
+    x_dte_def_type_choice_documento_documento_detalle_cdg_item_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado =
+    x_dte_def_type_choice_documento_documento_encabezado_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado =
+    x_dte_def_type_choice_documento_documento_encabezado_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_otra_moneda =
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_otra_moneda =
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda =
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda =
+    x_dte_def_type_choice_documento_documento_encabezado_otra_moneda_imp_ret_otr_mnda_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_totales =
+    x_dte_def_type_choice_documento_documento_encabezado_totales_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_totales =
+    x_dte_def_type_choice_documento_documento_encabezado_totales_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones =
+    x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones =
+    x_dte_def_type_choice_documento_documento_encabezado_totales_comisiones_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten =
+    x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten =
+    x_dte_def_type_choice_documento_documento_encabezado_totales_impto_reten_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_transporte =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_transporte =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_aduana_tipo_bultos_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer =
+    x_dte_def_type_choice_documento_documento_encabezado_transporte_chofer_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_receptor =
+    x_dte_def_type_choice_documento_documento_encabezado_receptor_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_receptor =
+    x_dte_def_type_choice_documento_documento_encabezado_receptor_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero =
+    x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero =
+    x_dte_def_type_choice_documento_documento_encabezado_receptor_extranjero_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_emisor =
+    x_dte_def_type_choice_documento_documento_encabezado_emisor_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_emisor =
+    x_dte_def_type_choice_documento_documento_encabezado_emisor_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export =
+    x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export =
+    x_dte_def_type_choice_documento_documento_encabezado_emisor_guia_export_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_id_doc =
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_id_doc =
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc_to_xml
+
+instance of_xml x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos =
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_of_xml
+instance to_xml x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos =
+    x_dte_def_type_choice_documento_documento_encabezado_id_doc_mnt_pagos_to_xml
 
 
 ///> rust

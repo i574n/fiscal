@@ -19,6 +19,8 @@
 :+ correction_event nfe = \ _ => event_code "110110"
 :+ cancellation_event cfdi = \ _ => event_code "Cancelacion"
 
+:= event_text ((event_code code) : event_code) : string = code
+
 :! access_key = string
 
 :! protocol_id = string
@@ -32,7 +34,8 @@
 :| private document r s =
     | Issued :: \* r. r * access_key -> document r issued
     | Authorized :: \* r.
-        { regime : r; key : access_key; protocol : protocol_id; corrections : list correction_letter } -> document r authorized
+        { regime : r; key : access_key; protocol : protocol_id; corrections : list correction_letter }
+        -> document r authorized
     | Rejected :: \* r. r * access_key * string -> document r rejected
     | Cancelled :: \* r.
         { regime : r; key : access_key; protocol : protocol_id; event : event_code; event_protocol : protocol_id }
@@ -65,7 +68,9 @@
     ?= doc ?|
     | Authorized a => a::corrections
 
-:= cancel \* r {cancellation_event}. (doc : document r authorized) (event_protocol : protocol_id) : document r cancelled =
+:= cancel \* r {cancellation_event}. (doc : document r authorized) (event_protocol : protocol_id)
+    : document r cancelled
+    =
     ?= doc ?|
     | Authorized a =>
         Cancelled {
@@ -150,13 +155,32 @@ test a_cancellation_keeps_the_authorization_protocol =
         ?> failwith "CC-e letters keep their order and nSeqEvento"
         ? second::event <> event_code "110110" ?> failwith "a CC-e is tpEvento 110110"
     | _ => failwith "two correction letters stay on the authorized document"
-    ? key_text (key_of (reject (issue (nfe "4.00") (access_key "k")) "duplicate")) <> "k" ?> failwith "a rejection keeps the key"
+    := rejected = reject (issue (nfe "4.00") (access_key "k")) "duplicate"
+    ? key_text (key_of rejected) <> "k" ?> failwith "a rejection keeps the key"
 
 ///> rust
 test a_cfdi_cancels_through_its_own_request =
-    := authorized = authorize (issue (cfdi "4.0") (access_key "5FB2822E-396D-4725-8521-CDC4BDD20CCF")) (protocol_id "sello")
+    := uuid = access_key "5FB2822E-396D-4725-8521-CDC4BDD20CCF"
+    := authorized = authorize (issue (cfdi "4.0") uuid) (protocol_id "sello")
     ? cancellation_event_of (cancel authorized (protocol_id "acuse")) <> event_code "Cancelacion"
     ?> failwith "a CFDI cancellation is a Cancelacion request"
+
+///> rust
+test a_cancellation_reaches_the_outbox_once =
+    := key = "35260112345678000195550010000000011000000019"
+    := authorized = authorize (issue (nfe "4.00") (access_key key)) (protocol_id "135260000000001")
+    := event = cancellation_event_of (cancel authorized (protocol_id "135260000000002"))
+    := path = durable_file::probe_path "fiscal-lifecycle-outbox.txt"
+    file_system::file_delete path
+    := send (log : event_log::event_log event_code) : event_log::append_outcome event_code =
+        := id, hash = event_log::command_id key, event_log::payload_hash "cancel-1"
+        event_log::written (event_log::append_durably event_text path 0i64 id hash event log)
+    := first = send (event_log::empty_log ())
+    ? event_log::outcome_code (send (event_log::appended_log first)) <> (1i64, 1i64)
+    ?> failwith "a retried cancellation replays position 1"
+    ? file_system::read_all_text path <> "1\t" ++# key ++# "\tcancel-1\t110111\n"
+    ?> failwith "the outbox holds the NF-e cancellation (tpEvento 110111) once"
+    file_system::file_delete path
 
 ///> rust
 test cancelling_an_unauthorized_document_does_not_type fails "Unification failure" =

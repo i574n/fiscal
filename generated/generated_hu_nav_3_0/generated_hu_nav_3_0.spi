@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -3457,14 +3459,14 @@ inl x_customer_vat_status_type_example (k : i32) : x_customer_vat_status_type =
 inl x_customer_vat_status_type_example_text (k : i32) : string =
     x_customer_vat_status_type_to_string (x_customer_vat_status_type_example k)
 
-type x_tax_number_type =
+nominal x_tax_number_type =
     {
         taxpayer_id : x_taxpayer_id_type
         vat_code : option (x_vat_code_type)
         county_code : option (x_county_code_type)
     }
 
-type x_simple_address_type =
+nominal x_simple_address_type =
     {
         country_code : x_country_code_type
         region : option (x_simple_text50_not_blank_type)
@@ -3473,7 +3475,7 @@ type x_simple_address_type =
         additional_address_detail : x_simple_text255_not_blank_type
     }
 
-type x_detailed_address_type =
+nominal x_detailed_address_type =
     {
         country_code : x_country_code_type
         region : option (x_simple_text50_not_blank_type)
@@ -3493,36 +3495,36 @@ union x_address_type_choice_simple_address =
     | AddressType_choice_simpleAddress_simpleAddress : x_simple_address_type
     | AddressType_choice_simpleAddress_detailedAddress : x_detailed_address_type
 
-type x_address_type =
+nominal x_address_type =
     {
         choice_simple_address : x_address_type_choice_simple_address
     }
 
-type x_technical_validation_result_type =
+nominal x_technical_validation_result_type =
     {
         validation_result_code : x_technical_result_code_type
         validation_error_code : option (x_simple_text100_not_blank_type)
         message : option (x_simple_text1024_not_blank_type)
     }
 
-type x_notification_type =
+nominal x_notification_type =
     {
         notification_code : x_simple_text100_not_blank_type
         notification_text : x_simple_text1024_not_blank_type
     }
 
-type x_notifications_type =
+nominal x_notifications_type =
     {
         notification : list (x_notification_type)
     }
 
-type x_crypto_type =
+nominal x_crypto_type =
     {
         base : x_simple_text512_not_blank_type
         crypto_type : x_simple_text50_not_blank_type
     }
 
-type x_basic_result_type =
+nominal x_basic_result_type =
     {
         func_code : x_function_code_type
         error_code : option (x_simple_text50_not_blank_type)
@@ -3530,7 +3532,7 @@ type x_basic_result_type =
         notifications : option (x_notifications_type)
     }
 
-type x_basic_header_type =
+nominal x_basic_header_type =
     {
         request_id : x_entity_id_type
         timestamp : x_generic_timestamp_type
@@ -3538,27 +3540,27 @@ type x_basic_header_type =
         header_version : option (x_atomic_string_type15)
     }
 
-type x_vessel_type =
+nominal x_vessel_type =
     {
         length : x_quantity_type
         activity_referred : string
         sailed_hours : x_quantity_type
     }
 
-type x_vehicle_type =
+nominal x_vehicle_type =
     {
         engine_capacity : x_quantity_type
         engine_power : x_quantity_type
         kms : x_quantity_type
     }
 
-type x_vat_amount_mismatch_type =
+nominal x_vat_amount_mismatch_type =
     {
         vat_rate : x_rate_type
         case : x_simple_text50_not_blank_type
     }
 
-type x_supplier_info_type =
+nominal x_supplier_info_type =
     {
         supplier_tax_number : x_tax_number_type
         group_member_tax_number : option (x_tax_number_type)
@@ -3570,22 +3572,22 @@ type x_supplier_info_type =
         excise_licence_num : option (x_simple_text50_not_blank_type)
     }
 
-type x_supplier_company_codes_type =
+nominal x_supplier_company_codes_type =
     {
         supplier_company_code : list (x_simple_text100_not_blank_type)
     }
 
-type x_shipping_dates_type =
+nominal x_shipping_dates_type =
     {
         shipping_date : list (x_simple_text100_not_blank_type)
     }
 
-type x_references_to_other_lines_type =
+nominal x_references_to_other_lines_type =
     {
         reference_to_other_line : list (x_line_number_type)
     }
 
-type x_project_numbers_type =
+nominal x_project_numbers_type =
     {
         project_number : list (x_simple_text100_not_blank_type)
     }
@@ -3594,18 +3596,18 @@ union x_product_code_type_choice_product_code_value =
     | ProductCodeType_choice_productCodeValue_productCodeValue : x_product_code_value_type
     | ProductCodeType_choice_productCodeValue_productCodeOwnValue : x_simple_text255_not_blank_type
 
-type x_product_code_type =
+nominal x_product_code_type =
     {
         product_code_category : x_product_code_category_type
         choice_product_code_value : x_product_code_type_choice_product_code_value
     }
 
-type x_product_codes_type =
+nominal x_product_codes_type =
     {
         product_code : list (x_product_code_type)
     }
 
-type x_payment_evidence_document_data_type =
+nominal x_payment_evidence_document_data_type =
     {
         evidence_document_no : x_simple_text50_not_blank_type
         evidence_document_date : x_invoice_date_type
@@ -3614,45 +3616,45 @@ type x_payment_evidence_document_data_type =
         obligated_tax_number : x_tax_number_type
     }
 
-type x_order_numbers_type =
+nominal x_order_numbers_type =
     {
         order_number : list (x_simple_text100_not_blank_type)
     }
 
-type x_material_numbers_type =
+nominal x_material_numbers_type =
     {
         material_number : list (x_simple_text100_not_blank_type)
     }
 
-type x_line_modification_reference_type =
+nominal x_line_modification_reference_type =
     {
         line_number_reference : x_line_number_type
         line_operation : x_line_operation_type
     }
 
-type x_item_numbers_type =
+nominal x_item_numbers_type =
     {
         item_number : list (x_simple_text100_not_blank_type)
     }
 
-type x_invoice_reference_type =
+nominal x_invoice_reference_type =
     {
         original_invoice_number : x_simple_text50_not_blank_type
         modify_without_master : string
         modification_index : x_invoice_unbounded_index_type
     }
 
-type x_gln_numbers_type =
+nominal x_gln_numbers_type =
     {
         gln_number : list (x_simple_text100_not_blank_type)
     }
 
-type x_general_ledger_account_numbers_type =
+nominal x_general_ledger_account_numbers_type =
     {
         general_ledger_account_number : list (x_simple_text100_not_blank_type)
     }
 
-type x_fiscal_representative_type =
+nominal x_fiscal_representative_type =
     {
         fiscal_representative_tax_number : x_tax_number_type
         fiscal_representative_name : x_simple_text512_not_blank_type
@@ -3660,12 +3662,12 @@ type x_fiscal_representative_type =
         fiscal_representative_bank_account_number : option (x_bank_account_number_type)
     }
 
-type x_ekaer_ids_type =
+nominal x_ekaer_ids_type =
     {
         ekaer_id : list (x_ekaer_id_type)
     }
 
-type x_diesel_oil_purchase_type =
+nominal x_diesel_oil_purchase_type =
     {
         purchase_location : x_simple_address_type
         purchase_date : x_invoice_date_type
@@ -3673,83 +3675,83 @@ type x_diesel_oil_purchase_type =
         diesel_oil_quantity : option (x_quantity_type)
     }
 
-type x_detailed_reason_type =
+nominal x_detailed_reason_type =
     {
         case : x_simple_text50_not_blank_type
         reason : x_simple_text200_not_blank_type
     }
 
-type x_delivery_notes_type =
+nominal x_delivery_notes_type =
     {
         delivery_note : list (x_simple_text100_not_blank_type)
     }
 
-type x_dealer_codes_type =
+nominal x_dealer_codes_type =
     {
         dealer_code : list (x_simple_text100_not_blank_type)
     }
 
-type x_customer_tax_number_type =
+nominal x_customer_tax_number_type =
     {
         base : x_tax_number_type
         group_member_tax_number : option (x_tax_number_type)
     }
 
-type x_customer_declaration_type =
+nominal x_customer_declaration_type =
     {
         product_stream : x_product_stream_type
         product_fee_weight : option (x_quantity_type)
     }
 
-type x_customer_company_codes_type =
+nominal x_customer_company_codes_type =
     {
         customer_company_code : list (x_simple_text100_not_blank_type)
     }
 
-type x_cost_centers_type =
+nominal x_cost_centers_type =
     {
         cost_center : list (x_simple_text100_not_blank_type)
     }
 
-type x_contract_numbers_type =
+nominal x_contract_numbers_type =
     {
         contract_number : list (x_simple_text100_not_blank_type)
     }
 
-type x_aircraft_type =
+nominal x_aircraft_type =
     {
         take_off_weight : x_quantity_type
         air_cargo : string
         operation_hours : x_quantity_type
     }
 
-type x_aggregate_invoice_line_data_type =
+nominal x_aggregate_invoice_line_data_type =
     {
         line_exchange_rate : option (x_exchange_rate_type)
         line_delivery_date : x_invoice_date_type
     }
 
-type x_advance_payment_data_type =
+nominal x_advance_payment_data_type =
     {
         advance_original_invoice : x_simple_text50_not_blank_type
         advance_payment_date : x_invoice_date_type
         advance_exchange_rate : x_exchange_rate_type
     }
 
-type x_advance_data_type =
+nominal x_advance_data_type =
     {
         advance_indicator : string
         advance_payment_data : option (x_advance_payment_data_type)
     }
 
-type x_additional_data_type =
+nominal x_additional_data_type =
     {
         data_name : x_data_name_type
         data_description : x_simple_text255_not_blank_type
         data_value : x_simple_text512_not_blank_type
     }
 
-type x_general_exception_response =
+nominal x_general_exception_response =
     {
         base : x_basic_result_type
     }
@@ -3760,7 +3762,7 @@ inl x_monetary_type_example (k : i32) = x_generic_decimal_type_example k
 
 inl x_monetary_type_example_text (k : i32) : string = x_generic_decimal_type_example_text k
 
-type x_user_header_type =
+nominal x_user_header_type =
     {
         login : x_login_type
         password_hash : x_crypto_type
@@ -3768,19 +3770,19 @@ type x_user_header_type =
         request_signature : x_crypto_type
     }
 
-type x_basic_response_type =
+nominal x_basic_response_type =
     {
         header : x_basic_header_type
         result : x_basic_result_type
     }
 
-type x_basic_request_type =
+nominal x_basic_request_type =
     {
         header : x_basic_header_type
         user : x_user_header_type
     }
 
-type x_vat_rate_vat_data_type =
+nominal x_vat_rate_vat_data_type =
     {
         vat_rate_vat_amount : x_monetary_type
         vat_rate_vat_amount_huf : x_monetary_type
@@ -3796,37 +3798,37 @@ union x_vat_rate_type_choice_vat_percentage =
     | VatRateType_choice_vatPercentage_vatAmountMismatch : x_vat_amount_mismatch_type
     | VatRateType_choice_vatPercentage_noVatCharge : string
 
-type x_vat_rate_type =
+nominal x_vat_rate_type =
     {
         choice_vat_percentage : x_vat_rate_type_choice_vat_percentage
     }
 
-type x_vat_rate_net_data_type =
+nominal x_vat_rate_net_data_type =
     {
         vat_rate_net_amount : x_monetary_type
         vat_rate_net_amount_huf : x_monetary_type
     }
 
-type x_vat_rate_gross_data_type =
+nominal x_vat_rate_gross_data_type =
     {
         vat_rate_gross_amount : x_monetary_type
         vat_rate_gross_amount_huf : x_monetary_type
     }
 
-type x_summary_simplified_type =
+nominal x_summary_simplified_type =
     {
         vat_rate : x_vat_rate_type
         vat_content_gross_amount : x_monetary_type
         vat_content_gross_amount_huf : x_monetary_type
     }
 
-type x_summary_gross_data_type =
+nominal x_summary_gross_data_type =
     {
         invoice_gross_amount : x_monetary_type
         invoice_gross_amount_huf : x_monetary_type
     }
 
-type x_summary_by_vat_rate_type =
+nominal x_summary_by_vat_rate_type =
     {
         vat_rate : x_vat_rate_type
         vat_rate_net_data : x_vat_rate_net_data_type
@@ -3834,13 +3836,13 @@ type x_summary_by_vat_rate_type =
         vat_rate_gross_data : option (x_vat_rate_gross_data_type)
     }
 
-type x_product_fee_takeover_data_type =
+nominal x_product_fee_takeover_data_type =
     {
         takeover_reason : x_takeover_type
         takeover_amount : option (x_monetary_type)
     }
 
-type x_product_fee_data_type =
+nominal x_product_fee_data_type =
     {
         product_fee_code : x_product_code_type
         product_fee_quantity : x_quantity_type
@@ -3853,7 +3855,7 @@ union x_product_fee_clause_type_choice_product_fee_takeover_data =
     | ProductFeeClauseType_choice_productFeeTakeoverData_productFeeTakeoverData : x_product_fee_takeover_data_type
     | ProductFeeClauseType_choice_productFeeTakeoverData_customerDeclaration : x_customer_declaration_type
 
-type x_product_fee_clause_type =
+nominal x_product_fee_clause_type =
     {
         choice_product_fee_takeover_data : x_product_fee_clause_type_choice_product_fee_takeover_data
     }
@@ -3863,7 +3865,7 @@ union x_new_transport_mean_type_choice_vehicle =
     | NewTransportMeanType_choice_vehicle_vessel : x_vessel_type
     | NewTransportMeanType_choice_vehicle_aircraft : x_aircraft_type
 
-type x_new_transport_mean_type =
+nominal x_new_transport_mean_type =
     {
         brand : option (x_simple_text50_not_blank_type)
         serial_num : option (x_simple_text255_not_blank_type)
@@ -3872,32 +3874,32 @@ type x_new_transport_mean_type =
         choice_vehicle : x_new_transport_mean_type_choice_vehicle
     }
 
-type x_line_vat_data_type =
+nominal x_line_vat_data_type =
     {
         line_vat_amount : x_monetary_type
         line_vat_amount_huf : x_monetary_type
     }
 
-type x_line_net_amount_data_type =
+nominal x_line_net_amount_data_type =
     {
         line_net_amount : x_monetary_type
         line_net_amount_huf : x_monetary_type
     }
 
-type x_line_gross_amount_data_type =
+nominal x_line_gross_amount_data_type =
     {
         line_gross_amount_normal : x_monetary_type
         line_gross_amount_normal_huf : x_monetary_type
     }
 
-type x_line_amounts_simplified_type =
+nominal x_line_amounts_simplified_type =
     {
         line_vat_rate : x_vat_rate_type
         line_gross_amount_simplified : x_monetary_type
         line_gross_amount_simplified_huf : x_monetary_type
     }
 
-type x_line_amounts_normal_type =
+nominal x_line_amounts_normal_type =
     {
         line_net_amount_data : x_line_net_amount_data_type
         line_vat_rate : x_vat_rate_type
@@ -3905,7 +3907,7 @@ type x_line_amounts_normal_type =
         line_gross_amount_data : option (x_line_gross_amount_data_type)
     }
 
-type x_discount_data_type =
+nominal x_discount_data_type =
     {
         discount_description : option (x_simple_text255_not_blank_type)
         discount_value : option (x_monetary_type)
@@ -3917,12 +3919,12 @@ union x_customer_vat_data_type_choice_customer_tax_number =
     | CustomerVatDataType_choice_customerTaxNumber_communityVatNumber : x_community_vat_number_type
     | CustomerVatDataType_choice_customerTaxNumber_thirdStateTaxId : x_simple_text50_not_blank_type
 
-type x_customer_vat_data_type =
+nominal x_customer_vat_data_type =
     {
         choice_customer_tax_number : x_customer_vat_data_type_choice_customer_tax_number
     }
 
-type x_customer_info_type =
+nominal x_customer_info_type =
     {
         customer_vat_status : x_customer_vat_status_type
         customer_vat_data : option (x_customer_vat_data_type)
@@ -3931,7 +3933,7 @@ type x_customer_info_type =
         customer_bank_account_number : option (x_bank_account_number_type)
     }
 
-type x_conventional_invoice_info_type =
+nominal x_conventional_invoice_info_type =
     {
         order_numbers : option (x_order_numbers_type)
         delivery_notes : option (x_delivery_notes_type)
@@ -3950,12 +3952,12 @@ type x_conventional_invoice_info_type =
         ekaer_ids : option (x_ekaer_ids_type)
     }
 
-type x_general_error_header_response_type =
+nominal x_general_error_header_response_type =
     {
         base : x_basic_response_type
     }
 
-type x_summary_normal_type =
+nominal x_summary_normal_type =
     {
         summary_by_vat_rate : list (x_summary_by_vat_rate_type)
         invoice_net_amount : x_monetary_type
@@ -3964,7 +3966,7 @@ type x_summary_normal_type =
         invoice_vat_amount_huf : x_monetary_type
     }
 
-type x_product_fee_summary_type =
+nominal x_product_fee_summary_type =
     {
         product_fee_operation : x_product_fee_operation_type
         product_fee_data : list (x_product_fee_data_type)
@@ -3976,7 +3978,7 @@ union x_line_type_choice_line_amounts_normal =
     | LineType_choice_lineAmountsNormal_lineAmountsNormal : option (x_line_amounts_normal_type)
     | LineType_choice_lineAmountsNormal_lineAmountsSimplified : option (x_line_amounts_simplified_type)
 
-type x_line_type =
+nominal x_line_type =
     {
         line_number : x_line_number_type
         line_modification_reference : option (x_line_modification_reference_type)
@@ -4007,13 +4009,13 @@ type x_line_type =
         additional_line_data : list (x_additional_data_type)
     }
 
-type x_lines_type =
+nominal x_lines_type =
     {
         merged_item_indicator : string
         line : list (x_line_type)
     }
 
-type x_invoice_detail_type =
+nominal x_invoice_detail_type =
     {
         invoice_category : x_invoice_category_type
         invoice_delivery_date : x_invoice_date_type
@@ -4034,7 +4036,7 @@ type x_invoice_detail_type =
         additional_invoice_data : list (x_additional_data_type)
     }
 
-type x_general_error_header_response =
+nominal x_general_error_header_response =
     {
         base : x_general_error_header_response_type
     }
@@ -4043,13 +4045,13 @@ union x_summary_type_choice_summary_normal =
     | SummaryType_choice_summaryNormal_summaryNormal : x_summary_normal_type
     | SummaryType_choice_summaryNormal_summarySimplified : list (x_summary_simplified_type)
 
-type x_summary_type =
+nominal x_summary_type =
     {
         choice_summary_normal : x_summary_type_choice_summary_normal
         summary_gross_data : option (x_summary_gross_data_type)
     }
 
-type x_invoice_head_type =
+nominal x_invoice_head_type =
     {
         supplier_info : x_supplier_info_type
         customer_info : option (x_customer_info_type)
@@ -4057,7 +4059,7 @@ type x_invoice_head_type =
         invoice_detail : x_invoice_detail_type
     }
 
-type x_invoice_type =
+nominal x_invoice_type =
     {
         invoice_reference : option (x_invoice_reference_type)
         invoice_head : x_invoice_head_type
@@ -4066,7 +4068,7 @@ type x_invoice_type =
         invoice_summary : x_summary_type
     }
 
-type x_batch_invoice_type =
+nominal x_batch_invoice_type =
     {
         batch_index : x_invoice_unbounded_index_type
         invoice : x_invoice_type
@@ -4076,12 +4078,12 @@ union x_invoice_main_type_choice_invoice =
     | InvoiceMainType_choice_invoice_invoice : x_invoice_type
     | InvoiceMainType_choice_invoice_batchInvoice : list (x_batch_invoice_type)
 
-type x_invoice_main_type =
+nominal x_invoice_main_type =
     {
         choice_invoice : x_invoice_main_type_choice_invoice
     }
 
-type x_invoice_data_type =
+nominal x_invoice_data_type =
     {
         invoice_number : x_simple_text50_not_blank_type
         invoice_issue_date : x_invoice_date_type
@@ -4089,7 +4091,7 @@ type x_invoice_data_type =
         invoice_main : x_invoice_main_type
     }
 
-type x_invoice_data =
+nominal x_invoice_data =
     {
         base : x_invoice_data_type
     }
@@ -5111,7 +5113,7 @@ let rec x_invoice_data_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_data
     =
-    {
+    x_invoice_data {
         base = x_invoice_data_type_of_children attributes children
     }
 
@@ -5122,7 +5124,7 @@ and let x_general_error_header_response_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_error_header_response
     =
-    {
+    x_general_error_header_response {
         base = x_general_error_header_response_type_of_children attributes children
     }
 
@@ -5133,7 +5135,7 @@ and let x_general_exception_response_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_exception_response
     =
-    {
+    x_general_exception_response {
         base = x_basic_result_type_of_children attributes children
     }
 
@@ -5144,7 +5146,7 @@ and let x_additional_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_additional_data_type
     =
-    {
+    x_additional_data_type {
         data_name =
             (fun c => xml.required_value "x_data_name_type" (x_data_name_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "dataName" children)
         data_description =
@@ -5160,7 +5162,7 @@ and let x_advance_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_advance_data_type
     =
-    {
+    x_advance_data_type {
         advance_indicator =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "advanceIndicator" children)
         advance_payment_data =
@@ -5174,7 +5176,7 @@ and let x_advance_payment_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_advance_payment_data_type
     =
-    {
+    x_advance_payment_data_type {
         advance_original_invoice =
             (fun c => xml.required_value "x_simple_text50_not_blank_type" (x_simple_text50_not_blank_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "advanceOriginalInvoice" children)
         advance_payment_date =
@@ -5190,7 +5192,7 @@ and let x_aggregate_invoice_line_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_aggregate_invoice_line_data_type
     =
-    {
+    x_aggregate_invoice_line_data_type {
         line_exchange_rate =
             optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "lineExchangeRate" children)
         line_delivery_date =
@@ -5204,7 +5206,7 @@ and let x_aircraft_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_aircraft_type
     =
-    {
+    x_aircraft_type {
         take_off_weight = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "takeOffWeight" children)
         air_cargo = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "airCargo" children)
         operation_hours = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "operationHours" children)
@@ -5217,7 +5219,7 @@ and let x_batch_invoice_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_batch_invoice_type
     =
-    {
+    x_batch_invoice_type {
         batch_index = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "batchIndex" children)
         invoice = (fun c => x_invoice_type_of_xml c) (xml.required_child "invoice" children)
     }
@@ -5229,7 +5231,7 @@ and let x_contract_numbers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_contract_numbers_type
     =
-    {
+    x_contract_numbers_type {
         contract_number =
             listm.map
                 fun c =>
@@ -5245,7 +5247,7 @@ and let x_conventional_invoice_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_conventional_invoice_info_type
     =
-    {
+    x_conventional_invoice_info_type {
         order_numbers = optionm.map (fun c => x_order_numbers_type_of_xml c) (xml.first_child "orderNumbers" children)
         delivery_notes =
             optionm.map (fun c => x_delivery_notes_type_of_xml c) (xml.first_child "deliveryNotes" children)
@@ -5286,7 +5288,7 @@ and let x_cost_centers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_cost_centers_type
     =
-    {
+    x_cost_centers_type {
         cost_center =
             listm.map
                 fun c =>
@@ -5302,7 +5304,7 @@ and let x_customer_company_codes_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customer_company_codes_type
     =
-    {
+    x_customer_company_codes_type {
         customer_company_code =
             listm.map
                 fun c =>
@@ -5318,7 +5320,7 @@ and let x_customer_declaration_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customer_declaration_type
     =
-    {
+    x_customer_declaration_type {
         product_stream =
             (fun c => xml.required_value "x_product_stream_type" (x_product_stream_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "productStream" children)
         product_fee_weight =
@@ -5332,7 +5334,7 @@ and let x_customer_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customer_info_type
     =
-    {
+    x_customer_info_type {
         customer_vat_status =
             (fun c => xml.required_value "x_customer_vat_status_type" (x_customer_vat_status_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "customerVatStatus" children)
         customer_vat_data =
@@ -5359,7 +5361,7 @@ and let x_customer_tax_number_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customer_tax_number_type
     =
-    {
+    x_customer_tax_number_type {
         base = x_tax_number_type_of_children attributes children
         group_member_tax_number =
             optionm.map (fun c => x_tax_number_type_of_xml c) (xml.first_child "groupMemberTaxNumber" children)
@@ -5372,7 +5374,7 @@ and let x_customer_vat_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_customer_vat_data_type
     =
-    {
+    x_customer_vat_data_type {
         choice_customer_tax_number = x_customer_vat_data_type_choice_customer_tax_number_of_children attributes children
     }
 
@@ -5402,7 +5404,7 @@ and let x_dealer_codes_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_dealer_codes_type
     =
-    {
+    x_dealer_codes_type {
         dealer_code =
             listm.map
                 fun c =>
@@ -5418,7 +5420,7 @@ and let x_delivery_notes_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_delivery_notes_type
     =
-    {
+    x_delivery_notes_type {
         delivery_note =
             listm.map
                 fun c =>
@@ -5434,7 +5436,7 @@ and let x_detailed_reason_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_detailed_reason_type
     =
-    {
+    x_detailed_reason_type {
         case =
             (fun c => xml.required_value "x_simple_text50_not_blank_type" (x_simple_text50_not_blank_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "case" children)
         reason =
@@ -5448,7 +5450,7 @@ and let x_diesel_oil_purchase_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_diesel_oil_purchase_type
     =
-    {
+    x_diesel_oil_purchase_type {
         purchase_location = (fun c => x_simple_address_type_of_xml c) (xml.required_child "purchaseLocation" children)
         purchase_date =
             (fun c => xml.required_value "x_invoice_date_type" (x_invoice_date_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "purchaseDate" children)
@@ -5465,7 +5467,7 @@ and let x_discount_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_discount_data_type
     =
-    {
+    x_discount_data_type {
         discount_description =
             optionm.map
                 fun c =>
@@ -5485,7 +5487,7 @@ and let x_ekaer_ids_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_ekaer_ids_type
     =
-    {
+    x_ekaer_ids_type {
         ekaer_id =
             listm.map
                 fun c =>
@@ -5502,7 +5504,7 @@ and let x_fiscal_representative_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_fiscal_representative_type
     =
-    {
+    x_fiscal_representative_type {
         fiscal_representative_tax_number =
             (fun c => x_tax_number_type_of_xml c) (xml.required_child "fiscalRepresentativeTaxNumber" children)
         fiscal_representative_name =
@@ -5524,7 +5526,7 @@ and let x_general_ledger_account_numbers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_ledger_account_numbers_type
     =
-    {
+    x_general_ledger_account_numbers_type {
         general_ledger_account_number =
             listm.map
                 fun c =>
@@ -5540,7 +5542,7 @@ and let x_gln_numbers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_gln_numbers_type
     =
-    {
+    x_gln_numbers_type {
         gln_number =
             listm.map
                 fun c =>
@@ -5556,7 +5558,7 @@ and let x_invoice_detail_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_detail_type
     =
-    {
+    x_invoice_detail_type {
         invoice_category =
             (fun c => xml.required_value "x_invoice_category_type" (x_invoice_category_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "invoiceCategory" children)
         invoice_delivery_date =
@@ -5631,7 +5633,7 @@ and let x_invoice_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_data_type
     =
-    {
+    x_invoice_data_type {
         invoice_number =
             (fun c => xml.required_value "x_simple_text50_not_blank_type" (x_simple_text50_not_blank_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "invoiceNumber" children)
         invoice_issue_date =
@@ -5648,7 +5650,7 @@ and let x_invoice_head_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_head_type
     =
-    {
+    x_invoice_head_type {
         supplier_info = (fun c => x_supplier_info_type_of_xml c) (xml.required_child "supplierInfo" children)
         customer_info = optionm.map (fun c => x_customer_info_type_of_xml c) (xml.first_child "customerInfo" children)
         fiscal_representative_info =
@@ -5665,7 +5667,7 @@ and let x_invoice_main_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_main_type
     =
-    {
+    x_invoice_main_type {
         choice_invoice = x_invoice_main_type_choice_invoice_of_children attributes children
     }
 
@@ -5691,7 +5693,7 @@ and let x_invoice_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_reference_type
     =
-    {
+    x_invoice_reference_type {
         original_invoice_number =
             (fun c => xml.required_value "x_simple_text50_not_blank_type" (x_simple_text50_not_blank_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "originalInvoiceNumber" children)
         modify_without_master =
@@ -5707,7 +5709,7 @@ and let x_invoice_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_invoice_type
     =
-    {
+    x_invoice_type {
         invoice_reference =
             optionm.map (fun c => x_invoice_reference_type_of_xml c) (xml.first_child "invoiceReference" children)
         invoice_head = (fun c => x_invoice_head_type_of_xml c) (xml.required_child "invoiceHead" children)
@@ -5724,7 +5726,7 @@ and let x_item_numbers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_item_numbers_type
     =
-    {
+    x_item_numbers_type {
         item_number =
             listm.map
                 fun c =>
@@ -5740,7 +5742,7 @@ and let x_line_amounts_normal_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_line_amounts_normal_type
     =
-    {
+    x_line_amounts_normal_type {
         line_net_amount_data =
             (fun c => x_line_net_amount_data_type_of_xml c) (xml.required_child "lineNetAmountData" children)
         line_vat_rate = (fun c => x_vat_rate_type_of_xml c) (xml.required_child "lineVatRate" children)
@@ -5758,7 +5760,7 @@ and let x_line_amounts_simplified_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_line_amounts_simplified_type
     =
-    {
+    x_line_amounts_simplified_type {
         line_vat_rate = (fun c => x_vat_rate_type_of_xml c) (xml.required_child "lineVatRate" children)
         line_gross_amount_simplified =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineGrossAmountSimplified" children)
@@ -5773,7 +5775,7 @@ and let x_line_gross_amount_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_line_gross_amount_data_type
     =
-    {
+    x_line_gross_amount_data_type {
         line_gross_amount_normal =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineGrossAmountNormal" children)
         line_gross_amount_normal_huf =
@@ -5787,7 +5789,7 @@ and let x_line_modification_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_line_modification_reference_type
     =
-    {
+    x_line_modification_reference_type {
         line_number_reference =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineNumberReference" children)
         line_operation =
@@ -5801,7 +5803,7 @@ and let x_line_net_amount_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_line_net_amount_data_type
     =
-    {
+    x_line_net_amount_data_type {
         line_net_amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineNetAmount" children)
         line_net_amount_huf =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineNetAmountHUF" children)
@@ -5811,7 +5813,7 @@ and let x_line_net_amount_data_type_of_xml (c : xml.xml_node) : x_line_net_amoun
     x_line_net_amount_data_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_lines_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_lines_type =
-    {
+    x_lines_type {
         merged_item_indicator =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "mergedItemIndicator" children)
         line = listm.map (fun c => x_line_type_of_xml c) (xml.children_named "line" children)
@@ -5821,7 +5823,7 @@ and let x_lines_type_of_xml (c : xml.xml_node) : x_lines_type =
     x_lines_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_line_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_line_type =
-    {
+    x_line_type {
         line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineNumber" children)
         line_modification_reference =
             optionm.map
@@ -5926,7 +5928,7 @@ and let x_line_vat_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_line_vat_data_type
     =
-    {
+    x_line_vat_data_type {
         line_vat_amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineVatAmount" children)
         line_vat_amount_huf =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineVatAmountHUF" children)
@@ -5939,7 +5941,7 @@ and let x_material_numbers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_material_numbers_type
     =
-    {
+    x_material_numbers_type {
         material_number =
             listm.map
                 fun c =>
@@ -5955,7 +5957,7 @@ and let x_new_transport_mean_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_new_transport_mean_type
     =
-    {
+    x_new_transport_mean_type {
         brand =
             optionm.map
                 fun c =>
@@ -6009,7 +6011,7 @@ and let x_order_numbers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_order_numbers_type
     =
-    {
+    x_order_numbers_type {
         order_number =
             listm.map
                 fun c =>
@@ -6025,7 +6027,7 @@ and let x_payment_evidence_document_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_payment_evidence_document_data_type
     =
-    {
+    x_payment_evidence_document_data_type {
         evidence_document_no =
             (fun c => xml.required_value "x_simple_text50_not_blank_type" (x_simple_text50_not_blank_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "evidenceDocumentNo" children)
         evidence_document_date =
@@ -6043,7 +6045,7 @@ and let x_product_codes_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_product_codes_type
     =
-    {
+    x_product_codes_type {
         product_code = listm.map (fun c => x_product_code_type_of_xml c) (xml.children_named "productCode" children)
     }
 
@@ -6054,7 +6056,7 @@ and let x_product_code_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_product_code_type
     =
-    {
+    x_product_code_type {
         product_code_category =
             (fun c => xml.required_value "x_product_code_category_type" (x_product_code_category_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "productCodeCategory" children)
         choice_product_code_value = x_product_code_type_choice_product_code_value_of_children attributes children
@@ -6082,7 +6084,7 @@ and let x_product_fee_clause_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_product_fee_clause_type
     =
-    {
+    x_product_fee_clause_type {
         choice_product_fee_takeover_data =
             x_product_fee_clause_type_choice_product_fee_takeover_data_of_children attributes children
     }
@@ -6109,7 +6111,7 @@ and let x_product_fee_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_product_fee_data_type
     =
-    {
+    x_product_fee_data_type {
         product_fee_code = (fun c => x_product_code_type_of_xml c) (xml.required_child "productFeeCode" children)
         product_fee_quantity =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "productFeeQuantity" children)
@@ -6128,7 +6130,7 @@ and let x_product_fee_summary_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_product_fee_summary_type
     =
-    {
+    x_product_fee_summary_type {
         product_fee_operation =
             (fun c => xml.required_value "x_product_fee_operation_type" (x_product_fee_operation_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "productFeeOperation" children)
         product_fee_data =
@@ -6148,7 +6150,7 @@ and let x_product_fee_takeover_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_product_fee_takeover_data_type
     =
-    {
+    x_product_fee_takeover_data_type {
         takeover_reason =
             (fun c => xml.required_value "x_takeover_type" (x_takeover_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "takeoverReason" children)
         takeover_amount =
@@ -6162,7 +6164,7 @@ and let x_project_numbers_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_project_numbers_type
     =
-    {
+    x_project_numbers_type {
         project_number =
             listm.map
                 fun c =>
@@ -6178,7 +6180,7 @@ and let x_references_to_other_lines_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_references_to_other_lines_type
     =
-    {
+    x_references_to_other_lines_type {
         reference_to_other_line =
             listm.map
                 fun c => xml.text_in (xml.element_children c)
@@ -6192,7 +6194,7 @@ and let x_shipping_dates_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_shipping_dates_type
     =
-    {
+    x_shipping_dates_type {
         shipping_date =
             listm.map
                 fun c =>
@@ -6208,7 +6210,7 @@ and let x_summary_by_vat_rate_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_summary_by_vat_rate_type
     =
-    {
+    x_summary_by_vat_rate_type {
         vat_rate = (fun c => x_vat_rate_type_of_xml c) (xml.required_child "vatRate" children)
         vat_rate_net_data = (fun c => x_vat_rate_net_data_type_of_xml c) (xml.required_child "vatRateNetData" children)
         vat_rate_vat_data = (fun c => x_vat_rate_vat_data_type_of_xml c) (xml.required_child "vatRateVatData" children)
@@ -6223,7 +6225,7 @@ and let x_summary_gross_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_summary_gross_data_type
     =
-    {
+    x_summary_gross_data_type {
         invoice_gross_amount =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "invoiceGrossAmount" children)
         invoice_gross_amount_huf =
@@ -6237,7 +6239,7 @@ and let x_summary_normal_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_summary_normal_type
     =
-    {
+    x_summary_normal_type {
         summary_by_vat_rate =
             listm.map (fun c => x_summary_by_vat_rate_type_of_xml c) (xml.children_named "summaryByVatRate" children)
         invoice_net_amount =
@@ -6257,7 +6259,7 @@ and let x_summary_simplified_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_summary_simplified_type
     =
-    {
+    x_summary_simplified_type {
         vat_rate = (fun c => x_vat_rate_type_of_xml c) (xml.required_child "vatRate" children)
         vat_content_gross_amount =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "vatContentGrossAmount" children)
@@ -6272,7 +6274,7 @@ and let x_summary_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_summary_type
     =
-    {
+    x_summary_type {
         choice_summary_normal = x_summary_type_choice_summary_normal_of_children attributes children
         summary_gross_data =
             optionm.map (fun c => x_summary_gross_data_type_of_xml c) (xml.first_child "summaryGrossData" children)
@@ -6300,7 +6302,7 @@ and let x_supplier_company_codes_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_supplier_company_codes_type
     =
-    {
+    x_supplier_company_codes_type {
         supplier_company_code =
             listm.map
                 fun c =>
@@ -6316,7 +6318,7 @@ and let x_supplier_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_supplier_info_type
     =
-    {
+    x_supplier_info_type {
         supplier_tax_number = (fun c => x_tax_number_type_of_xml c) (xml.required_child "supplierTaxNumber" children)
         group_member_tax_number =
             optionm.map (fun c => x_tax_number_type_of_xml c) (xml.first_child "groupMemberTaxNumber" children)
@@ -6352,7 +6354,7 @@ and let x_vat_amount_mismatch_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_vat_amount_mismatch_type
     =
-    {
+    x_vat_amount_mismatch_type {
         vat_rate = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "vatRate" children)
         case =
             (fun c => xml.required_value "x_simple_text50_not_blank_type" (x_simple_text50_not_blank_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "case" children)
@@ -6365,7 +6367,7 @@ and let x_vat_rate_gross_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_vat_rate_gross_data_type
     =
-    {
+    x_vat_rate_gross_data_type {
         vat_rate_gross_amount =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "vatRateGrossAmount" children)
         vat_rate_gross_amount_huf =
@@ -6379,7 +6381,7 @@ and let x_vat_rate_net_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_vat_rate_net_data_type
     =
-    {
+    x_vat_rate_net_data_type {
         vat_rate_net_amount =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "vatRateNetAmount" children)
         vat_rate_net_amount_huf =
@@ -6393,7 +6395,7 @@ and let x_vat_rate_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_vat_rate_type
     =
-    {
+    x_vat_rate_type {
         choice_vat_percentage = x_vat_rate_type_choice_vat_percentage_of_children attributes children
     }
 
@@ -6443,7 +6445,7 @@ and let x_vat_rate_vat_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_vat_rate_vat_data_type
     =
-    {
+    x_vat_rate_vat_data_type {
         vat_rate_vat_amount =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "vatRateVatAmount" children)
         vat_rate_vat_amount_huf =
@@ -6457,7 +6459,7 @@ and let x_vehicle_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_vehicle_type
     =
-    {
+    x_vehicle_type {
         engine_capacity = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "engineCapacity" children)
         engine_power = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "enginePower" children)
         kms = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "kms" children)
@@ -6467,7 +6469,7 @@ and let x_vehicle_type_of_xml (c : xml.xml_node) : x_vehicle_type =
     x_vehicle_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_vessel_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_vessel_type =
-    {
+    x_vessel_type {
         length = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "length" children)
         activity_referred =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "activityReferred" children)
@@ -6481,7 +6483,7 @@ and let x_basic_header_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_basic_header_type
     =
-    {
+    x_basic_header_type {
         request_id =
             (fun c => xml.required_value "x_entity_id_type" (x_entity_id_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "requestId" children)
         timestamp =
@@ -6503,7 +6505,7 @@ and let x_basic_request_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_basic_request_type
     =
-    {
+    x_basic_request_type {
         header = (fun c => x_basic_header_type_of_xml c) (xml.required_child "header" children)
         user = (fun c => x_user_header_type_of_xml c) (xml.required_child "user" children)
     }
@@ -6515,7 +6517,7 @@ and let x_basic_response_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_basic_response_type
     =
-    {
+    x_basic_response_type {
         header = (fun c => x_basic_header_type_of_xml c) (xml.required_child "header" children)
         result = (fun c => x_basic_result_type_of_xml c) (xml.required_child "result" children)
     }
@@ -6527,7 +6529,7 @@ and let x_basic_result_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_basic_result_type
     =
-    {
+    x_basic_result_type {
         func_code =
             (fun c => xml.required_value "x_function_code_type" (x_function_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "funcCode" children)
         error_code =
@@ -6549,7 +6551,7 @@ and let x_basic_result_type_of_xml (c : xml.xml_node) : x_basic_result_type =
     x_basic_result_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_crypto_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_crypto_type =
-    {
+    x_crypto_type {
         base =
             xml.required_value
                 "x_simple_text512_not_blank_type"
@@ -6567,7 +6569,7 @@ and let x_general_error_header_response_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_general_error_header_response_type
     =
-    {
+    x_general_error_header_response_type {
         base = x_basic_response_type_of_children attributes children
     }
 
@@ -6578,7 +6580,7 @@ and let x_notifications_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_notifications_type
     =
-    {
+    x_notifications_type {
         notification = listm.map (fun c => x_notification_type_of_xml c) (xml.children_named "notification" children)
     }
 
@@ -6589,7 +6591,7 @@ and let x_notification_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_notification_type
     =
-    {
+    x_notification_type {
         notification_code =
             (fun c => xml.required_value "x_simple_text100_not_blank_type" (x_simple_text100_not_blank_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "notificationCode" children)
         notification_text =
@@ -6603,7 +6605,7 @@ and let x_technical_validation_result_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_technical_validation_result_type
     =
-    {
+    x_technical_validation_result_type {
         validation_result_code =
             (fun c => xml.required_value "x_technical_result_code_type" (x_technical_result_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "validationResultCode" children)
         validation_error_code =
@@ -6627,7 +6629,7 @@ and let x_user_header_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_user_header_type
     =
-    {
+    x_user_header_type {
         login =
             (fun c => xml.required_value "x_login_type" (x_login_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "login" children)
         password_hash = (fun c => x_crypto_type_of_xml c) (xml.required_child "passwordHash" children)
@@ -6643,7 +6645,7 @@ and let x_address_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_address_type
     =
-    {
+    x_address_type {
         choice_simple_address = x_address_type_choice_simple_address_of_children attributes children
     }
 
@@ -6669,7 +6671,7 @@ and let x_detailed_address_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_detailed_address_type
     =
-    {
+    x_detailed_address_type {
         country_code =
             (fun c => xml.required_value "x_country_code_type" (x_country_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "countryCode" children)
         region =
@@ -6731,7 +6733,7 @@ and let x_simple_address_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_simple_address_type
     =
-    {
+    x_simple_address_type {
         country_code =
             (fun c => xml.required_value "x_country_code_type" (x_country_code_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "countryCode" children)
         region =
@@ -6755,7 +6757,7 @@ and let x_tax_number_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tax_number_type
     =
-    {
+    x_tax_number_type {
         taxpayer_id =
             (fun c => xml.required_value "x_taxpayer_id_type" (x_taxpayer_id_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "taxpayerId" children)
         vat_code =
@@ -8735,66 +8737,66 @@ and let x_tax_number_type_to_xml (name : string) (x : x_tax_number_type) : xml.x
     xml.element name (x_tax_number_type_attributes x) (x_tax_number_type_children x)
 
 and let x_invoice_data_example (k : i32) : x_invoice_data =
-    {
+    x_invoice_data {
         base = x_invoice_data_type_example k
     }
 
 and let x_general_error_header_response_example (k : i32) : x_general_error_header_response =
-    {
+    x_general_error_header_response {
         base = x_general_error_header_response_type_example k
     }
 
 and let x_general_exception_response_example (k : i32) : x_general_exception_response =
-    {
+    x_general_exception_response {
         base = x_basic_result_type_example k
     }
 
 and let x_additional_data_type_example (k : i32) : x_additional_data_type =
-    {
+    x_additional_data_type {
         data_name = x_data_name_type_example k
         data_description = x_simple_text255_not_blank_type_example k
         data_value = x_simple_text512_not_blank_type_example k
     }
 
 and let x_advance_data_type_example (k : i32) : x_advance_data_type =
-    {
+    x_advance_data_type {
         advance_indicator = "true"
         advance_payment_data = None
     }
 
 and let x_advance_payment_data_type_example (k : i32) : x_advance_payment_data_type =
-    {
+    x_advance_payment_data_type {
         advance_original_invoice = x_simple_text50_not_blank_type_example k
         advance_payment_date = x_invoice_date_type_example k
         advance_exchange_rate = x_exchange_rate_type_example k
     }
 
 and let x_aggregate_invoice_line_data_type_example (k : i32) : x_aggregate_invoice_line_data_type =
-    {
+    x_aggregate_invoice_line_data_type {
         line_exchange_rate = None
         line_delivery_date = x_invoice_date_type_example k
     }
 
 and let x_aircraft_type_example (k : i32) : x_aircraft_type =
-    {
+    x_aircraft_type {
         take_off_weight = x_quantity_type_example k
         air_cargo = "true"
         operation_hours = x_quantity_type_example k
     }
 
 and let x_batch_invoice_type_example (k : i32) : x_batch_invoice_type =
-    {
+    x_batch_invoice_type {
         batch_index = x_invoice_unbounded_index_type_example k
         invoice = x_invoice_type_example k
     }
 
 and let x_contract_numbers_type_example (k : i32) : x_contract_numbers_type =
-    {
+    x_contract_numbers_type {
         contract_number = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_conventional_invoice_info_type_example (k : i32) : x_conventional_invoice_info_type =
-    {
+    x_conventional_invoice_info_type {
         order_numbers = None
         delivery_notes = None
         shipping_dates = None
@@ -8813,23 +8815,23 @@ and let x_conventional_invoice_info_type_example (k : i32) : x_conventional_invo
     }
 
 and let x_cost_centers_type_example (k : i32) : x_cost_centers_type =
-    {
+    x_cost_centers_type {
         cost_center = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_customer_company_codes_type_example (k : i32) : x_customer_company_codes_type =
-    {
+    x_customer_company_codes_type {
         customer_company_code = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_customer_declaration_type_example (k : i32) : x_customer_declaration_type =
-    {
+    x_customer_declaration_type {
         product_stream = x_product_stream_type_example k
         product_fee_weight = None
     }
 
 and let x_customer_info_type_example (k : i32) : x_customer_info_type =
-    {
+    x_customer_info_type {
         customer_vat_status = x_customer_vat_status_type_example k
         customer_vat_data = None
         customer_name = None
@@ -8838,13 +8840,13 @@ and let x_customer_info_type_example (k : i32) : x_customer_info_type =
     }
 
 and let x_customer_tax_number_type_example (k : i32) : x_customer_tax_number_type =
-    {
+    x_customer_tax_number_type {
         base = x_tax_number_type_example k
         group_member_tax_number = None
     }
 
 and let x_customer_vat_data_type_example (k : i32) : x_customer_vat_data_type =
-    {
+    x_customer_vat_data_type {
         choice_customer_tax_number = x_customer_vat_data_type_choice_customer_tax_number_example k
     }
 
@@ -8855,23 +8857,23 @@ and let x_customer_vat_data_type_choice_customer_tax_number_example
     CustomerVatDataType_choice_customerTaxNumber_customerTaxNumber (x_customer_tax_number_type_example k)
 
 and let x_dealer_codes_type_example (k : i32) : x_dealer_codes_type =
-    {
+    x_dealer_codes_type {
         dealer_code = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_delivery_notes_type_example (k : i32) : x_delivery_notes_type =
-    {
+    x_delivery_notes_type {
         delivery_note = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_detailed_reason_type_example (k : i32) : x_detailed_reason_type =
-    {
+    x_detailed_reason_type {
         case = x_simple_text50_not_blank_type_example k
         reason = x_simple_text200_not_blank_type_example k
     }
 
 and let x_diesel_oil_purchase_type_example (k : i32) : x_diesel_oil_purchase_type =
-    {
+    x_diesel_oil_purchase_type {
         purchase_location = x_simple_address_type_example k
         purchase_date = x_invoice_date_type_example k
         vehicle_registration_number = x_plate_number_type_example k
@@ -8879,19 +8881,19 @@ and let x_diesel_oil_purchase_type_example (k : i32) : x_diesel_oil_purchase_typ
     }
 
 and let x_discount_data_type_example (k : i32) : x_discount_data_type =
-    {
+    x_discount_data_type {
         discount_description = None
         discount_value = None
         discount_rate = None
     }
 
 and let x_ekaer_ids_type_example (k : i32) : x_ekaer_ids_type =
-    {
+    x_ekaer_ids_type {
         ekaer_id = [ x_ekaer_id_type_example (k + 0i32) ]
     }
 
 and let x_fiscal_representative_type_example (k : i32) : x_fiscal_representative_type =
-    {
+    x_fiscal_representative_type {
         fiscal_representative_tax_number = x_tax_number_type_example k
         fiscal_representative_name = x_simple_text512_not_blank_type_example k
         fiscal_representative_address = x_address_type_example k
@@ -8899,17 +8901,17 @@ and let x_fiscal_representative_type_example (k : i32) : x_fiscal_representative
     }
 
 and let x_general_ledger_account_numbers_type_example (k : i32) : x_general_ledger_account_numbers_type =
-    {
+    x_general_ledger_account_numbers_type {
         general_ledger_account_number = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_gln_numbers_type_example (k : i32) : x_gln_numbers_type =
-    {
+    x_gln_numbers_type {
         gln_number = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_invoice_detail_type_example (k : i32) : x_invoice_detail_type =
-    {
+    x_invoice_detail_type {
         invoice_category = x_invoice_category_type_example k
         invoice_delivery_date = x_invoice_date_type_example k
         invoice_delivery_period_start = None
@@ -8930,7 +8932,7 @@ and let x_invoice_detail_type_example (k : i32) : x_invoice_detail_type =
     }
 
 and let x_invoice_data_type_example (k : i32) : x_invoice_data_type =
-    {
+    x_invoice_data_type {
         invoice_number = x_simple_text50_not_blank_type_example k
         invoice_issue_date = x_invoice_date_type_example k
         completeness_indicator = "true"
@@ -8938,7 +8940,7 @@ and let x_invoice_data_type_example (k : i32) : x_invoice_data_type =
     }
 
 and let x_invoice_head_type_example (k : i32) : x_invoice_head_type =
-    {
+    x_invoice_head_type {
         supplier_info = x_supplier_info_type_example k
         customer_info = None
         fiscal_representative_info = None
@@ -8946,7 +8948,7 @@ and let x_invoice_head_type_example (k : i32) : x_invoice_head_type =
     }
 
 and let x_invoice_main_type_example (k : i32) : x_invoice_main_type =
-    {
+    x_invoice_main_type {
         choice_invoice = x_invoice_main_type_choice_invoice_example k
     }
 
@@ -8954,14 +8956,14 @@ and let x_invoice_main_type_choice_invoice_example (k : i32) : x_invoice_main_ty
     InvoiceMainType_choice_invoice_invoice (x_invoice_type_example k)
 
 and let x_invoice_reference_type_example (k : i32) : x_invoice_reference_type =
-    {
+    x_invoice_reference_type {
         original_invoice_number = x_simple_text50_not_blank_type_example k
         modify_without_master = "true"
         modification_index = x_invoice_unbounded_index_type_example k
     }
 
 and let x_invoice_type_example (k : i32) : x_invoice_type =
-    {
+    x_invoice_type {
         invoice_reference = None
         invoice_head = x_invoice_head_type_example k
         invoice_lines = None
@@ -8970,12 +8972,12 @@ and let x_invoice_type_example (k : i32) : x_invoice_type =
     }
 
 and let x_item_numbers_type_example (k : i32) : x_item_numbers_type =
-    {
+    x_item_numbers_type {
         item_number = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_line_amounts_normal_type_example (k : i32) : x_line_amounts_normal_type =
-    {
+    x_line_amounts_normal_type {
         line_net_amount_data = x_line_net_amount_data_type_example k
         line_vat_rate = x_vat_rate_type_example k
         line_vat_data = None
@@ -8983,38 +8985,38 @@ and let x_line_amounts_normal_type_example (k : i32) : x_line_amounts_normal_typ
     }
 
 and let x_line_amounts_simplified_type_example (k : i32) : x_line_amounts_simplified_type =
-    {
+    x_line_amounts_simplified_type {
         line_vat_rate = x_vat_rate_type_example k
         line_gross_amount_simplified = x_monetary_type_example k
         line_gross_amount_simplified_huf = x_monetary_type_example k
     }
 
 and let x_line_gross_amount_data_type_example (k : i32) : x_line_gross_amount_data_type =
-    {
+    x_line_gross_amount_data_type {
         line_gross_amount_normal = x_monetary_type_example k
         line_gross_amount_normal_huf = x_monetary_type_example k
     }
 
 and let x_line_modification_reference_type_example (k : i32) : x_line_modification_reference_type =
-    {
+    x_line_modification_reference_type {
         line_number_reference = x_line_number_type_example k
         line_operation = x_line_operation_type_example k
     }
 
 and let x_line_net_amount_data_type_example (k : i32) : x_line_net_amount_data_type =
-    {
+    x_line_net_amount_data_type {
         line_net_amount = x_monetary_type_example k
         line_net_amount_huf = x_monetary_type_example k
     }
 
 and let x_lines_type_example (k : i32) : x_lines_type =
-    {
+    x_lines_type {
         merged_item_indicator = "true"
         line = [ x_line_type_example (k + 0i32) ]
     }
 
 and let x_line_type_example (k : i32) : x_line_type =
-    {
+    x_line_type {
         line_number = x_line_number_type_example k
         line_modification_reference = None
         references_to_other_lines = None
@@ -9048,18 +9050,18 @@ and let x_line_type_choice_line_amounts_normal_example (k : i32) : x_line_type_c
     LineType_choice_lineAmountsNormal_lineAmountsNormal (None)
 
 and let x_line_vat_data_type_example (k : i32) : x_line_vat_data_type =
-    {
+    x_line_vat_data_type {
         line_vat_amount = x_monetary_type_example k
         line_vat_amount_huf = x_monetary_type_example k
     }
 
 and let x_material_numbers_type_example (k : i32) : x_material_numbers_type =
-    {
+    x_material_numbers_type {
         material_number = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_new_transport_mean_type_example (k : i32) : x_new_transport_mean_type =
-    {
+    x_new_transport_mean_type {
         brand = None
         serial_num = None
         engine_num = None
@@ -9071,12 +9073,12 @@ and let x_new_transport_mean_type_choice_vehicle_example (k : i32) : x_new_trans
     NewTransportMeanType_choice_vehicle_vehicle (x_vehicle_type_example k)
 
 and let x_order_numbers_type_example (k : i32) : x_order_numbers_type =
-    {
+    x_order_numbers_type {
         order_number = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_payment_evidence_document_data_type_example (k : i32) : x_payment_evidence_document_data_type =
-    {
+    x_payment_evidence_document_data_type {
         evidence_document_no = x_simple_text50_not_blank_type_example k
         evidence_document_date = x_invoice_date_type_example k
         obligated_name = x_simple_text255_not_blank_type_example k
@@ -9085,12 +9087,12 @@ and let x_payment_evidence_document_data_type_example (k : i32) : x_payment_evid
     }
 
 and let x_product_codes_type_example (k : i32) : x_product_codes_type =
-    {
+    x_product_codes_type {
         product_code = [ x_product_code_type_example (k + 0i32) ]
     }
 
 and let x_product_code_type_example (k : i32) : x_product_code_type =
-    {
+    x_product_code_type {
         product_code_category = x_product_code_category_type_example k
         choice_product_code_value = x_product_code_type_choice_product_code_value_example k
     }
@@ -9099,7 +9101,7 @@ and let x_product_code_type_choice_product_code_value_example (k : i32) : x_prod
     ProductCodeType_choice_productCodeValue_productCodeValue (x_product_code_value_type_example k)
 
 and let x_product_fee_clause_type_example (k : i32) : x_product_fee_clause_type =
-    {
+    x_product_fee_clause_type {
         choice_product_fee_takeover_data = x_product_fee_clause_type_choice_product_fee_takeover_data_example k
     }
 
@@ -9112,7 +9114,7 @@ and let x_product_fee_clause_type_choice_product_fee_takeover_data_example
     )
 
 and let x_product_fee_data_type_example (k : i32) : x_product_fee_data_type =
-    {
+    x_product_fee_data_type {
         product_fee_code = x_product_code_type_example k
         product_fee_quantity = x_quantity_type_example k
         product_fee_measuring_unit = x_product_fee_measuring_unit_type_example k
@@ -9121,7 +9123,7 @@ and let x_product_fee_data_type_example (k : i32) : x_product_fee_data_type =
     }
 
 and let x_product_fee_summary_type_example (k : i32) : x_product_fee_summary_type =
-    {
+    x_product_fee_summary_type {
         product_fee_operation = x_product_fee_operation_type_example k
         product_fee_data = [ x_product_fee_data_type_example (k + 0i32) ]
         product_charge_sum = x_monetary_type_example k
@@ -9129,28 +9131,28 @@ and let x_product_fee_summary_type_example (k : i32) : x_product_fee_summary_typ
     }
 
 and let x_product_fee_takeover_data_type_example (k : i32) : x_product_fee_takeover_data_type =
-    {
+    x_product_fee_takeover_data_type {
         takeover_reason = x_takeover_type_example k
         takeover_amount = None
     }
 
 and let x_project_numbers_type_example (k : i32) : x_project_numbers_type =
-    {
+    x_project_numbers_type {
         project_number = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_references_to_other_lines_type_example (k : i32) : x_references_to_other_lines_type =
-    {
+    x_references_to_other_lines_type {
         reference_to_other_line = [ x_line_number_type_example (k + 0i32) ]
     }
 
 and let x_shipping_dates_type_example (k : i32) : x_shipping_dates_type =
-    {
+    x_shipping_dates_type {
         shipping_date = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_summary_by_vat_rate_type_example (k : i32) : x_summary_by_vat_rate_type =
-    {
+    x_summary_by_vat_rate_type {
         vat_rate = x_vat_rate_type_example k
         vat_rate_net_data = x_vat_rate_net_data_type_example k
         vat_rate_vat_data = x_vat_rate_vat_data_type_example k
@@ -9158,13 +9160,13 @@ and let x_summary_by_vat_rate_type_example (k : i32) : x_summary_by_vat_rate_typ
     }
 
 and let x_summary_gross_data_type_example (k : i32) : x_summary_gross_data_type =
-    {
+    x_summary_gross_data_type {
         invoice_gross_amount = x_monetary_type_example k
         invoice_gross_amount_huf = x_monetary_type_example k
     }
 
 and let x_summary_normal_type_example (k : i32) : x_summary_normal_type =
-    {
+    x_summary_normal_type {
         summary_by_vat_rate = [ x_summary_by_vat_rate_type_example (k + 0i32) ]
         invoice_net_amount = x_monetary_type_example k
         invoice_net_amount_huf = x_monetary_type_example k
@@ -9173,14 +9175,14 @@ and let x_summary_normal_type_example (k : i32) : x_summary_normal_type =
     }
 
 and let x_summary_simplified_type_example (k : i32) : x_summary_simplified_type =
-    {
+    x_summary_simplified_type {
         vat_rate = x_vat_rate_type_example k
         vat_content_gross_amount = x_monetary_type_example k
         vat_content_gross_amount_huf = x_monetary_type_example k
     }
 
 and let x_summary_type_example (k : i32) : x_summary_type =
-    {
+    x_summary_type {
         choice_summary_normal = x_summary_type_choice_summary_normal_example k
         summary_gross_data = None
     }
@@ -9189,12 +9191,12 @@ and let x_summary_type_choice_summary_normal_example (k : i32) : x_summary_type_
     SummaryType_choice_summaryNormal_summaryNormal (x_summary_normal_type_example k)
 
 and let x_supplier_company_codes_type_example (k : i32) : x_supplier_company_codes_type =
-    {
+    x_supplier_company_codes_type {
         supplier_company_code = [ x_simple_text100_not_blank_type_example (k + 0i32) ]
     }
 
 and let x_supplier_info_type_example (k : i32) : x_supplier_info_type =
-    {
+    x_supplier_info_type {
         supplier_tax_number = x_tax_number_type_example k
         group_member_tax_number = None
         community_vat_number = None
@@ -9206,25 +9208,25 @@ and let x_supplier_info_type_example (k : i32) : x_supplier_info_type =
     }
 
 and let x_vat_amount_mismatch_type_example (k : i32) : x_vat_amount_mismatch_type =
-    {
+    x_vat_amount_mismatch_type {
         vat_rate = x_rate_type_example k
         case = x_simple_text50_not_blank_type_example k
     }
 
 and let x_vat_rate_gross_data_type_example (k : i32) : x_vat_rate_gross_data_type =
-    {
+    x_vat_rate_gross_data_type {
         vat_rate_gross_amount = x_monetary_type_example k
         vat_rate_gross_amount_huf = x_monetary_type_example k
     }
 
 and let x_vat_rate_net_data_type_example (k : i32) : x_vat_rate_net_data_type =
-    {
+    x_vat_rate_net_data_type {
         vat_rate_net_amount = x_monetary_type_example k
         vat_rate_net_amount_huf = x_monetary_type_example k
     }
 
 and let x_vat_rate_type_example (k : i32) : x_vat_rate_type =
-    {
+    x_vat_rate_type {
         choice_vat_percentage = x_vat_rate_type_choice_vat_percentage_example k
     }
 
@@ -9232,27 +9234,27 @@ and let x_vat_rate_type_choice_vat_percentage_example (k : i32) : x_vat_rate_typ
     VatRateType_choice_vatPercentage_vatPercentage (x_rate_type_example k)
 
 and let x_vat_rate_vat_data_type_example (k : i32) : x_vat_rate_vat_data_type =
-    {
+    x_vat_rate_vat_data_type {
         vat_rate_vat_amount = x_monetary_type_example k
         vat_rate_vat_amount_huf = x_monetary_type_example k
     }
 
 and let x_vehicle_type_example (k : i32) : x_vehicle_type =
-    {
+    x_vehicle_type {
         engine_capacity = x_quantity_type_example k
         engine_power = x_quantity_type_example k
         kms = x_quantity_type_example k
     }
 
 and let x_vessel_type_example (k : i32) : x_vessel_type =
-    {
+    x_vessel_type {
         length = x_quantity_type_example k
         activity_referred = "true"
         sailed_hours = x_quantity_type_example k
     }
 
 and let x_basic_header_type_example (k : i32) : x_basic_header_type =
-    {
+    x_basic_header_type {
         request_id = x_entity_id_type_example k
         timestamp = x_generic_timestamp_type_example k
         request_version = x_atomic_string_type15_example k
@@ -9260,19 +9262,19 @@ and let x_basic_header_type_example (k : i32) : x_basic_header_type =
     }
 
 and let x_basic_request_type_example (k : i32) : x_basic_request_type =
-    {
+    x_basic_request_type {
         header = x_basic_header_type_example k
         user = x_user_header_type_example k
     }
 
 and let x_basic_response_type_example (k : i32) : x_basic_response_type =
-    {
+    x_basic_response_type {
         header = x_basic_header_type_example k
         result = x_basic_result_type_example k
     }
 
 and let x_basic_result_type_example (k : i32) : x_basic_result_type =
-    {
+    x_basic_result_type {
         func_code = x_function_code_type_example k
         error_code = None
         message = None
@@ -9280,36 +9282,36 @@ and let x_basic_result_type_example (k : i32) : x_basic_result_type =
     }
 
 and let x_crypto_type_example (k : i32) : x_crypto_type =
-    {
+    x_crypto_type {
         base = x_simple_text512_not_blank_type_example k
         crypto_type = x_simple_text50_not_blank_type_example k
     }
 
 and let x_general_error_header_response_type_example (k : i32) : x_general_error_header_response_type =
-    {
+    x_general_error_header_response_type {
         base = x_basic_response_type_example k
     }
 
 and let x_notifications_type_example (k : i32) : x_notifications_type =
-    {
+    x_notifications_type {
         notification = [ x_notification_type_example (k + 0i32) ]
     }
 
 and let x_notification_type_example (k : i32) : x_notification_type =
-    {
+    x_notification_type {
         notification_code = x_simple_text100_not_blank_type_example k
         notification_text = x_simple_text1024_not_blank_type_example k
     }
 
 and let x_technical_validation_result_type_example (k : i32) : x_technical_validation_result_type =
-    {
+    x_technical_validation_result_type {
         validation_result_code = x_technical_result_code_type_example k
         validation_error_code = None
         message = None
     }
 
 and let x_user_header_type_example (k : i32) : x_user_header_type =
-    {
+    x_user_header_type {
         login = x_login_type_example k
         password_hash = x_crypto_type_example k
         tax_number = x_taxpayer_id_type_example k
@@ -9317,7 +9319,7 @@ and let x_user_header_type_example (k : i32) : x_user_header_type =
     }
 
 and let x_address_type_example (k : i32) : x_address_type =
-    {
+    x_address_type {
         choice_simple_address = x_address_type_choice_simple_address_example k
     }
 
@@ -9325,7 +9327,7 @@ and let x_address_type_choice_simple_address_example (k : i32) : x_address_type_
     AddressType_choice_simpleAddress_simpleAddress (x_simple_address_type_example k)
 
 and let x_detailed_address_type_example (k : i32) : x_detailed_address_type =
-    {
+    x_detailed_address_type {
         country_code = x_country_code_type_example k
         region = None
         postal_code = x_postal_code_type_example k
@@ -9341,7 +9343,7 @@ and let x_detailed_address_type_example (k : i32) : x_detailed_address_type =
     }
 
 and let x_simple_address_type_example (k : i32) : x_simple_address_type =
-    {
+    x_simple_address_type {
         country_code = x_country_code_type_example k
         region = None
         postal_code = x_postal_code_type_example k
@@ -9350,11 +9352,258 @@ and let x_simple_address_type_example (k : i32) : x_simple_address_type =
     }
 
 and let x_tax_number_type_example (k : i32) : x_tax_number_type =
-    {
+    x_tax_number_type {
         taxpayer_id = x_taxpayer_id_type_example k
         vat_code = None
         county_code = None
     }
+
+
+instance of_xml x_invoice_data = x_invoice_data_of_xml
+instance to_xml x_invoice_data = x_invoice_data_to_xml
+
+instance of_xml x_general_error_header_response = x_general_error_header_response_of_xml
+instance to_xml x_general_error_header_response = x_general_error_header_response_to_xml
+
+instance of_xml x_general_exception_response = x_general_exception_response_of_xml
+instance to_xml x_general_exception_response = x_general_exception_response_to_xml
+
+instance of_xml x_additional_data_type = x_additional_data_type_of_xml
+instance to_xml x_additional_data_type = x_additional_data_type_to_xml
+
+instance of_xml x_advance_data_type = x_advance_data_type_of_xml
+instance to_xml x_advance_data_type = x_advance_data_type_to_xml
+
+instance of_xml x_advance_payment_data_type = x_advance_payment_data_type_of_xml
+instance to_xml x_advance_payment_data_type = x_advance_payment_data_type_to_xml
+
+instance of_xml x_aggregate_invoice_line_data_type = x_aggregate_invoice_line_data_type_of_xml
+instance to_xml x_aggregate_invoice_line_data_type = x_aggregate_invoice_line_data_type_to_xml
+
+instance of_xml x_aircraft_type = x_aircraft_type_of_xml
+instance to_xml x_aircraft_type = x_aircraft_type_to_xml
+
+instance of_xml x_batch_invoice_type = x_batch_invoice_type_of_xml
+instance to_xml x_batch_invoice_type = x_batch_invoice_type_to_xml
+
+instance of_xml x_contract_numbers_type = x_contract_numbers_type_of_xml
+instance to_xml x_contract_numbers_type = x_contract_numbers_type_to_xml
+
+instance of_xml x_conventional_invoice_info_type = x_conventional_invoice_info_type_of_xml
+instance to_xml x_conventional_invoice_info_type = x_conventional_invoice_info_type_to_xml
+
+instance of_xml x_cost_centers_type = x_cost_centers_type_of_xml
+instance to_xml x_cost_centers_type = x_cost_centers_type_to_xml
+
+instance of_xml x_customer_company_codes_type = x_customer_company_codes_type_of_xml
+instance to_xml x_customer_company_codes_type = x_customer_company_codes_type_to_xml
+
+instance of_xml x_customer_declaration_type = x_customer_declaration_type_of_xml
+instance to_xml x_customer_declaration_type = x_customer_declaration_type_to_xml
+
+instance of_xml x_customer_info_type = x_customer_info_type_of_xml
+instance to_xml x_customer_info_type = x_customer_info_type_to_xml
+
+instance of_xml x_customer_tax_number_type = x_customer_tax_number_type_of_xml
+instance to_xml x_customer_tax_number_type = x_customer_tax_number_type_to_xml
+
+instance of_xml x_customer_vat_data_type = x_customer_vat_data_type_of_xml
+instance to_xml x_customer_vat_data_type = x_customer_vat_data_type_to_xml
+
+instance of_xml x_dealer_codes_type = x_dealer_codes_type_of_xml
+instance to_xml x_dealer_codes_type = x_dealer_codes_type_to_xml
+
+instance of_xml x_delivery_notes_type = x_delivery_notes_type_of_xml
+instance to_xml x_delivery_notes_type = x_delivery_notes_type_to_xml
+
+instance of_xml x_detailed_reason_type = x_detailed_reason_type_of_xml
+instance to_xml x_detailed_reason_type = x_detailed_reason_type_to_xml
+
+instance of_xml x_diesel_oil_purchase_type = x_diesel_oil_purchase_type_of_xml
+instance to_xml x_diesel_oil_purchase_type = x_diesel_oil_purchase_type_to_xml
+
+instance of_xml x_discount_data_type = x_discount_data_type_of_xml
+instance to_xml x_discount_data_type = x_discount_data_type_to_xml
+
+instance of_xml x_ekaer_ids_type = x_ekaer_ids_type_of_xml
+instance to_xml x_ekaer_ids_type = x_ekaer_ids_type_to_xml
+
+instance of_xml x_fiscal_representative_type = x_fiscal_representative_type_of_xml
+instance to_xml x_fiscal_representative_type = x_fiscal_representative_type_to_xml
+
+instance of_xml x_general_ledger_account_numbers_type = x_general_ledger_account_numbers_type_of_xml
+instance to_xml x_general_ledger_account_numbers_type = x_general_ledger_account_numbers_type_to_xml
+
+instance of_xml x_gln_numbers_type = x_gln_numbers_type_of_xml
+instance to_xml x_gln_numbers_type = x_gln_numbers_type_to_xml
+
+instance of_xml x_invoice_detail_type = x_invoice_detail_type_of_xml
+instance to_xml x_invoice_detail_type = x_invoice_detail_type_to_xml
+
+instance of_xml x_invoice_data_type = x_invoice_data_type_of_xml
+instance to_xml x_invoice_data_type = x_invoice_data_type_to_xml
+
+instance of_xml x_invoice_head_type = x_invoice_head_type_of_xml
+instance to_xml x_invoice_head_type = x_invoice_head_type_to_xml
+
+instance of_xml x_invoice_main_type = x_invoice_main_type_of_xml
+instance to_xml x_invoice_main_type = x_invoice_main_type_to_xml
+
+instance of_xml x_invoice_reference_type = x_invoice_reference_type_of_xml
+instance to_xml x_invoice_reference_type = x_invoice_reference_type_to_xml
+
+instance of_xml x_invoice_type = x_invoice_type_of_xml
+instance to_xml x_invoice_type = x_invoice_type_to_xml
+
+instance of_xml x_item_numbers_type = x_item_numbers_type_of_xml
+instance to_xml x_item_numbers_type = x_item_numbers_type_to_xml
+
+instance of_xml x_line_amounts_normal_type = x_line_amounts_normal_type_of_xml
+instance to_xml x_line_amounts_normal_type = x_line_amounts_normal_type_to_xml
+
+instance of_xml x_line_amounts_simplified_type = x_line_amounts_simplified_type_of_xml
+instance to_xml x_line_amounts_simplified_type = x_line_amounts_simplified_type_to_xml
+
+instance of_xml x_line_gross_amount_data_type = x_line_gross_amount_data_type_of_xml
+instance to_xml x_line_gross_amount_data_type = x_line_gross_amount_data_type_to_xml
+
+instance of_xml x_line_modification_reference_type = x_line_modification_reference_type_of_xml
+instance to_xml x_line_modification_reference_type = x_line_modification_reference_type_to_xml
+
+instance of_xml x_line_net_amount_data_type = x_line_net_amount_data_type_of_xml
+instance to_xml x_line_net_amount_data_type = x_line_net_amount_data_type_to_xml
+
+instance of_xml x_lines_type = x_lines_type_of_xml
+instance to_xml x_lines_type = x_lines_type_to_xml
+
+instance of_xml x_line_type = x_line_type_of_xml
+instance to_xml x_line_type = x_line_type_to_xml
+
+instance of_xml x_line_vat_data_type = x_line_vat_data_type_of_xml
+instance to_xml x_line_vat_data_type = x_line_vat_data_type_to_xml
+
+instance of_xml x_material_numbers_type = x_material_numbers_type_of_xml
+instance to_xml x_material_numbers_type = x_material_numbers_type_to_xml
+
+instance of_xml x_new_transport_mean_type = x_new_transport_mean_type_of_xml
+instance to_xml x_new_transport_mean_type = x_new_transport_mean_type_to_xml
+
+instance of_xml x_order_numbers_type = x_order_numbers_type_of_xml
+instance to_xml x_order_numbers_type = x_order_numbers_type_to_xml
+
+instance of_xml x_payment_evidence_document_data_type = x_payment_evidence_document_data_type_of_xml
+instance to_xml x_payment_evidence_document_data_type = x_payment_evidence_document_data_type_to_xml
+
+instance of_xml x_product_codes_type = x_product_codes_type_of_xml
+instance to_xml x_product_codes_type = x_product_codes_type_to_xml
+
+instance of_xml x_product_code_type = x_product_code_type_of_xml
+instance to_xml x_product_code_type = x_product_code_type_to_xml
+
+instance of_xml x_product_fee_clause_type = x_product_fee_clause_type_of_xml
+instance to_xml x_product_fee_clause_type = x_product_fee_clause_type_to_xml
+
+instance of_xml x_product_fee_data_type = x_product_fee_data_type_of_xml
+instance to_xml x_product_fee_data_type = x_product_fee_data_type_to_xml
+
+instance of_xml x_product_fee_summary_type = x_product_fee_summary_type_of_xml
+instance to_xml x_product_fee_summary_type = x_product_fee_summary_type_to_xml
+
+instance of_xml x_product_fee_takeover_data_type = x_product_fee_takeover_data_type_of_xml
+instance to_xml x_product_fee_takeover_data_type = x_product_fee_takeover_data_type_to_xml
+
+instance of_xml x_project_numbers_type = x_project_numbers_type_of_xml
+instance to_xml x_project_numbers_type = x_project_numbers_type_to_xml
+
+instance of_xml x_references_to_other_lines_type = x_references_to_other_lines_type_of_xml
+instance to_xml x_references_to_other_lines_type = x_references_to_other_lines_type_to_xml
+
+instance of_xml x_shipping_dates_type = x_shipping_dates_type_of_xml
+instance to_xml x_shipping_dates_type = x_shipping_dates_type_to_xml
+
+instance of_xml x_summary_by_vat_rate_type = x_summary_by_vat_rate_type_of_xml
+instance to_xml x_summary_by_vat_rate_type = x_summary_by_vat_rate_type_to_xml
+
+instance of_xml x_summary_gross_data_type = x_summary_gross_data_type_of_xml
+instance to_xml x_summary_gross_data_type = x_summary_gross_data_type_to_xml
+
+instance of_xml x_summary_normal_type = x_summary_normal_type_of_xml
+instance to_xml x_summary_normal_type = x_summary_normal_type_to_xml
+
+instance of_xml x_summary_simplified_type = x_summary_simplified_type_of_xml
+instance to_xml x_summary_simplified_type = x_summary_simplified_type_to_xml
+
+instance of_xml x_summary_type = x_summary_type_of_xml
+instance to_xml x_summary_type = x_summary_type_to_xml
+
+instance of_xml x_supplier_company_codes_type = x_supplier_company_codes_type_of_xml
+instance to_xml x_supplier_company_codes_type = x_supplier_company_codes_type_to_xml
+
+instance of_xml x_supplier_info_type = x_supplier_info_type_of_xml
+instance to_xml x_supplier_info_type = x_supplier_info_type_to_xml
+
+instance of_xml x_vat_amount_mismatch_type = x_vat_amount_mismatch_type_of_xml
+instance to_xml x_vat_amount_mismatch_type = x_vat_amount_mismatch_type_to_xml
+
+instance of_xml x_vat_rate_gross_data_type = x_vat_rate_gross_data_type_of_xml
+instance to_xml x_vat_rate_gross_data_type = x_vat_rate_gross_data_type_to_xml
+
+instance of_xml x_vat_rate_net_data_type = x_vat_rate_net_data_type_of_xml
+instance to_xml x_vat_rate_net_data_type = x_vat_rate_net_data_type_to_xml
+
+instance of_xml x_vat_rate_type = x_vat_rate_type_of_xml
+instance to_xml x_vat_rate_type = x_vat_rate_type_to_xml
+
+instance of_xml x_vat_rate_vat_data_type = x_vat_rate_vat_data_type_of_xml
+instance to_xml x_vat_rate_vat_data_type = x_vat_rate_vat_data_type_to_xml
+
+instance of_xml x_vehicle_type = x_vehicle_type_of_xml
+instance to_xml x_vehicle_type = x_vehicle_type_to_xml
+
+instance of_xml x_vessel_type = x_vessel_type_of_xml
+instance to_xml x_vessel_type = x_vessel_type_to_xml
+
+instance of_xml x_basic_header_type = x_basic_header_type_of_xml
+instance to_xml x_basic_header_type = x_basic_header_type_to_xml
+
+instance of_xml x_basic_request_type = x_basic_request_type_of_xml
+instance to_xml x_basic_request_type = x_basic_request_type_to_xml
+
+instance of_xml x_basic_response_type = x_basic_response_type_of_xml
+instance to_xml x_basic_response_type = x_basic_response_type_to_xml
+
+instance of_xml x_basic_result_type = x_basic_result_type_of_xml
+instance to_xml x_basic_result_type = x_basic_result_type_to_xml
+
+instance of_xml x_crypto_type = x_crypto_type_of_xml
+instance to_xml x_crypto_type = x_crypto_type_to_xml
+
+instance of_xml x_general_error_header_response_type = x_general_error_header_response_type_of_xml
+instance to_xml x_general_error_header_response_type = x_general_error_header_response_type_to_xml
+
+instance of_xml x_notifications_type = x_notifications_type_of_xml
+instance to_xml x_notifications_type = x_notifications_type_to_xml
+
+instance of_xml x_notification_type = x_notification_type_of_xml
+instance to_xml x_notification_type = x_notification_type_to_xml
+
+instance of_xml x_technical_validation_result_type = x_technical_validation_result_type_of_xml
+instance to_xml x_technical_validation_result_type = x_technical_validation_result_type_to_xml
+
+instance of_xml x_user_header_type = x_user_header_type_of_xml
+instance to_xml x_user_header_type = x_user_header_type_to_xml
+
+instance of_xml x_address_type = x_address_type_of_xml
+instance to_xml x_address_type = x_address_type_to_xml
+
+instance of_xml x_detailed_address_type = x_detailed_address_type_of_xml
+instance to_xml x_detailed_address_type = x_detailed_address_type_to_xml
+
+instance of_xml x_simple_address_type = x_simple_address_type_of_xml
+instance to_xml x_simple_address_type = x_simple_address_type_to_xml
+
+instance of_xml x_tax_number_type = x_tax_number_type_of_xml
+instance to_xml x_tax_number_type = x_tax_number_type_to_xml
 
 
 ///> rust

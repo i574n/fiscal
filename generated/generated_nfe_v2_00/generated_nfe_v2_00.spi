@@ -1,4 +1,6 @@
 ///- --package . --timeout 2400000
+open xml_codec
+
 prototype to_text t : t -> string
 
 inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
@@ -20,6 +22,10 @@ union staged s a =
 union stage s =
     | Unsigned :: stage unsigned
     | Signed :: stage signed
+
+prototype stage_of s : () -> stage s
+instance stage_of unsigned = fun () => Unsigned
+instance stage_of signed = fun () => Signed
 
 inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
     match witness with
@@ -5397,29 +5403,34 @@ inl x_t_cfop_example (k : i32) : x_t_cfop =
 
 inl x_t_cfop_example_text (k : i32) : string = x_t_cfop_to_string (x_t_cfop_example k)
 
-type x_x509_data_type =
+nominal x_x509_data_type =
     {
         x509_certificate : string
     }
 
-type x_key_info_type =
+nominal x_key_info_type =
     {
         x509_data : x_x509_data_type
         id : option (string)
     }
 
-type x_transform_type =
+nominal x_transform_type_group_x_path =
     {
         x_path : string
+    }
+
+nominal x_transform_type =
+    {
+        group_x_path : list (x_transform_type_group_x_path)
         algorithm : x_t_transform_uri
     }
 
-type x_transforms_type =
+nominal x_transforms_type =
     {
         transform : list (x_transform_type)
     }
 
-type x_reference_type_digest_method =
+nominal x_reference_type_digest_method =
     {
         algorithm : string
     }
@@ -5440,7 +5451,7 @@ inl x_reference_type_uri_example (_ : i32) : x_reference_type_uri = x_reference_
 inl x_reference_type_uri_example_text (k : i32) : string =
     x_reference_type_uri_to_string (x_reference_type_uri_example k)
 
-type x_reference_type =
+nominal x_reference_type =
     {
         transforms : x_transforms_type
         digest_method : x_reference_type_digest_method
@@ -5450,17 +5461,17 @@ type x_reference_type =
         type_value : option (string)
     }
 
-type x_signed_info_type_canonicalization_method =
+nominal x_signed_info_type_canonicalization_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type_signature_method =
+nominal x_signed_info_type_signature_method =
     {
         algorithm : string
     }
 
-type x_signed_info_type =
+nominal x_signed_info_type =
     {
         canonicalization_method : x_signed_info_type_canonicalization_method
         signature_method : x_signed_info_type_signature_method
@@ -5468,13 +5479,13 @@ type x_signed_info_type =
         id : option (string)
     }
 
-type x_signature_value_type =
+nominal x_signature_value_type =
     {
         base : string
         id : option (string)
     }
 
-type x_signature_type =
+nominal x_signature_type =
     {
         signed_info : x_signed_info_type
         signature_value : x_signature_value_type
@@ -5482,7 +5493,7 @@ type x_signature_type =
         id : option (string)
     }
 
-type x_trsa_key_value_type =
+nominal x_trsa_key_value_type =
     {
         modulus : string
         exponent : string
@@ -5557,7 +5568,7 @@ inl x_t_veiculo_rntc_example (_ : i32) : x_t_veiculo_rntc = x_t_veiculo_rntc "1"
 
 inl x_t_veiculo_rntc_example_text (k : i32) : string = x_t_veiculo_rntc_to_string (x_t_veiculo_rntc_example k)
 
-type x_t_veiculo =
+nominal x_t_veiculo =
     {
         placa : x_t_veiculo_placa
         uf : x_t_uf
@@ -5638,7 +5649,7 @@ inl x_t_local_x_mun_example (_ : i32) : x_t_local_x_mun = x_t_local_x_mun "11"
 
 inl x_t_local_x_mun_example_text (k : i32) : string = x_t_local_x_mun_to_string (x_t_local_x_mun_example k)
 
-type x_t_local =
+nominal x_t_local =
     {
         choice_cnpj : x_t_local_choice_cnpj
         x_lgr : x_t_local_x_lgr
@@ -5888,7 +5899,7 @@ inl x_t_ender_emi_fone_example (_ : i32) : x_t_ender_emi_fone = x_t_ender_emi_fo
 
 inl x_t_ender_emi_fone_example_text (k : i32) : string = x_t_ender_emi_fone_to_string (x_t_ender_emi_fone_example k)
 
-type x_t_ender_emi =
+nominal x_t_ender_emi =
     {
         x_lgr : x_t_ender_emi_x_lgr
         nro : x_t_ender_emi_nro
@@ -6016,7 +6027,7 @@ inl x_t_endereco_fone_example (_ : i32) : x_t_endereco_fone = x_t_endereco_fone 
 
 inl x_t_endereco_fone_example_text (k : i32) : string = x_t_endereco_fone_to_string (x_t_endereco_fone_example k)
 
-type x_t_endereco =
+nominal x_t_endereco =
     {
         x_lgr : x_t_endereco_x_lgr
         nro : x_t_endereco_nro
@@ -6064,20 +6075,20 @@ inl x_t_ret_cons_reci_n_fe_x_msg_example (_ : i32) : x_t_ret_cons_reci_n_fe_x_ms
 inl x_t_ret_cons_reci_n_fe_x_msg_example_text (k : i32) : string =
     x_t_ret_cons_reci_n_fe_x_msg_to_string (x_t_ret_cons_reci_n_fe_x_msg_example k)
 
-type x_t_cons_reci_n_fe =
+nominal x_t_cons_reci_n_fe =
     {
         tp_amb : x_t_amb
         n_rec : x_t_rec
         versao : x_t_ver_n_fe
     }
 
-type x_t_ret_envi_n_fe_inf_rec =
+nominal x_t_ret_envi_n_fe_inf_rec =
     {
         n_rec : x_t_rec
         t_med : x_t_med
     }
 
-type x_t_ret_envi_n_fe =
+nominal x_t_ret_envi_n_fe =
     {
         tp_amb : x_t_amb
         ver_aplic : x_t_ver_aplic
@@ -6089,7 +6100,7 @@ type x_t_ret_envi_n_fe =
         versao : x_t_ver_n_fe
     }
 
-type x_t_prot_n_fe_inf_prot =
+nominal x_t_prot_n_fe_inf_prot =
     {
         tp_amb : x_t_amb
         ver_aplic : x_t_ver_aplic
@@ -6102,7 +6113,7 @@ type x_t_prot_n_fe_inf_prot =
         id : option (string)
     }
 
-type x_t_prot_n_fe =
+nominal x_t_prot_n_fe =
     {
         inf_prot : x_t_prot_n_fe_inf_prot
         signature : option (x_signature_type)
@@ -6286,7 +6297,7 @@ inl x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_mod_example_text (k : i32
         x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_mod_example k
     )
 
-type x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf =
+nominal x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf =
     {
         c_uf : x_t_cod_uf_ibge
         aamm : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_aamm
@@ -6369,7 +6380,7 @@ inl x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp_mod_example_text (k : i3
         x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp_mod_example k
     )
 
-type x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp =
+nominal x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp =
     {
         c_uf : x_t_cod_uf_ibge
         aamm : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp_aamm
@@ -6531,7 +6542,7 @@ inl x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_n_coo_example_text (k : 
         x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_n_coo_example k
     )
 
-type x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf =
+nominal x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf =
     {
         mod : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_mod
         n_ecf : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_n_ecf
@@ -6545,7 +6556,7 @@ union x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe =
     | TNFe_infNFe_ide_NFref_choice_refNFe_refCTe : x_t_ch_n_fe
     | TNFe_infNFe_ide_NFref_choice_refNFe_refECF : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf
 
-type x_tn_fe_inf_n_fe_ide_n_fref =
+nominal x_tn_fe_inf_n_fe_ide_n_fref =
     {
         choice_ref_n_fe : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe
     }
@@ -6861,7 +6872,7 @@ inl x_tn_fe_inf_n_fe_ide_x_just_example (_ : i32) : x_tn_fe_inf_n_fe_ide_x_just 
 inl x_tn_fe_inf_n_fe_ide_x_just_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_ide_x_just_to_string (x_tn_fe_inf_n_fe_ide_x_just_example k)
 
-type x_tn_fe_inf_n_fe_ide =
+nominal x_tn_fe_inf_n_fe_ide =
     {
         c_uf : x_t_cod_uf_ibge
         c_nf : x_tn_fe_inf_n_fe_ide_c_nf
@@ -6967,7 +6978,7 @@ inl x_tn_fe_inf_n_fe_emit_crt_example (k : i32) : x_tn_fe_inf_n_fe_emit_crt = x_
 
 inl x_tn_fe_inf_n_fe_emit_crt_example_text (k : i32) : string = x_t_fin_n_fe_example_text k
 
-type x_tn_fe_inf_n_fe_emit =
+nominal x_tn_fe_inf_n_fe_emit =
     {
         choice_cnpj : x_tn_fe_inf_n_fe_emit_choice_cnpj
         x_nome : x_tn_fe_inf_n_fe_emit_x_nome
@@ -7137,7 +7148,7 @@ inl x_tn_fe_inf_n_fe_avulsa_rep_emi_example (_ : i32) : x_tn_fe_inf_n_fe_avulsa_
 inl x_tn_fe_inf_n_fe_avulsa_rep_emi_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_avulsa_rep_emi_to_string (x_tn_fe_inf_n_fe_avulsa_rep_emi_example k)
 
-type x_tn_fe_inf_n_fe_avulsa =
+nominal x_tn_fe_inf_n_fe_avulsa =
     {
         cnpj : x_t_cnpj
         x_orgao : x_tn_fe_inf_n_fe_avulsa_x_orgao
@@ -7242,7 +7253,7 @@ inl x_tn_fe_inf_n_fe_dest_email_example (_ : i32) : x_tn_fe_inf_n_fe_dest_email 
 inl x_tn_fe_inf_n_fe_dest_email_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_dest_email_to_string (x_tn_fe_inf_n_fe_dest_email_example k)
 
-type x_tn_fe_inf_n_fe_dest =
+nominal x_tn_fe_inf_n_fe_dest =
     {
         choice_cnpj : x_tn_fe_inf_n_fe_dest_choice_cnpj
         x_nome : x_tn_fe_inf_n_fe_dest_x_nome
@@ -7664,7 +7675,7 @@ inl x_tn_fe_inf_n_fe_det_prod_di_adi_c_fabricante_example (_ : i32) : x_tn_fe_in
 inl x_tn_fe_inf_n_fe_det_prod_di_adi_c_fabricante_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_det_prod_di_adi_c_fabricante_to_string (x_tn_fe_inf_n_fe_det_prod_di_adi_c_fabricante_example k)
 
-type x_tn_fe_inf_n_fe_det_prod_di_adi =
+nominal x_tn_fe_inf_n_fe_det_prod_di_adi =
     {
         n_adicao : x_tn_fe_inf_n_fe_det_prod_di_adi_n_adicao
         n_seq_adic : x_tn_fe_inf_n_fe_det_prod_di_adi_n_seq_adic
@@ -7672,7 +7683,7 @@ type x_tn_fe_inf_n_fe_det_prod_di_adi =
         v_desc_di : option (x_t_dec_1302_opc)
     }
 
-type x_tn_fe_inf_n_fe_det_prod_di =
+nominal x_tn_fe_inf_n_fe_det_prod_di =
     {
         n_di : x_tn_fe_inf_n_fe_det_prod_di_n_di
         d_di : x_t_data
@@ -8545,7 +8556,7 @@ inl x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_tp_rest_example_text (k
         x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_tp_rest_example k
     )
 
-type x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod =
+nominal x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod =
     {
         tp_op : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_tp_op
         chassi : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_chassi
@@ -8605,7 +8616,7 @@ inl x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_n_lote_example_text (k : i32)
         x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_n_lote_example k
     )
 
-type x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med =
+nominal x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med =
     {
         n_lote : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_n_lote
         q_lote : x_t_dec_0803
@@ -8733,7 +8744,7 @@ inl x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_descr_example_text (k : i32)
         x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_descr_example k
     )
 
-type x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma =
+nominal x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma =
     {
         tp_arma : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_tp_arma
         n_serie : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_n_serie
@@ -8867,14 +8878,14 @@ inl x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_codif_example_text (k : i32)
         x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_codif_example k
     )
 
-type x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide =
+nominal x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide =
     {
         q_bc_prod : x_t_dec_1204
         v_aliq_prod : x_t_dec_1104
         v_cide : x_t_dec_1302
     }
 
-type x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb =
+nominal x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb =
     {
         c_prod_anp : x_tc_prod_anp
         codif : option (x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_codif)
@@ -8889,7 +8900,7 @@ union x_tn_fe_inf_n_fe_det_prod_choice_veic_prod =
     | TNFe_infNFe_det_prod_choice_veicProd_arma : list (x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma)
     | TNFe_infNFe_det_prod_choice_veicProd_comb : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb
 
-type x_tn_fe_inf_n_fe_det_prod =
+nominal x_tn_fe_inf_n_fe_det_prod =
     {
         c_prod : x_tn_fe_inf_n_fe_det_prod_c_prod
         c_ean : x_tn_fe_inf_n_fe_det_prod_c_ean
@@ -8976,7 +8987,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms0
     =
     x_t_proc_emi_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00_cst
@@ -9101,7 +9112,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms1
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_cst
@@ -9176,7 +9187,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms2
     =
     x_t_proc_emi_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20_cst
@@ -9247,7 +9258,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms3
     =
     x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30_cst
@@ -9367,7 +9378,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms4
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40_mot_des_icms_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40_cst
@@ -9434,7 +9445,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms5
     =
     x_t_proc_emi_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51_cst
@@ -9478,7 +9489,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms6
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60_cst
@@ -9572,7 +9583,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms7
     =
     x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70_cst
@@ -9675,7 +9686,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms9
     =
     x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90 =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90_cst
@@ -9785,7 +9796,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_
     =
     x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part_cst
@@ -9837,7 +9848,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmss
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst =
     {
         orig : x_torig
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst_cst
@@ -9883,7 +9894,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmss
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101_csosn_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101 =
     {
         orig : x_torig
         csosn : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101_csosn
@@ -9939,7 +9950,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmss
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102_csosn_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102 =
     {
         orig : x_torig
         csosn : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102_csosn
@@ -10008,7 +10019,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmss
     =
     x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201 =
     {
         orig : x_torig
         csosn : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201_csosn
@@ -10089,7 +10100,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmss
     =
     x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202 =
     {
         orig : x_torig
         csosn : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202_csosn
@@ -10137,7 +10148,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmss
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500_csosn_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500 =
     {
         orig : x_torig
         csosn : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500_csosn
@@ -10234,7 +10245,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmss
     =
     x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_mod_bcst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900 =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900 =
     {
         orig : x_torig
         csosn : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900_csosn
@@ -10289,7 +10300,7 @@ union x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00 =
     | TNFe_infNFe_det_imposto_choice_ICMS_group_ICMS_ICMS_choice_ICMS00_ICMSSN900 :
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms =
     {
         choice_icms00 : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00
     }
@@ -10527,13 +10538,13 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc =
     {
         v_bc : x_t_dec_1302
         p_ipi : x_t_dec_0302
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid =
     {
         q_unid : x_t_dec_1204
         v_unid : x_t_dec_1104
@@ -10545,7 +10556,7 @@ union x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ip
     | TNFe_infNFe_det_imposto_choice_ICMS_group_ICMS_IPI_choice_IPITrib_IPITrib_choice_vBC_group_qUnid :
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_cst
         choice_v_bc : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc
@@ -10619,7 +10630,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipin
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint_cst
     }
@@ -10630,7 +10641,7 @@ union x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib =
     | TNFe_infNFe_det_imposto_choice_ICMS_group_ICMS_IPI_choice_IPITrib_IPINT :
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi =
     {
         cl_enq : option (x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_cl_enq)
         cnpj_prod : option (x_t_cnpj)
@@ -10640,7 +10651,7 @@ type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi =
         choice_ipi_trib : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii =
     {
         v_bc : x_t_dec_1302
         v_desp_adu : x_t_dec_1302
@@ -10648,7 +10659,7 @@ type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii =
         v_iof : x_t_dec_1302
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms =
     {
         icms : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms
         ipi : option (x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi)
@@ -10700,7 +10711,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn_c_sit_trib_example_text (k : 
         x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn_c_sit_trib_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn =
+nominal x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn =
     {
         v_bc : x_t_dec_1302
         v_aliq : x_t_dec_0302
@@ -10751,7 +10762,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_cst_example_text (
         x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq =
+nominal x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_cst
         v_bc : x_t_dec_1302
@@ -10792,7 +10803,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_cst_example_text (
         x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde =
+nominal x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_cst
         q_bc_prod : x_t_dec_1204
@@ -10849,7 +10860,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_cst_example_text (k :
         x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt =
+nominal x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_cst
     }
@@ -10963,13 +10974,13 @@ inl x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_cst_example_text (
         x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_cst_example k
     )
 
-type x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc =
+nominal x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc =
     {
         v_bc : x_t_dec_1302
         p_pis : x_t_dec_0302
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod =
+nominal x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod =
     {
         q_bc_prod : x_t_dec_1204
         v_aliq_prod : x_t_dec_1104v
@@ -10981,7 +10992,7 @@ union x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc =
     | TNFe_infNFe_det_imposto_PIS_choice_PISAliq_PISOutr_choice_vBC_group_qBCProd :
         x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod
 
-type x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr =
+nominal x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_cst
         choice_v_bc : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc
@@ -10994,18 +11005,18 @@ union x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq =
     | TNFe_infNFe_det_imposto_PIS_choice_PISAliq_PISNT : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt
     | TNFe_infNFe_det_imposto_PIS_choice_PISAliq_PISOutr : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr
 
-type x_tn_fe_inf_n_fe_det_imposto_pis =
+nominal x_tn_fe_inf_n_fe_det_imposto_pis =
     {
         choice_pis_aliq : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc =
+nominal x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc =
     {
         v_bc : x_t_dec_1302_opc
         p_pis : x_t_dec_0302_opc
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod =
+nominal x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod =
     {
         q_bc_prod : x_t_dec_1204_opc
         v_aliq_prod : x_t_dec_1104_opc
@@ -11016,7 +11027,7 @@ union x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc =
     | TNFe_infNFe_det_imposto_PISST_choice_vBC_group_qBCProd :
         x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod
 
-type x_tn_fe_inf_n_fe_det_imposto_pisst =
+nominal x_tn_fe_inf_n_fe_det_imposto_pisst =
     {
         choice_v_bc : x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc
         v_pis : x_t_dec_1302_opc
@@ -11046,7 +11057,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_cst_examp
 inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_cst_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_cst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_cst
         v_bc : x_t_dec_1302
@@ -11078,7 +11089,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_cst_examp
 inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_cst_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_cst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_cst
         q_bc_prod : x_t_dec_1204
@@ -11110,7 +11121,7 @@ inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_cst_example
 inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_cst_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_cst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_cst
     }
@@ -11139,13 +11150,13 @@ inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_cst_examp
 inl x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_cst_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_cst_example_text k
 
-type x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc =
     {
         v_bc : x_t_dec_1302
         p_cofins : x_t_dec_0302
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod =
     {
         q_bc_prod : x_t_dec_1204
         v_aliq_prod : x_t_dec_1104v
@@ -11157,7 +11168,7 @@ union x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_
     | TNFe_infNFe_det_imposto_COFINS_choice_COFINSAliq_COFINSOutr_choice_vBC_group_qBCProd :
         x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod
 
-type x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr =
     {
         cst : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_cst
         choice_v_bc : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc
@@ -11174,18 +11185,18 @@ union x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq =
     | TNFe_infNFe_det_imposto_COFINS_choice_COFINSAliq_COFINSOutr :
         x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr
 
-type x_tn_fe_inf_n_fe_det_imposto_cofins =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofins =
     {
         choice_cofins_aliq : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc =
     {
         v_bc : x_t_dec_1302_opc
         p_cofins : x_t_dec_0302_opc
     }
 
-type x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod =
     {
         q_bc_prod : x_t_dec_1204_opc
         v_aliq_prod : x_t_dec_1104_opc
@@ -11197,13 +11208,13 @@ union x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc =
     | TNFe_infNFe_det_imposto_COFINSST_choice_vBC_group_qBCProd :
         x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod
 
-type x_tn_fe_inf_n_fe_det_imposto_cofinsst =
+nominal x_tn_fe_inf_n_fe_det_imposto_cofinsst =
     {
         choice_v_bc : x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc
         v_cofins : x_t_dec_1302_opc
     }
 
-type x_tn_fe_inf_n_fe_det_imposto =
+nominal x_tn_fe_inf_n_fe_det_imposto =
     {
         v_tot_trib : option (x_t_dec_1302)
         choice_icms : x_tn_fe_inf_n_fe_det_imposto_choice_icms
@@ -11247,7 +11258,7 @@ inl x_tn_fe_inf_n_fe_det_n_item_example (_ : i32) : x_tn_fe_inf_n_fe_det_n_item 
 inl x_tn_fe_inf_n_fe_det_n_item_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_det_n_item_to_string (x_tn_fe_inf_n_fe_det_n_item_example k)
 
-type x_tn_fe_inf_n_fe_det =
+nominal x_tn_fe_inf_n_fe_det =
     {
         prod : x_tn_fe_inf_n_fe_det_prod
         imposto : x_tn_fe_inf_n_fe_det_imposto
@@ -11255,7 +11266,7 @@ type x_tn_fe_inf_n_fe_det =
         n_item : x_tn_fe_inf_n_fe_det_n_item
     }
 
-type x_tn_fe_inf_n_fe_total_icms_tot =
+nominal x_tn_fe_inf_n_fe_total_icms_tot =
     {
         v_bc : x_t_dec_1302
         v_icms : x_t_dec_1302
@@ -11274,7 +11285,7 @@ type x_tn_fe_inf_n_fe_total_icms_tot =
         v_tot_trib : option (x_t_dec_1302)
     }
 
-type x_tn_fe_inf_n_fe_total_issq_ntot =
+nominal x_tn_fe_inf_n_fe_total_issq_ntot =
     {
         v_serv : option (x_t_dec_1302_opc)
         v_bc : option (x_t_dec_1302_opc)
@@ -11283,7 +11294,7 @@ type x_tn_fe_inf_n_fe_total_issq_ntot =
         v_cofins : option (x_t_dec_1302_opc)
     }
 
-type x_tn_fe_inf_n_fe_total_ret_trib =
+nominal x_tn_fe_inf_n_fe_total_ret_trib =
     {
         v_ret_pis : option (x_t_dec_1302_opc)
         v_ret_cofins : option (x_t_dec_1302_opc)
@@ -11294,7 +11305,7 @@ type x_tn_fe_inf_n_fe_total_ret_trib =
         v_ret_prev : option (x_t_dec_1302_opc)
     }
 
-type x_tn_fe_inf_n_fe_total =
+nominal x_tn_fe_inf_n_fe_total =
     {
         icms_tot : x_tn_fe_inf_n_fe_total_icms_tot
         issq_ntot : option (x_tn_fe_inf_n_fe_total_issq_ntot)
@@ -11404,7 +11415,7 @@ inl x_tn_fe_inf_n_fe_transp_transporta_x_mun_example (_ : i32) : x_tn_fe_inf_n_f
 inl x_tn_fe_inf_n_fe_transp_transporta_x_mun_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_transp_transporta_x_mun_to_string (x_tn_fe_inf_n_fe_transp_transporta_x_mun_example k)
 
-type x_tn_fe_inf_n_fe_transp_transporta =
+nominal x_tn_fe_inf_n_fe_transp_transporta =
     {
         choice_cnpj : option (x_tn_fe_inf_n_fe_transp_transporta_choice_cnpj)
         x_nome : option (x_tn_fe_inf_n_fe_transp_transporta_x_nome)
@@ -11414,7 +11425,7 @@ type x_tn_fe_inf_n_fe_transp_transporta =
         uf : option (x_t_uf)
     }
 
-type x_tn_fe_inf_n_fe_transp_ret_transp =
+nominal x_tn_fe_inf_n_fe_transp_ret_transp =
     {
         v_serv : x_t_dec_1302
         v_bc_ret : x_t_dec_1302
@@ -11424,7 +11435,7 @@ type x_tn_fe_inf_n_fe_transp_ret_transp =
         c_mun_fg : x_t_cod_mun_ibge
     }
 
-type x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp =
+nominal x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp =
     {
         veic_transp : option (x_t_veiculo)
         reboque : list (x_t_veiculo)
@@ -11594,12 +11605,12 @@ inl x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre_example (_ : i32) : x_tn_fe_inf_n
 inl x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre_to_string (x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre_example k)
 
-type x_tn_fe_inf_n_fe_transp_vol_lacres =
+nominal x_tn_fe_inf_n_fe_transp_vol_lacres =
     {
         n_lacre : x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre
     }
 
-type x_tn_fe_inf_n_fe_transp_vol =
+nominal x_tn_fe_inf_n_fe_transp_vol =
     {
         q_vol : option (x_tn_fe_inf_n_fe_transp_vol_q_vol)
         esp : option (x_tn_fe_inf_n_fe_transp_vol_esp)
@@ -11610,7 +11621,7 @@ type x_tn_fe_inf_n_fe_transp_vol =
         lacres : list (x_tn_fe_inf_n_fe_transp_vol_lacres)
     }
 
-type x_tn_fe_inf_n_fe_transp =
+nominal x_tn_fe_inf_n_fe_transp =
     {
         mod_frete : x_tn_fe_inf_n_fe_transp_mod_frete
         transporta : option (x_tn_fe_inf_n_fe_transp_transporta)
@@ -11637,7 +11648,7 @@ inl x_tn_fe_inf_n_fe_cobr_fat_n_fat_example (_ : i32) : x_tn_fe_inf_n_fe_cobr_fa
 inl x_tn_fe_inf_n_fe_cobr_fat_n_fat_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_cobr_fat_n_fat_to_string (x_tn_fe_inf_n_fe_cobr_fat_n_fat_example k)
 
-type x_tn_fe_inf_n_fe_cobr_fat =
+nominal x_tn_fe_inf_n_fe_cobr_fat =
     {
         n_fat : option (x_tn_fe_inf_n_fe_cobr_fat_n_fat)
         v_orig : option (x_t_dec_1302_opc)
@@ -11663,14 +11674,14 @@ inl x_tn_fe_inf_n_fe_cobr_dup_n_dup_example (_ : i32) : x_tn_fe_inf_n_fe_cobr_du
 inl x_tn_fe_inf_n_fe_cobr_dup_n_dup_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_cobr_dup_n_dup_to_string (x_tn_fe_inf_n_fe_cobr_dup_n_dup_example k)
 
-type x_tn_fe_inf_n_fe_cobr_dup =
+nominal x_tn_fe_inf_n_fe_cobr_dup =
     {
         n_dup : option (x_tn_fe_inf_n_fe_cobr_dup_n_dup)
         d_venc : option (x_t_data)
         v_dup : x_t_dec_1302_opc
     }
 
-type x_tn_fe_inf_n_fe_cobr =
+nominal x_tn_fe_inf_n_fe_cobr =
     {
         fat : option (x_tn_fe_inf_n_fe_cobr_fat)
         dup : list (x_tn_fe_inf_n_fe_cobr_dup)
@@ -11758,7 +11769,7 @@ inl x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_campo_example (_ : i32) : x_tn_fe_inf_n
 inl x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_campo_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_campo_to_string (x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_campo_example k)
 
-type x_tn_fe_inf_n_fe_inf_adic_obs_cont =
+nominal x_tn_fe_inf_n_fe_inf_adic_obs_cont =
     {
         x_texto : x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_texto
         x_campo : x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_campo
@@ -11810,7 +11821,7 @@ inl x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_campo_example (_ : i32) : x_tn_fe_inf_
 inl x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_campo_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_campo_to_string (x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_campo_example k)
 
-type x_tn_fe_inf_n_fe_inf_adic_obs_fisco =
+nominal x_tn_fe_inf_n_fe_inf_adic_obs_fisco =
     {
         x_texto : x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_texto
         x_campo : x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_campo
@@ -11880,13 +11891,13 @@ inl x_tn_fe_inf_n_fe_inf_adic_proc_ref_ind_proc_example (k : i32) : x_tn_fe_inf_
 inl x_tn_fe_inf_n_fe_inf_adic_proc_ref_ind_proc_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_inf_adic_proc_ref_ind_proc_to_string (x_tn_fe_inf_n_fe_inf_adic_proc_ref_ind_proc_example k)
 
-type x_tn_fe_inf_n_fe_inf_adic_proc_ref =
+nominal x_tn_fe_inf_n_fe_inf_adic_proc_ref =
     {
         n_proc : x_tn_fe_inf_n_fe_inf_adic_proc_ref_n_proc
         ind_proc : x_tn_fe_inf_n_fe_inf_adic_proc_ref_ind_proc
     }
 
-type x_tn_fe_inf_n_fe_inf_adic =
+nominal x_tn_fe_inf_n_fe_inf_adic =
     {
         inf_ad_fisco : option (x_tn_fe_inf_n_fe_inf_adic_inf_ad_fisco)
         inf_cpl : option (x_tn_fe_inf_n_fe_inf_adic_inf_cpl)
@@ -11913,7 +11924,7 @@ inl x_tn_fe_inf_n_fe_exporta_x_loc_embarq_example (_ : i32) : x_tn_fe_inf_n_fe_e
 inl x_tn_fe_inf_n_fe_exporta_x_loc_embarq_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_exporta_x_loc_embarq_to_string (x_tn_fe_inf_n_fe_exporta_x_loc_embarq_example k)
 
-type x_tn_fe_inf_n_fe_exporta =
+nominal x_tn_fe_inf_n_fe_exporta =
     {
         uf_embarq : x_t_uf
         x_loc_embarq : x_tn_fe_inf_n_fe_exporta_x_loc_embarq
@@ -11972,7 +11983,7 @@ inl x_tn_fe_inf_n_fe_compra_x_cont_example (_ : i32) : x_tn_fe_inf_n_fe_compra_x
 inl x_tn_fe_inf_n_fe_compra_x_cont_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_compra_x_cont_to_string (x_tn_fe_inf_n_fe_compra_x_cont_example k)
 
-type x_tn_fe_inf_n_fe_compra =
+nominal x_tn_fe_inf_n_fe_compra =
     {
         x_n_emp : option (x_tn_fe_inf_n_fe_compra_x_n_emp)
         x_ped : option (x_tn_fe_inf_n_fe_compra_x_ped)
@@ -12083,7 +12094,7 @@ inl x_tn_fe_inf_n_fe_cana_for_dia_dia_example (_ : i32) : x_tn_fe_inf_n_fe_cana_
 inl x_tn_fe_inf_n_fe_cana_for_dia_dia_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_cana_for_dia_dia_to_string (x_tn_fe_inf_n_fe_cana_for_dia_dia_example k)
 
-type x_tn_fe_inf_n_fe_cana_for_dia =
+nominal x_tn_fe_inf_n_fe_cana_for_dia =
     {
         qtde : x_t_dec_1110
         dia : x_tn_fe_inf_n_fe_cana_for_dia_dia
@@ -12107,13 +12118,13 @@ inl x_tn_fe_inf_n_fe_cana_deduc_x_ded_example (_ : i32) : x_tn_fe_inf_n_fe_cana_
 inl x_tn_fe_inf_n_fe_cana_deduc_x_ded_example_text (k : i32) : string =
     x_tn_fe_inf_n_fe_cana_deduc_x_ded_to_string (x_tn_fe_inf_n_fe_cana_deduc_x_ded_example k)
 
-type x_tn_fe_inf_n_fe_cana_deduc =
+nominal x_tn_fe_inf_n_fe_cana_deduc =
     {
         x_ded : x_tn_fe_inf_n_fe_cana_deduc_x_ded
         v_ded : x_t_dec_1302
     }
 
-type x_tn_fe_inf_n_fe_cana =
+nominal x_tn_fe_inf_n_fe_cana =
     {
         safra : x_tn_fe_inf_n_fe_cana_safra
         ref : x_tn_fe_inf_n_fe_cana_ref
@@ -12292,7 +12303,7 @@ inl x_tn_fe_inf_n_fe_id_example (_ : i32) : x_tn_fe_inf_n_fe_id =
 
 inl x_tn_fe_inf_n_fe_id_example_text (k : i32) : string = x_tn_fe_inf_n_fe_id_to_string (x_tn_fe_inf_n_fe_id_example k)
 
-type x_tn_fe_inf_n_fe =
+nominal x_tn_fe_inf_n_fe =
     {
         ide : x_tn_fe_inf_n_fe_ide
         emit : x_tn_fe_inf_n_fe_emit
@@ -12312,20 +12323,20 @@ type x_tn_fe_inf_n_fe =
         id : x_tn_fe_inf_n_fe_id
     }
 
-type x_tn_fe s =
+nominal x_tn_fe s =
     {
         inf_n_fe : x_tn_fe_inf_n_fe
         signature : staged s x_signature_type
     }
 
-type x_t_nfe_proc s =
+nominal x_t_nfe_proc s =
     {
         n_fe : x_tn_fe s
         prot_n_fe : x_t_prot_n_fe
         versao : x_t_ver_n_fe
     }
 
-type x_t_ret_cons_reci_n_fe =
+nominal x_t_ret_cons_reci_n_fe =
     {
         tp_amb : x_t_amb
         ver_aplic : x_t_ver_aplic
@@ -12339,7 +12350,7 @@ type x_t_ret_cons_reci_n_fe =
         versao : x_t_ver_n_fe
     }
 
-type x_t_envi_n_fe s =
+nominal x_t_envi_n_fe s =
     {
         id_lote : x_t_id_lote
         n_fe : list (x_tn_fe s)
@@ -14632,11 +14643,21 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     | TransformsType_field_Transform => x.transform
 
 union x_transform_type_field r =
-    | TransformType_field_XPath :: x_transform_type_field (string)
+    | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
-    | TransformType_field_XPath => x.x_path
+    | TransformType_field_group_x_path => x.group_x_path
+
+union x_transform_type_group_x_path_field r =
+    | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
+
+inl x_transform_type_group_x_path_get forall r.
+    (f : x_transform_type_group_x_path_field r) (x : x_transform_type_group_x_path)
+    : r
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => x.x_path
 
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
@@ -14656,7 +14677,7 @@ let rec x_tn_fe_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe s
     =
-    {
+    x_tn_fe {
         inf_n_fe = (fun c => x_tn_fe_inf_n_fe_of_xml c) (xml.required_child "infNFe" children)
         signature =
             staged_of witness fun () =>
@@ -14670,7 +14691,7 @@ and let x_tn_fe_inf_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe
     =
-    {
+    x_tn_fe_inf_n_fe {
         ide = (fun c => x_tn_fe_inf_n_fe_ide_of_xml c) (xml.required_child "ide" children)
         emit = (fun c => x_tn_fe_inf_n_fe_emit_of_xml c) (xml.required_child "emit" children)
         avulsa = optionm.map (fun c => x_tn_fe_inf_n_fe_avulsa_of_xml c) (xml.first_child "avulsa" children)
@@ -14699,7 +14720,7 @@ and let x_tn_fe_inf_n_fe_cana_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_cana
     =
-    {
+    x_tn_fe_inf_n_fe_cana {
         safra =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_cana_safra" (x_tn_fe_inf_n_fe_cana_safra_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "safra" children)
         ref =
@@ -14727,7 +14748,7 @@ and let x_tn_fe_inf_n_fe_cana_deduc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_cana_deduc
     =
-    {
+    x_tn_fe_inf_n_fe_cana_deduc {
         x_ded =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_cana_deduc_x_ded" (x_tn_fe_inf_n_fe_cana_deduc_x_ded_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xDed" children)
         v_ded =
@@ -14741,7 +14762,7 @@ and let x_tn_fe_inf_n_fe_cana_for_dia_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_cana_for_dia
     =
-    {
+    x_tn_fe_inf_n_fe_cana_for_dia {
         qtde =
             (fun c => xml.required_value "x_t_dec_1110" (x_t_dec_1110_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qtde" children)
         dia =
@@ -14757,7 +14778,7 @@ and let x_tn_fe_inf_n_fe_compra_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_compra
     =
-    {
+    x_tn_fe_inf_n_fe_compra {
         x_n_emp =
             optionm.map
                 fun c =>
@@ -14785,7 +14806,7 @@ and let x_tn_fe_inf_n_fe_exporta_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_exporta
     =
-    {
+    x_tn_fe_inf_n_fe_exporta {
         uf_embarq =
             (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UFEmbarq" children)
         x_loc_embarq =
@@ -14799,7 +14820,7 @@ and let x_tn_fe_inf_n_fe_inf_adic_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_inf_adic
     =
-    {
+    x_tn_fe_inf_n_fe_inf_adic {
         inf_ad_fisco =
             optionm.map
                 fun c =>
@@ -14827,7 +14848,7 @@ and let x_tn_fe_inf_n_fe_inf_adic_proc_ref_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_inf_adic_proc_ref
     =
-    {
+    x_tn_fe_inf_n_fe_inf_adic_proc_ref {
         n_proc =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_inf_adic_proc_ref_n_proc" (x_tn_fe_inf_n_fe_inf_adic_proc_ref_n_proc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nProc" children)
         ind_proc =
@@ -14841,7 +14862,7 @@ and let x_tn_fe_inf_n_fe_inf_adic_obs_fisco_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_inf_adic_obs_fisco
     =
-    {
+    x_tn_fe_inf_n_fe_inf_adic_obs_fisco {
         x_texto =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_texto" (x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_texto_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xTexto" children)
         x_campo =
@@ -14857,7 +14878,7 @@ and let x_tn_fe_inf_n_fe_inf_adic_obs_cont_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_inf_adic_obs_cont
     =
-    {
+    x_tn_fe_inf_n_fe_inf_adic_obs_cont {
         x_texto =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_texto" (x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_texto_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xTexto" children)
         x_campo =
@@ -14873,7 +14894,7 @@ and let x_tn_fe_inf_n_fe_cobr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_cobr
     =
-    {
+    x_tn_fe_inf_n_fe_cobr {
         fat = optionm.map (fun c => x_tn_fe_inf_n_fe_cobr_fat_of_xml c) (xml.first_child "fat" children)
         dup = listm.map (fun c => x_tn_fe_inf_n_fe_cobr_dup_of_xml c) (xml.children_named "dup" children)
     }
@@ -14885,7 +14906,7 @@ and let x_tn_fe_inf_n_fe_cobr_dup_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_cobr_dup
     =
-    {
+    x_tn_fe_inf_n_fe_cobr_dup {
         n_dup =
             optionm.map
                 fun c =>
@@ -14907,7 +14928,7 @@ and let x_tn_fe_inf_n_fe_cobr_fat_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_cobr_fat
     =
-    {
+    x_tn_fe_inf_n_fe_cobr_fat {
         n_fat =
             optionm.map
                 fun c =>
@@ -14941,7 +14962,7 @@ and let x_tn_fe_inf_n_fe_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_transp
     =
-    {
+    x_tn_fe_inf_n_fe_transp {
         mod_frete =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_transp_mod_frete" (x_tn_fe_inf_n_fe_transp_mod_frete_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "modFrete" children)
         transporta =
@@ -14959,7 +14980,7 @@ and let x_tn_fe_inf_n_fe_transp_vol_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_transp_vol
     =
-    {
+    x_tn_fe_inf_n_fe_transp_vol {
         q_vol =
             optionm.map
                 fun c =>
@@ -15004,7 +15025,7 @@ and let x_tn_fe_inf_n_fe_transp_vol_lacres_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_transp_vol_lacres
     =
-    {
+    x_tn_fe_inf_n_fe_transp_vol_lacres {
         n_lacre =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre" (x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nLacre" children)
     }
@@ -15056,7 +15077,7 @@ and let x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp
     =
-    {
+    x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp {
         veic_transp = optionm.map (fun c => x_t_veiculo_of_xml c) (xml.first_child "veicTransp" children)
         reboque = listm.map (fun c => x_t_veiculo_of_xml c) (xml.children_named "reboque" children)
     }
@@ -15073,7 +15094,7 @@ and let x_tn_fe_inf_n_fe_transp_ret_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_transp_ret_transp
     =
-    {
+    x_tn_fe_inf_n_fe_transp_ret_transp {
         v_serv =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vServ" children)
         v_bc_ret =
@@ -15095,7 +15116,7 @@ and let x_tn_fe_inf_n_fe_transp_transporta_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_transp_transporta
     =
-    {
+    x_tn_fe_inf_n_fe_transp_transporta {
         choice_cnpj =
             if xml.has_any_child [ "CNPJ"; "CPF" ] children
             then Some (x_tn_fe_inf_n_fe_transp_transporta_choice_cnpj_of_children attributes children)
@@ -15150,7 +15171,7 @@ and let x_tn_fe_inf_n_fe_total_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_total
     =
-    {
+    x_tn_fe_inf_n_fe_total {
         icms_tot = (fun c => x_tn_fe_inf_n_fe_total_icms_tot_of_xml c) (xml.required_child "ICMSTot" children)
         issq_ntot =
             optionm.map (fun c => x_tn_fe_inf_n_fe_total_issq_ntot_of_xml c) (xml.first_child "ISSQNtot" children)
@@ -15164,7 +15185,7 @@ and let x_tn_fe_inf_n_fe_total_ret_trib_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_total_ret_trib
     =
-    {
+    x_tn_fe_inf_n_fe_total_ret_trib {
         v_ret_pis =
             optionm.map
                 fun c =>
@@ -15216,7 +15237,7 @@ and let x_tn_fe_inf_n_fe_total_issq_ntot_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_total_issq_ntot
     =
-    {
+    x_tn_fe_inf_n_fe_total_issq_ntot {
         v_serv =
             optionm.map
                 fun c =>
@@ -15256,7 +15277,7 @@ and let x_tn_fe_inf_n_fe_total_icms_tot_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_total_icms_tot
     =
-    {
+    x_tn_fe_inf_n_fe_total_icms_tot {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         v_icms =
@@ -15299,7 +15320,7 @@ and let x_tn_fe_inf_n_fe_det_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det
     =
-    {
+    x_tn_fe_inf_n_fe_det {
         prod = (fun c => x_tn_fe_inf_n_fe_det_prod_of_xml c) (xml.required_child "prod" children)
         imposto = (fun c => x_tn_fe_inf_n_fe_det_imposto_of_xml c) (xml.required_child "imposto" children)
         inf_ad_prod =
@@ -15321,7 +15342,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto {
         v_tot_trib =
             optionm.map
                 fun c =>
@@ -15342,7 +15363,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofinsst_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofinsst
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst {
         choice_v_bc = x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_of_children attributes children
         v_cofins =
             (fun c => xml.required_value "x_t_dec_1302_opc" (x_t_dec_1302_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vCOFINS" children)
@@ -15370,7 +15391,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod_of_chi
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod {
         q_bc_prod =
             (fun c => xml.required_value "x_t_dec_1204_opc" (x_t_dec_1204_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qBCProd" children)
         v_aliq_prod =
@@ -15389,7 +15410,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302_opc" (x_t_dec_1302_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         p_cofins =
@@ -15408,7 +15429,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofins
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins {
         choice_cofins_aliq = x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_of_children attributes children
     }
 
@@ -15442,7 +15463,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_of_ch
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_cst" (x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         choice_v_bc =
@@ -15486,7 +15507,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choic
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod {
         q_bc_prod =
             (fun c => xml.required_value "x_t_dec_1204" (x_t_dec_1204_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qBCProd" children)
         v_aliq_prod =
@@ -15505,7 +15526,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choic
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         p_cofins =
@@ -15524,7 +15545,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_of_child
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_cst" (x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
     }
@@ -15541,7 +15562,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_of_ch
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_cst" (x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         q_bc_prod =
@@ -15564,7 +15585,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_of_ch
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_cst" (x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         v_bc =
@@ -15587,7 +15608,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pisst_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pisst
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pisst {
         choice_v_bc = x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_of_children attributes children
         v_pis =
             (fun c => xml.required_value "x_t_dec_1302_opc" (x_t_dec_1302_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vPIS" children)
@@ -15615,7 +15636,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod_of_childr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod {
         q_bc_prod =
             (fun c => xml.required_value "x_t_dec_1204_opc" (x_t_dec_1204_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qBCProd" children)
         v_aliq_prod =
@@ -15634,7 +15655,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302_opc" (x_t_dec_1302_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         p_pis =
@@ -15653,7 +15674,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pis
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis {
         choice_pis_aliq = x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_of_children attributes children
     }
 
@@ -15687,7 +15708,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_cst" (x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         choice_v_bc =
@@ -15727,7 +15748,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_gr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod {
         q_bc_prod =
             (fun c => xml.required_value "x_t_dec_1204" (x_t_dec_1204_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qBCProd" children)
         v_aliq_prod =
@@ -15746,7 +15767,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_gr
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         p_pis =
@@ -15765,7 +15786,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_cst" (x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
     }
@@ -15782,7 +15803,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_cst" (x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         q_bc_prod =
@@ -15805,7 +15826,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_cst" (x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         v_bc =
@@ -15843,7 +15864,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         v_aliq =
@@ -15868,7 +15889,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms {
         icms =
             (fun c => x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_of_xml c) (xml.required_child "ICMS" children)
         ipi =
@@ -15891,7 +15912,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         v_desp_adu =
@@ -15914,7 +15935,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi {
         cl_enq =
             optionm.map
                 fun c =>
@@ -15973,7 +15994,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint_cst" (x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
     }
@@ -15990,7 +16011,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib {
         cst =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_cst" (x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_cst_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CST" children)
         choice_v_bc =
@@ -16037,7 +16058,7 @@ and let
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid {
         q_unid =
             (fun c => xml.required_value "x_t_dec_1204" (x_t_dec_1204_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qUnid" children)
         v_unid =
@@ -16056,7 +16077,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc {
         v_bc =
             (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vBC" children)
         p_ipi =
@@ -16075,7 +16096,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms {
         choice_icms00 =
             x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_of_children attributes children
     }
@@ -16167,7 +16188,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         csosn =
@@ -16224,7 +16245,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         csosn =
@@ -16247,7 +16268,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         csosn =
@@ -16286,7 +16307,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         csosn =
@@ -16329,7 +16350,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         csosn =
@@ -16348,7 +16369,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         csosn =
@@ -16371,7 +16392,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16398,7 +16419,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16455,7 +16476,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16508,7 +16529,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16557,7 +16578,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16580,7 +16601,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16629,7 +16650,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16652,7 +16673,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16691,7 +16712,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16720,7 +16741,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16767,7 +16788,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00 {
         orig =
             (fun c => xml.required_value "x_torig" (x_torig_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "orig" children)
         cst =
@@ -16794,7 +16815,7 @@ and let x_tn_fe_inf_n_fe_det_prod_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod {
         c_prod =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_prod_c_prod" (x_tn_fe_inf_n_fe_det_prod_c_prod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cProd" children)
         c_ean =
@@ -16910,7 +16931,7 @@ and let x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb {
         c_prod_anp =
             (fun c => xml.required_value "x_tc_prod_anp" (x_tc_prod_anp_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cProdANP" children)
         codif =
@@ -16944,7 +16965,7 @@ and let x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide {
         q_bc_prod =
             (fun c => xml.required_value "x_t_dec_1204" (x_t_dec_1204_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qBCProd" children)
         v_aliq_prod =
@@ -16963,7 +16984,7 @@ and let x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma {
         tp_arma =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_tp_arma" (x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_tp_arma_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpArma" children)
         n_serie =
@@ -16984,7 +17005,7 @@ and let x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med {
         n_lote =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_n_lote" (x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_n_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nLote" children)
         q_lote =
@@ -17007,7 +17028,7 @@ and let x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod {
         tp_op =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_tp_op" (x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_tp_op_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpOp" children)
         chassi =
@@ -17068,7 +17089,7 @@ and let x_tn_fe_inf_n_fe_det_prod_di_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod_di
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_di {
         n_di =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_prod_di_n_di" (x_tn_fe_inf_n_fe_det_prod_di_n_di_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nDI" children)
         d_di =
@@ -17091,7 +17112,7 @@ and let x_tn_fe_inf_n_fe_det_prod_di_adi_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_det_prod_di_adi
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_di_adi {
         n_adicao =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_det_prod_di_adi_n_adicao" (x_tn_fe_inf_n_fe_det_prod_di_adi_n_adicao_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nAdicao" children)
         n_seq_adic =
@@ -17113,7 +17134,7 @@ and let x_tn_fe_inf_n_fe_dest_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_dest
     =
-    {
+    x_tn_fe_inf_n_fe_dest {
         choice_cnpj = x_tn_fe_inf_n_fe_dest_choice_cnpj_of_children attributes children
         x_nome =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_dest_x_nome" (x_tn_fe_inf_n_fe_dest_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
@@ -17156,7 +17177,7 @@ and let x_tn_fe_inf_n_fe_avulsa_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_avulsa
     =
-    {
+    x_tn_fe_inf_n_fe_avulsa {
         cnpj =
             (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
         x_orgao =
@@ -17203,7 +17224,7 @@ and let x_tn_fe_inf_n_fe_emit_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_emit
     =
-    {
+    x_tn_fe_inf_n_fe_emit {
         choice_cnpj = x_tn_fe_inf_n_fe_emit_choice_cnpj_of_children attributes children
         x_nome =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_emit_x_nome" (x_tn_fe_inf_n_fe_emit_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
@@ -17250,7 +17271,7 @@ and let x_tn_fe_inf_n_fe_ide_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_ide
     =
-    {
+    x_tn_fe_inf_n_fe_ide {
         c_uf =
             (fun c => xml.required_value "x_t_cod_uf_ibge" (x_t_cod_uf_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUF" children)
         c_nf =
@@ -17305,7 +17326,7 @@ and let x_tn_fe_inf_n_fe_ide_n_fref_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_ide_n_fref
     =
-    {
+    x_tn_fe_inf_n_fe_ide_n_fref {
         choice_ref_n_fe = x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_of_children attributes children
     }
 
@@ -17343,7 +17364,7 @@ and let x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf
     =
-    {
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf {
         mod =
             (fun c => xml.required_value "x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_mod" (x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_mod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "mod" children)
         n_ecf =
@@ -17362,7 +17383,7 @@ and let x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp
     =
-    {
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp {
         c_uf =
             (fun c => xml.required_value "x_t_cod_uf_ibge" (x_t_cod_uf_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUF" children)
         aamm =
@@ -17403,7 +17424,7 @@ and let x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf
     =
-    {
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf {
         c_uf =
             (fun c => xml.required_value "x_t_cod_uf_ibge" (x_t_cod_uf_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUF" children)
         aamm =
@@ -17425,7 +17446,7 @@ and let x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_of_xml
     x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_prot_n_fe_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_prot_n_fe =
-    {
+    x_t_prot_n_fe {
         inf_prot = (fun c => x_t_prot_n_fe_inf_prot_of_xml c) (xml.required_child "infProt" children)
         signature = optionm.map (fun c => x_signature_type_of_xml c) (xml.first_child "ds:Signature" children)
         versao = xml.required_value "x_t_ver_n_fe" (x_t_ver_n_fe_of_string (xml.required_attribute "versao" attributes))
@@ -17438,7 +17459,7 @@ and let x_t_prot_n_fe_inf_prot_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_prot_n_fe_inf_prot
     =
-    {
+    x_t_prot_n_fe_inf_prot {
         tp_amb =
             (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
         ver_aplic =
@@ -17465,7 +17486,7 @@ and let x_t_envi_n_fe_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_envi_n_fe s
     =
-    {
+    x_t_envi_n_fe {
         id_lote =
             (fun c => xml.required_value "x_t_id_lote" (x_t_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
         n_fe = listm.map (fun c => x_tn_fe_of_xml witness c) (xml.children_named "NFe" children)
@@ -17479,7 +17500,7 @@ and let x_t_ret_envi_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_envi_n_fe
     =
-    {
+    x_t_ret_envi_n_fe {
         tp_amb =
             (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
         ver_aplic =
@@ -17502,7 +17523,7 @@ and let x_t_ret_envi_n_fe_inf_rec_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_envi_n_fe_inf_rec
     =
-    {
+    x_t_ret_envi_n_fe_inf_rec {
         n_rec =
             (fun c => xml.required_value "x_t_rec" (x_t_rec_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nRec" children)
         t_med =
@@ -17516,7 +17537,7 @@ and let x_t_cons_reci_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_cons_reci_n_fe
     =
-    {
+    x_t_cons_reci_n_fe {
         tp_amb =
             (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
         n_rec =
@@ -17531,7 +17552,7 @@ and let x_t_ret_cons_reci_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_ret_cons_reci_n_fe
     =
-    {
+    x_t_ret_cons_reci_n_fe {
         tp_amb =
             (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
         ver_aplic =
@@ -17559,7 +17580,7 @@ and let x_t_nfe_proc_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
     : x_t_nfe_proc s
     =
-    {
+    x_t_nfe_proc {
         n_fe = (fun c => x_tn_fe_of_xml witness c) (xml.required_child "NFe" children)
         prot_n_fe = (fun c => x_t_prot_n_fe_of_xml c) (xml.required_child "protNFe" children)
         versao = xml.required_value "x_t_ver_n_fe" (x_t_ver_n_fe_of_string (xml.required_attribute "versao" attributes))
@@ -17569,7 +17590,7 @@ and let x_t_nfe_proc_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x
     x_t_nfe_proc_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_endereco_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_endereco =
-    {
+    x_t_endereco {
         x_lgr =
             (fun c => xml.required_value "x_t_endereco_x_lgr" (x_t_endereco_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
         nro =
@@ -17616,7 +17637,7 @@ and let x_t_endereco_of_xml (c : xml.xml_node) : x_t_endereco =
     x_t_endereco_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_ender_emi_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_ender_emi =
-    {
+    x_t_ender_emi {
         x_lgr =
             (fun c => xml.required_value "x_t_ender_emi_x_lgr" (x_t_ender_emi_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
         nro =
@@ -17661,7 +17682,7 @@ and let x_t_ender_emi_of_xml (c : xml.xml_node) : x_t_ender_emi =
     x_t_ender_emi_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_local_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_local =
-    {
+    x_t_local {
         choice_cnpj = x_t_local_choice_cnpj_of_children attributes children
         x_lgr =
             (fun c => xml.required_value "x_t_local_x_lgr" (x_t_local_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
@@ -17703,7 +17724,7 @@ and let x_t_local_choice_cnpj_of_children
     else failwith "x_t_local_choice_cnpj: no alternative present"
 
 and let x_t_veiculo_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_veiculo =
-    {
+    x_t_veiculo {
         placa =
             (fun c => xml.required_value "x_t_veiculo_placa" (x_t_veiculo_placa_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "placa" children)
         uf =
@@ -17723,7 +17744,7 @@ and let x_trsa_key_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_trsa_key_value_type
     =
-    {
+    x_trsa_key_value_type {
         modulus = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Modulus" children)
         exponent = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Exponent" children)
     }
@@ -17735,7 +17756,7 @@ and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_type
     =
-    {
+    x_signature_type {
         signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
         signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
         key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
@@ -17749,7 +17770,7 @@ and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signature_value_type
     =
-    {
+    x_signature_value_type {
         base = xml.text_in children
         id = xml.attribute_of "Id" attributes
     }
@@ -17761,7 +17782,7 @@ and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type
     =
-    {
+    x_signed_info_type {
         canonicalization_method =
             (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
         signature_method =
@@ -17777,7 +17798,7 @@ and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_signature_method
     =
-    {
+    x_signed_info_type_signature_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -17791,7 +17812,7 @@ and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_signed_info_type_canonicalization_method
     =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -17805,7 +17826,7 @@ and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type
     =
-    {
+    x_reference_type {
         transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
         digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
         digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
@@ -17824,7 +17845,7 @@ and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_reference_type_digest_method
     =
-    {
+    x_reference_type_digest_method {
         algorithm =
             xml.required_attribute
                 "Algorithm"
@@ -17838,7 +17859,7 @@ and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transforms_type
     =
-    {
+    x_transforms_type {
         transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
     }
 
@@ -17849,8 +17870,11 @@ and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_transform_type
     =
-    {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    x_transform_type {
+        group_x_path =
+            listm.map
+                fun run => x_transform_type_group_x_path_of_children [] run
+                (xml.group_runs [ "XPath" ] children)
         algorithm =
             xml.required_value
                 "x_t_transform_uri"
@@ -17860,11 +17884,22 @@ and let x_transform_type_of_children
 and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
+and let x_transform_type_group_x_path_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : x_transform_type_group_x_path
+    =
+    x_transform_type_group_x_path {
+        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
+    }
+
+and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
+
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_key_info_type
     =
-    {
+    x_key_info_type {
         x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
         id = xml.attribute_of "Id" attributes
     }
@@ -17876,7 +17911,7 @@ and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
     : x_x509_data_type
     =
-    {
+    x_x509_data_type {
         x509_certificate =
             (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
     }
@@ -22163,20 +22198,37 @@ and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.x
 and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
     inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | TransformType_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+        | TransformType_field_group_x_path => listm.concat (listm.map x_transform_type_group_x_path_children v)
     inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
             inl exists r. f = packed
             listm.append (nodes f (x_transform_type_get f x)) (walk rest)
         | [] => []
-    walk [ exists TransformType_field_XPath ]
+    walk [ exists TransformType_field_group_x_path ]
 
 and let x_transform_type_attributes (x : x_transform_type) : list (string * string) =
     [ ("Algorithm", to_text x.algorithm) ]
 
 and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
     xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_transform_type_group_x_path_children (x : x_transform_type_group_x_path) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_group_x_path_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_group_XPath_field_XPath => [ xml.element "XPath" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_transform_type_group_x_path_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_group_x_path_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_group_XPath_field_XPath ]
+
+and let x_transform_type_group_x_path_attributes (x : x_transform_type_group_x_path) : list (string * string) = []
+
+and let x_transform_type_group_x_path_to_xml (name : string) (x : x_transform_type_group_x_path) : xml.xml_node =
+    xml.element name (x_transform_type_group_x_path_attributes x) (x_transform_type_group_x_path_children x)
 
 and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
     inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
@@ -22214,13 +22266,13 @@ and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml
     xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
 
 and let x_tn_fe_example (k : i32) : x_tn_fe unsigned =
-    {
+    x_tn_fe {
         inf_n_fe = x_tn_fe_inf_n_fe_example k
         signature = Pending "an unsigned example"
     }
 
 and let x_tn_fe_inf_n_fe_example (k : i32) : x_tn_fe_inf_n_fe =
-    {
+    x_tn_fe_inf_n_fe {
         ide = x_tn_fe_inf_n_fe_ide_example k
         emit = x_tn_fe_inf_n_fe_emit_example k
         avulsa = None
@@ -22240,7 +22292,7 @@ and let x_tn_fe_inf_n_fe_example (k : i32) : x_tn_fe_inf_n_fe =
     }
 
 and let x_tn_fe_inf_n_fe_cana_example (k : i32) : x_tn_fe_inf_n_fe_cana =
-    {
+    x_tn_fe_inf_n_fe_cana {
         safra = x_tn_fe_inf_n_fe_cana_safra_example k
         ref = x_tn_fe_inf_n_fe_cana_ref_example k
         for_dia = [ x_tn_fe_inf_n_fe_cana_for_dia_example (k + 0i32) ]
@@ -22254,32 +22306,32 @@ and let x_tn_fe_inf_n_fe_cana_example (k : i32) : x_tn_fe_inf_n_fe_cana =
     }
 
 and let x_tn_fe_inf_n_fe_cana_deduc_example (k : i32) : x_tn_fe_inf_n_fe_cana_deduc =
-    {
+    x_tn_fe_inf_n_fe_cana_deduc {
         x_ded = x_tn_fe_inf_n_fe_cana_deduc_x_ded_example k
         v_ded = x_t_dec_1302_example k
     }
 
 and let x_tn_fe_inf_n_fe_cana_for_dia_example (k : i32) : x_tn_fe_inf_n_fe_cana_for_dia =
-    {
+    x_tn_fe_inf_n_fe_cana_for_dia {
         qtde = x_t_dec_1110_example k
         dia = x_tn_fe_inf_n_fe_cana_for_dia_dia_example k
     }
 
 and let x_tn_fe_inf_n_fe_compra_example (k : i32) : x_tn_fe_inf_n_fe_compra =
-    {
+    x_tn_fe_inf_n_fe_compra {
         x_n_emp = None
         x_ped = None
         x_cont = None
     }
 
 and let x_tn_fe_inf_n_fe_exporta_example (k : i32) : x_tn_fe_inf_n_fe_exporta =
-    {
+    x_tn_fe_inf_n_fe_exporta {
         uf_embarq = x_t_uf_example k
         x_loc_embarq = x_tn_fe_inf_n_fe_exporta_x_loc_embarq_example k
     }
 
 and let x_tn_fe_inf_n_fe_inf_adic_example (k : i32) : x_tn_fe_inf_n_fe_inf_adic =
-    {
+    x_tn_fe_inf_n_fe_inf_adic {
         inf_ad_fisco = None
         inf_cpl = None
         obs_cont = []
@@ -22288,38 +22340,38 @@ and let x_tn_fe_inf_n_fe_inf_adic_example (k : i32) : x_tn_fe_inf_n_fe_inf_adic 
     }
 
 and let x_tn_fe_inf_n_fe_inf_adic_proc_ref_example (k : i32) : x_tn_fe_inf_n_fe_inf_adic_proc_ref =
-    {
+    x_tn_fe_inf_n_fe_inf_adic_proc_ref {
         n_proc = x_tn_fe_inf_n_fe_inf_adic_proc_ref_n_proc_example k
         ind_proc = x_tn_fe_inf_n_fe_inf_adic_proc_ref_ind_proc_example k
     }
 
 and let x_tn_fe_inf_n_fe_inf_adic_obs_fisco_example (k : i32) : x_tn_fe_inf_n_fe_inf_adic_obs_fisco =
-    {
+    x_tn_fe_inf_n_fe_inf_adic_obs_fisco {
         x_texto = x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_texto_example k
         x_campo = x_tn_fe_inf_n_fe_inf_adic_obs_fisco_x_campo_example k
     }
 
 and let x_tn_fe_inf_n_fe_inf_adic_obs_cont_example (k : i32) : x_tn_fe_inf_n_fe_inf_adic_obs_cont =
-    {
+    x_tn_fe_inf_n_fe_inf_adic_obs_cont {
         x_texto = x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_texto_example k
         x_campo = x_tn_fe_inf_n_fe_inf_adic_obs_cont_x_campo_example k
     }
 
 and let x_tn_fe_inf_n_fe_cobr_example (k : i32) : x_tn_fe_inf_n_fe_cobr =
-    {
+    x_tn_fe_inf_n_fe_cobr {
         fat = None
         dup = []
     }
 
 and let x_tn_fe_inf_n_fe_cobr_dup_example (k : i32) : x_tn_fe_inf_n_fe_cobr_dup =
-    {
+    x_tn_fe_inf_n_fe_cobr_dup {
         n_dup = None
         d_venc = None
         v_dup = x_t_dec_1302_opc_example k
     }
 
 and let x_tn_fe_inf_n_fe_cobr_fat_example (k : i32) : x_tn_fe_inf_n_fe_cobr_fat =
-    {
+    x_tn_fe_inf_n_fe_cobr_fat {
         n_fat = None
         v_orig = None
         v_desc = None
@@ -22327,7 +22379,7 @@ and let x_tn_fe_inf_n_fe_cobr_fat_example (k : i32) : x_tn_fe_inf_n_fe_cobr_fat 
     }
 
 and let x_tn_fe_inf_n_fe_transp_example (k : i32) : x_tn_fe_inf_n_fe_transp =
-    {
+    x_tn_fe_inf_n_fe_transp {
         mod_frete = x_tn_fe_inf_n_fe_transp_mod_frete_example k
         transporta = None
         ret_transp = None
@@ -22336,7 +22388,7 @@ and let x_tn_fe_inf_n_fe_transp_example (k : i32) : x_tn_fe_inf_n_fe_transp =
     }
 
 and let x_tn_fe_inf_n_fe_transp_vol_example (k : i32) : x_tn_fe_inf_n_fe_transp_vol =
-    {
+    x_tn_fe_inf_n_fe_transp_vol {
         q_vol = None
         esp = None
         marca = None
@@ -22347,7 +22399,7 @@ and let x_tn_fe_inf_n_fe_transp_vol_example (k : i32) : x_tn_fe_inf_n_fe_transp_
     }
 
 and let x_tn_fe_inf_n_fe_transp_vol_lacres_example (k : i32) : x_tn_fe_inf_n_fe_transp_vol_lacres =
-    {
+    x_tn_fe_inf_n_fe_transp_vol_lacres {
         n_lacre = x_tn_fe_inf_n_fe_transp_vol_lacres_n_lacre_example k
     }
 
@@ -22360,13 +22412,13 @@ and let x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp_example
     (k : i32)
     : x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp
     =
-    {
+    x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp {
         veic_transp = None
         reboque = []
     }
 
 and let x_tn_fe_inf_n_fe_transp_ret_transp_example (k : i32) : x_tn_fe_inf_n_fe_transp_ret_transp =
-    {
+    x_tn_fe_inf_n_fe_transp_ret_transp {
         v_serv = x_t_dec_1302_example k
         v_bc_ret = x_t_dec_1302_example k
         p_icms_ret = x_t_dec_0302_example k
@@ -22376,7 +22428,7 @@ and let x_tn_fe_inf_n_fe_transp_ret_transp_example (k : i32) : x_tn_fe_inf_n_fe_
     }
 
 and let x_tn_fe_inf_n_fe_transp_transporta_example (k : i32) : x_tn_fe_inf_n_fe_transp_transporta =
-    {
+    x_tn_fe_inf_n_fe_transp_transporta {
         choice_cnpj = None
         x_nome = None
         ie = None
@@ -22389,14 +22441,14 @@ and let x_tn_fe_inf_n_fe_transp_transporta_choice_cnpj_example (k : i32) : x_tn_
     TNFe_infNFe_transp_transporta_choice_CNPJ_CNPJ (x_t_cnpj_example k)
 
 and let x_tn_fe_inf_n_fe_total_example (k : i32) : x_tn_fe_inf_n_fe_total =
-    {
+    x_tn_fe_inf_n_fe_total {
         icms_tot = x_tn_fe_inf_n_fe_total_icms_tot_example k
         issq_ntot = None
         ret_trib = None
     }
 
 and let x_tn_fe_inf_n_fe_total_ret_trib_example (k : i32) : x_tn_fe_inf_n_fe_total_ret_trib =
-    {
+    x_tn_fe_inf_n_fe_total_ret_trib {
         v_ret_pis = None
         v_ret_cofins = None
         v_ret_csll = None
@@ -22407,7 +22459,7 @@ and let x_tn_fe_inf_n_fe_total_ret_trib_example (k : i32) : x_tn_fe_inf_n_fe_tot
     }
 
 and let x_tn_fe_inf_n_fe_total_issq_ntot_example (k : i32) : x_tn_fe_inf_n_fe_total_issq_ntot =
-    {
+    x_tn_fe_inf_n_fe_total_issq_ntot {
         v_serv = None
         v_bc = None
         v_iss = None
@@ -22416,7 +22468,7 @@ and let x_tn_fe_inf_n_fe_total_issq_ntot_example (k : i32) : x_tn_fe_inf_n_fe_to
     }
 
 and let x_tn_fe_inf_n_fe_total_icms_tot_example (k : i32) : x_tn_fe_inf_n_fe_total_icms_tot =
-    {
+    x_tn_fe_inf_n_fe_total_icms_tot {
         v_bc = x_t_dec_1302_example k
         v_icms = x_t_dec_1302_example k
         v_bcst = x_t_dec_1302_example k
@@ -22435,7 +22487,7 @@ and let x_tn_fe_inf_n_fe_total_icms_tot_example (k : i32) : x_tn_fe_inf_n_fe_tot
     }
 
 and let x_tn_fe_inf_n_fe_det_example (k : i32) : x_tn_fe_inf_n_fe_det =
-    {
+    x_tn_fe_inf_n_fe_det {
         prod = x_tn_fe_inf_n_fe_det_prod_example k
         imposto = x_tn_fe_inf_n_fe_det_imposto_example k
         inf_ad_prod = None
@@ -22443,7 +22495,7 @@ and let x_tn_fe_inf_n_fe_det_example (k : i32) : x_tn_fe_inf_n_fe_det =
     }
 
 and let x_tn_fe_inf_n_fe_det_imposto_example (k : i32) : x_tn_fe_inf_n_fe_det_imposto =
-    {
+    x_tn_fe_inf_n_fe_det_imposto {
         v_tot_trib = None
         choice_icms = x_tn_fe_inf_n_fe_det_imposto_choice_icms_example k
         pis = x_tn_fe_inf_n_fe_det_imposto_pis_example k
@@ -22453,7 +22505,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_example (k : i32) : x_tn_fe_inf_n_fe_det_im
     }
 
 and let x_tn_fe_inf_n_fe_det_imposto_cofinsst_example (k : i32) : x_tn_fe_inf_n_fe_det_imposto_cofinsst =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst {
         choice_v_bc = x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_example k
         v_cofins = x_t_dec_1302_opc_example k
     }
@@ -22470,13 +22522,13 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc {
         v_bc = x_t_dec_1302_opc_example k
         p_cofins = x_t_dec_0302_opc_example k
     }
 
 and let x_tn_fe_inf_n_fe_det_imposto_cofins_example (k : i32) : x_tn_fe_inf_n_fe_det_imposto_cofins =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins {
         choice_cofins_aliq = x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_example k
     }
 
@@ -22492,7 +22544,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_examp
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq {
         cst = x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_cst_example k
         v_bc = x_t_dec_1302_example k
         p_cofins = x_t_dec_0302_example k
@@ -22500,7 +22552,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_examp
     }
 
 and let x_tn_fe_inf_n_fe_det_imposto_pisst_example (k : i32) : x_tn_fe_inf_n_fe_det_imposto_pisst =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pisst {
         choice_v_bc = x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_example k
         v_pis = x_t_dec_1302_opc_example k
     }
@@ -22514,13 +22566,13 @@ and let x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc {
         v_bc = x_t_dec_1302_opc_example k
         p_pis = x_t_dec_0302_opc_example k
     }
 
 and let x_tn_fe_inf_n_fe_det_imposto_pis_example (k : i32) : x_tn_fe_inf_n_fe_det_imposto_pis =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis {
         choice_pis_aliq = x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_example k
     }
 
@@ -22536,7 +22588,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq {
         cst = x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_cst_example k
         v_bc = x_t_dec_1302_example k
         p_pis = x_t_dec_0302_example k
@@ -22550,7 +22602,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms {
         icms = x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_example k
         ipi = None
         ii = None
@@ -22560,7 +22612,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii {
         v_bc = x_t_dec_1302_example k
         v_desp_adu = x_t_dec_1302_example k
         v_ii = x_t_dec_1302_example k
@@ -22571,7 +22623,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi {
         cl_enq = None
         cnpj_prod = None
         c_selo = None
@@ -22592,7 +22644,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib {
         cst = x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_cst_example k
         choice_v_bc =
             x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_example k
@@ -22612,7 +22664,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc {
         v_bc = x_t_dec_1302_example k
         p_ipi = x_t_dec_0302_example k
     }
@@ -22621,7 +22673,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms {
         choice_icms00 = x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_example k
     }
 
@@ -22637,7 +22689,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     (k : i32)
     : x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00
     =
-    {
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00 {
         orig = x_torig_example k
         cst = x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00_cst_example k
         mod_bc = x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00_mod_bc_example k
@@ -22647,7 +22699,7 @@ and let x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_i
     }
 
 and let x_tn_fe_inf_n_fe_det_prod_example (k : i32) : x_tn_fe_inf_n_fe_det_prod =
-    {
+    x_tn_fe_inf_n_fe_det_prod {
         c_prod = x_tn_fe_inf_n_fe_det_prod_c_prod_example k
         c_ean = x_tn_fe_inf_n_fe_det_prod_c_ean_example k
         x_prod = x_tn_fe_inf_n_fe_det_prod_x_prod_example k
@@ -22681,7 +22733,7 @@ and let x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_example
     (k : i32)
     : x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod
     =
-    {
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod {
         tp_op = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_tp_op_example k
         chassi = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_chassi_example k
         c_cor = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_c_cor_example k
@@ -22709,7 +22761,7 @@ and let x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_example
     }
 
 and let x_tn_fe_inf_n_fe_det_prod_di_example (k : i32) : x_tn_fe_inf_n_fe_det_prod_di =
-    {
+    x_tn_fe_inf_n_fe_det_prod_di {
         n_di = x_tn_fe_inf_n_fe_det_prod_di_n_di_example k
         d_di = x_t_data_example k
         x_loc_desemb = x_tn_fe_inf_n_fe_det_prod_di_x_loc_desemb_example k
@@ -22720,7 +22772,7 @@ and let x_tn_fe_inf_n_fe_det_prod_di_example (k : i32) : x_tn_fe_inf_n_fe_det_pr
     }
 
 and let x_tn_fe_inf_n_fe_det_prod_di_adi_example (k : i32) : x_tn_fe_inf_n_fe_det_prod_di_adi =
-    {
+    x_tn_fe_inf_n_fe_det_prod_di_adi {
         n_adicao = x_tn_fe_inf_n_fe_det_prod_di_adi_n_adicao_example k
         n_seq_adic = x_tn_fe_inf_n_fe_det_prod_di_adi_n_seq_adic_example k
         c_fabricante = x_tn_fe_inf_n_fe_det_prod_di_adi_c_fabricante_example k
@@ -22728,7 +22780,7 @@ and let x_tn_fe_inf_n_fe_det_prod_di_adi_example (k : i32) : x_tn_fe_inf_n_fe_de
     }
 
 and let x_tn_fe_inf_n_fe_dest_example (k : i32) : x_tn_fe_inf_n_fe_dest =
-    {
+    x_tn_fe_inf_n_fe_dest {
         choice_cnpj = x_tn_fe_inf_n_fe_dest_choice_cnpj_example k
         x_nome = x_tn_fe_inf_n_fe_dest_x_nome_example k
         ender_dest = x_t_endereco_example k
@@ -22741,7 +22793,7 @@ and let x_tn_fe_inf_n_fe_dest_choice_cnpj_example (k : i32) : x_tn_fe_inf_n_fe_d
     TNFe_infNFe_dest_choice_CNPJ_CNPJ (x_t_cnpj_opc_example k)
 
 and let x_tn_fe_inf_n_fe_avulsa_example (k : i32) : x_tn_fe_inf_n_fe_avulsa =
-    {
+    x_tn_fe_inf_n_fe_avulsa {
         cnpj = x_t_cnpj_example k
         x_orgao = x_tn_fe_inf_n_fe_avulsa_x_orgao_example k
         matr = x_tn_fe_inf_n_fe_avulsa_matr_example k
@@ -22756,7 +22808,7 @@ and let x_tn_fe_inf_n_fe_avulsa_example (k : i32) : x_tn_fe_inf_n_fe_avulsa =
     }
 
 and let x_tn_fe_inf_n_fe_emit_example (k : i32) : x_tn_fe_inf_n_fe_emit =
-    {
+    x_tn_fe_inf_n_fe_emit {
         choice_cnpj = x_tn_fe_inf_n_fe_emit_choice_cnpj_example k
         x_nome = x_tn_fe_inf_n_fe_emit_x_nome_example k
         x_fant = None
@@ -22772,7 +22824,7 @@ and let x_tn_fe_inf_n_fe_emit_choice_cnpj_example (k : i32) : x_tn_fe_inf_n_fe_e
     TNFe_infNFe_emit_choice_CNPJ_CNPJ (x_t_cnpj_example k)
 
 and let x_tn_fe_inf_n_fe_ide_example (k : i32) : x_tn_fe_inf_n_fe_ide =
-    {
+    x_tn_fe_inf_n_fe_ide {
         c_uf = x_t_cod_uf_ibge_example k
         c_nf = x_tn_fe_inf_n_fe_ide_c_nf_example k
         nat_op = x_tn_fe_inf_n_fe_ide_nat_op_example k
@@ -22798,7 +22850,7 @@ and let x_tn_fe_inf_n_fe_ide_example (k : i32) : x_tn_fe_inf_n_fe_ide =
     }
 
 and let x_tn_fe_inf_n_fe_ide_n_fref_example (k : i32) : x_tn_fe_inf_n_fe_ide_n_fref =
-    {
+    x_tn_fe_inf_n_fe_ide_n_fref {
         choice_ref_n_fe = x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_example k
     }
 
@@ -22806,14 +22858,14 @@ and let x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_example (k : i32) : x_tn_fe_
     TNFe_infNFe_ide_NFref_choice_refNFe_refNFe (x_t_ch_n_fe_example k)
 
 and let x_t_prot_n_fe_example (k : i32) : x_t_prot_n_fe =
-    {
+    x_t_prot_n_fe {
         inf_prot = x_t_prot_n_fe_inf_prot_example k
         signature = None
         versao = x_t_ver_n_fe_example k
     }
 
 and let x_t_prot_n_fe_inf_prot_example (k : i32) : x_t_prot_n_fe_inf_prot =
-    {
+    x_t_prot_n_fe_inf_prot {
         tp_amb = x_t_amb_example k
         ver_aplic = x_t_ver_aplic_example k
         ch_n_fe = x_t_ch_n_fe_example k
@@ -22826,14 +22878,14 @@ and let x_t_prot_n_fe_inf_prot_example (k : i32) : x_t_prot_n_fe_inf_prot =
     }
 
 and let x_t_envi_n_fe_example (k : i32) : x_t_envi_n_fe unsigned =
-    {
+    x_t_envi_n_fe {
         id_lote = x_t_id_lote_example k
         n_fe = [ x_tn_fe_example (k + 0i32) ]
         versao = x_t_ver_n_fe_example k
     }
 
 and let x_t_ret_envi_n_fe_example (k : i32) : x_t_ret_envi_n_fe =
-    {
+    x_t_ret_envi_n_fe {
         tp_amb = x_t_amb_example k
         ver_aplic = x_t_ver_aplic_example k
         c_stat = x_t_stat_example k
@@ -22845,20 +22897,20 @@ and let x_t_ret_envi_n_fe_example (k : i32) : x_t_ret_envi_n_fe =
     }
 
 and let x_t_ret_envi_n_fe_inf_rec_example (k : i32) : x_t_ret_envi_n_fe_inf_rec =
-    {
+    x_t_ret_envi_n_fe_inf_rec {
         n_rec = x_t_rec_example k
         t_med = x_t_med_example k
     }
 
 and let x_t_cons_reci_n_fe_example (k : i32) : x_t_cons_reci_n_fe =
-    {
+    x_t_cons_reci_n_fe {
         tp_amb = x_t_amb_example k
         n_rec = x_t_rec_example k
         versao = x_t_ver_n_fe_example k
     }
 
 and let x_t_ret_cons_reci_n_fe_example (k : i32) : x_t_ret_cons_reci_n_fe =
-    {
+    x_t_ret_cons_reci_n_fe {
         tp_amb = x_t_amb_example k
         ver_aplic = x_t_ver_aplic_example k
         n_rec = x_t_rec_example k
@@ -22872,14 +22924,14 @@ and let x_t_ret_cons_reci_n_fe_example (k : i32) : x_t_ret_cons_reci_n_fe =
     }
 
 and let x_t_nfe_proc_example (k : i32) : x_t_nfe_proc unsigned =
-    {
+    x_t_nfe_proc {
         n_fe = x_tn_fe_example k
         prot_n_fe = x_t_prot_n_fe_example k
         versao = x_t_ver_n_fe_example k
     }
 
 and let x_t_endereco_example (k : i32) : x_t_endereco =
-    {
+    x_t_endereco {
         x_lgr = x_t_endereco_x_lgr_example k
         nro = x_t_endereco_nro_example k
         x_cpl = None
@@ -22894,7 +22946,7 @@ and let x_t_endereco_example (k : i32) : x_t_endereco =
     }
 
 and let x_t_ender_emi_example (k : i32) : x_t_ender_emi =
-    {
+    x_t_ender_emi {
         x_lgr = x_t_ender_emi_x_lgr_example k
         nro = x_t_ender_emi_nro_example k
         x_cpl = None
@@ -22909,7 +22961,7 @@ and let x_t_ender_emi_example (k : i32) : x_t_ender_emi =
     }
 
 and let x_t_local_example (k : i32) : x_t_local =
-    {
+    x_t_local {
         choice_cnpj = x_t_local_choice_cnpj_example k
         x_lgr = x_t_local_x_lgr_example k
         nro = x_t_local_nro_example k
@@ -22924,20 +22976,20 @@ and let x_t_local_choice_cnpj_example (k : i32) : x_t_local_choice_cnpj =
     TLocal_choice_CNPJ_CNPJ (x_t_cnpj_opc_example k)
 
 and let x_t_veiculo_example (k : i32) : x_t_veiculo =
-    {
+    x_t_veiculo {
         placa = x_t_veiculo_placa_example k
         uf = x_t_uf_example k
         rntc = None
     }
 
 and let x_trsa_key_value_type_example (k : i32) : x_trsa_key_value_type =
-    {
+    x_trsa_key_value_type {
         modulus = "AAAA"
         exponent = "AAAA"
     }
 
 and let x_signature_type_example (k : i32) : x_signature_type =
-    {
+    x_signature_type {
         signed_info = x_signed_info_type_example k
         signature_value = x_signature_value_type_example k
         key_info = x_key_info_type_example k
@@ -22945,13 +22997,13 @@ and let x_signature_type_example (k : i32) : x_signature_type =
     }
 
 and let x_signature_value_type_example (k : i32) : x_signature_value_type =
-    {
+    x_signature_value_type {
         base = "AAAA"
         id = None
     }
 
 and let x_signed_info_type_example (k : i32) : x_signed_info_type =
-    {
+    x_signed_info_type {
         canonicalization_method = x_signed_info_type_canonicalization_method_example k
         signature_method = x_signed_info_type_signature_method_example k
         reference = x_reference_type_example k
@@ -22959,17 +23011,17 @@ and let x_signed_info_type_example (k : i32) : x_signed_info_type =
     }
 
 and let x_signed_info_type_signature_method_example (k : i32) : x_signed_info_type_signature_method =
-    {
+    x_signed_info_type_signature_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
     }
 
 and let x_signed_info_type_canonicalization_method_example (k : i32) : x_signed_info_type_canonicalization_method =
-    {
+    x_signed_info_type_canonicalization_method {
         algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
     }
 
 and let x_reference_type_example (k : i32) : x_reference_type =
-    {
+    x_reference_type {
         transforms = x_transforms_type_example k
         digest_method = x_reference_type_digest_method_example k
         digest_value = x_digest_value_type_example k
@@ -22979,31 +23031,478 @@ and let x_reference_type_example (k : i32) : x_reference_type =
     }
 
 and let x_reference_type_digest_method_example (k : i32) : x_reference_type_digest_method =
-    {
+    x_reference_type_digest_method {
         algorithm = "http://www.w3.org/2000/09/xmldsig#sha1"
     }
 
 and let x_transforms_type_example (k : i32) : x_transforms_type =
-    {
+    x_transforms_type {
         transform = [ x_transform_type_example (k + 0i32); x_transform_type_example (k + 1i32) ]
     }
 
 and let x_transform_type_example (k : i32) : x_transform_type =
-    {
-        x_path = "1"
+    x_transform_type {
+        group_x_path = []
         algorithm = x_t_transform_uri_example k
     }
 
+and let x_transform_type_group_x_path_example (k : i32) : x_transform_type_group_x_path =
+    x_transform_type_group_x_path {
+        x_path = "1"
+    }
+
 and let x_key_info_type_example (k : i32) : x_key_info_type =
-    {
+    x_key_info_type {
         x509_data = x_x509_data_type_example k
         id = None
     }
 
 and let x_x509_data_type_example (k : i32) : x_x509_data_type =
-    {
+    x_x509_data_type {
         x509_certificate = "AAAA"
     }
+
+
+instance of_xml x_tn_fe s {stage_of} = fun c => x_tn_fe_of_xml (stage_of ()) c
+instance to_xml x_tn_fe s = x_tn_fe_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe = x_tn_fe_inf_n_fe_of_xml
+instance to_xml x_tn_fe_inf_n_fe = x_tn_fe_inf_n_fe_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_cana = x_tn_fe_inf_n_fe_cana_of_xml
+instance to_xml x_tn_fe_inf_n_fe_cana = x_tn_fe_inf_n_fe_cana_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_cana_deduc = x_tn_fe_inf_n_fe_cana_deduc_of_xml
+instance to_xml x_tn_fe_inf_n_fe_cana_deduc = x_tn_fe_inf_n_fe_cana_deduc_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_cana_for_dia = x_tn_fe_inf_n_fe_cana_for_dia_of_xml
+instance to_xml x_tn_fe_inf_n_fe_cana_for_dia = x_tn_fe_inf_n_fe_cana_for_dia_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_compra = x_tn_fe_inf_n_fe_compra_of_xml
+instance to_xml x_tn_fe_inf_n_fe_compra = x_tn_fe_inf_n_fe_compra_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_exporta = x_tn_fe_inf_n_fe_exporta_of_xml
+instance to_xml x_tn_fe_inf_n_fe_exporta = x_tn_fe_inf_n_fe_exporta_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_inf_adic = x_tn_fe_inf_n_fe_inf_adic_of_xml
+instance to_xml x_tn_fe_inf_n_fe_inf_adic = x_tn_fe_inf_n_fe_inf_adic_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_inf_adic_proc_ref = x_tn_fe_inf_n_fe_inf_adic_proc_ref_of_xml
+instance to_xml x_tn_fe_inf_n_fe_inf_adic_proc_ref = x_tn_fe_inf_n_fe_inf_adic_proc_ref_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_inf_adic_obs_fisco = x_tn_fe_inf_n_fe_inf_adic_obs_fisco_of_xml
+instance to_xml x_tn_fe_inf_n_fe_inf_adic_obs_fisco = x_tn_fe_inf_n_fe_inf_adic_obs_fisco_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_inf_adic_obs_cont = x_tn_fe_inf_n_fe_inf_adic_obs_cont_of_xml
+instance to_xml x_tn_fe_inf_n_fe_inf_adic_obs_cont = x_tn_fe_inf_n_fe_inf_adic_obs_cont_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_cobr = x_tn_fe_inf_n_fe_cobr_of_xml
+instance to_xml x_tn_fe_inf_n_fe_cobr = x_tn_fe_inf_n_fe_cobr_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_cobr_dup = x_tn_fe_inf_n_fe_cobr_dup_of_xml
+instance to_xml x_tn_fe_inf_n_fe_cobr_dup = x_tn_fe_inf_n_fe_cobr_dup_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_cobr_fat = x_tn_fe_inf_n_fe_cobr_fat_of_xml
+instance to_xml x_tn_fe_inf_n_fe_cobr_fat = x_tn_fe_inf_n_fe_cobr_fat_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_transp = x_tn_fe_inf_n_fe_transp_of_xml
+instance to_xml x_tn_fe_inf_n_fe_transp = x_tn_fe_inf_n_fe_transp_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_transp_vol = x_tn_fe_inf_n_fe_transp_vol_of_xml
+instance to_xml x_tn_fe_inf_n_fe_transp_vol = x_tn_fe_inf_n_fe_transp_vol_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_transp_vol_lacres = x_tn_fe_inf_n_fe_transp_vol_lacres_of_xml
+instance to_xml x_tn_fe_inf_n_fe_transp_vol_lacres = x_tn_fe_inf_n_fe_transp_vol_lacres_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp =
+    x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp_of_xml
+instance to_xml x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp =
+    x_tn_fe_inf_n_fe_transp_choice_veic_transp_group_veic_transp_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_transp_ret_transp = x_tn_fe_inf_n_fe_transp_ret_transp_of_xml
+instance to_xml x_tn_fe_inf_n_fe_transp_ret_transp = x_tn_fe_inf_n_fe_transp_ret_transp_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_transp_transporta = x_tn_fe_inf_n_fe_transp_transporta_of_xml
+instance to_xml x_tn_fe_inf_n_fe_transp_transporta = x_tn_fe_inf_n_fe_transp_transporta_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_total = x_tn_fe_inf_n_fe_total_of_xml
+instance to_xml x_tn_fe_inf_n_fe_total = x_tn_fe_inf_n_fe_total_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_total_ret_trib = x_tn_fe_inf_n_fe_total_ret_trib_of_xml
+instance to_xml x_tn_fe_inf_n_fe_total_ret_trib = x_tn_fe_inf_n_fe_total_ret_trib_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_total_issq_ntot = x_tn_fe_inf_n_fe_total_issq_ntot_of_xml
+instance to_xml x_tn_fe_inf_n_fe_total_issq_ntot = x_tn_fe_inf_n_fe_total_issq_ntot_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_total_icms_tot = x_tn_fe_inf_n_fe_total_icms_tot_of_xml
+instance to_xml x_tn_fe_inf_n_fe_total_icms_tot = x_tn_fe_inf_n_fe_total_icms_tot_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det = x_tn_fe_inf_n_fe_det_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det = x_tn_fe_inf_n_fe_det_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto = x_tn_fe_inf_n_fe_det_imposto_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto = x_tn_fe_inf_n_fe_det_imposto_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofinsst = x_tn_fe_inf_n_fe_det_imposto_cofinsst_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofinsst = x_tn_fe_inf_n_fe_det_imposto_cofinsst_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_q_bc_prod_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_cofinsst_choice_v_bc_group_v_bc_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofins = x_tn_fe_inf_n_fe_det_imposto_cofins_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofins = x_tn_fe_inf_n_fe_det_imposto_cofins_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_q_bc_prod_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_outr_choice_v_bc_group_v_bc_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofinsnt_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_qtde_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq =
+    x_tn_fe_inf_n_fe_det_imposto_cofins_choice_cofins_aliq_cofins_aliq_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pisst = x_tn_fe_inf_n_fe_det_imposto_pisst_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pisst = x_tn_fe_inf_n_fe_det_imposto_pisst_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_q_bc_prod_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_pisst_choice_v_bc_group_v_bc_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pis = x_tn_fe_inf_n_fe_det_imposto_pis_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pis = x_tn_fe_inf_n_fe_det_imposto_pis_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_q_bc_prod_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_outr_choice_v_bc_group_v_bc_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pisnt_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_qtde_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq =
+    x_tn_fe_inf_n_fe_det_imposto_pis_choice_pis_aliq_pis_aliq_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn = x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn = x_tn_fe_inf_n_fe_det_imposto_choice_icms_issqn_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ii_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipint_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_to_xml
+
+instance
+    of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid
+    =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid_of_xml
+instance
+    to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid
+    =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_q_unid_to_xml
+
+instance
+    of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc
+    =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc_of_xml
+instance
+    to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc
+    =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_ipi_choice_ipi_trib_ipi_trib_choice_v_bc_group_v_bc_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn900_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn500_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn202_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn201_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn102_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmssn101_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icmsst_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms_part_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms90_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms70_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms60_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms51_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms40_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms30_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms20_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms10_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00 =
+    x_tn_fe_inf_n_fe_det_imposto_choice_icms_group_icms_icms_choice_icms00_icms00_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod = x_tn_fe_inf_n_fe_det_prod_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod = x_tn_fe_inf_n_fe_det_prod_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide =
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide =
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_comb_cide_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_arma_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med = x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_med_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod =
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod =
+    x_tn_fe_inf_n_fe_det_prod_choice_veic_prod_veic_prod_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod_di = x_tn_fe_inf_n_fe_det_prod_di_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod_di = x_tn_fe_inf_n_fe_det_prod_di_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_det_prod_di_adi = x_tn_fe_inf_n_fe_det_prod_di_adi_of_xml
+instance to_xml x_tn_fe_inf_n_fe_det_prod_di_adi = x_tn_fe_inf_n_fe_det_prod_di_adi_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_dest = x_tn_fe_inf_n_fe_dest_of_xml
+instance to_xml x_tn_fe_inf_n_fe_dest = x_tn_fe_inf_n_fe_dest_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_avulsa = x_tn_fe_inf_n_fe_avulsa_of_xml
+instance to_xml x_tn_fe_inf_n_fe_avulsa = x_tn_fe_inf_n_fe_avulsa_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_emit = x_tn_fe_inf_n_fe_emit_of_xml
+instance to_xml x_tn_fe_inf_n_fe_emit = x_tn_fe_inf_n_fe_emit_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_ide = x_tn_fe_inf_n_fe_ide_of_xml
+instance to_xml x_tn_fe_inf_n_fe_ide = x_tn_fe_inf_n_fe_ide_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_ide_n_fref = x_tn_fe_inf_n_fe_ide_n_fref_of_xml
+instance to_xml x_tn_fe_inf_n_fe_ide_n_fref = x_tn_fe_inf_n_fe_ide_n_fref_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf =
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_of_xml
+instance to_xml x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf =
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_ecf_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp =
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp_of_xml
+instance to_xml x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp =
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nfp_to_xml
+
+instance of_xml x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf =
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_of_xml
+instance to_xml x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf =
+    x_tn_fe_inf_n_fe_ide_n_fref_choice_ref_n_fe_ref_nf_to_xml
+
+instance of_xml x_t_prot_n_fe = x_t_prot_n_fe_of_xml
+instance to_xml x_t_prot_n_fe = x_t_prot_n_fe_to_xml
+
+instance of_xml x_t_prot_n_fe_inf_prot = x_t_prot_n_fe_inf_prot_of_xml
+instance to_xml x_t_prot_n_fe_inf_prot = x_t_prot_n_fe_inf_prot_to_xml
+
+instance of_xml x_t_envi_n_fe s {stage_of} = fun c => x_t_envi_n_fe_of_xml (stage_of ()) c
+instance to_xml x_t_envi_n_fe s = x_t_envi_n_fe_to_xml
+
+instance of_xml x_t_ret_envi_n_fe = x_t_ret_envi_n_fe_of_xml
+instance to_xml x_t_ret_envi_n_fe = x_t_ret_envi_n_fe_to_xml
+
+instance of_xml x_t_ret_envi_n_fe_inf_rec = x_t_ret_envi_n_fe_inf_rec_of_xml
+instance to_xml x_t_ret_envi_n_fe_inf_rec = x_t_ret_envi_n_fe_inf_rec_to_xml
+
+instance of_xml x_t_cons_reci_n_fe = x_t_cons_reci_n_fe_of_xml
+instance to_xml x_t_cons_reci_n_fe = x_t_cons_reci_n_fe_to_xml
+
+instance of_xml x_t_ret_cons_reci_n_fe = x_t_ret_cons_reci_n_fe_of_xml
+instance to_xml x_t_ret_cons_reci_n_fe = x_t_ret_cons_reci_n_fe_to_xml
+
+instance of_xml x_t_nfe_proc s {stage_of} = fun c => x_t_nfe_proc_of_xml (stage_of ()) c
+instance to_xml x_t_nfe_proc s = x_t_nfe_proc_to_xml
+
+instance of_xml x_t_endereco = x_t_endereco_of_xml
+instance to_xml x_t_endereco = x_t_endereco_to_xml
+
+instance of_xml x_t_ender_emi = x_t_ender_emi_of_xml
+instance to_xml x_t_ender_emi = x_t_ender_emi_to_xml
+
+instance of_xml x_t_local = x_t_local_of_xml
+instance to_xml x_t_local = x_t_local_to_xml
+
+instance of_xml x_t_veiculo = x_t_veiculo_of_xml
+instance to_xml x_t_veiculo = x_t_veiculo_to_xml
+
+instance of_xml x_trsa_key_value_type = x_trsa_key_value_type_of_xml
+instance to_xml x_trsa_key_value_type = x_trsa_key_value_type_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_value_type = x_signature_value_type_of_xml
+instance to_xml x_signature_value_type = x_signature_value_type_to_xml
+
+instance of_xml x_signed_info_type = x_signed_info_type_of_xml
+instance to_xml x_signed_info_type = x_signed_info_type_to_xml
+
+instance of_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_of_xml
+instance to_xml x_signed_info_type_signature_method = x_signed_info_type_signature_method_to_xml
+
+instance of_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_of_xml
+instance to_xml x_signed_info_type_canonicalization_method = x_signed_info_type_canonicalization_method_to_xml
+
+instance of_xml x_reference_type = x_reference_type_of_xml
+instance to_xml x_reference_type = x_reference_type_to_xml
+
+instance of_xml x_reference_type_digest_method = x_reference_type_digest_method_of_xml
+instance to_xml x_reference_type_digest_method = x_reference_type_digest_method_to_xml
+
+instance of_xml x_transforms_type = x_transforms_type_of_xml
+instance to_xml x_transforms_type = x_transforms_type_to_xml
+
+instance of_xml x_transform_type = x_transform_type_of_xml
+instance to_xml x_transform_type = x_transform_type_to_xml
+
+instance of_xml x_transform_type_group_x_path = x_transform_type_group_x_path_of_xml
+instance to_xml x_transform_type_group_x_path = x_transform_type_group_x_path_to_xml
+
+instance of_xml x_key_info_type = x_key_info_type_of_xml
+instance to_xml x_key_info_type = x_key_info_type_to_xml
+
+instance of_xml x_x509_data_type = x_x509_data_type_of_xml
+instance to_xml x_x509_data_type = x_x509_data_type_to_xml
 
 
 ///> rust
