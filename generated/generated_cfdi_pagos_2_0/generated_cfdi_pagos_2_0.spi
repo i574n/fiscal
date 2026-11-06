@@ -7970,253 +7970,260 @@ inl x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_get forall r.
     match f with
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_RetencionesDR_field_RetencionDR => x.retencion_dr
 
-let rec x_pagos_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_pagos =
-    x_pagos {
-        totales = (fun c => x_pagos_totales_of_xml c) (xml.required_child "Totales" children)
-        pago = listm.map (fun c => x_pagos_pago_of_xml c) (xml.children_named "Pago" children)
-        version = xml.required_attribute "Version" (xml.checked_fixed "Version" "2.0" attributes)
-    }
+let rec x_pagos_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_pagos) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_totales, errors = xml_codec.read_required "Totales" x_pagos_totales_of_xml children errors
+    inl v_pago, errors = xml_codec.read_repeated "Pago" x_pagos_pago_of_xml children errors
+    inl v_version, errors = xml_codec.attribute_required "Version" attributes errors
+    inl errors = xml_codec.fixed_checked "Version" "2.0" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos { totales = xml_codec.present o_totales; pago = v_pago; version = v_version }
 
-and let x_pagos_of_xml (c : xml.xml_node) : x_pagos =
+and let x_pagos_of_xml (c : xml.xml_node) : result (x_pagos) (list xml_codec.decode_error) =
     x_pagos_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_pagos_pago_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_pagos_pago =
-    x_pagos_pago {
-        docto_relacionado =
-            listm.map
-                fun c => x_pagos_pago_docto_relacionado_of_xml c
-                (xml.children_named "DoctoRelacionado" children)
-        impuestos_p = optionm.map (fun c => x_pagos_pago_impuestos_p_of_xml c) (xml.first_child "ImpuestosP" children)
-        fecha_pago =
-            xml.required_value "x_t_fecha_h" (x_t_fecha_h_of_string (xml.required_attribute "FechaPago" attributes))
-        forma_de_pago_p =
-            xml.required_value
-                "x_c_forma_pago"
-                (x_c_forma_pago_of_string (xml.required_attribute "FormaDePagoP" attributes))
-        moneda_p = xml.required_value "x_c_moneda" (x_c_moneda_of_string (xml.required_attribute "MonedaP" attributes))
-        tipo_cambio_p = xml.attribute_of "TipoCambioP" attributes
-        monto = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Monto" attributes))
-        num_operacion =
-            optionm.map
-                fun v => xml.required_value "x_pagos_pago_num_operacion" (x_pagos_pago_num_operacion_of_string v)
-                (xml.attribute_of "NumOperacion" attributes)
-        rfc_emisor_cta_ord =
-            optionm.map
-                fun v =>
-                    xml.required_value "x_pagos_pago_rfc_emisor_cta_ord" (x_pagos_pago_rfc_emisor_cta_ord_of_string v)
-                (xml.attribute_of "RfcEmisorCtaOrd" attributes)
-        nom_banco_ord_ext =
-            optionm.map
-                fun v =>
-                    xml.required_value "x_pagos_pago_nom_banco_ord_ext" (x_pagos_pago_nom_banco_ord_ext_of_string v)
-                (xml.attribute_of "NomBancoOrdExt" attributes)
-        cta_ordenante =
-            optionm.map
-                fun v => xml.required_value "x_pagos_pago_cta_ordenante" (x_pagos_pago_cta_ordenante_of_string v)
-                (xml.attribute_of "CtaOrdenante" attributes)
-        rfc_emisor_cta_ben =
-            optionm.map
-                fun v => xml.required_value "x_t_rfc_pm" (x_t_rfc_pm_of_string v)
-                (xml.attribute_of "RfcEmisorCtaBen" attributes)
-        cta_beneficiario =
-            optionm.map
-                fun v => xml.required_value "x_pagos_pago_cta_beneficiario" (x_pagos_pago_cta_beneficiario_of_string v)
-                (xml.attribute_of "CtaBeneficiario" attributes)
-        tipo_cad_pago =
-            optionm.map
-                fun v => xml.required_value "x_c_tipo_cadena_pago" (x_c_tipo_cadena_pago_of_string v)
-                (xml.attribute_of "TipoCadPago" attributes)
-        cert_pago = xml.attribute_of "CertPago" attributes
-        cad_pago =
-            optionm.map
-                fun v => xml.required_value "x_pagos_pago_cad_pago" (x_pagos_pago_cad_pago_of_string v)
-                (xml.attribute_of "CadPago" attributes)
-        sello_pago = xml.attribute_of "SelloPago" attributes
-    }
+and let x_pagos_pago_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_pagos_pago) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_docto_relacionado, errors =
+        xml_codec.read_repeated "DoctoRelacionado" x_pagos_pago_docto_relacionado_of_xml children errors
+    inl v_impuestos_p, errors = xml_codec.read_optional "ImpuestosP" x_pagos_pago_impuestos_p_of_xml children errors
+    inl o_fecha_pago, errors = xml_codec.attribute_parsed x_t_fecha_h_of_string "FechaPago" attributes errors
+    inl o_forma_de_pago_p, errors = xml_codec.attribute_parsed x_c_forma_pago_of_string "FormaDePagoP" attributes errors
+    inl o_moneda_p, errors = xml_codec.attribute_parsed x_c_moneda_of_string "MonedaP" attributes errors
+    inl v_tipo_cambio_p, errors = xml.attribute_of "TipoCambioP" attributes, errors
+    inl o_monto, errors = xml_codec.attribute_parsed x_t_importe_of_string "Monto" attributes errors
+    inl v_num_operacion, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_num_operacion_of_string "NumOperacion" attributes errors
+    inl v_rfc_emisor_cta_ord, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_rfc_emisor_cta_ord_of_string
+            "RfcEmisorCtaOrd"
+            attributes
+            errors
+    inl v_nom_banco_ord_ext, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_nom_banco_ord_ext_of_string "NomBancoOrdExt" attributes errors
+    inl v_cta_ordenante, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_cta_ordenante_of_string "CtaOrdenante" attributes errors
+    inl v_rfc_emisor_cta_ben, errors =
+        xml_codec.attribute_optional_parsed x_t_rfc_pm_of_string "RfcEmisorCtaBen" attributes errors
+    inl v_cta_beneficiario, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_cta_beneficiario_of_string "CtaBeneficiario" attributes errors
+    inl v_tipo_cad_pago, errors =
+        xml_codec.attribute_optional_parsed x_c_tipo_cadena_pago_of_string "TipoCadPago" attributes errors
+    inl v_cert_pago, errors = xml.attribute_of "CertPago" attributes, errors
+    inl v_cad_pago, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_cad_pago_of_string "CadPago" attributes errors
+    inl v_sello_pago, errors = xml.attribute_of "SelloPago" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago {
+            docto_relacionado = v_docto_relacionado
+            impuestos_p = v_impuestos_p
+            fecha_pago = xml_codec.present o_fecha_pago
+            forma_de_pago_p = xml_codec.present o_forma_de_pago_p
+            moneda_p = xml_codec.present o_moneda_p
+            tipo_cambio_p = v_tipo_cambio_p
+            monto = xml_codec.present o_monto
+            num_operacion = v_num_operacion
+            rfc_emisor_cta_ord = v_rfc_emisor_cta_ord
+            nom_banco_ord_ext = v_nom_banco_ord_ext
+            cta_ordenante = v_cta_ordenante
+            rfc_emisor_cta_ben = v_rfc_emisor_cta_ben
+            cta_beneficiario = v_cta_beneficiario
+            tipo_cad_pago = v_tipo_cad_pago
+            cert_pago = v_cert_pago
+            cad_pago = v_cad_pago
+            sello_pago = v_sello_pago
+        }
 
-and let x_pagos_pago_of_xml (c : xml.xml_node) : x_pagos_pago =
+and let x_pagos_pago_of_xml (c : xml.xml_node) : result (x_pagos_pago) (list xml_codec.decode_error) =
     x_pagos_pago_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_impuestos_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_impuestos_p
+    : result (x_pagos_pago_impuestos_p) (list xml_codec.decode_error)
     =
-    x_pagos_pago_impuestos_p {
-        retenciones_p =
-            optionm.map
-                fun c => x_pagos_pago_impuestos_p_retenciones_p_of_xml c
-                (xml.first_child "RetencionesP" children)
-        traslados_p =
-            optionm.map (fun c => x_pagos_pago_impuestos_p_traslados_p_of_xml c) (xml.first_child "TrasladosP" children)
-    }
+    inl errors = []
+    inl v_retenciones_p, errors =
+        xml_codec.read_optional "RetencionesP" x_pagos_pago_impuestos_p_retenciones_p_of_xml children errors
+    inl v_traslados_p, errors =
+        xml_codec.read_optional "TrasladosP" x_pagos_pago_impuestos_p_traslados_p_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_impuestos_p { retenciones_p = v_retenciones_p; traslados_p = v_traslados_p }
 
-and let x_pagos_pago_impuestos_p_of_xml (c : xml.xml_node) : x_pagos_pago_impuestos_p =
+and let x_pagos_pago_impuestos_p_of_xml
+    (c : xml.xml_node)
+    : result (x_pagos_pago_impuestos_p) (list xml_codec.decode_error)
+    =
     x_pagos_pago_impuestos_p_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_impuestos_p_traslados_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_impuestos_p_traslados_p
+    : result (x_pagos_pago_impuestos_p_traslados_p) (list xml_codec.decode_error)
     =
-    x_pagos_pago_impuestos_p_traslados_p {
-        traslado_p =
-            listm.map
-                fun c => x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_xml c
-                (xml.children_named "TrasladoP" children)
-    }
+    inl errors = []
+    inl v_traslado_p, errors =
+        xml_codec.read_repeated "TrasladoP" x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_pagos_pago_impuestos_p_traslados_p { traslado_p = v_traslado_p })
 
-and let x_pagos_pago_impuestos_p_traslados_p_of_xml (c : xml.xml_node) : x_pagos_pago_impuestos_p_traslados_p =
+and let x_pagos_pago_impuestos_p_traslados_p_of_xml
+    (c : xml.xml_node)
+    : result (x_pagos_pago_impuestos_p_traslados_p) (list xml_codec.decode_error)
+    =
     x_pagos_pago_impuestos_p_traslados_p_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_impuestos_p_traslados_p_traslado_p
+    : result (x_pagos_pago_impuestos_p_traslados_p_traslado_p) (list xml_codec.decode_error)
     =
-    x_pagos_pago_impuestos_p_traslados_p_traslado_p {
-        base_p = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "BaseP" attributes))
-        impuesto_p =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoP" attributes))
-        tipo_factor_p =
-            xml.required_value
-                "x_c_tipo_factor"
-                (x_c_tipo_factor_of_string (xml.required_attribute "TipoFactorP" attributes))
-        tasa_o_cuota_p = xml.attribute_of "TasaOCuotaP" attributes
-        importe_p =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "ImporteP" attributes)
-    }
+    inl errors = []
+    inl o_base_p, errors = xml_codec.attribute_parsed x_t_importe_of_string "BaseP" attributes errors
+    inl o_impuesto_p, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "ImpuestoP" attributes errors
+    inl o_tipo_factor_p, errors = xml_codec.attribute_parsed x_c_tipo_factor_of_string "TipoFactorP" attributes errors
+    inl v_tasa_o_cuota_p, errors = xml.attribute_of "TasaOCuotaP" attributes, errors
+    inl v_importe_p, errors = xml_codec.attribute_optional_parsed x_t_importe_of_string "ImporteP" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_impuestos_p_traslados_p_traslado_p {
+            base_p = xml_codec.present o_base_p
+            impuesto_p = xml_codec.present o_impuesto_p
+            tipo_factor_p = xml_codec.present o_tipo_factor_p
+            tasa_o_cuota_p = v_tasa_o_cuota_p
+            importe_p = v_importe_p
+        }
 
 and let x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_xml
     (c : xml.xml_node)
-    : x_pagos_pago_impuestos_p_traslados_p_traslado_p
+    : result (x_pagos_pago_impuestos_p_traslados_p_traslado_p) (list xml_codec.decode_error)
     =
     x_pagos_pago_impuestos_p_traslados_p_traslado_p_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_impuestos_p_retenciones_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_impuestos_p_retenciones_p
+    : result (x_pagos_pago_impuestos_p_retenciones_p) (list xml_codec.decode_error)
     =
-    x_pagos_pago_impuestos_p_retenciones_p {
-        retencion_p =
-            listm.map
-                fun c => x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_xml c
-                (xml.children_named "RetencionP" children)
-    }
+    inl errors = []
+    inl v_retencion_p, errors =
+        xml_codec.read_repeated "RetencionP" x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_pagos_pago_impuestos_p_retenciones_p { retencion_p = v_retencion_p })
 
-and let x_pagos_pago_impuestos_p_retenciones_p_of_xml (c : xml.xml_node) : x_pagos_pago_impuestos_p_retenciones_p =
+and let x_pagos_pago_impuestos_p_retenciones_p_of_xml
+    (c : xml.xml_node)
+    : result (x_pagos_pago_impuestos_p_retenciones_p) (list xml_codec.decode_error)
+    =
     x_pagos_pago_impuestos_p_retenciones_p_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_impuestos_p_retenciones_p_retencion_p
+    : result (x_pagos_pago_impuestos_p_retenciones_p_retencion_p) (list xml_codec.decode_error)
     =
-    x_pagos_pago_impuestos_p_retenciones_p_retencion_p {
-        impuesto_p =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoP" attributes))
-        importe_p =
-            xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "ImporteP" attributes))
-    }
+    inl errors = []
+    inl o_impuesto_p, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "ImpuestoP" attributes errors
+    inl o_importe_p, errors = xml_codec.attribute_parsed x_t_importe_of_string "ImporteP" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_impuestos_p_retenciones_p_retencion_p {
+            impuesto_p = xml_codec.present o_impuesto_p
+            importe_p = xml_codec.present o_importe_p
+        }
 
 and let x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_xml
     (c : xml.xml_node)
-    : x_pagos_pago_impuestos_p_retenciones_p_retencion_p
+    : result (x_pagos_pago_impuestos_p_retenciones_p_retencion_p) (list xml_codec.decode_error)
     =
     x_pagos_pago_impuestos_p_retenciones_p_retencion_p_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_docto_relacionado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_docto_relacionado
+    : result (x_pagos_pago_docto_relacionado) (list xml_codec.decode_error)
     =
-    x_pagos_pago_docto_relacionado {
-        impuestos_dr =
-            optionm.map
-                fun c => x_pagos_pago_docto_relacionado_impuestos_dr_of_xml c
-                (xml.first_child "ImpuestosDR" children)
-        id_documento =
-            xml.required_value
-                "x_pagos_pago_docto_relacionado_id_documento"
-                (
-                    x_pagos_pago_docto_relacionado_id_documento_of_string (
-                        xml.required_attribute "IdDocumento" attributes
-                    )
-                )
-        serie =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_pagos_pago_docto_relacionado_serie"
-                        (x_pagos_pago_docto_relacionado_serie_of_string v)
-                (xml.attribute_of "Serie" attributes)
-        folio =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_pagos_pago_docto_relacionado_folio"
-                        (x_pagos_pago_docto_relacionado_folio_of_string v)
-                (xml.attribute_of "Folio" attributes)
-        moneda_dr =
-            xml.required_value "x_c_moneda" (x_c_moneda_of_string (xml.required_attribute "MonedaDR" attributes))
-        equivalencia_dr = xml.attribute_of "EquivalenciaDR" attributes
-        num_parcialidad =
-            xml.required_value
-                "x_pagos_pago_docto_relacionado_num_parcialidad"
-                (
-                    x_pagos_pago_docto_relacionado_num_parcialidad_of_string (
-                        xml.required_attribute "NumParcialidad" attributes
-                    )
-                )
-        imp_saldo_ant =
-            xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "ImpSaldoAnt" attributes))
-        imp_pagado =
-            xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "ImpPagado" attributes))
-        imp_saldo_insoluto =
-            xml.required_value
-                "x_t_importe"
-                (x_t_importe_of_string (xml.required_attribute "ImpSaldoInsoluto" attributes))
-        objeto_imp_dr =
-            xml.required_value
-                "x_c_objeto_imp"
-                (x_c_objeto_imp_of_string (xml.required_attribute "ObjetoImpDR" attributes))
-    }
+    inl errors = []
+    inl v_impuestos_dr, errors =
+        xml_codec.read_optional "ImpuestosDR" x_pagos_pago_docto_relacionado_impuestos_dr_of_xml children errors
+    inl o_id_documento, errors =
+        xml_codec.attribute_parsed x_pagos_pago_docto_relacionado_id_documento_of_string "IdDocumento" attributes errors
+    inl v_serie, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_docto_relacionado_serie_of_string "Serie" attributes errors
+    inl v_folio, errors =
+        xml_codec.attribute_optional_parsed x_pagos_pago_docto_relacionado_folio_of_string "Folio" attributes errors
+    inl o_moneda_dr, errors = xml_codec.attribute_parsed x_c_moneda_of_string "MonedaDR" attributes errors
+    inl v_equivalencia_dr, errors = xml.attribute_of "EquivalenciaDR" attributes, errors
+    inl o_num_parcialidad, errors =
+        xml_codec.attribute_parsed x_pagos_pago_docto_relacionado_num_parcialidad_of_string
+            "NumParcialidad"
+            attributes
+            errors
+    inl o_imp_saldo_ant, errors = xml_codec.attribute_parsed x_t_importe_of_string "ImpSaldoAnt" attributes errors
+    inl o_imp_pagado, errors = xml_codec.attribute_parsed x_t_importe_of_string "ImpPagado" attributes errors
+    inl o_imp_saldo_insoluto, errors =
+        xml_codec.attribute_parsed x_t_importe_of_string "ImpSaldoInsoluto" attributes errors
+    inl o_objeto_imp_dr, errors = xml_codec.attribute_parsed x_c_objeto_imp_of_string "ObjetoImpDR" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_docto_relacionado {
+            impuestos_dr = v_impuestos_dr
+            id_documento = xml_codec.present o_id_documento
+            serie = v_serie
+            folio = v_folio
+            moneda_dr = xml_codec.present o_moneda_dr
+            equivalencia_dr = v_equivalencia_dr
+            num_parcialidad = xml_codec.present o_num_parcialidad
+            imp_saldo_ant = xml_codec.present o_imp_saldo_ant
+            imp_pagado = xml_codec.present o_imp_pagado
+            imp_saldo_insoluto = xml_codec.present o_imp_saldo_insoluto
+            objeto_imp_dr = xml_codec.present o_objeto_imp_dr
+        }
 
-and let x_pagos_pago_docto_relacionado_of_xml (c : xml.xml_node) : x_pagos_pago_docto_relacionado =
+and let x_pagos_pago_docto_relacionado_of_xml
+    (c : xml.xml_node)
+    : result (x_pagos_pago_docto_relacionado) (list xml_codec.decode_error)
+    =
     x_pagos_pago_docto_relacionado_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr) (list xml_codec.decode_error)
     =
-    x_pagos_pago_docto_relacionado_impuestos_dr {
-        retenciones_dr =
-            optionm.map
-                fun c => x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_xml c
-                (xml.first_child "RetencionesDR" children)
-        traslados_dr =
-            optionm.map
-                fun c => x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_xml c
-                (xml.first_child "TrasladosDR" children)
-    }
+    inl errors = []
+    inl v_retenciones_dr, errors =
+        xml_codec.read_optional
+            "RetencionesDR"
+            x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_xml
+            children
+            errors
+    inl v_traslados_dr, errors =
+        xml_codec.read_optional
+            "TrasladosDR"
+            x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_docto_relacionado_impuestos_dr { retenciones_dr = v_retenciones_dr; traslados_dr = v_traslados_dr }
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_of_xml
     (c : xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr) (list xml_codec.decode_error)
     =
     x_pagos_pago_docto_relacionado_impuestos_dr_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr) (list xml_codec.decode_error)
     =
-    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr {
-        traslado_dr =
-            listm.map
-                fun c => x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_xml c
-                (xml.children_named "TrasladoDR" children)
-    }
+    inl errors = []
+    inl v_traslado_dr, errors =
+        xml_codec.read_repeated
+            "TrasladoDR"
+            x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr { traslado_dr = v_traslado_dr }
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_xml
     (c : xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr) (list xml_codec.decode_error)
     =
     x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_children
         (xml.element_attributes c)
@@ -8224,26 +8231,26 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_of_xml
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr) (list xml_codec.decode_error)
     =
-    x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr {
-        base_dr = xml.required_attribute "BaseDR" attributes
-        impuesto_dr =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoDR" attributes))
-        tipo_factor_dr =
-            xml.required_value
-                "x_c_tipo_factor"
-                (x_c_tipo_factor_of_string (xml.required_attribute "TipoFactorDR" attributes))
-        tasa_o_cuota_dr = xml.attribute_of "TasaOCuotaDR" attributes
-        importe_dr =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "ImporteDR" attributes)
-    }
+    inl errors = []
+    inl v_base_dr, errors = xml_codec.attribute_required "BaseDR" attributes errors
+    inl o_impuesto_dr, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "ImpuestoDR" attributes errors
+    inl o_tipo_factor_dr, errors = xml_codec.attribute_parsed x_c_tipo_factor_of_string "TipoFactorDR" attributes errors
+    inl v_tasa_o_cuota_dr, errors = xml.attribute_of "TasaOCuotaDR" attributes, errors
+    inl v_importe_dr, errors = xml_codec.attribute_optional_parsed x_t_importe_of_string "ImporteDR" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr {
+            base_dr = v_base_dr
+            impuesto_dr = xml_codec.present o_impuesto_dr
+            tipo_factor_dr = xml_codec.present o_tipo_factor_dr
+            tasa_o_cuota_dr = v_tasa_o_cuota_dr
+            importe_dr = v_importe_dr
+        }
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_xml
     (c : xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr) (list xml_codec.decode_error)
     =
     x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_children
         (xml.element_attributes c)
@@ -8251,18 +8258,21 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_traslado_dr_of_
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr) (list xml_codec.decode_error)
     =
-    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr {
-        retencion_dr =
-            listm.map
-                fun c => x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_of_xml c
-                (xml.children_named "RetencionDR" children)
-    }
+    inl errors = []
+    inl v_retencion_dr, errors =
+        xml_codec.read_repeated
+            "RetencionDR"
+            x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr { retencion_dr = v_retencion_dr }
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_xml
     (c : xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr) (list xml_codec.decode_error)
     =
     x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_children
         (xml.element_attributes c)
@@ -8270,24 +8280,26 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_of_xml
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr) (list xml_codec.decode_error)
     =
-    x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr {
-        base_dr = xml.required_attribute "BaseDR" attributes
-        impuesto_dr =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "ImpuestoDR" attributes))
-        tipo_factor_dr =
-            xml.required_value
-                "x_c_tipo_factor"
-                (x_c_tipo_factor_of_string (xml.required_attribute "TipoFactorDR" attributes))
-        tasa_o_cuota_dr = xml.required_attribute "TasaOCuotaDR" attributes
-        importe_dr =
-            xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "ImporteDR" attributes))
-    }
+    inl errors = []
+    inl v_base_dr, errors = xml_codec.attribute_required "BaseDR" attributes errors
+    inl o_impuesto_dr, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "ImpuestoDR" attributes errors
+    inl o_tipo_factor_dr, errors = xml_codec.attribute_parsed x_c_tipo_factor_of_string "TipoFactorDR" attributes errors
+    inl v_tasa_o_cuota_dr, errors = xml_codec.attribute_required "TasaOCuotaDR" attributes errors
+    inl o_importe_dr, errors = xml_codec.attribute_parsed x_t_importe_of_string "ImporteDR" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr {
+            base_dr = v_base_dr
+            impuesto_dr = xml_codec.present o_impuesto_dr
+            tipo_factor_dr = xml_codec.present o_tipo_factor_dr
+            tasa_o_cuota_dr = v_tasa_o_cuota_dr
+            importe_dr = xml_codec.present o_importe_dr
+        }
 
 and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_of_xml
     (c : xml.xml_node)
-    : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr
+    : result (x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr) (list xml_codec.decode_error)
     =
     x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_of_children
         (xml.element_attributes c)
@@ -8295,56 +8307,47 @@ and let x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_retencion_dr_
 
 and let x_pagos_totales_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_pagos_totales
+    : result (x_pagos_totales) (list xml_codec.decode_error)
     =
-    x_pagos_totales {
-        total_retenciones_iva =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalRetencionesIVA" attributes)
-        total_retenciones_isr =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalRetencionesISR" attributes)
-        total_retenciones_ieps =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalRetencionesIEPS" attributes)
-        total_traslados_base_iva16 =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalTrasladosBaseIVA16" attributes)
-        total_traslados_impuesto_iva16 =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalTrasladosImpuestoIVA16" attributes)
-        total_traslados_base_iva8 =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalTrasladosBaseIVA8" attributes)
-        total_traslados_impuesto_iva8 =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalTrasladosImpuestoIVA8" attributes)
-        total_traslados_base_iva0 =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalTrasladosBaseIVA0" attributes)
-        total_traslados_impuesto_iva0 =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalTrasladosImpuestoIVA0" attributes)
-        total_traslados_base_iva_exento =
-            optionm.map
-                fun v => xml.required_value "x_t_importe_mxn" (x_t_importe_mxn_of_string v)
-                (xml.attribute_of "TotalTrasladosBaseIVAExento" attributes)
-        monto_total_pagos =
-            xml.required_value
-                "x_t_importe_mxn"
-                (x_t_importe_mxn_of_string (xml.required_attribute "MontoTotalPagos" attributes))
-    }
+    inl errors = []
+    inl v_total_retenciones_iva, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalRetencionesIVA" attributes errors
+    inl v_total_retenciones_isr, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalRetencionesISR" attributes errors
+    inl v_total_retenciones_ieps, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalRetencionesIEPS" attributes errors
+    inl v_total_traslados_base_iva16, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalTrasladosBaseIVA16" attributes errors
+    inl v_total_traslados_impuesto_iva16, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalTrasladosImpuestoIVA16" attributes errors
+    inl v_total_traslados_base_iva8, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalTrasladosBaseIVA8" attributes errors
+    inl v_total_traslados_impuesto_iva8, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalTrasladosImpuestoIVA8" attributes errors
+    inl v_total_traslados_base_iva0, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalTrasladosBaseIVA0" attributes errors
+    inl v_total_traslados_impuesto_iva0, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalTrasladosImpuestoIVA0" attributes errors
+    inl v_total_traslados_base_iva_exento, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_mxn_of_string "TotalTrasladosBaseIVAExento" attributes errors
+    inl o_monto_total_pagos, errors =
+        xml_codec.attribute_parsed x_t_importe_mxn_of_string "MontoTotalPagos" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_pagos_totales {
+            total_retenciones_iva = v_total_retenciones_iva
+            total_retenciones_isr = v_total_retenciones_isr
+            total_retenciones_ieps = v_total_retenciones_ieps
+            total_traslados_base_iva16 = v_total_traslados_base_iva16
+            total_traslados_impuesto_iva16 = v_total_traslados_impuesto_iva16
+            total_traslados_base_iva8 = v_total_traslados_base_iva8
+            total_traslados_impuesto_iva8 = v_total_traslados_impuesto_iva8
+            total_traslados_base_iva0 = v_total_traslados_base_iva0
+            total_traslados_impuesto_iva0 = v_total_traslados_impuesto_iva0
+            total_traslados_base_iva_exento = v_total_traslados_base_iva_exento
+            monto_total_pagos = xml_codec.present o_monto_total_pagos
+        }
 
-and let x_pagos_totales_of_xml (c : xml.xml_node) : x_pagos_totales =
+and let x_pagos_totales_of_xml (c : xml.xml_node) : result (x_pagos_totales) (list xml_codec.decode_error) =
     x_pagos_totales_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_pagos_children (x : x_pagos) : list xml.xml_node =
@@ -8964,7 +8967,7 @@ test generated_cfdi_pagos_2_0_writes_its_example =
             inl start = date_time.stopwatch_elapsed_microseconds watch
             match xml.read_xml text with
             | node :: [] =>
-                inl parsed = x_pagos_of_xml node
+                inl parsed = xml_codec.expect_decoded (x_pagos_of_xml node)
                 inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
                 inl written = xml.write_node (x_pagos_to_xml "Pagos" parsed)
                 inl written_at = date_time.stopwatch_elapsed_microseconds watch
@@ -8980,7 +8983,7 @@ test generated_cfdi_pagos_2_0_writes_its_example =
     console.write_line row
     match xml.read_xml text with
     | node :: [] =>
-        inl parsed = x_pagos_of_xml node
+        inl parsed = xml_codec.expect_decoded (x_pagos_of_xml node)
         inl document =
             xml.element
                 "Pagos"

@@ -1,0 +1,128 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:= bt (n : i32) : canon::term_id = canon::BusinessTerm n
+
+:= cfdi_header_bindings () : list (canon::term_id * string) =
+    [
+        (bt 2i32, "Comprobante/@Fecha"); (bt 5i32, "Comprobante/@Moneda")
+        (bt 25i32, "Comprobante/CfdiRelacionados/CfdiRelacionado/@UUID")
+    ]
+
+:= cfdi_party_bindings () : list (canon::term_id * string) =
+    [
+        (bt 27i32, "Comprobante/Emisor/@Nombre"); (bt 31i32, "Comprobante/Emisor/@Rfc")
+        (bt 44i32, "Comprobante/Receptor/@Nombre"); (bt 48i32, "Comprobante/Receptor/@Rfc")
+    ]
+
+:= cfdi_place_bindings () : list (canon::term_id * string) =
+    [ (bt 53i32, "Comprobante/Receptor/@DomicilioFiscalReceptor") ]
+
+:= cfdi_total_bindings () : list (canon::term_id * string) =
+    [ (bt 110i32, "Comprobante/Impuestos/@TotalImpuestosTrasladados"); (bt 115i32, "Comprobante/@Total") ]
+
+:= cfdi_line_bindings () : list (canon::term_id * string) =
+    [
+        (bt 129i32, "Comprobante/Conceptos/Concepto/@Cantidad")
+        (bt 130i32, "Comprobante/Conceptos/Concepto/@ClaveUnidad")
+    ]
+
+:= cfdi_price_bindings () : list (canon::term_id * string) =
+    [
+        (bt 146i32, "Comprobante/Conceptos/Concepto/@ValorUnitario")
+        (bt 153i32, "Comprobante/Conceptos/Concepto/@Descripcion")
+    ]
+
+:= cfdi_item_bindings () : list (canon::term_id * string) =
+    [
+        (bt 155i32, "Comprobante/Conceptos/Concepto/@NoIdentificacion")
+        (bt 158i32, "Comprobante/Conceptos/Concepto/@ClaveProdServ")
+    ]
+:= cfdi_parties () : list (canon::term_id * string) = listm::append (cfdi_party_bindings ()) (cfdi_place_bindings ())
+
+:= cfdi_lines () : list (canon::term_id * string) =
+    listm::concat [ cfdi_line_bindings (); cfdi_price_bindings (); cfdi_item_bindings () ]
+
+:= cfdi_stamp_bindings () : list (canon::term_id * string) = [ (bt 1i32, "TimbreFiscalDigital/@UUID") ]
+
+:= cfdi_document_bindings () : list (canon::term_id * string) =
+    listm::concat [ cfdi_header_bindings (); cfdi_parties (); cfdi_total_bindings (); cfdi_lines () ]
+
+:= cfdi_bindings () : list (canon::term_id * string) =
+    listm::append (cfdi_document_bindings ()) (cfdi_stamp_bindings ())
+
+:= cfdi_implied () : list (canon::term_id * string) = [ (bt 40i32, "MX") ]
+
+:= cfdi_code_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 3i32, canon_coverage::NationalCode "TipoDeComprobante"); (bt 55i32, canon_coverage::NationalCode "c_Pais")
+        (bt 151i32, canon_coverage::NationalCode "ObjetoImp")
+    ]
+
+:= cfdi_absent_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 23i32, canon_coverage::NotCarried); (bt 24i32, canon_coverage::NotCarried)
+        (bt 34i32, canon_coverage::NotCarried); (bt 49i32, canon_coverage::NotCarried)
+    ]
+
+:= cfdi_derived_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 109i32, canon_coverage::Derived)
+        (bt 126i32, canon_coverage::Derived); (bt 106i32, canon_coverage::Derived)
+        (bt 112i32, canon_coverage::Derived); (bt 131i32, canon_coverage::Derived)
+    ]
+
+:= cfdi_gaps () : list (canon::term_id * canon_coverage::gap) =
+    listm::concat [ cfdi_code_gaps (); cfdi_absent_gaps (); cfdi_derived_gaps () ]
+:= cfdi_model () : canon_coverage::schema_model =
+    canon_coverage::schema_model_of (fiscal_paths::under "deps/corpus/mx/cfdi/cfdv40.xsd")
+
+:= cfdi_stamp_model () : canon_coverage::schema_model =
+    canon_coverage::schema_model_of (fiscal_paths::under "deps/corpus/mx/complements/TimbreFiscalDigitalv11.xsd")
+
+:= cfdi_unreached () : list string =
+    listm::append
+        (canon_coverage::unreached_terms (cfdi_model ()) (cfdi_document_bindings ()))
+        (canon_coverage::unreached_terms (cfdi_stamp_model ()) (cfdi_stamp_bindings ()))
+
+///> rust
+test every_cfdi_binding_reaches_a_declared_field =
+    := model = cfdi_model ()
+    := missed = cfdi_unreached ()
+    ? missed <> []
+    ?> failwith ("every CFDI binding names a field its 4.0 or stamp schema declares: " ++# sm'::concat_list ", " missed)
+    ? canon_coverage::is_reached (canon_coverage::path_reach model "Comprobante/Complemento") = !-
+    ?> failwith "the stamp that carries BT-1 rides in Comprobante/Complemento"
+    ? canon_coverage::is_reached (canon_coverage::path_reach model "Comprobante/@NoSuchAttribute")
+    ?> failwith "an attribute the schema does not declare is not reached"
+
+///> rust
+test cfdi_supplies_11_of_the_24_required_terms =
+    := required = canon_coverage::required_ids (canon::en16931_terms ())
+    := supplied = listm'::filter (canon_coverage::is_bound (cfdi_bindings ())) required
+    := absent = canon_coverage::absent_required (cfdi_bindings ()) required
+    console::write_line ("CFDI 4.0 lacks these required canon terms: " ++# sm'::concat_list ", " absent)
+    ? (listm::length required, listm::length supplied) <> (24i32, 11i32)
+    ?>
+        failwith (
+            "CFDI 4.0 binds 11 of the 24 required EN 16931 terms directly (@Total is after withholding, i.e. "
+            ^^ "BT-115; SubTotal and Importe are gross)"
+        )
+
+///> rust
+test cfdi_implies_its_seller_country =
+    := implied = cfdi_implied ()
+    := bound = listm'::filter (\ (id, _) => canon_coverage::is_bound (cfdi_bindings ()) id) implied
+    ? bound <> [] ?> failwith "an implied term is one the CFDI does not carry"
+    := required = canon_coverage::required_ids (canon::en16931_terms ())
+    := filled = listm'::filter (canon_coverage::is_bound (listm::append (cfdi_bindings ()) implied)) required
+    ? listm::length filled <> 12i32 ?> failwith "with MX implied, CFDI 4.0 supplies 12 of the 24 required terms"
+
+///> rust
+test every_required_term_is_bound_implied_or_a_typed_gap_in_cfdi =
+    := required = canon_coverage::required_ids (canon::en16931_terms ())
+    := bound = canon_coverage::ids_of (listm::append (cfdi_bindings ()) (cfdi_implied ()))
+    := accounted = listm::append bound (canon_coverage::gap_ids (cfdi_gaps ()))
+    := wrong = canon_coverage::unaccounted required accounted
+    ? wrong <> []
+    ?> failwith ("each required term is accounted exactly once for CFDI: " ++# sm'::concat_list ", " wrong)

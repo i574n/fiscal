@@ -28,10 +28,13 @@ inl complement_namespace (node : xml.xml_node) : string =
 inl complement_of_xml (node : xml.xml_node) : complement =
     inl local = xml.local_name (xml.node_name node)
     inl space = complement_namespace node
-    if local = "TimbreFiscalDigital" && (space = "" || space = "http://www.sat.gob.mx/TimbreFiscalDigital")
-    then TimbreFiscalDigital11 (generated_cfdi_tfd_1_1.x_timbre_fiscal_digital_of_xml node)
+    if local = "TimbreFiscalDigital" && (space = "" || space = "http://www.sat.gob.mx/TimbreFiscalDigital") then
+        xml_codec.decoded_or
+            fun v => TimbreFiscalDigital11 v
+            (Unknown node)
+            (generated_cfdi_tfd_1_1.x_timbre_fiscal_digital_of_xml node)
     elif local = "Pagos" && (space = "" || space = "http://www.sat.gob.mx/Pagos20")
-    then Pagos20 (generated_cfdi_pagos_2_0.x_pagos_of_xml node)
+    then xml_codec.decoded_or (fun v => Pagos20 v) (Unknown node) (generated_cfdi_pagos_2_0.x_pagos_of_xml node)
     else Unknown node
 
 inl complement_in (space : string) (node : xml.xml_node) : xml.xml_node =
@@ -8797,346 +8800,361 @@ inl x_comprobante_cfdi_relacionados_get forall r.
     match f with
     | Comprobante_CfdiRelacionados_field_CfdiRelacionado => x.cfdi_relacionado
 
-let rec x_comprobante_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_comprobante =
-    x_comprobante {
-        informacion_global =
-            optionm.map
-                fun c => x_comprobante_informacion_global_of_xml c
-                (xml.first_child "InformacionGlobal" children)
-        cfdi_relacionados =
-            listm.map
-                fun c => x_comprobante_cfdi_relacionados_of_xml c
-                (xml.children_named "CfdiRelacionados" children)
-        emisor = (fun c => x_comprobante_emisor_of_xml c) (xml.required_child "Emisor" children)
-        receptor = (fun c => x_comprobante_receptor_of_xml c) (xml.required_child "Receptor" children)
-        conceptos = (fun c => x_comprobante_conceptos_of_xml c) (xml.required_child "Conceptos" children)
-        impuestos = optionm.map (fun c => x_comprobante_impuestos_of_xml c) (xml.first_child "Impuestos" children)
-        complemento = optionm.map (fun c => x_comprobante_complemento_of_xml c) (xml.first_child "Complemento" children)
-        addenda = optionm.map (fun c => x_comprobante_addenda_of_xml c) (xml.first_child "Addenda" children)
-        version = xml.required_attribute "Version" (xml.checked_fixed "Version" "4.0" attributes)
-        serie =
-            optionm.map
-                fun v => xml.required_value "x_comprobante_serie" (x_comprobante_serie_of_string v)
-                (xml.attribute_of "Serie" attributes)
-        folio =
-            optionm.map
-                fun v => xml.required_value "x_comprobante_folio" (x_comprobante_folio_of_string v)
-                (xml.attribute_of "Folio" attributes)
-        fecha = xml.required_value "x_t_fecha_h" (x_t_fecha_h_of_string (xml.required_attribute "Fecha" attributes))
-        sello = xml.required_attribute "Sello" attributes
-        forma_pago =
-            optionm.map
-                fun v => xml.required_value "x_c_forma_pago" (x_c_forma_pago_of_string v)
-                (xml.attribute_of "FormaPago" attributes)
-        no_certificado =
-            xml.required_value
-                "x_comprobante_no_certificado"
-                (x_comprobante_no_certificado_of_string (xml.required_attribute "NoCertificado" attributes))
-        certificado = xml.required_attribute "Certificado" attributes
-        condiciones_de_pago =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_comprobante_condiciones_de_pago"
-                        (x_comprobante_condiciones_de_pago_of_string v)
-                (xml.attribute_of "CondicionesDePago" attributes)
-        sub_total =
-            xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "SubTotal" attributes))
-        descuento =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "Descuento" attributes)
-        moneda = xml.required_value "x_c_moneda" (x_c_moneda_of_string (xml.required_attribute "Moneda" attributes))
-        tipo_cambio = xml.attribute_of "TipoCambio" attributes
-        total = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Total" attributes))
-        tipo_de_comprobante =
-            xml.required_value
-                "x_c_tipo_de_comprobante"
-                (x_c_tipo_de_comprobante_of_string (xml.required_attribute "TipoDeComprobante" attributes))
-        exportacion =
-            xml.required_value
-                "x_c_exportacion"
-                (x_c_exportacion_of_string (xml.required_attribute "Exportacion" attributes))
-        metodo_pago =
-            optionm.map
-                fun v => xml.required_value "x_c_metodo_pago" (x_c_metodo_pago_of_string v)
-                (xml.attribute_of "MetodoPago" attributes)
-        lugar_expedicion =
-            xml.required_value
-                "x_c_codigo_postal"
-                (x_c_codigo_postal_of_string (xml.required_attribute "LugarExpedicion" attributes))
-        confirmacion =
-            optionm.map
-                fun v => xml.required_value "x_comprobante_confirmacion" (x_comprobante_confirmacion_of_string v)
-                (xml.attribute_of "Confirmacion" attributes)
-    }
+let rec x_comprobante_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_comprobante) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_informacion_global, errors =
+        xml_codec.read_optional "InformacionGlobal" x_comprobante_informacion_global_of_xml children errors
+    inl v_cfdi_relacionados, errors =
+        xml_codec.read_repeated "CfdiRelacionados" x_comprobante_cfdi_relacionados_of_xml children errors
+    inl o_emisor, errors = xml_codec.read_required "Emisor" x_comprobante_emisor_of_xml children errors
+    inl o_receptor, errors = xml_codec.read_required "Receptor" x_comprobante_receptor_of_xml children errors
+    inl o_conceptos, errors = xml_codec.read_required "Conceptos" x_comprobante_conceptos_of_xml children errors
+    inl v_impuestos, errors = xml_codec.read_optional "Impuestos" x_comprobante_impuestos_of_xml children errors
+    inl v_complemento, errors = xml_codec.read_optional "Complemento" x_comprobante_complemento_of_xml children errors
+    inl v_addenda, errors = xml_codec.read_optional "Addenda" x_comprobante_addenda_of_xml children errors
+    inl v_version, errors = xml_codec.attribute_required "Version" attributes errors
+    inl errors = xml_codec.fixed_checked "Version" "4.0" attributes errors
+    inl v_serie, errors = xml_codec.attribute_optional_parsed x_comprobante_serie_of_string "Serie" attributes errors
+    inl v_folio, errors = xml_codec.attribute_optional_parsed x_comprobante_folio_of_string "Folio" attributes errors
+    inl o_fecha, errors = xml_codec.attribute_parsed x_t_fecha_h_of_string "Fecha" attributes errors
+    inl v_sello, errors = xml_codec.attribute_required "Sello" attributes errors
+    inl v_forma_pago, errors =
+        xml_codec.attribute_optional_parsed x_c_forma_pago_of_string "FormaPago" attributes errors
+    inl o_no_certificado, errors =
+        xml_codec.attribute_parsed x_comprobante_no_certificado_of_string "NoCertificado" attributes errors
+    inl v_certificado, errors = xml_codec.attribute_required "Certificado" attributes errors
+    inl v_condiciones_de_pago, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_condiciones_de_pago_of_string
+            "CondicionesDePago"
+            attributes
+            errors
+    inl o_sub_total, errors = xml_codec.attribute_parsed x_t_importe_of_string "SubTotal" attributes errors
+    inl v_descuento, errors = xml_codec.attribute_optional_parsed x_t_importe_of_string "Descuento" attributes errors
+    inl o_moneda, errors = xml_codec.attribute_parsed x_c_moneda_of_string "Moneda" attributes errors
+    inl v_tipo_cambio, errors = xml.attribute_of "TipoCambio" attributes, errors
+    inl o_total, errors = xml_codec.attribute_parsed x_t_importe_of_string "Total" attributes errors
+    inl o_tipo_de_comprobante, errors =
+        xml_codec.attribute_parsed x_c_tipo_de_comprobante_of_string "TipoDeComprobante" attributes errors
+    inl o_exportacion, errors = xml_codec.attribute_parsed x_c_exportacion_of_string "Exportacion" attributes errors
+    inl v_metodo_pago, errors =
+        xml_codec.attribute_optional_parsed x_c_metodo_pago_of_string "MetodoPago" attributes errors
+    inl o_lugar_expedicion, errors =
+        xml_codec.attribute_parsed x_c_codigo_postal_of_string "LugarExpedicion" attributes errors
+    inl v_confirmacion, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_confirmacion_of_string "Confirmacion" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante {
+            informacion_global = v_informacion_global
+            cfdi_relacionados = v_cfdi_relacionados
+            emisor = xml_codec.present o_emisor
+            receptor = xml_codec.present o_receptor
+            conceptos = xml_codec.present o_conceptos
+            impuestos = v_impuestos
+            complemento = v_complemento
+            addenda = v_addenda
+            version = v_version
+            serie = v_serie
+            folio = v_folio
+            fecha = xml_codec.present o_fecha
+            sello = v_sello
+            forma_pago = v_forma_pago
+            no_certificado = xml_codec.present o_no_certificado
+            certificado = v_certificado
+            condiciones_de_pago = v_condiciones_de_pago
+            sub_total = xml_codec.present o_sub_total
+            descuento = v_descuento
+            moneda = xml_codec.present o_moneda
+            tipo_cambio = v_tipo_cambio
+            total = xml_codec.present o_total
+            tipo_de_comprobante = xml_codec.present o_tipo_de_comprobante
+            exportacion = xml_codec.present o_exportacion
+            metodo_pago = v_metodo_pago
+            lugar_expedicion = xml_codec.present o_lugar_expedicion
+            confirmacion = v_confirmacion
+        }
 
-and let x_comprobante_of_xml (c : xml.xml_node) : x_comprobante =
+and let x_comprobante_of_xml (c : xml.xml_node) : result (x_comprobante) (list xml_codec.decode_error) =
     x_comprobante_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_addenda_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_addenda
+    : result (x_comprobante_addenda) (list xml_codec.decode_error)
     =
-    x_comprobante_addenda {
-        any = any_content_of (xml.unclaimed_children [] children)
-    }
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    xml_codec.decoded_by errors (fun () => x_comprobante_addenda { any = v_any })
 
-and let x_comprobante_addenda_of_xml (c : xml.xml_node) : x_comprobante_addenda =
+and let x_comprobante_addenda_of_xml (c : xml.xml_node) : result (x_comprobante_addenda) (list xml_codec.decode_error) =
     x_comprobante_addenda_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_complemento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_complemento
+    : result (x_comprobante_complemento) (list xml_codec.decode_error)
     =
-    x_comprobante_complemento {
-        any = any_content_of (xml.unclaimed_children [] children)
-    }
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    xml_codec.decoded_by errors (fun () => x_comprobante_complemento { any = v_any })
 
-and let x_comprobante_complemento_of_xml (c : xml.xml_node) : x_comprobante_complemento =
+and let x_comprobante_complemento_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_complemento) (list xml_codec.decode_error)
+    =
     x_comprobante_complemento_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_impuestos_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_impuestos
+    : result (x_comprobante_impuestos) (list xml_codec.decode_error)
     =
-    x_comprobante_impuestos {
-        retenciones =
-            optionm.map (fun c => x_comprobante_impuestos_retenciones_of_xml c) (xml.first_child "Retenciones" children)
-        traslados =
-            optionm.map (fun c => x_comprobante_impuestos_traslados_of_xml c) (xml.first_child "Traslados" children)
-        total_impuestos_retenidos =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "TotalImpuestosRetenidos" attributes)
-        total_impuestos_trasladados =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "TotalImpuestosTrasladados" attributes)
-    }
+    inl errors = []
+    inl v_retenciones, errors =
+        xml_codec.read_optional "Retenciones" x_comprobante_impuestos_retenciones_of_xml children errors
+    inl v_traslados, errors =
+        xml_codec.read_optional "Traslados" x_comprobante_impuestos_traslados_of_xml children errors
+    inl v_total_impuestos_retenidos, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_of_string "TotalImpuestosRetenidos" attributes errors
+    inl v_total_impuestos_trasladados, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_of_string "TotalImpuestosTrasladados" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_impuestos {
+            retenciones = v_retenciones
+            traslados = v_traslados
+            total_impuestos_retenidos = v_total_impuestos_retenidos
+            total_impuestos_trasladados = v_total_impuestos_trasladados
+        }
 
-and let x_comprobante_impuestos_of_xml (c : xml.xml_node) : x_comprobante_impuestos =
+and let x_comprobante_impuestos_of_xml (c : xml.xml_node) : result (x_comprobante_impuestos) (list xml_codec.decode_error) =
     x_comprobante_impuestos_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_impuestos_traslados_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_impuestos_traslados
+    : result (x_comprobante_impuestos_traslados) (list xml_codec.decode_error)
     =
-    x_comprobante_impuestos_traslados {
-        traslado =
-            listm.map
-                fun c => x_comprobante_impuestos_traslados_traslado_of_xml c
-                (xml.children_named "Traslado" children)
-    }
+    inl errors = []
+    inl v_traslado, errors =
+        xml_codec.read_repeated "Traslado" x_comprobante_impuestos_traslados_traslado_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_comprobante_impuestos_traslados { traslado = v_traslado })
 
-and let x_comprobante_impuestos_traslados_of_xml (c : xml.xml_node) : x_comprobante_impuestos_traslados =
+and let x_comprobante_impuestos_traslados_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_impuestos_traslados) (list xml_codec.decode_error)
+    =
     x_comprobante_impuestos_traslados_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_impuestos_traslados_traslado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_impuestos_traslados_traslado
+    : result (x_comprobante_impuestos_traslados_traslado) (list xml_codec.decode_error)
     =
-    x_comprobante_impuestos_traslados_traslado {
-        base = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Base" attributes))
-        impuesto =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
-        tipo_factor =
-            xml.required_value
-                "x_c_tipo_factor"
-                (x_c_tipo_factor_of_string (xml.required_attribute "TipoFactor" attributes))
-        tasa_o_cuota = xml.attribute_of "TasaOCuota" attributes
-        importe =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "Importe" attributes)
-    }
+    inl errors = []
+    inl o_base, errors = xml_codec.attribute_parsed x_t_importe_of_string "Base" attributes errors
+    inl o_impuesto, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "Impuesto" attributes errors
+    inl o_tipo_factor, errors = xml_codec.attribute_parsed x_c_tipo_factor_of_string "TipoFactor" attributes errors
+    inl v_tasa_o_cuota, errors = xml.attribute_of "TasaOCuota" attributes, errors
+    inl v_importe, errors = xml_codec.attribute_optional_parsed x_t_importe_of_string "Importe" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_impuestos_traslados_traslado {
+            base = xml_codec.present o_base
+            impuesto = xml_codec.present o_impuesto
+            tipo_factor = xml_codec.present o_tipo_factor
+            tasa_o_cuota = v_tasa_o_cuota
+            importe = v_importe
+        }
 
-and let x_comprobante_impuestos_traslados_traslado_of_xml (c : xml.xml_node) : x_comprobante_impuestos_traslados_traslado =
+and let x_comprobante_impuestos_traslados_traslado_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_impuestos_traslados_traslado) (list xml_codec.decode_error)
+    =
     x_comprobante_impuestos_traslados_traslado_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_impuestos_retenciones_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_impuestos_retenciones
+    : result (x_comprobante_impuestos_retenciones) (list xml_codec.decode_error)
     =
-    x_comprobante_impuestos_retenciones {
-        retencion =
-            listm.map
-                fun c => x_comprobante_impuestos_retenciones_retencion_of_xml c
-                (xml.children_named "Retencion" children)
-    }
+    inl errors = []
+    inl v_retencion, errors =
+        xml_codec.read_repeated "Retencion" x_comprobante_impuestos_retenciones_retencion_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_comprobante_impuestos_retenciones { retencion = v_retencion })
 
-and let x_comprobante_impuestos_retenciones_of_xml (c : xml.xml_node) : x_comprobante_impuestos_retenciones =
+and let x_comprobante_impuestos_retenciones_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_impuestos_retenciones) (list xml_codec.decode_error)
+    =
     x_comprobante_impuestos_retenciones_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_impuestos_retenciones_retencion_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_impuestos_retenciones_retencion
+    : result (x_comprobante_impuestos_retenciones_retencion) (list xml_codec.decode_error)
     =
-    x_comprobante_impuestos_retenciones_retencion {
-        impuesto =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
-        importe = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Importe" attributes))
-    }
+    inl errors = []
+    inl o_impuesto, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "Impuesto" attributes errors
+    inl o_importe, errors = xml_codec.attribute_parsed x_t_importe_of_string "Importe" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_impuestos_retenciones_retencion {
+            impuesto = xml_codec.present o_impuesto
+            importe = xml_codec.present o_importe
+        }
 
 and let x_comprobante_impuestos_retenciones_retencion_of_xml
     (c : xml.xml_node)
-    : x_comprobante_impuestos_retenciones_retencion
+    : result (x_comprobante_impuestos_retenciones_retencion) (list xml_codec.decode_error)
     =
     x_comprobante_impuestos_retenciones_retencion_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos
+    : result (x_comprobante_conceptos) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos {
-        concepto =
-            listm.map (fun c => x_comprobante_conceptos_concepto_of_xml c) (xml.children_named "Concepto" children)
-    }
+    inl errors = []
+    inl v_concepto, errors = xml_codec.read_repeated "Concepto" x_comprobante_conceptos_concepto_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_comprobante_conceptos { concepto = v_concepto })
 
-and let x_comprobante_conceptos_of_xml (c : xml.xml_node) : x_comprobante_conceptos =
+and let x_comprobante_conceptos_of_xml (c : xml.xml_node) : result (x_comprobante_conceptos) (list xml_codec.decode_error) =
     x_comprobante_conceptos_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_concepto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto
+    : result (x_comprobante_conceptos_concepto) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto {
-        impuestos =
-            optionm.map
-                fun c => x_comprobante_conceptos_concepto_impuestos_of_xml c
-                (xml.first_child "Impuestos" children)
-        a_cuenta_terceros =
-            optionm.map
-                fun c => x_comprobante_conceptos_concepto_a_cuenta_terceros_of_xml c
-                (xml.first_child "ACuentaTerceros" children)
-        informacion_aduanera =
-            listm.map
-                fun c => x_comprobante_conceptos_concepto_informacion_aduanera_of_xml c
-                (xml.children_named "InformacionAduanera" children)
-        cuenta_predial =
-            listm.map
-                fun c => x_comprobante_conceptos_concepto_cuenta_predial_of_xml c
-                (xml.children_named "CuentaPredial" children)
-        complemento_concepto =
-            optionm.map
-                fun c => x_comprobante_conceptos_concepto_complemento_concepto_of_xml c
-                (xml.first_child "ComplementoConcepto" children)
-        parte =
-            listm.map (fun c => x_comprobante_conceptos_concepto_parte_of_xml c) (xml.children_named "Parte" children)
-        clave_prod_serv =
-            xml.required_value
-                "x_c_clave_prod_serv"
-                (x_c_clave_prod_serv_of_string (xml.required_attribute "ClaveProdServ" attributes))
-        no_identificacion =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_comprobante_conceptos_concepto_no_identificacion"
-                        (x_comprobante_conceptos_concepto_no_identificacion_of_string v)
-                (xml.attribute_of "NoIdentificacion" attributes)
-        cantidad = xml.required_attribute "Cantidad" attributes
-        clave_unidad =
-            xml.required_value
-                "x_c_clave_unidad"
-                (x_c_clave_unidad_of_string (xml.required_attribute "ClaveUnidad" attributes))
-        unidad =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_comprobante_conceptos_concepto_unidad"
-                        (x_comprobante_conceptos_concepto_unidad_of_string v)
-                (xml.attribute_of "Unidad" attributes)
-        descripcion =
-            xml.required_value
-                "x_comprobante_conceptos_concepto_descripcion"
-                (
-                    x_comprobante_conceptos_concepto_descripcion_of_string (
-                        xml.required_attribute "Descripcion" attributes
-                    )
-                )
-        valor_unitario =
-            xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "ValorUnitario" attributes))
-        importe = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Importe" attributes))
-        descuento =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "Descuento" attributes)
-        objeto_imp =
-            xml.required_value
-                "x_c_objeto_imp"
-                (x_c_objeto_imp_of_string (xml.required_attribute "ObjetoImp" attributes))
-    }
+    inl errors = []
+    inl v_impuestos, errors =
+        xml_codec.read_optional "Impuestos" x_comprobante_conceptos_concepto_impuestos_of_xml children errors
+    inl v_a_cuenta_terceros, errors =
+        xml_codec.read_optional
+            "ACuentaTerceros"
+            x_comprobante_conceptos_concepto_a_cuenta_terceros_of_xml
+            children
+            errors
+    inl v_informacion_aduanera, errors =
+        xml_codec.read_repeated
+            "InformacionAduanera"
+            x_comprobante_conceptos_concepto_informacion_aduanera_of_xml
+            children
+            errors
+    inl v_cuenta_predial, errors =
+        xml_codec.read_repeated "CuentaPredial" x_comprobante_conceptos_concepto_cuenta_predial_of_xml children errors
+    inl v_complemento_concepto, errors =
+        xml_codec.read_optional
+            "ComplementoConcepto"
+            x_comprobante_conceptos_concepto_complemento_concepto_of_xml
+            children
+            errors
+    inl v_parte, errors = xml_codec.read_repeated "Parte" x_comprobante_conceptos_concepto_parte_of_xml children errors
+    inl o_clave_prod_serv, errors =
+        xml_codec.attribute_parsed x_c_clave_prod_serv_of_string "ClaveProdServ" attributes errors
+    inl v_no_identificacion, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_conceptos_concepto_no_identificacion_of_string
+            "NoIdentificacion"
+            attributes
+            errors
+    inl v_cantidad, errors = xml_codec.attribute_required "Cantidad" attributes errors
+    inl o_clave_unidad, errors = xml_codec.attribute_parsed x_c_clave_unidad_of_string "ClaveUnidad" attributes errors
+    inl v_unidad, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_conceptos_concepto_unidad_of_string "Unidad" attributes errors
+    inl o_descripcion, errors =
+        xml_codec.attribute_parsed x_comprobante_conceptos_concepto_descripcion_of_string
+            "Descripcion"
+            attributes
+            errors
+    inl o_valor_unitario, errors = xml_codec.attribute_parsed x_t_importe_of_string "ValorUnitario" attributes errors
+    inl o_importe, errors = xml_codec.attribute_parsed x_t_importe_of_string "Importe" attributes errors
+    inl v_descuento, errors = xml_codec.attribute_optional_parsed x_t_importe_of_string "Descuento" attributes errors
+    inl o_objeto_imp, errors = xml_codec.attribute_parsed x_c_objeto_imp_of_string "ObjetoImp" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto {
+            impuestos = v_impuestos
+            a_cuenta_terceros = v_a_cuenta_terceros
+            informacion_aduanera = v_informacion_aduanera
+            cuenta_predial = v_cuenta_predial
+            complemento_concepto = v_complemento_concepto
+            parte = v_parte
+            clave_prod_serv = xml_codec.present o_clave_prod_serv
+            no_identificacion = v_no_identificacion
+            cantidad = v_cantidad
+            clave_unidad = xml_codec.present o_clave_unidad
+            unidad = v_unidad
+            descripcion = xml_codec.present o_descripcion
+            valor_unitario = xml_codec.present o_valor_unitario
+            importe = xml_codec.present o_importe
+            descuento = v_descuento
+            objeto_imp = xml_codec.present o_objeto_imp
+        }
 
-and let x_comprobante_conceptos_concepto_of_xml (c : xml.xml_node) : x_comprobante_conceptos_concepto =
+and let x_comprobante_conceptos_concepto_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_conceptos_concepto) (list xml_codec.decode_error)
+    =
     x_comprobante_conceptos_concepto_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_concepto_parte_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_parte
+    : result (x_comprobante_conceptos_concepto_parte) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_parte {
-        informacion_aduanera =
-            listm.map
-                fun c => x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_xml c
-                (xml.children_named "InformacionAduanera" children)
-        clave_prod_serv =
-            xml.required_value
-                "x_c_clave_prod_serv"
-                (x_c_clave_prod_serv_of_string (xml.required_attribute "ClaveProdServ" attributes))
-        no_identificacion =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_comprobante_conceptos_concepto_parte_no_identificacion"
-                        (x_comprobante_conceptos_concepto_parte_no_identificacion_of_string v)
-                (xml.attribute_of "NoIdentificacion" attributes)
-        cantidad = xml.required_attribute "Cantidad" attributes
-        unidad =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_comprobante_conceptos_concepto_parte_unidad"
-                        (x_comprobante_conceptos_concepto_parte_unidad_of_string v)
-                (xml.attribute_of "Unidad" attributes)
-        descripcion =
-            xml.required_value
-                "x_comprobante_conceptos_concepto_parte_descripcion"
-                (
-                    x_comprobante_conceptos_concepto_parte_descripcion_of_string (
-                        xml.required_attribute "Descripcion" attributes
-                    )
-                )
-        valor_unitario =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "ValorUnitario" attributes)
-        importe =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "Importe" attributes)
-    }
+    inl errors = []
+    inl v_informacion_aduanera, errors =
+        xml_codec.read_repeated
+            "InformacionAduanera"
+            x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_xml
+            children
+            errors
+    inl o_clave_prod_serv, errors =
+        xml_codec.attribute_parsed x_c_clave_prod_serv_of_string "ClaveProdServ" attributes errors
+    inl v_no_identificacion, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_conceptos_concepto_parte_no_identificacion_of_string
+            "NoIdentificacion"
+            attributes
+            errors
+    inl v_cantidad, errors = xml_codec.attribute_required "Cantidad" attributes errors
+    inl v_unidad, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_conceptos_concepto_parte_unidad_of_string
+            "Unidad"
+            attributes
+            errors
+    inl o_descripcion, errors =
+        xml_codec.attribute_parsed x_comprobante_conceptos_concepto_parte_descripcion_of_string
+            "Descripcion"
+            attributes
+            errors
+    inl v_valor_unitario, errors =
+        xml_codec.attribute_optional_parsed x_t_importe_of_string "ValorUnitario" attributes errors
+    inl v_importe, errors = xml_codec.attribute_optional_parsed x_t_importe_of_string "Importe" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_parte {
+            informacion_aduanera = v_informacion_aduanera
+            clave_prod_serv = xml_codec.present o_clave_prod_serv
+            no_identificacion = v_no_identificacion
+            cantidad = v_cantidad
+            unidad = v_unidad
+            descripcion = xml_codec.present o_descripcion
+            valor_unitario = v_valor_unitario
+            importe = v_importe
+        }
 
-and let x_comprobante_conceptos_concepto_parte_of_xml (c : xml.xml_node) : x_comprobante_conceptos_concepto_parte =
+and let x_comprobante_conceptos_concepto_parte_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_conceptos_concepto_parte) (list xml_codec.decode_error)
+    =
     x_comprobante_conceptos_concepto_parte_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_parte_informacion_aduanera
+    : result (x_comprobante_conceptos_concepto_parte_informacion_aduanera) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_parte_informacion_aduanera {
-        numero_pedimento =
-            xml.required_value
-                "x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento"
-                (
-                    x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento_of_string (
-                        xml.required_attribute "NumeroPedimento" attributes
-                    )
-                )
-    }
+    inl errors = []
+    inl o_numero_pedimento, errors =
+        xml_codec.attribute_parsed x_comprobante_conceptos_concepto_parte_informacion_aduanera_numero_pedimento_of_string
+            "NumeroPedimento"
+            attributes
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_parte_informacion_aduanera {
+            numero_pedimento = xml_codec.present o_numero_pedimento
+        }
 
 and let x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_parte_informacion_aduanera
+    : result (x_comprobante_conceptos_concepto_parte_informacion_aduanera) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_children
         (xml.element_attributes c)
@@ -9144,15 +9162,15 @@ and let x_comprobante_conceptos_concepto_parte_informacion_aduanera_of_xml
 
 and let x_comprobante_conceptos_concepto_complemento_concepto_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_complemento_concepto
+    : result (x_comprobante_conceptos_concepto_complemento_concepto) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_complemento_concepto {
-        any = any_content_of (xml.unclaimed_children [] children)
-    }
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    xml_codec.decoded_by errors (fun () => x_comprobante_conceptos_concepto_complemento_concepto { any = v_any })
 
 and let x_comprobante_conceptos_concepto_complemento_concepto_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_complemento_concepto
+    : result (x_comprobante_conceptos_concepto_complemento_concepto) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_complemento_concepto_of_children
         (xml.element_attributes c)
@@ -9160,43 +9178,41 @@ and let x_comprobante_conceptos_concepto_complemento_concepto_of_xml
 
 and let x_comprobante_conceptos_concepto_cuenta_predial_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_cuenta_predial
+    : result (x_comprobante_conceptos_concepto_cuenta_predial) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_cuenta_predial {
-        numero =
-            xml.required_value
-                "x_comprobante_conceptos_concepto_cuenta_predial_numero"
-                (
-                    x_comprobante_conceptos_concepto_cuenta_predial_numero_of_string (
-                        xml.required_attribute "Numero" attributes
-                    )
-                )
-    }
+    inl errors = []
+    inl o_numero, errors =
+        xml_codec.attribute_parsed x_comprobante_conceptos_concepto_cuenta_predial_numero_of_string
+            "Numero"
+            attributes
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_cuenta_predial { numero = xml_codec.present o_numero }
 
 and let x_comprobante_conceptos_concepto_cuenta_predial_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_cuenta_predial
+    : result (x_comprobante_conceptos_concepto_cuenta_predial) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_cuenta_predial_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_concepto_informacion_aduanera_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_informacion_aduanera
+    : result (x_comprobante_conceptos_concepto_informacion_aduanera) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_informacion_aduanera {
-        numero_pedimento =
-            xml.required_value
-                "x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento"
-                (
-                    x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento_of_string (
-                        xml.required_attribute "NumeroPedimento" attributes
-                    )
-                )
-    }
+    inl errors = []
+    inl o_numero_pedimento, errors =
+        xml_codec.attribute_parsed x_comprobante_conceptos_concepto_informacion_aduanera_numero_pedimento_of_string
+            "NumeroPedimento"
+            attributes
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_informacion_aduanera {
+            numero_pedimento = xml_codec.present o_numero_pedimento
+        }
 
 and let x_comprobante_conceptos_concepto_informacion_aduanera_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_informacion_aduanera
+    : result (x_comprobante_conceptos_concepto_informacion_aduanera) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_informacion_aduanera_of_children
         (xml.element_attributes c)
@@ -9204,71 +9220,76 @@ and let x_comprobante_conceptos_concepto_informacion_aduanera_of_xml
 
 and let x_comprobante_conceptos_concepto_a_cuenta_terceros_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_a_cuenta_terceros
+    : result (x_comprobante_conceptos_concepto_a_cuenta_terceros) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_a_cuenta_terceros {
-        rfc_a_cuenta_terceros =
-            xml.required_value "x_t_rfc" (x_t_rfc_of_string (xml.required_attribute "RfcACuentaTerceros" attributes))
-        nombre_a_cuenta_terceros =
-            xml.required_value
-                "x_comprobante_conceptos_concepto_a_cuenta_terceros_nombre_a_cuenta_terceros"
-                (
-                    x_comprobante_conceptos_concepto_a_cuenta_terceros_nombre_a_cuenta_terceros_of_string (
-                        xml.required_attribute "NombreACuentaTerceros" attributes
-                    )
-                )
-        regimen_fiscal_a_cuenta_terceros =
-            xml.required_value
-                "x_c_regimen_fiscal"
-                (x_c_regimen_fiscal_of_string (xml.required_attribute "RegimenFiscalACuentaTerceros" attributes))
-        domicilio_fiscal_a_cuenta_terceros =
-            xml.required_value
-                "x_comprobante_conceptos_concepto_a_cuenta_terceros_domicilio_fiscal_a_cuenta_terceros"
-                (
-                    x_comprobante_conceptos_concepto_a_cuenta_terceros_domicilio_fiscal_a_cuenta_terceros_of_string (
-                        xml.required_attribute "DomicilioFiscalACuentaTerceros" attributes
-                    )
-                )
-    }
+    inl errors = []
+    inl o_rfc_a_cuenta_terceros, errors =
+        xml_codec.attribute_parsed x_t_rfc_of_string "RfcACuentaTerceros" attributes errors
+    inl o_nombre_a_cuenta_terceros, errors =
+        xml_codec.attribute_parsed x_comprobante_conceptos_concepto_a_cuenta_terceros_nombre_a_cuenta_terceros_of_string
+            "NombreACuentaTerceros"
+            attributes
+            errors
+    inl o_regimen_fiscal_a_cuenta_terceros, errors =
+        xml_codec.attribute_parsed x_c_regimen_fiscal_of_string "RegimenFiscalACuentaTerceros" attributes errors
+    inl o_domicilio_fiscal_a_cuenta_terceros, errors =
+        xml_codec.attribute_parsed x_comprobante_conceptos_concepto_a_cuenta_terceros_domicilio_fiscal_a_cuenta_terceros_of_string
+            "DomicilioFiscalACuentaTerceros"
+            attributes
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_a_cuenta_terceros {
+            rfc_a_cuenta_terceros = xml_codec.present o_rfc_a_cuenta_terceros
+            nombre_a_cuenta_terceros = xml_codec.present o_nombre_a_cuenta_terceros
+            regimen_fiscal_a_cuenta_terceros = xml_codec.present o_regimen_fiscal_a_cuenta_terceros
+            domicilio_fiscal_a_cuenta_terceros = xml_codec.present o_domicilio_fiscal_a_cuenta_terceros
+        }
 
 and let x_comprobante_conceptos_concepto_a_cuenta_terceros_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_a_cuenta_terceros
+    : result (x_comprobante_conceptos_concepto_a_cuenta_terceros) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_a_cuenta_terceros_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_concepto_impuestos_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos
+    : result (x_comprobante_conceptos_concepto_impuestos) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_impuestos {
-        traslados =
-            optionm.map
-                fun c => x_comprobante_conceptos_concepto_impuestos_traslados_of_xml c
-                (xml.first_child "Traslados" children)
-        retenciones =
-            optionm.map
-                fun c => x_comprobante_conceptos_concepto_impuestos_retenciones_of_xml c
-                (xml.first_child "Retenciones" children)
-    }
+    inl errors = []
+    inl v_traslados, errors =
+        xml_codec.read_optional "Traslados" x_comprobante_conceptos_concepto_impuestos_traslados_of_xml children errors
+    inl v_retenciones, errors =
+        xml_codec.read_optional
+            "Retenciones"
+            x_comprobante_conceptos_concepto_impuestos_retenciones_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_impuestos { traslados = v_traslados; retenciones = v_retenciones }
 
-and let x_comprobante_conceptos_concepto_impuestos_of_xml (c : xml.xml_node) : x_comprobante_conceptos_concepto_impuestos =
+and let x_comprobante_conceptos_concepto_impuestos_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_conceptos_concepto_impuestos) (list xml_codec.decode_error)
+    =
     x_comprobante_conceptos_concepto_impuestos_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_concepto_impuestos_retenciones_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_retenciones
+    : result (x_comprobante_conceptos_concepto_impuestos_retenciones) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_impuestos_retenciones {
-        retencion =
-            listm.map
-                fun c => x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_xml c
-                (xml.children_named "Retencion" children)
-    }
+    inl errors = []
+    inl v_retencion, errors =
+        xml_codec.read_repeated
+            "Retencion"
+            x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_impuestos_retenciones { retencion = v_retencion }
 
 and let x_comprobante_conceptos_concepto_impuestos_retenciones_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_retenciones
+    : result (x_comprobante_conceptos_concepto_impuestos_retenciones) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_impuestos_retenciones_of_children
         (xml.element_attributes c)
@@ -9276,23 +9297,26 @@ and let x_comprobante_conceptos_concepto_impuestos_retenciones_of_xml
 
 and let x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_retenciones_retencion
+    : result (x_comprobante_conceptos_concepto_impuestos_retenciones_retencion) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_impuestos_retenciones_retencion {
-        base = xml.required_attribute "Base" attributes
-        impuesto =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
-        tipo_factor =
-            xml.required_value
-                "x_c_tipo_factor"
-                (x_c_tipo_factor_of_string (xml.required_attribute "TipoFactor" attributes))
-        tasa_o_cuota = xml.required_attribute "TasaOCuota" attributes
-        importe = xml.required_value "x_t_importe" (x_t_importe_of_string (xml.required_attribute "Importe" attributes))
-    }
+    inl errors = []
+    inl v_base, errors = xml_codec.attribute_required "Base" attributes errors
+    inl o_impuesto, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "Impuesto" attributes errors
+    inl o_tipo_factor, errors = xml_codec.attribute_parsed x_c_tipo_factor_of_string "TipoFactor" attributes errors
+    inl v_tasa_o_cuota, errors = xml_codec.attribute_required "TasaOCuota" attributes errors
+    inl o_importe, errors = xml_codec.attribute_parsed x_t_importe_of_string "Importe" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_impuestos_retenciones_retencion {
+            base = v_base
+            impuesto = xml_codec.present o_impuesto
+            tipo_factor = xml_codec.present o_tipo_factor
+            tasa_o_cuota = v_tasa_o_cuota
+            importe = xml_codec.present o_importe
+        }
 
 and let x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_retenciones_retencion
+    : result (x_comprobante_conceptos_concepto_impuestos_retenciones_retencion) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_children
         (xml.element_attributes c)
@@ -9300,43 +9324,45 @@ and let x_comprobante_conceptos_concepto_impuestos_retenciones_retencion_of_xml
 
 and let x_comprobante_conceptos_concepto_impuestos_traslados_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_traslados
+    : result (x_comprobante_conceptos_concepto_impuestos_traslados) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_impuestos_traslados {
-        traslado =
-            listm.map
-                fun c => x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_xml c
-                (xml.children_named "Traslado" children)
-    }
+    inl errors = []
+    inl v_traslado, errors =
+        xml_codec.read_repeated
+            "Traslado"
+            x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () => x_comprobante_conceptos_concepto_impuestos_traslados { traslado = v_traslado }
 
 and let x_comprobante_conceptos_concepto_impuestos_traslados_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_traslados
+    : result (x_comprobante_conceptos_concepto_impuestos_traslados) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_impuestos_traslados_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_traslados_traslado
+    : result (x_comprobante_conceptos_concepto_impuestos_traslados_traslado) (list xml_codec.decode_error)
     =
-    x_comprobante_conceptos_concepto_impuestos_traslados_traslado {
-        base = xml.required_attribute "Base" attributes
-        impuesto =
-            xml.required_value "x_c_impuesto" (x_c_impuesto_of_string (xml.required_attribute "Impuesto" attributes))
-        tipo_factor =
-            xml.required_value
-                "x_c_tipo_factor"
-                (x_c_tipo_factor_of_string (xml.required_attribute "TipoFactor" attributes))
-        tasa_o_cuota = xml.attribute_of "TasaOCuota" attributes
-        importe =
-            optionm.map
-                fun v => xml.required_value "x_t_importe" (x_t_importe_of_string v)
-                (xml.attribute_of "Importe" attributes)
-    }
+    inl errors = []
+    inl v_base, errors = xml_codec.attribute_required "Base" attributes errors
+    inl o_impuesto, errors = xml_codec.attribute_parsed x_c_impuesto_of_string "Impuesto" attributes errors
+    inl o_tipo_factor, errors = xml_codec.attribute_parsed x_c_tipo_factor_of_string "TipoFactor" attributes errors
+    inl v_tasa_o_cuota, errors = xml.attribute_of "TasaOCuota" attributes, errors
+    inl v_importe, errors = xml_codec.attribute_optional_parsed x_t_importe_of_string "Importe" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_conceptos_concepto_impuestos_traslados_traslado {
+            base = v_base
+            impuesto = xml_codec.present o_impuesto
+            tipo_factor = xml_codec.present o_tipo_factor
+            tasa_o_cuota = v_tasa_o_cuota
+            importe = v_importe
+        }
 
 and let x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_xml
     (c : xml.xml_node)
-    : x_comprobante_conceptos_concepto_impuestos_traslados_traslado
+    : result (x_comprobante_conceptos_concepto_impuestos_traslados_traslado) (list xml_codec.decode_error)
     =
     x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_children
         (xml.element_attributes c)
@@ -9344,123 +9370,128 @@ and let x_comprobante_conceptos_concepto_impuestos_traslados_traslado_of_xml
 
 and let x_comprobante_receptor_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_receptor
+    : result (x_comprobante_receptor) (list xml_codec.decode_error)
     =
-    x_comprobante_receptor {
-        rfc = xml.required_value "x_t_rfc" (x_t_rfc_of_string (xml.required_attribute "Rfc" attributes))
-        nombre =
-            xml.required_value
-                "x_comprobante_receptor_nombre"
-                (x_comprobante_receptor_nombre_of_string (xml.required_attribute "Nombre" attributes))
-        domicilio_fiscal_receptor =
-            xml.required_value
-                "x_comprobante_receptor_domicilio_fiscal_receptor"
-                (
-                    x_comprobante_receptor_domicilio_fiscal_receptor_of_string (
-                        xml.required_attribute "DomicilioFiscalReceptor" attributes
-                    )
-                )
-        residencia_fiscal =
-            optionm.map
-                fun v => xml.required_value "x_c_pais" (x_c_pais_of_string v)
-                (xml.attribute_of "ResidenciaFiscal" attributes)
-        num_reg_id_trib =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_comprobante_receptor_num_reg_id_trib"
-                        (x_comprobante_receptor_num_reg_id_trib_of_string v)
-                (xml.attribute_of "NumRegIdTrib" attributes)
-        regimen_fiscal_receptor =
-            xml.required_value
-                "x_c_regimen_fiscal"
-                (x_c_regimen_fiscal_of_string (xml.required_attribute "RegimenFiscalReceptor" attributes))
-        uso_cfdi =
-            xml.required_value "x_c_uso_cfdi" (x_c_uso_cfdi_of_string (xml.required_attribute "UsoCFDI" attributes))
-    }
+    inl errors = []
+    inl o_rfc, errors = xml_codec.attribute_parsed x_t_rfc_of_string "Rfc" attributes errors
+    inl o_nombre, errors = xml_codec.attribute_parsed x_comprobante_receptor_nombre_of_string "Nombre" attributes errors
+    inl o_domicilio_fiscal_receptor, errors =
+        xml_codec.attribute_parsed x_comprobante_receptor_domicilio_fiscal_receptor_of_string
+            "DomicilioFiscalReceptor"
+            attributes
+            errors
+    inl v_residencia_fiscal, errors =
+        xml_codec.attribute_optional_parsed x_c_pais_of_string "ResidenciaFiscal" attributes errors
+    inl v_num_reg_id_trib, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_receptor_num_reg_id_trib_of_string
+            "NumRegIdTrib"
+            attributes
+            errors
+    inl o_regimen_fiscal_receptor, errors =
+        xml_codec.attribute_parsed x_c_regimen_fiscal_of_string "RegimenFiscalReceptor" attributes errors
+    inl o_uso_cfdi, errors = xml_codec.attribute_parsed x_c_uso_cfdi_of_string "UsoCFDI" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_receptor {
+            rfc = xml_codec.present o_rfc
+            nombre = xml_codec.present o_nombre
+            domicilio_fiscal_receptor = xml_codec.present o_domicilio_fiscal_receptor
+            residencia_fiscal = v_residencia_fiscal
+            num_reg_id_trib = v_num_reg_id_trib
+            regimen_fiscal_receptor = xml_codec.present o_regimen_fiscal_receptor
+            uso_cfdi = xml_codec.present o_uso_cfdi
+        }
 
-and let x_comprobante_receptor_of_xml (c : xml.xml_node) : x_comprobante_receptor =
+and let x_comprobante_receptor_of_xml (c : xml.xml_node) : result (x_comprobante_receptor) (list xml_codec.decode_error) =
     x_comprobante_receptor_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_emisor_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_emisor
+    : result (x_comprobante_emisor) (list xml_codec.decode_error)
     =
-    x_comprobante_emisor {
-        rfc = xml.required_value "x_t_rfc" (x_t_rfc_of_string (xml.required_attribute "Rfc" attributes))
-        nombre =
-            xml.required_value
-                "x_comprobante_emisor_nombre"
-                (x_comprobante_emisor_nombre_of_string (xml.required_attribute "Nombre" attributes))
-        regimen_fiscal =
-            xml.required_value
-                "x_c_regimen_fiscal"
-                (x_c_regimen_fiscal_of_string (xml.required_attribute "RegimenFiscal" attributes))
-        fac_atr_adquirente =
-            optionm.map
-                fun v =>
-                    xml.required_value
-                        "x_comprobante_emisor_fac_atr_adquirente"
-                        (x_comprobante_emisor_fac_atr_adquirente_of_string v)
-                (xml.attribute_of "FacAtrAdquirente" attributes)
-    }
+    inl errors = []
+    inl o_rfc, errors = xml_codec.attribute_parsed x_t_rfc_of_string "Rfc" attributes errors
+    inl o_nombre, errors = xml_codec.attribute_parsed x_comprobante_emisor_nombre_of_string "Nombre" attributes errors
+    inl o_regimen_fiscal, errors =
+        xml_codec.attribute_parsed x_c_regimen_fiscal_of_string "RegimenFiscal" attributes errors
+    inl v_fac_atr_adquirente, errors =
+        xml_codec.attribute_optional_parsed x_comprobante_emisor_fac_atr_adquirente_of_string
+            "FacAtrAdquirente"
+            attributes
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_emisor {
+            rfc = xml_codec.present o_rfc
+            nombre = xml_codec.present o_nombre
+            regimen_fiscal = xml_codec.present o_regimen_fiscal
+            fac_atr_adquirente = v_fac_atr_adquirente
+        }
 
-and let x_comprobante_emisor_of_xml (c : xml.xml_node) : x_comprobante_emisor =
+and let x_comprobante_emisor_of_xml (c : xml.xml_node) : result (x_comprobante_emisor) (list xml_codec.decode_error) =
     x_comprobante_emisor_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_cfdi_relacionados_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_cfdi_relacionados
+    : result (x_comprobante_cfdi_relacionados) (list xml_codec.decode_error)
     =
-    x_comprobante_cfdi_relacionados {
-        cfdi_relacionado =
-            listm.map
-                fun c => x_comprobante_cfdi_relacionados_cfdi_relacionado_of_xml c
-                (xml.children_named "CfdiRelacionado" children)
-        tipo_relacion =
-            xml.required_value
-                "x_c_tipo_relacion"
-                (x_c_tipo_relacion_of_string (xml.required_attribute "TipoRelacion" attributes))
-    }
+    inl errors = []
+    inl v_cfdi_relacionado, errors =
+        xml_codec.read_repeated
+            "CfdiRelacionado"
+            x_comprobante_cfdi_relacionados_cfdi_relacionado_of_xml
+            children
+            errors
+    inl o_tipo_relacion, errors =
+        xml_codec.attribute_parsed x_c_tipo_relacion_of_string "TipoRelacion" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_cfdi_relacionados {
+            cfdi_relacionado = v_cfdi_relacionado
+            tipo_relacion = xml_codec.present o_tipo_relacion
+        }
 
-and let x_comprobante_cfdi_relacionados_of_xml (c : xml.xml_node) : x_comprobante_cfdi_relacionados =
+and let x_comprobante_cfdi_relacionados_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_cfdi_relacionados) (list xml_codec.decode_error)
+    =
     x_comprobante_cfdi_relacionados_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_cfdi_relacionados_cfdi_relacionado_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_cfdi_relacionados_cfdi_relacionado
+    : result (x_comprobante_cfdi_relacionados_cfdi_relacionado) (list xml_codec.decode_error)
     =
-    x_comprobante_cfdi_relacionados_cfdi_relacionado {
-        uuid =
-            xml.required_value
-                "x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid"
-                (
-                    x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid_of_string (
-                        xml.required_attribute "UUID" attributes
-                    )
-                )
-    }
+    inl errors = []
+    inl o_uuid, errors =
+        xml_codec.attribute_parsed x_comprobante_cfdi_relacionados_cfdi_relacionado_uuid_of_string
+            "UUID"
+            attributes
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_cfdi_relacionados_cfdi_relacionado { uuid = xml_codec.present o_uuid }
 
 and let x_comprobante_cfdi_relacionados_cfdi_relacionado_of_xml
     (c : xml.xml_node)
-    : x_comprobante_cfdi_relacionados_cfdi_relacionado
+    : result (x_comprobante_cfdi_relacionados_cfdi_relacionado) (list xml_codec.decode_error)
     =
     x_comprobante_cfdi_relacionados_cfdi_relacionado_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_informacion_global_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_comprobante_informacion_global
+    : result (x_comprobante_informacion_global) (list xml_codec.decode_error)
     =
-    x_comprobante_informacion_global {
-        periodicidad =
-            xml.required_value
-                "x_c_periodicidad"
-                (x_c_periodicidad_of_string (xml.required_attribute "Periodicidad" attributes))
-        meses = xml.required_value "x_c_meses" (x_c_meses_of_string (xml.required_attribute "Meses" attributes))
-        a_o = xml.required_attribute "Año" attributes
-    }
+    inl errors = []
+    inl o_periodicidad, errors = xml_codec.attribute_parsed x_c_periodicidad_of_string "Periodicidad" attributes errors
+    inl o_meses, errors = xml_codec.attribute_parsed x_c_meses_of_string "Meses" attributes errors
+    inl v_a_o, errors = xml_codec.attribute_required "Año" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_comprobante_informacion_global {
+            periodicidad = xml_codec.present o_periodicidad
+            meses = xml_codec.present o_meses
+            a_o = v_a_o
+        }
 
-and let x_comprobante_informacion_global_of_xml (c : xml.xml_node) : x_comprobante_informacion_global =
+and let x_comprobante_informacion_global_of_xml
+    (c : xml.xml_node)
+    : result (x_comprobante_informacion_global) (list xml_codec.decode_error)
+    =
     x_comprobante_informacion_global_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_comprobante_children (x : x_comprobante) : list xml.xml_node =
@@ -10487,7 +10518,7 @@ test generated_cfdi_v4_0_writes_its_example =
         inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) "../" path))
         match xml.read_xml text with
         | node :: [] =>
-            match xml.first_difference node (x_comprobante_to_xml "Comprobante" (x_comprobante_of_xml node)) with
+            match xml_codec.read_back_difference (x_comprobante_of_xml) (x_comprobante_to_xml "Comprobante") node with
             | Some difference => [ sm'.(++#) path (sm'.(++#) ": " difference) ]
             | None => []
         | _ => [ sm'.(++#) path ": not one root element" ]
@@ -10508,7 +10539,7 @@ test generated_cfdi_v4_0_writes_its_example =
             inl start = date_time.stopwatch_elapsed_microseconds watch
             match xml.read_xml text with
             | node :: [] =>
-                inl parsed = x_comprobante_of_xml node
+                inl parsed = xml_codec.expect_decoded (x_comprobante_of_xml node)
                 inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
                 inl written = xml.write_node (x_comprobante_to_xml "Comprobante" parsed)
                 inl written_at = date_time.stopwatch_elapsed_microseconds watch
@@ -10524,7 +10555,7 @@ test generated_cfdi_v4_0_writes_its_example =
     console.write_line row
     match xml.read_xml text with
     | node :: [] =>
-        inl parsed = x_comprobante_of_xml node
+        inl parsed = xml_codec.expect_decoded (x_comprobante_of_xml node)
         inl document =
             xml.element
                 "Comprobante"

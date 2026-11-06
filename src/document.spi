@@ -115,7 +115,7 @@
 ///> rust
 test a_manual_invoice_reconciles_its_totals =
     := doc = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 10000i64, cents 1800i64)
-    ? totals_reconcile doc = false ?> failwith "BT-109 100.00 + BT-110 18.00 is BT-112 118.00"
+    ? totals_reconcile doc = !- ?> failwith "BT-109 100.00 + BT-110 18.00 is BT-112 118.00"
     := c = canon_of doc
     ? decimal::compare (amount_in c::with_tax) (cents 11800i64) <> 0i32 ?> failwith "BT-112 is 118.00"
     ? code_in c::currency <> "BRL" || text_in c::seller <> "Seller Ltda" ?> failwith "BT-5 and BT-27 read back"
@@ -134,8 +134,8 @@ test each_term_value_names_its_canon_data_type =
 test a_projection_carries_its_measured_loss_in_its_type =
     := invoice = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 10000i64, cents 1800i64)
     := receipt = cash_receipt ("T-9", "2026-11-03", "EUR", "Kiosk SL", cents 1000i64, cents 210i64)
-    ? measured (exactly invoice) <> (true, 0i32) ?> failwith "an exact projection reconciles and loses nothing"
-    ? measured (receipt_view receipt) <> (true, 1i32)
+    ? measured (exactly invoice) <> (!+, 0i32) ?> failwith "an exact projection reconciles and loses nothing"
+    ? measured (receipt_view receipt) <> (!+, 1i32)
     ?> failwith "a receipt reconciles and loses one term (BT-44, no buyer)"
     ? losses (receipt_view receipt) <> [ "BT-44" ] ?> failwith "the loss names the dropped business term"
 

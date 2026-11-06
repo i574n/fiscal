@@ -114,17 +114,15 @@
 
 := verdict_text (v : example_verdict) : string =
     ?= v ?|
-    | Valid => "valid"
     | Invalid n => sm'::obj_to_string n ++# " messages"
-    | NotWritten => "not written"
-    | Unmeasured => "unmeasured"
+    | _ => case_labels::label_of_name "" " " (reflection::case_name v)
 
 := has_status (s : test_status) (r : test_row) : bool = r::status = Known s
 
 := is_unknown (r : test_row) : bool =
     ?= r::status ?|
-    | Unknown _ => true
-    | Known _ => false
+    | Unknown _ => !+
+    | Known _ => !-
 
 := counted (rows : list test_row) (s : test_status) : i32 = listm::length (listm'::filter (has_status s) rows)
 
@@ -134,12 +132,14 @@
     + counted rows TimedOut
     + listm::length (listm'::filter is_unknown rows)
 
+:= count_part (n : i32) (label : string) : string = sm'::obj_to_string n ++# " " ++# label
+
+:= main_counts (rows : list test_row) : list string =
+    [ count_part (counted rows Passed) "passed"; count_part (counted rows Failed) "failed" ]
+
 := status_counts (rows : list test_row) : string =
-    := part (n : i32) (label : string) : string = sm'::obj_to_string n ++# " " ++# label
-    sm'::concat_list ", " [
-        part (counted rows Passed) "passed"; part (counted rows Failed) "failed"; part (counted rows Static) "static"
-        part (counted rows Skipped) "skipped"; part (other_count rows) "other"
-    ]
+    := rest = [ count_part (counted rows Static) "static"; count_part (counted rows Skipped) "skipped" ]
+    sm'::concat_list ", " (main_counts rows ++ rest ++ [ count_part (other_count rows) "other" ])
 
 := test_cells (r : test_row) : list string =
     [ r::file; r::test; r::target; status_text r::status; sm'::obj_to_string r::ms ]
@@ -160,27 +160,24 @@
 
 := local_stamp (built : string) : string = "local build" ++# (? built = "" ?> "" |: ", " ++# built)
 
+:= ci_stamp (sha : string) (built : string) : string =
+    := run = run_link (env::get_environment_variable "GITHUB_RUN_ID")
+    "commit `" ++# sha ++# "`, run " ++# run ++# ", built " ++# built
+
 := stamp () : string =
     := sha = env::get_environment_variable "GITHUB_SHA"
     := built = env::get_environment_variable "FISCAL_BUILD_TIME"
-    ? sha = ""
-    ?> local_stamp built
-    |:
-        "commit `"
-        ++# sha
-        ++# "`, run "
-        ++# run_link (env::get_environment_variable "GITHUB_RUN_ID")
-        ++# ", built "
-        ++# built
+    ? sha = "" ?> local_stamp built |: ci_stamp sha built
 
 := section (title : string) (body : list string) : list string = [ ""; "## " ++# title; "" ] ++ body
 
+:= failing_lines (tests : list test_row) : list string =
+    := not_passed = listm'::filter (\ (r : test_row) => passing r = !-) tests
+    ? not_passed = [] ?> [ "Every test passed." ]
+    |: table [ "file"; "test"; "target"; "status"; "ms" ] (listm::map test_cells not_passed)
+
 := tests_section (tests : list test_row) : list string =
-    := not_passed = listm'::filter (\ (r : test_row) => passing r = false) tests
-    := failing =
-        ? not_passed = [] ?> [ "Every test passed." ]
-        |: table [ "file"; "test"; "target"; "status"; "ms" ] (listm::map test_cells not_passed)
-    section "Tests" ((status_counts tests ++# ".") :: "" :: failing)
+    section "Tests" ((status_counts tests ++# ".") :: "" :: failing_lines tests)
 
 := files_section (files : list file_row) : list string =
     section "Slowest files" (table [ "file"; "seconds"; "exit" ] (listm::map file_cells (listm'::take_ 10i32 (
@@ -194,11 +191,75 @@
 := examples_section (examples : list example_row) : list string =
     section "Examples" (table [ "example"; "bytes"; "verdict"; "first message" ] (listm::map example_cells examples))
 
+:= is_derived (g : canon_coverage::gap) : bool = g = canon_coverage::Derived
+
+:= is_not_carried (g : canon_coverage::gap) : bool = g = canon_coverage::NotCarried
+
+:= is_national (g : canon_coverage::gap) : bool = is_derived g = !- && is_not_carried g = !-
+
+:= gap_count (wanted : canon_coverage::gap -> bool) (gaps : list (canon::term_id * canon_coverage::gap)) : string =
+    sm'::obj_to_string (listm::length (listm'::filter (\ (_, g) => wanted g) gaps) : i32)
+
+:== census =
+    {
+        family : string
+        bindings : list (canon::term_id * string)
+        implied : list (canon::term_id * string)
+        gaps : list (canon::term_id * canon_coverage::gap)
+    }
+
+:= gap_kinds (gaps : list (canon::term_id * canon_coverage::gap)) : list string =
+    [ gap_count is_derived gaps; gap_count is_national gaps; gap_count is_not_carried gaps ]
+
+:= required_only \* t.
+    (required : list canon::term_id) (pairs : list (canon::term_id * t))
+    : list (canon::term_id * t)
+    =
+    listm'::filter (\ (id, _) => listm'::contains id required) pairs
+
+:= census_counts (required : list canon::term_id) (c : census) : list i32 =
+    [
+        listm::length (listm'::filter (canon_coverage::is_bound c::bindings) required)
+        listm::length (required_only required c::implied)
+    ]
+
+:= census_cells (required : list canon::term_id) (c : census) : list string =
+    := counts = listm::map sm'::obj_to_string (census_counts required c)
+    c::family :: listm::append counts (gap_kinds (required_only required c::gaps))
+
+:= nfe_census () : census =
+    {
+        family = "NF-e 4.00"
+        bindings = canon_nfe::nfe_bindings ()
+        implied = canon_nfe::nfe_implied ()
+        gaps = canon_nfe::nfe_gaps ()
+    }
+
+:= cfdi_census () : census =
+    {
+        family = "CFDI 4.0"
+        bindings = canon_cfdi::cfdi_bindings ()
+        implied = canon_cfdi::cfdi_implied ()
+        gaps = canon_cfdi::cfdi_gaps ()
+    }
+
+:= census_rows () : list (list string) =
+    listm::map (census_cells (canon_coverage::required_ids (canon::en16931_terms ()))) [ nfe_census (); cfdi_census () ]
+
+:= census_section () : list string =
+    := header = [ "family"; "bound"; "implied"; "derived"; "national code"; "not carried" ]
+    section "Canon census (the 24 required EN 16931 terms)" (table header (census_rows ()))
+
 := rendered
     (tests : list test_row) (files : list file_row) (bench : list bench_row) (examples : list example_row)
     : string
     =
-    := body = tests_section tests ++ files_section files ++ bench_section bench ++ examples_section examples
+    := body =
+        tests_section tests
+        ++ files_section files
+        ++ bench_section bench
+        ++ examples_section examples
+        ++ census_section ()
     sm'::concat_list "\n" ([ "# fiscal CI reports"; ""; stamp () ] ++ body ++ [ "" ])
 
 := metrics_rows (kind : string) : list (list string) =
@@ -218,6 +279,9 @@ test tsv_rows_read_into_their_typed_columns =
     ? listm::map (\ (r : test_row) => r::ms) typed <> [ 12i32; 0i32 ] ?> failwith "ms reads as i32, junk as 0"
     ? status_text (status_of "flaky") <> "flaky" ?> failwith "an unknown status keeps its text"
     ? verdict_of !+ "3" <> Invalid 3i32 || verdict_of !- "" <> NotWritten ?> failwith "verdicts read"
+    ? listm::map verdict_text [ Valid; Invalid 2i32; NotWritten; Unmeasured ]
+        <> [ "valid"; "2 messages"; "not written"; "unmeasured" ]
+    ?> failwith "each verdict prints as its case label"
     ? written_of "0" || written_of "1" = !- || written_of "" = !-
     ?> failwith "Written reads 0 as not written, 1 or a missing column as written"
 
@@ -228,6 +292,13 @@ test report_tables_escape_and_rank =
     ? listm::map (\ (r : file_row) => r::file) (by_seconds files) <> [ "y"; "z"; "x" ] ?> failwith "slowest file first"
 
 ///> rust
+test status_counts_cover_every_status =
+    := row (status : string) : test_row = test_row_of [ "f"; "t"; "rust"; status; "1" ]
+    := rows = listm::map row [ "passed"; "passed"; "failed"; "static"; "skipped"; "not_run"; "weird" ]
+    ? status_counts rows <> "2 passed, 1 failed, 1 static, 1 skipped, 2 other"
+    ?> failwith "the summary counts each status, with not_run and unknown ones as other"
+
+///> rust
 test writes_the_ci_reports =
     := text =
         rendered
@@ -235,4 +306,9 @@ test writes_the_ci_reports =
             (listm::map bench_row_of (metrics_rows "bench")) (listm::map example_row_of (metrics_rows "examples"))
     file_system::directory_create_all (fiscal_paths::under "target/ci-metrics") |> ignore
     file_system::write_all_text (fiscal_paths::under "target/ci-metrics/reports.md") text
-    ? sm'::starts_with "# fiscal CI reports" text = false ?> failwith "the report has its title"
+    ? sm'::starts_with "# fiscal CI reports" text = !- ?> failwith "the report has its title"
+
+///> rust
+test the_canon_census_counts_each_family =
+    ? census_rows () <> [ [ "NF-e 4.00"; "11"; "2"; "4"; "4"; "3" ]; [ "CFDI 4.0"; "11"; "1"; "5"; "3"; "4" ] ]
+    ?> failwith "each family's 24 required terms split into bound, implied and the three gap kinds"

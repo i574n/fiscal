@@ -255,29 +255,33 @@
     := text_of = \ c => sm'::trim (xml::text_in (xml::element_children c))
     optionm::map text_of (child_named name (xml::element_children node))
 
+:= scheme_verdict (reason : string) (found : string) : option string =
+    ?= affectation_of reason ?|
+    | None => Some ("TaxExemptionReasonCode " ++# reason ++# " is not in catalog 07")
+    | Some a ?& scheme_code_of a = found => None
+    | Some a => Some ("reason " ++# reason ++# " expects TaxScheme " ++# scheme_code_of a ++# ", found " ++# found)
+
 := scheme_finding (reason : string) (category : xml::xml_node) : option string =
     ?= child_named "TaxScheme" (xml::element_children category) ?|
     | None => Some ("TaxExemptionReasonCode " ++# reason ++# " without a TaxScheme")
-    | Some scheme =>
-        := found = ?= child_text "ID" scheme ?| Some id => id | None => ""
-        ?= affectation_of reason ?|
-        | None => Some ("TaxExemptionReasonCode " ++# reason ++# " is not in catalog 07")
-        | Some a ?& scheme_code_of a = found => None
-        | Some a => Some ("reason " ++# reason ++# " expects TaxScheme " ++# scheme_code_of a ++# ", found " ++# found)
+    | Some scheme => scheme_verdict reason (?= child_text "ID" scheme ?| Some id => id | None => "")
 
 :! category_check = i32 * list string
 
-:~ ^ category_findings (node : xml::xml_node) (category_check (checked, findings)) : category_check =
-    := here =
-        ? xml::local_name (xml::node_name node) <> "TaxCategory" ?> category_check (checked, findings)
-        |:
-            ?= child_text "TaxExemptionReasonCode" node ?|
-            | None => category_check (checked, findings)
-            | Some reason =>
-                ?= scheme_finding reason node ?|
-                | Some f => category_check (checked + 1i32, f :: findings)
-                | None => category_check (checked + 1i32, findings)
-    findings_within (xml::element_children node) here
+:= tallied (finding : option string) (category_check (checked, findings)) : category_check =
+    ?= finding ?|
+    | Some f => category_check (checked + 1i32, f :: findings)
+    | None => category_check (checked + 1i32, findings)
+
+:= category_here (node : xml::xml_node) (acc : category_check) : category_check =
+    ? xml::local_name (xml::node_name node) <> "TaxCategory" ?> acc
+    |:
+        ?= child_text "TaxExemptionReasonCode" node ?|
+        | None => acc
+        | Some reason => tallied (scheme_finding reason node) acc
+
+:~ ^ category_findings (node : xml::xml_node) (acc : category_check) : category_check =
+    findings_within (xml::element_children node) (category_here node acc)
 
 :& :~ findings_within (nodes : list xml::xml_node) (acc : category_check) : category_check =
     ?= nodes ?|
@@ -306,29 +310,23 @@
         | None => descendant_text_within name rest
     | [] => None
 
+:= price_verdict (reason : string) (found : string) : option string =
+    ?= optionm::map (\ a => price_type_code (expected_price_type a)) (affectation_of reason) ?|
+    | Some expected ?& expected <> found =>
+        Some ("reason " ++# reason ++# " expects PriceTypeCode " ++# expected ++# ", found " ++# found)
+    | _ => None
+
 := price_finding (line : xml::xml_node) : option string =
     ?= descendant_text "TaxExemptionReasonCode" line ?|
     | None => None
-    | Some reason =>
-        := found = ?= descendant_text "PriceTypeCode" line ?| Some p => p | None => ""
-        ?= affectation_of reason ?|
-        | None => None
-        | Some a ?& price_type_code (expected_price_type a) = found => None
-        | Some a =>
-            := expected = price_type_code (expected_price_type a)
-            Some ("reason " ++# reason ++# " expects PriceTypeCode " ++# expected ++# ", found " ++# found)
+    | Some reason => price_verdict reason (?= descendant_text "PriceTypeCode" line ?| Some p => p | None => "")
 
 := is_line (node : xml::xml_node) : bool =
     := local = xml::local_name (xml::node_name node)
-    local = "InvoiceLine" || local = "CreditNoteLine" || local = "DebitNoteLine"
+    listm'::contains local [ "InvoiceLine"; "CreditNoteLine"; "DebitNoteLine" ]
 
-:~ ^ line_findings (node : xml::xml_node) (category_check (checked, findings)) : category_check =
-    ? is_line node
-    ?>
-        ?= price_finding node ?|
-        | Some f => category_check (checked + 1i32, f :: findings)
-        | None => category_check (checked + 1i32, findings)
-    |: lines_within (xml::element_children node) (category_check (checked, findings))
+:~ ^ line_findings (node : xml::xml_node) (acc : category_check) : category_check =
+    ? is_line node ?> tallied (price_finding node) acc |: lines_within (xml::element_children node) acc
 
 :& :~ lines_within (nodes : list xml::xml_node) (acc : category_check) : category_check =
     ?= nodes ?|

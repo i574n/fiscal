@@ -16,7 +16,8 @@
     ++# "            | Error message => failwith message\n"
     ++# "    sm'.(++#) (sm'.(++#) root \"/samples/\") name\n"
 
-:= sample_path_text () : string = "inl sample_path (name : string) : string =\n" ++# sample_root_text () ++# sample_path_tail ()
+:= sample_path_text () : string =
+    "inl sample_path (name : string) : string =\n" ++# sample_root_text () ++# sample_path_tail ()
 
 := run_count_text () : string =
     "\nlet rec run_count (n : i32) (xs : list i64) : i32 =\n"

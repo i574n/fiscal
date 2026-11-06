@@ -1,6 +1,0 @@
-packageDir: ../../deps/spiral/lib
-packages:
-    |core-
-    spiral-
-modules:
-    generated_cte_simp_v4_00_certificates

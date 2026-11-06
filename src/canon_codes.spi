@@ -1,0 +1,103 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xsd
+
+:| invoice_type =
+    | CommercialInvoice
+    | CreditNote
+    | DebitNote
+
+:= invoice_type_codes () : list (string * invoice_type) =
+    [ ("380", CommercialInvoice); ("381", CreditNote); ("383", DebitNote) ]
+
+:| cfdi_voucher =
+    | Ingreso
+    | Egreso
+    | Traslado
+    | Nomina
+    | Pago
+
+:= cfdi_voucher_codes () : list (string * cfdi_voucher) =
+    [ ("I", Ingreso); ("E", Egreso); ("T", Traslado); ("N", Nomina); ("P", Pago) ]
+
+:| nfe_purpose =
+    | NormalIssue
+    | Complementary
+    | Adjustment
+    | GoodsReturn
+    | CreditNoteIssue
+    | DebitNoteIssue
+
+:= nfe_purpose_codes () : list (string * nfe_purpose) =
+    [
+        ("1", NormalIssue); ("2", Complementary); ("3", Adjustment); ("4", GoodsReturn); ("5", CreditNoteIssue)
+        ("6", DebitNoteIssue)
+    ]
+
+:= code_of \* t. (codes : list (string * t)) (x : t) : string =
+    ?= listm'::try_find_ (\ (_, v) => v = x) codes ?|
+    | Some (code, _) => code
+    | None => failwith "every case has its code"
+
+:= of_code \* t. (codes : list (string * t)) (text : string) : option t =
+    ?= listm'::try_find_ (\ (code, _) => code = text) codes ?|
+    | Some (_, v) => Some v
+    | None => None
+
+:= cfdi_invoice_type (v : cfdi_voucher) : option invoice_type =
+    ?= v ?|
+    | Ingreso => Some CommercialInvoice
+    | Egreso => Some CreditNote
+    | _ => None
+
+:= nfe_invoice_type (p : nfe_purpose) : option invoice_type =
+    ?= p ?|
+    | NormalIssue => Some CommercialInvoice
+    | CreditNoteIssue => Some CreditNote
+    | DebitNoteIssue => Some DebitNote
+    | _ => None
+
+:= bt3_of \* t. (codes : list (string * t)) (convert : t -> option invoice_type) (text : string) : option string =
+    ?= of_code codes text ?|
+    | Some v =>
+        ?= convert v ?|
+        | Some kind => Some (code_of (invoice_type_codes ()) kind)
+        | None => None
+    | None => None
+
+:= enumeration_value (f : xsd_facet) : list string =
+    ?= f ?|
+    | Enumeration v => [ v ]
+    | _ => []
+
+:= simple_enumerations (t : xsd type_def final) : list string =
+    ?= t ?|
+    | Simple s => listm::concat (listm::map enumeration_value s::facets)
+    | _ => []
+
+:= enumerations_of (path : string) (name : string) : list string =
+    := tree = xsd_resolve::load_schema_tree (fiscal_paths::under path)
+    := named (t : xsd type_def final) : bool = xsd_resolve::type_name_of t = name
+    listm::concat (listm::map simple_enumerations (listm'::filter named tree::schema::simple_types))
+
+///> rust
+test the_national_code_lists_are_the_schemas_own =
+    := cfdi = enumerations_of "deps/corpus/mx/cfdi/catCFDI.xsd" "c_TipoDeComprobante"
+    ? cfdi <> listm::map (\ (code, _) => code) (cfdi_voucher_codes ())
+    ?> failwith ("cfdi_voucher lists c_TipoDeComprobante: " ++# sm'::concat_list "," cfdi)
+    := nfe = enumerations_of "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd" "TFinNFe"
+    ? nfe <> listm::map (\ (code, _) => code) (nfe_purpose_codes ())
+    ?> failwith ("nfe_purpose lists TFinNFe: " ++# sm'::concat_list "," nfe)
+
+///> rust
+test bt_3_comes_from_each_regimes_document_type =
+    := cfdi = listm::map (bt3_of (cfdi_voucher_codes ()) cfdi_invoice_type) [ "I"; "E"; "T"; "N"; "P"; "X" ]
+    ? cfdi <> [ Some "380"; Some "381"; None; None; None; None ]
+    ?> failwith "a CFDI ingreso is an invoice, an egreso a credit note"
+    := nfe = listm::map (bt3_of (nfe_purpose_codes ()) nfe_invoice_type) [ "1"; "2"; "3"; "4"; "5"; "6" ]
+    ? nfe <> [ Some "380"; None; None; None; Some "381"; Some "383" ]
+    ?>
+        failwith (
+            "a normal NF-e is an invoice, a nota de credito a credit note, a nota de debito a debit note; a "
+            ^^ "devolucao / retorno (often issued by the buyer, or goods coming back) has no UNTDID 1001 equivalent"
+        )

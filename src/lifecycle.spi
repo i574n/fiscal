@@ -9,15 +9,41 @@
 :! nfe = string
 :! cfdi = string
 :! ubl = string
+:! hacienda = string
+:! dian = string
 
 :! event_code = string
 
+:| buyer_response =
+    | Accepted
+    | PartlyAccepted
+    | Refused : string
+
 :? cancellation_event r : r -> event_code
 :? correction_event r : r -> event_code
+:? response_event r : r -> buyer_response -> option event_code
 
 :+ cancellation_event nfe = \ _ => event_code "110111"
 :+ correction_event nfe = \ _ => event_code "110110"
 :+ cancellation_event cfdi = \ _ => event_code "Cancelacion"
+
+:+ response_event nfe = \ _ response =>
+    ?= response ?|
+    | Accepted => Some (event_code "210200")
+    | PartlyAccepted => None
+    | Refused _ => Some (event_code "210240")
+
+:+ response_event hacienda = \ _ response =>
+    ?= response ?|
+    | Accepted => Some (event_code "1")
+    | PartlyAccepted => Some (event_code "2")
+    | Refused _ => Some (event_code "3")
+
+:+ response_event dian = \ _ response =>
+    ?= response ?|
+    | Accepted => Some (event_code "033")
+    | PartlyAccepted => None
+    | Refused _ => Some (event_code "031")
 
 := event_text ((event_code code) : event_code) : string = code
 
@@ -31,10 +57,15 @@
 
 :== correction_letter = { sequence : i32; text : string; event : event_code }
 
+:== buyer_reply = { response : buyer_response; event : event_code }
+
 :| private document r s =
     | Issued :: \* r. r * access_key -> document r issued
     | Authorized :: \* r.
-        { regime : r; key : access_key; protocol : protocol_id; corrections : list correction_letter }
+        {
+            regime : r; key : access_key; protocol : protocol_id; corrections : list correction_letter
+            replies : list buyer_reply
+        }
         -> document r authorized
     | Rejected :: \* r. r * access_key * string -> document r rejected
     | Cancelled :: \* r.
@@ -52,7 +83,8 @@
 
 := authorize \* r. (doc : document r issued) (protocol : protocol_id) : document r authorized =
     ?= doc ?|
-    | Issued (regime, key) => Authorized { regime = regime; key = key; protocol = protocol; corrections = [] }
+    | Issued (regime, key) =>
+        Authorized { regime = regime; key = key; protocol = protocol; corrections = []; replies = [] }
 
 := reject \* r. (doc : document r issued) (reason : string) : document r rejected =
     ?= doc ?|
@@ -67,6 +99,23 @@
 := corrections_of \* r. (doc : document r authorized) : list correction_letter =
     ?= doc ?|
     | Authorized a => a::corrections
+
+:= replied \* r. (doc : document r authorized) (reply : buyer_reply) : document r authorized =
+    ?= doc ?|
+    | Authorized a => Authorized { a ?| replies = listm::append a::replies [ reply ] }
+
+:= respond \* r {response_event}. (doc : document r authorized) (response : buyer_response)
+    : option (document r authorized)
+    =
+    ?= doc ?|
+    | Authorized a =>
+        ?= response_event a::regime response ?|
+        | Some event => Some (replied doc { response = response; event = event })
+        | None => None
+
+:= replies_of \* r. (doc : document r authorized) : list buyer_reply =
+    ?= doc ?|
+    | Authorized a => a::replies
 
 := cancel \* r {cancellation_event}. (doc : document r authorized) (event_protocol : protocol_id)
     : document r cancelled
@@ -166,6 +215,37 @@ test a_cfdi_cancels_through_its_own_request =
     ?> failwith "a CFDI cancellation is a Cancelacion request"
 
 ///> rust
+test buyer_responses_take_their_regime_codes =
+    ? response_event (nfe "4.00") Accepted <> Some (event_code "210200")
+    ?> failwith "an NF-e acceptance is the 210200 confirmation"
+    ? response_event (nfe "4.00") (Refused "goods refused") <> Some (event_code "210240")
+    ?> failwith "an NF-e refusal is the 210240 non-performance"
+    ? response_event (nfe "4.00") PartlyAccepted <> None ?> failwith "an NF-e has no partial acceptance"
+    ? response_event (hacienda "4.4") Accepted <> Some (event_code "1") ?> failwith "MensajeReceptor 1 accepts"
+    ? response_event (hacienda "4.4") PartlyAccepted <> Some (event_code "2")
+    ?> failwith "MensajeReceptor 2 accepts in part"
+    ? response_event (hacienda "4.4") (Refused "x") <> Some (event_code "3") ?> failwith "MensajeReceptor 3 rejects"
+    ? response_event (dian "1.9") Accepted <> Some (event_code "033") ?> failwith "RADIAN 033 is the express acceptance"
+    ? response_event (dian "1.9") (Refused "x") <> Some (event_code "031") ?> failwith "RADIAN 031 is the claim"
+    ? response_event (dian "1.9") PartlyAccepted <> None ?> failwith "RADIAN has no partial acceptance"
+
+///> rust
+test a_buyer_reply_stays_on_the_authorized_document =
+    := key = access_key "50601012600310123456700100001010000000001199999999"
+    := authorized = authorize (issue (hacienda "4.4") key) (protocol_id "aceptado")
+    ?= respond authorized (Refused "price differs") ?|
+    | Some answered =>
+        ?= replies_of answered ?|
+        | reply :: [] =>
+            ? reply::event <> event_code "3" || reply::response <> Refused "price differs"
+            ?> failwith "the refusal keeps its MensajeReceptor code and its reason"
+        | _ => failwith "one reply is recorded"
+    | None => failwith "a CR receiver can refuse"
+    ?= respond (authorize (issue (nfe "4.00") (access_key "k")) (protocol_id "p")) PartlyAccepted ?|
+    | Some _ => failwith "an NF-e cannot record a partial acceptance"
+    | None => ()
+
+///> rust
 test a_cancellation_reaches_the_outbox_once =
     := key = "35260112345678000195550010000000011000000019"
     := authorized = authorize (issue (nfe "4.00") (access_key key)) (protocol_id "135260000000001")
@@ -202,3 +282,7 @@ test a_ubl_invoice_cannot_be_cancelled_only_credited fails "does not have the pr
 ///> rust
 test a_cfdi_takes_no_correction_letter fails "does not have the prototype correction_event" =
     correct (authorize (issue (cfdi "4.0") (access_key "k")) (protocol_id "p")) "letter" |> ignore
+
+///> rust
+test a_cfdi_takes_no_buyer_response fails "does not have the prototype response_event" =
+    respond (authorize (issue (cfdi "4.0") (access_key "k")) (protocol_id "p")) Accepted |> ignore

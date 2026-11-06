@@ -10,14 +10,22 @@
         pattern : i32
     }
 
-:= add_file (totals : corpus_totals) (nodes : list xml::xml_node) : corpus_totals =
+:= add_elements (totals : corpus_totals) (nodes : list xml::xml_node) : corpus_totals =
+    { totals ?| files = totals::files + 1i32; element = totals::element + xml::count_named "element" nodes }
+
+:= add_type_counts (totals : corpus_totals) (nodes : list xml::xml_node) : corpus_totals =
     {
-        files = totals::files + 1i32
-        element = totals::element + xml::count_named "element" nodes
+        totals ?|
         complex_type = totals::complex_type + xml::count_named "complexType" nodes
         simple_type = totals::simple_type + xml::count_named "simpleType" nodes
-        enumeration = totals::enumeration + xml::count_named "enumeration" nodes
-        pattern = totals::pattern + xml::count_named "pattern" nodes
+    }
+
+:= add_file (totals : corpus_totals) (nodes : list xml::xml_node) : corpus_totals =
+    := counted = add_type_counts (add_elements totals nodes) nodes
+    {
+        counted ?|
+        enumeration = counted::enumeration + xml::count_named "enumeration" nodes
+        pattern = counted::pattern + xml::count_named "pattern" nodes
     }
 
 :~ ^ manifest_paths (lines : list string) (acc : list string) : list string =

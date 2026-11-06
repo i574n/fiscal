@@ -8,11 +8,14 @@
     | families::EuropeUbl => "VAT payable"
     | families::Mexico => "IVA trasladado por pagar"
 
+:= amount_as \* c. (currency : money::currency c) (v : term_value amount_data) : money::amount c =
+    money::amount_of currency (amount_in v)
+
 := invoice_lines \* e p c.
     (tax : string) (currency : money::currency c) (terms : canon_document)
     : list (ledger::line e p c)
     =
-    := in_currency (v : term_value amount_data) : money::amount c = money::amount_of currency (amount_in v)
+    := in_currency = amount_as currency
     [
         ledger::debit "receivable" (in_currency terms::with_tax)
         ledger::credit "revenue" (in_currency terms::without_tax)

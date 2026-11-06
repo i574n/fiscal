@@ -1,15 +1,13 @@
-///- --package . --timeout 1400000
+///- --package . --timeout 3600000
 :< sm'_operators
 :< xsd
 :< xsd_emit
 :< families
 
-:= module_package (dependencies : list string) (module_name : string) : string =
-    "packageDir: ../../deps/spiral/lib\npackages:\n    |core-\n    spiral-\n"
-    ++# join_with "" (listm::map (\ unit => "    ../" ++# unit ++# "-\n") dependencies) ""
-    ++# "modules:\n    "
-    ++# module_name
-    ++# "\n"
+:= module_package (dependencies : list string) : string =
+    "packageDir = '../../deps/spiral/lib'\npackages = ['|core-', 'spiral-'"
+    ++# join_with "" (listm::map (\ unit => ", '../" ++# unit ++# "-'") dependencies) ""
+    ++# "]\n"
 
 := ensure_folder (folder : string) : () =
     ?= file_system::create_dir_all folder |> resultm::unbox ?|
@@ -20,18 +18,25 @@
     := scaled = sm'::length text / 10i32 * 16i32
     ? scaled > 2400000i32 ?> scaled |: 2400000i32
 
+:= generated_folder (module_name : string) : string = fiscal_paths::under ("generated/" ++# module_name)
+
+:= capped_unit_text (text : string) : string =
+    "///- --package . --timeout " ++# int_text (cell_budget_ms text) ++# "\n" ++# text
+
+:= write_unit_package (folder : string) (dependencies : list string) : () =
+    file_system::file_delete (folder ++# "/package.spiproj")
+    file_system::write_all_text (folder ++# "/spiral.toml") (module_package dependencies)
+
 := write_generated_module_with (dependencies : list string) (module_name : string) (text : string) : () =
-    := folder = fiscal_paths::under ("generated/" ++# module_name)
+    := folder = generated_folder module_name
     ensure_folder folder
-    file_system::write_all_text (folder ++# "/package.spiproj") (module_package dependencies module_name)
-    file_system::write_all_text
-        (folder ++# "/" ++# module_name ++# ".spi")
-        ("///- --package . --timeout " ++# int_text (cell_budget_ms text) ++# "\n" ++# text)
+    write_unit_package folder dependencies
+    file_system::write_all_text (folder ++# "/" ++# module_name ++# ".spi") (capped_unit_text text)
 
 := write_generated_module (module_name : string) (text : string) : () = write_generated_module_with [] module_name text
 
 := remove_generated_module (module_name : string) : () =
-    := folder = fiscal_paths::under ("generated/" ++# module_name)
+    := folder = generated_folder module_name
     ? file_system::directory_exists folder
     ?>
         ?= file_system::remove_dir_all folder |> resultm::unbox ?|
@@ -59,30 +64,39 @@ test generates_the_uf_code_union =
     ? sm'::contains "    | \"35\" => Some TCodUfIBGE_35" text = !- ?> failwith "parser arm"
 
 := qualifies_children (family : family_root) : bool =
-    ?= first_named "schema" (xml::read_xml (xml::read_text_replacing_invalid_utf8 family::schema_path)) ?|
+    ?= first_named "schema" (xml::read_xml (xml::read_text_replacing_invalid_utf8 (repo_file family::schema_path))) ?|
     | Some (attributes, _) => attribute_or "elementFormDefault" "unqualified" attributes = "qualified"
     | None => !+
+
+:= built_in_namespaces () : list string = [ "http://www.w3.org/2001/XMLSchema"; "http://www.w3.org/2000/09/xmldsig#" ]
+
+:= is_declared_prefix (schema_text : string) (key : string) (value : string) : bool =
+    := known = listm'::contains value (built_in_namespaces ())
+    := referenced = sm'::contains ("ref=\"" ++# xml::local_name key ++# ":") schema_text
+    sm'::starts_with "xmlns:" key && known = !- && referenced
+
+:= prefix_pair (key : string) (value : string) : string = "(\"" ++# key ++# "\", \"" ++# value ++# "\") :: "
 
 :~ ^ declared_prefixes (schema_text : string) (attributes : list (string * string)) (acc : string) : string =
     ?= attributes ?|
     | (key, value) :: rest =>
-        := known = value = "http://www.w3.org/2001/XMLSchema" || value = "http://www.w3.org/2000/09/xmldsig#"
-        := referenced = sm'::contains ("ref=\"" ++# xml::local_name key ++# ":") schema_text
-        ? sm'::starts_with "xmlns:" key && known = !- && referenced
-        ?> declared_prefixes schema_text rest (acc ++# "(\"" ++# key ++# "\", \"" ++# value ++# "\") :: ")
+        ? is_declared_prefix schema_text key value ?> declared_prefixes schema_text rest (acc ++# prefix_pair key value)
         |: declared_prefixes schema_text rest acc
     | [] => acc
 
 := prefix_declarations (family : family_root) : string =
-    := schema_text = xml::read_text_replacing_invalid_utf8 family::schema_path
+    := schema_text = xml::read_text_replacing_invalid_utf8 (repo_file family::schema_path)
     ?= first_named "schema" (xml::read_xml schema_text) ?|
     | Some (attributes, _) => declared_prefixes schema_text attributes ""
     | None => ""
 
-:= example_document (family : family_root) (value : string) : string =
-    := t = root_type_name family
-    := root, declaration =
-        ? qualifies_children family ?> tag_text family::root_element, "xmlns" |: "p:" ++# tag_text family::root_element, "xmlns:p"
+:= root_declaration (family : family_root) : string * string =
+    ? qualifies_children family
+    ?> tag_text family::root_element, "xmlns"
+    |: "p:" ++# tag_text family::root_element, "xmlns:p"
+
+:= element_head (family : family_root) : string =
+    := root, declaration = root_declaration family
     "xml.element \""
     ++# root
     ++# "\" ((\""
@@ -90,6 +104,10 @@ test generates_the_uf_code_union =
     ++# "\", \""
     ++# namespace_text family::target_namespace
     ++# "\") :: "
+
+:= example_document (family : family_root) (value : string) : string =
+    := t = root_type_name family
+    element_head family
     ++# prefix_declarations family
     ++# t
     ++# "_attributes "
@@ -103,120 +121,157 @@ test generates_the_uf_code_union =
 := signed_text (expression : string) : string =
     "xml.write_node (xml.with_namespace \"Signature\" \"http://www.w3.org/2000/09/xmldsig#\" " ++# expression ++# ")"
 
-:= repo_relative (path : string) : string =
-    := prefix = fiscal_paths::root () ++# "/"
-    ? sm'::starts_with prefix path
-    ?> sm'::substring (sm'::length prefix) (sm'::length path - sm'::length prefix) path
-    |: path
-
-:= json_example_check (family : family_root) : string =
-    := t = root_type_name family
-    := root = "\"" ++# tag_text family::root_element ++# "\""
-    "///> rust\ntest "
-    ++# module_text family::module_name
-    ++# "_writes_its_example =\n"
-    ++# "    inl example = "
+:= typed_round_expression (t : string) (root : string) (witness : string) (source : string) : string =
+    t
+    ++# "_to_xml "
+    ++# root
+    ++# " (xml_codec.expect_decoded ("
     ++# t
-    ++# "_example 0i32\n"
-    ++# "    inl document = xml.element "
+    ++# "_of_xml"
+    ++# witness
+    ++# " "
+    ++# source
+    ++# "))"
+
+:= example_document_line (t : string) (root : string) : string =
+    "    inl document = xml.element "
     ++# root
     ++# " ("
     ++# t
     ++# "_attributes example) ("
     ++# t
     ++# "_children example)\n"
-    ++# "    inl schema = file_system.read_all_text (generated_fiscal_runtime.sample_path \"../"
-    ++# repo_relative family::schema_path
+
+:= json_example_document (m : string) (t : string) (root : string) : string =
+    := head =
+        "///> rust\ntest " ++# m ++# "_writes_its_example =\n" ++# "    inl example = " ++# t ++# "_example 0i32\n"
+    head ++# example_document_line t root
+
+:= schema_read_line (family : family_root) : string =
+    "    inl schema = file_system.read_all_text (generated_fiscal_runtime.sample_path \"../"
+    ++# repo_text family::schema_path
     ++# "\")\n"
-    ++# "    inl text = json_schema.json_document_text schema document\n"
-    ++# "    file_system.directory_create_all (generated_fiscal_runtime.sample_path \"\") |> ignore\n"
-    ++# "    file_system.write_all_text (generated_fiscal_runtime.sample_path \""
-    ++# module_text family::module_name
-    ++# "_example.json\") text\n"
-    ++# "    match json_schema.json_document "
+
+:= quoted_paths (paths : list string) : string = join_with "; " (listm::map (\ path => "\"" ++# path ++# "\"") paths) ""
+
+:= sample_folder_line () : string =
+    "    file_system.directory_create_all (generated_fiscal_runtime.sample_path \"\") |> ignore\n"
+
+:= sample_write_call (m : string) (extension : string) : string =
+    "    file_system.write_all_text (generated_fiscal_runtime.sample_path \""
+    ++# m
+    ++# "_example."
+    ++# extension
+    ++# "\") "
+
+:= single_failures () : string = "    inl failures = listm.concat (listm.map check documents)\n"
+
+:= json_example_write (family : family_root) (m : string) : string =
+    := text = "    inl text = json_schema.json_document_text schema document\n"
+    schema_read_line family ++# text ++# sample_folder_line () ++# sample_write_call m "json" ++# "text\n"
+
+:= json_example_verdict () : string =
+    "        if again <> text then failwith \"the JSON example round-trips through the typed reader and writer\"\n"
+    ++# "    | _ => failwith \"one root\"\n"
+
+:= json_again_line (t : string) (root : string) : string =
+    "        inl again = json_schema.json_document_text schema (" ++# typed_round_expression t root "" "node" ++# ")\n"
+
+:= json_example_round (t : string) (root : string) : string =
+    := again = json_again_line t root
+    "    match json_schema.json_document "
     ++# root
     ++# " text with\n"
     ++# "    | node :: [] =>\n"
-    ++# "        inl again = json_schema.json_document_text schema ("
-    ++# t
-    ++# "_to_xml "
-    ++# root
-    ++# " ("
-    ++# t
-    ++# "_of_xml node))\n"
-    ++# "        if again <> text then failwith \"the JSON example round-trips through the typed reader and writer\"\n"
-    ++# "    | _ => failwith \"one root\"\n"
+    ++# again
+    ++# json_example_verdict ()
+
+:= json_example_check (family : family_root) : string =
+    := t = root_type_name family
+    := root = "\"" ++# tag_text family::root_element ++# "\""
+    := m = module_text family::module_name
+    json_example_document m t root ++# json_example_write family m ++# json_example_round t root
 
 := is_json_family (family : family_root) : bool = ?= family::source ?| JsonSchema => !+ | Xsd _ => !-
 
-:= json_document_checks (family : family_root) : string =
-    := t = root_type_name family
+:= relative_sample_read () : string =
+    "        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) \"../\" path))\n"
+
+:= failures_raise () : string =
+    "    inl _ =\n"
+    ++# "        match failures with\n"
+    ++# "        | first :: _ =>\n"
+    ++# "            inl count = sm'.obj_to_string (listm.length failures : i32)\n"
+    ++# "            inl message = sm'.(++#) \" real documents do not read back unchanged; first: \" first\n"
+    ++# "            failwith (sm'.(++#) count message)\n"
+    ++# "        | [] => ()\n"
+
+:= json_member_mismatch () : string =
+    "            inl expected = json_schema.json_document_text schema node\n"
+    ++# "            inl again = json_schema.json_document_text schema ("
+
+:= json_member_verdict () : string =
+    "            if again = expected then [] else\n"
+    ++# "                [sm'.(++#) path \": the typed reader does not keep every member\"]\n"
+    ++# "        | _ => [sm'.(++#) path \": not one root\"]\n"
+
+:= json_check_head (root : string) : string =
+    := matched = "        match json_schema.json_document " ++# root ++# " text with\n" ++# "        | node :: [] =>\n"
+    "    inl check (path : string) : list string =\n" ++# relative_sample_read () ++# matched
+
+:= json_member_check (t : string) (root : string) : string =
+    := round = json_member_mismatch () ++# typed_round_expression t root "" "node" ++# ")\n"
+    json_check_head root ++# round ++# json_member_verdict ()
+
+:= json_documents_head (family : family_root) : string =
+    := test = "\n///> rust\ntest " ++# module_text family::module_name ++# "_reads_its_documents =\n"
+    test
+    ++# schema_read_line family
+    ++# "    inl documents = ["
+    ++# quoted_paths (documents_of family::documents)
+    ++# "]\n"
+
+:= json_documents_test (family : family_root) : string =
     := root = "\"" ++# tag_text family::root_element ++# "\""
-    := quoted = listm::map (\ path => "\"" ++# path ++# "\"") family::documents
-    ?= family::documents ?|
-    | _ :: _ ?& is_json_family family =>
-        "\n///> rust\ntest "
-        ++# module_text family::module_name
-        ++# "_reads_its_documents =\n"
-        ++# "    inl schema = file_system.read_all_text (generated_fiscal_runtime.sample_path \"../"
-        ++# repo_relative family::schema_path
-        ++# "\")\n"
-        ++# "    inl documents = ["
-        ++# join_with "; " quoted ""
-        ++# "]\n"
-        ++# "    inl check (path : string) : list string =\n"
-        ++# "        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) \"../\" path))\n"
-        ++# "        match json_schema.json_document "
-        ++# root
-        ++# " text with\n"
-        ++# "        | node :: [] =>\n"
-        ++# "            inl expected = json_schema.json_document_text schema node\n"
-        ++# "            inl again = json_schema.json_document_text schema ("
-        ++# t
-        ++# "_to_xml "
-        ++# root
-        ++# " ("
-        ++# t
-        ++# "_of_xml node))\n"
-        ++# "            if again = expected then [] else\n"
-        ++# "                [sm'.(++#) path \": the typed reader does not keep every member\"]\n"
-        ++# "        | _ => [sm'.(++#) path \": not one root\"]\n"
-        ++# "    inl failures = listm.concat (listm.map check documents)\n"
-        ++# "    inl _ =\n"
-        ++# "        match failures with\n"
-        ++# "        | first :: _ =>\n"
-        ++# "            inl count = sm'.obj_to_string (listm.length failures : i32)\n"
-        ++# "            inl message = sm'.(++#) \" real documents do not read back unchanged; first: \" first\n"
-        ++# "            failwith (sm'.(++#) count message)\n"
-        ++# "        | [] => ()\n"
+    json_documents_head family
+    ++# json_member_check (root_type_name family) root
+    ++# single_failures ()
+    ++# failures_raise ()
+
+:= json_document_checks (family : family_root) : string =
+    ?= (documents_of family::documents) ?|
+    | _ :: _ ?& is_json_family family => json_documents_test family
     | _ => ""
 
-:= document_round_trip (family : family_root) (witness : string) (name : string) (reader : string) : string =
-    := t = root_type_name family
+:= round_trip_reader (name : string) (reader : string) : string =
     "    inl "
     ++# name
     ++# " (path : string) : list string =\n"
-    ++# "        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) \"../\" path))\n"
+    ++# relative_sample_read ()
     ++# "        match "
     ++# reader
     ++# " text with\n"
-    ++# "        | node :: [] =>\n"
-    ++# "            match xml.first_difference node ("
-    ++# t
-    ++# "_to_xml \""
-    ++# tag_text family::root_element
-    ++# "\" ("
-    ++# t
-    ++# "_of_xml"
-    ++# witness
-    ++# " node)) with\n"
-    ++# "            | Some difference => [sm'.(++#) path (sm'.(++#) \": \" difference)]\n"
+
+:= read_back_call (t : string) (witness : string) (writer : string) : string =
+    "            match xml_codec.read_back_difference (" ++# t ++# "_of_xml" ++# witness ++# ") (" ++# writer
+
+:= round_trip_difference (family : family_root) (witness : string) : string =
+    := t = root_type_name family
+    := writer = t ++# "_to_xml \"" ++# tag_text family::root_element ++# "\") node with\n"
+    "        | node :: [] =>\n" ++# read_back_call t witness writer
+
+:= round_trip_arms () : string =
+    "            | Some difference => [sm'.(++#) path (sm'.(++#) \": \" difference)]\n"
     ++# "            | None => []\n"
     ++# "        | _ => [sm'.(++#) path \": not one root element\"]\n"
 
-:= json_round_trip (family : family_root) (witness : string) (name : string) : string =
-    := t = root_type_name family
-    := root = "\"" ++# tag_text family::root_element ++# "\""
+:= document_round_trip (family : family_root) (witness : string) (name : string) (reader : string) : string =
+    round_trip_reader name reader ++# round_trip_difference family witness ++# round_trip_arms ()
+
+:= typed_pass_text (binding : string) (t : string) (root : string) (witness : string) (source : string) : string =
+    "            inl " ++# binding ++# " = " ++# typed_round_expression t root witness source ++# "\n"
+
+:= json_size_helpers () : string =
     "    let rec xml_size (n : xml.xml_node) : i32 =\n"
     ++# (
         "        1i32 + listm.length (xml.data_attributes (xml.element_attributes n)) + xml_sizes "
@@ -252,31 +307,18 @@ test generates_the_uf_code_union =
     ++# "            match b with\n"
     ++# "            | y :: _ => sm'.(++#) (xml.node_name y) \" added\"\n"
     ++# "            | [] => \"here\"\n"
-    ++# "    inl "
-    ++# name
-    ++# " (path : string) : list string =\n"
-    ++# "        inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) \"../\" path))\n"
-    ++# "        match json_schema.ubl_json_document text with\n"
-    ++# "        | node :: [] =>\n"
-    ++# "            inl once = "
-    ++# t
-    ++# "_to_xml "
-    ++# root
-    ++# " ("
-    ++# t
-    ++# "_of_xml"
-    ++# witness
-    ++# " node)\n"
-    ++# "            inl twice = "
-    ++# t
-    ++# "_to_xml "
-    ++# root
-    ++# " ("
-    ++# t
-    ++# "_of_xml"
-    ++# witness
-    ++# " once)\n"
-    ++# "            match xml.first_difference once twice with\n"
+
+:= json_reads_head (name : string) : string =
+    := matched = "        match json_schema.ubl_json_document text with\n" ++# "        | node :: [] =>\n"
+    "    inl " ++# name ++# " (path : string) : list string =\n" ++# relative_sample_read () ++# matched
+
+:= json_round_trip_reads (name : string) (t : string) (root : string) (witness : string) : string =
+    json_reads_head name
+    ++# typed_pass_text "once" t root witness "node"
+    ++# typed_pass_text "twice" t root witness "once"
+
+:= json_round_trip_verdict () : string =
+    "            match xml.first_difference once twice with\n"
     ++# (
         "            | Some difference => [sm'.(++#) path (sm'.(++#) \": the typed round trip is not stable: \" "
         ^^ "difference)]\n"
@@ -293,136 +335,176 @@ test generates_the_uf_code_union =
     ++# "                    [sm'.(++#) path (sm'.(++#) lost detail)]\n"
     ++# "        | _ => [sm'.(++#) path \": not one root element\"]\n"
 
+:= json_round_trip (family : family_root) (witness : string) (name : string) : string =
+    := root = "\"" ++# tag_text family::root_element ++# "\""
+    json_size_helpers ()
+    ++# json_round_trip_reads name (root_type_name family) root witness
+    ++# json_round_trip_verdict ()
+
+:= both_failures () : string =
+    "    inl failures =\n"
+    ++# "        listm.append (listm.concat (listm.map check documents)) "
+    ++# "(listm.concat (listm.map check_json json_documents))\n"
+
+:= json_document_reads (family : family_root) (witness : string) (json : list string) (xml_check : string) : string =
+    := json_check = json_round_trip family witness "check_json"
+    "    inl json_documents = [" ++# quoted_paths json ++# "]\n" ++# xml_check ++# json_check ++# both_failures ()
+
+:= document_reads (family : family_root) (witness : string) : string =
+    := xml_check = document_round_trip family witness "check" "xml.read_xml"
+    ?= (documents_of family::ubl_json_documents) ?|
+    | [] => xml_check ++# single_failures ()
+    | json => json_document_reads family witness json xml_check
+
+:~ ^ is_defect_path (path : string) (defects : list (string * string)) : bool =
+    ?= defects ?|
+    | (p, _) :: rest => p = path || is_defect_path path rest
+    | [] => !-
+
+:~ ^ kept_documents (paths : list string) (defects : list (string * string)) : list string =
+    ?= paths ?|
+    | path :: rest =>
+        ? is_defect_path path defects ?> kept_documents rest defects |: path :: kept_documents rest defects
+    | [] => []
+
+:= defect_check_text () : string =
+    "    inl defect_check (path : string) (expected : string) : list string =\n"
+    ++# "        match check path with\n"
+    ++# "        | [] => [sm'.(++#) path \": a recorded defect now reads back\"]\n"
+    ++# "        | first :: _ =>\n"
+    ++# "            if sm'.contains expected first then []\n"
+    ++# "            else [sm'.(++#) path (sm'.(++#) \": fails differently: \" first)]\n"
+
+:= defect_call (defect : string * string) : string =
+    := path, expected = defect
+    "defect_check \"" ++# path ++# "\" \"" ++# expected ++# "\""
+
+:= defect_lines (family : family_root) : string =
+    ?= document_defects family::extras ?|
+    | [] => ""
+    | defects =>
+        := calls = join_with "; " (listm::map defect_call defects) ""
+        defect_check_text () ++# "    inl failures = listm.append failures (listm.concat [" ++# calls ++# "])\n"
+
+:= read_back_list (family : family_root) : string =
+    := kept = kept_documents (documents_of family::documents) (document_defects family::extras)
+    "    inl documents = [" ++# quoted_paths kept ++# "]\n"
+
 := document_checks (family : family_root) (witness : string) : string =
-    := quoted (paths : list string) : string = join_with "; " (listm::map (\ path => "\"" ++# path ++# "\"") paths) ""
-    := reads =
-        ?= family::ubl_json_documents ?|
-        | [] =>
-            document_round_trip family witness "check" "xml.read_xml"
-            ++# "    inl failures = listm.concat (listm.map check documents)\n"
-        | json =>
-            "    inl json_documents = ["
-            ++# quoted json
-            ++# "]\n"
-            ++# document_round_trip family witness "check" "xml.read_xml"
-            ++# json_round_trip family witness "check_json"
-            ++# "    inl failures =\n"
-            ++# "        listm.append (listm.concat (listm.map check documents)) "
-            ++# "(listm.concat (listm.map check_json json_documents))\n"
-    ?= family::documents, family::ubl_json_documents ?|
+    ?= (documents_of family::documents), (documents_of family::ubl_json_documents) ?|
     | [], [] => ""
-    | _ =>
-        "    inl documents = ["
-        ++# quoted family::documents
-        ++# "]\n"
-        ++# reads
-        ++# "    inl _ =\n"
-        ++# "        match failures with\n"
-        ++# "        | first :: _ =>\n"
-        ++# "            inl count = sm'.obj_to_string (listm.length failures : i32)\n"
-        ++# "            inl message = sm'.(++#) \" real documents do not read back unchanged; first: \" first\n"
-        ++# "            failwith (sm'.(++#) count message)\n"
-        ++# "        | [] => ()\n"
+    | _ => read_back_list family ++# document_reads family witness ++# defect_lines family ++# failures_raise ()
+
+:= pinned_defect (family : family_root) : string =
+    ?= family::known_defect ?|
+    | Some defect => " fails \"" ++# defect ++# "\""
+    | None => ""
+
+:= example_write (family : family_root) (m : string) : string =
+    := sample = sample_write_call m "xml" ++# "(" ++# signed_text "document" ++# ")\n"
+    "    inl document = " ++# example_document family "example" ++# "\n" ++# sample_folder_line () ++# sample
 
 := xsd_example_check (family : family_root) : string =
-    := t = root_type_name family
-    := pinned =
-        ?= family::known_defect ?|
-        | Some defect => " fails \"" ++# defect ++# "\""
-        | None => ""
-    "///> rust\ntest "
-    ++# module_text family::module_name
-    ++# "_writes_its_example"
-    ++# pinned
-    ++# " =\n"
-    ++# "    inl example = "
-    ++# t
-    ++# "_example 0i32\n"
-    ++# "    inl document = "
-    ++# example_document family "example"
-    ++# "\n"
-    ++# "    file_system.directory_create_all (generated_fiscal_runtime.sample_path \"\") |> ignore\n"
-    ++# "    file_system.write_all_text (generated_fiscal_runtime.sample_path \""
-    ++# module_text family::module_name
-    ++# "_example.xml\") ("
-    ++# signed_text "document"
-    ++# ")\n"
+    := m = module_text family::module_name
+    := head = "///> rust\ntest " ++# m ++# "_writes_its_example" ++# pinned_defect family ++# " =\n"
+    head ++# "    inl example = " ++# root_type_name family ++# "_example 0i32\n" ++# example_write family m
 
 := family_example_check (family : family_root) : string =
     ?= family::source ?|
     | JsonSchema => json_example_check family
     | Xsd _ => xsd_example_check family
 
-:= family_bench (family : family_root) (witness : string) : string =
-    := t = root_type_name family
-    := m = module_text family::module_name
-    := one = "failwith \"one " ++# tag_text family::root_element ++# " element\"\n"
-    := measurable =
-        ?= family::source ?|
-        | JsonSchema => !-
-        | Xsd _ =>
-            ?= family::known_defect ?|
-            | Some _ => !-
-            | None => !+
-    ? measurable = !- ?> ""
-    |:
+:= is_measurable (family : family_root) : bool =
+    ?= family::source ?|
+    | JsonSchema => !-
+    | Xsd _ =>
+        ?= family::known_defect ?|
+        | Some _ => !-
+        | None => !+
+
+:= bench_timer () : string =
+    "    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64)"
+    ++# " : list i64 * list i64 * i64 =\n"
+    ++# "        if left = 0i32 then parses, writes, bytes\n"
+    ++# "        else\n"
+    ++# "            inl watch = date_time.stopwatch ()\n"
+    ++# "            date_time.stopwatch_start watch\n"
+    ++# "            inl start = date_time.stopwatch_elapsed_microseconds watch\n"
+    ++# "            match xml.read_xml text with\n"
+    ++# "            | node :: [] =>\n"
+
+:= bench_parse_line (indent : string) (t : string) (witness : string) : string =
+    indent ++# "inl parsed = xml_codec.expect_decoded (" ++# t ++# "_of_xml" ++# witness ++# " node)\n"
+
+:= bench_insert_runs () : string =
+    "                inl written_at = date_time.stopwatch_elapsed_microseconds watch\n"
+    ++# "                inl parses = generated_fiscal_runtime.insert_run (parsed_at - start) parses\n"
+    ++# "                inl writes = generated_fiscal_runtime.insert_run (written_at - parsed_at) writes\n"
+    ++# "                runs (left - 1i32) parses writes (bytes + sm'.length written)\n"
+
+:= bench_written_line (family : family_root) (t : string) : string =
+    "                inl written = xml.write_node ("
+    ++# t
+    ++# "_to_xml \""
+    ++# tag_text family::root_element
+    ++# "\" parsed)\n"
+
+:= bench_run_tail (family : family_root) (t : string) : string =
+    := written = bench_written_line family t
+    "                inl parsed_at = date_time.stopwatch_elapsed_microseconds watch\n"
+    ++# written
+    ++# bench_insert_runs ()
+
+:= bench_row_tail () : string =
+    "    inl row = sm'.(++#) row (sm'.(++#) \" write_us \" (generated_fiscal_runtime.median writes))\n"
+    ++# "    inl row = sm'.(++#) row (sm'.(++#) \" runs 31 bytes \" (sm'.obj_to_string bytes))\n"
+    ++# "    console.write_line row\n"
+
+:= bench_runs () : string =
+    "    inl _ = runs (dyn 5i32) [] [] 0i64\n" ++# "    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64\n"
+
+:= bench_report (m : string) (one : string) : string =
+    := row = "    inl row = sm'.(++#) \"" ++# m ++# " parse_us \" (generated_fiscal_runtime.median parses)\n"
+    "            | _ => " ++# one ++# bench_runs () ++# row ++# bench_row_tail ()
+
+:= bench_folder () : string =
+    "        inl folder = generated_fiscal_runtime.sample_path \"../target/bench\"\n"
+    ++# "        match file_system.directory_create_all folder with\n"
+
+:= bench_write_line (m : string) : string =
+    "        | Ok _ => file_system.write_all_text (sm'.(++#) folder \"/ours-"
+    ++# m
+    ++# "_example.xml\") ("
+    ++# signed_text "document"
+    ++# ")\n"
+
+:= bench_sample (family : family_root) (m : string) : string =
+    := write = bench_write_line m
+    "        inl document = " ++# example_document family "parsed" ++# "\n" ++# bench_folder () ++# write
+
+:= bench_write (family : family_root) (t : string) (witness : string) (m : string) (one : string) : string =
+    := head = "    match xml.read_xml text with\n" ++# "    | node :: [] =>\n" ++# bench_parse_line "        " t witness
+    head
+    ++# bench_sample family m
+    ++# "        | Error _ => failwith \"cannot create target/bench\"\n"
+    ++# "    | _ => "
+    ++# one
+
+:= bench_loop (family : family_root) (t : string) (witness : string) (m : string) : string =
+    := read =
         "    inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path \""
         ++# m
         ++# "_example.xml\")\n"
-        ++# "    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64)"
-        ++# " : list i64 * list i64 * i64 =\n"
-        ++# "        if left = 0i32 then parses, writes, bytes\n"
-        ++# "        else\n"
-        ++# "            inl watch = date_time.stopwatch ()\n"
-        ++# "            date_time.stopwatch_start watch\n"
-        ++# "            inl start = date_time.stopwatch_elapsed_microseconds watch\n"
-        ++# "            match xml.read_xml text with\n"
-        ++# "            | node :: [] =>\n"
-        ++# "                inl parsed = "
-        ++# t
-        ++# "_of_xml"
-        ++# witness
-        ++# " node\n"
-        ++# "                inl parsed_at = date_time.stopwatch_elapsed_microseconds watch\n"
-        ++# "                inl written = xml.write_node ("
-        ++# t
-        ++# "_to_xml \""
-        ++# tag_text family::root_element
-        ++# "\" parsed)\n"
-        ++# "                inl written_at = date_time.stopwatch_elapsed_microseconds watch\n"
-        ++# "                inl parses = generated_fiscal_runtime.insert_run (parsed_at - start) parses\n"
-        ++# "                inl writes = generated_fiscal_runtime.insert_run (written_at - parsed_at) writes\n"
-        ++# "                runs (left - 1i32) parses writes (bytes + sm'.length written)\n"
-        ++# "            | _ => "
-        ++# one
-        ++# "    inl _ = runs (dyn 5i32) [] [] 0i64\n"
-        ++# "    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64\n"
-        ++# "    inl row = sm'.(++#) \""
-        ++# m
-        ++# " parse_us \" (generated_fiscal_runtime.median parses)\n"
-        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" write_us \" (generated_fiscal_runtime.median writes))\n"
-        ++# "    inl row = sm'.(++#) row (sm'.(++#) \" runs 31 bytes \" (sm'.obj_to_string bytes))\n"
-        ++# "    console.write_line row\n"
-        ++# "    match xml.read_xml text with\n"
-        ++# "    | node :: [] =>\n"
-        ++# "        inl parsed = "
-        ++# t
-        ++# "_of_xml"
-        ++# witness
-        ++# " node\n"
-        ++# "        inl document = "
-        ++# example_document family "parsed"
-        ++# "\n"
-        ++# "        inl folder = generated_fiscal_runtime.sample_path \"../target/bench\"\n"
-        ++# "        match file_system.directory_create_all folder with\n"
-        ++# "        | Ok _ => file_system.write_all_text (sm'.(++#) folder \"/ours-"
-        ++# m
-        ++# "_example.xml\") ("
-        ++# signed_text "document"
-        ++# ")\n"
-        ++# "        | Error _ => failwith \"cannot create target/bench\"\n"
-        ++# "    | _ => "
-        ++# one
+    read ++# bench_timer () ++# bench_parse_line "                " t witness ++# bench_run_tail family t
+
+:= bench_parts (family : family_root) (witness : string) (t : string) (m : string) : string =
+    := one = "failwith \"one " ++# tag_text family::root_element ++# " element\"\n"
+    bench_loop family t witness m ++# bench_report m one ++# bench_write family t witness m one
+
+:= family_bench (family : family_root) (witness : string) : string =
+    ? is_measurable family = !-
+    ?> ""
+    |: bench_parts family witness (root_type_name family) (module_text family::module_name)
 
 := family_nominal_check \* form. (family : family_root) (schema : xsd_schema form) : string =
     ?= any_validated_type schema ?|
@@ -435,15 +517,19 @@ test generates_the_uf_code_union =
     | None => ""
 
 := certificate_check (family : family_root) : string =
-    "\n///> rust\ntest " ++# module_text family::module_name ++# "_certificates_hold =\n    certificates_checked () |> ignore\n"
+    "\n///> rust\ntest "
+    ++# module_text family::module_name
+    ++# "_certificates_hold =\n    certificates_checked () |> ignore\n"
+
+:= json_schema_model (family : family_root) =
+    := text = xml::read_text_replacing_invalid_utf8 (repo_file family::schema_path)
+    := model = json_schema::schema_of_json_schema (definition_text family::root_type) text
+    xsd_resolve::finalize_names (xsd_resolve::qualify_schema [] model)
 
 := family_schema (family : family_root) =
     ?= family::source ?|
-    | Xsd catalog => (xsd_resolve::load_schema_tree_with catalog family::schema_path)::schema
-    | JsonSchema =>
-        := text = xml::read_text_replacing_invalid_utf8 family::schema_path
-        := model = json_schema::schema_of_json_schema (definition_text family::root_type) text
-        xsd_resolve::finalize_names (xsd_resolve::qualify_schema [] model)
+    | Xsd entries => (xsd_resolve::load_schema_tree_with (catalog_of entries) (repo_file family::schema_path))::schema
+    | JsonSchema => json_schema_model family
 
 := complement_member_of (complement : string * family_root) =
     := case_name, member = complement
@@ -455,66 +541,102 @@ test generates_the_uf_code_union =
 
 := signatures_of (family : family_root) : list string = ? has_extra Signed family::extras ?> [ "Signature" ] |: []
 
+:= nfe_model_checks () : string =
+    "\n///> rust\ntest generated_nfe_model_type_checks =\n"
+    ++# "    match x_t_cod_uf_ibge_of_string \"35\" with\n"
+    ++# (
+        "    | Some code => if x_t_cod_uf_ibge_to_string code <> \"35\" then failwith \"TCodUfIBGE 35 round "
+        ^^ "trip\"\n"
+    )
+    ++# "    | None => failwith \"35 parses as TCodUfIBGE\"\n"
+    ++# "    if x_t_cnpj_is_valid \"12345678000195\" = false then failwith \"a 14-digit CNPJ is valid\"\n"
+    ++# "    if x_t_cnpj_is_valid \"1234567800019\" then failwith \"a 13-digit CNPJ is not\"\n"
+    ++# (
+        "    match xml.read_xml \"<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550"
+        ^^ "308</cMun><xMun>Sao Paulo</xMun><UF>SP</UF><CEP>01001000</CEP><cPais>1058</cPais></enderEmit>\" with\n"
+    )
+    ++# "    | node :: [] =>\n"
+    ++# "        inl address = xml_codec.expect_decoded (x_t_ender_emi_of_xml node)\n"
+    ++# (
+        "        if x_t_ender_emi_x_mun_to_string address.x_mun <> \"Sao Paulo\" || x_t_ender_emi_cep_to_string "
+        ^^ "address.cep <> \"01001000\" then failwith \"TEnderEmi text fields\"\n"
+    )
+    ++# "        if x_t_uf_emi_to_string address.uf <> \"SP\" then failwith \"TEnderEmi UF enumeration\"\n"
+    ++# (
+        "        if xml.same_node node (x_t_ender_emi_to_xml \"enderEmit\" address) = false then failwith "
+        ^^ "\"TEnderEmi XML round trip\"\n"
+    )
+    ++# "        match address.c_pais with\n"
+    ++# "        | Some _ => ()\n"
+    ++# "        | None => failwith \"TEnderEmi optional cPais\"\n"
+    ++# "    | _ => failwith \"one enderEmit element\"\n"
+    ++# "\n///> rust\ntest generated_nfe_reports_a_missing_element_with_its_path =\n"
+    ++# "    inl document = xml_codec.pruned \"cUF\" (x_tn_fe_to_xml \"NFe\" (x_tn_fe_example 0i32))\n"
+    ++# "    if xml_codec.reports \"missing infNFe/ide/cUF\" (x_tn_fe_of_xml Unsigned document) = false then\n"
+    ++# "        failwith \"an NF-e without ide/cUF is reported as missing infNFe/ide/cUF, not raised\"\n"
+
 := unit_checks_of (family : family_root) : string =
-    ? has_extra NfeModelChecks family::extras = !- ?> ""
-    |:
-        "\n///> rust\ntest generated_nfe_model_type_checks =\n"
-        ++# "    match x_t_cod_uf_ibge_of_string \"35\" with\n"
-        ++# (
-            "    | Some code => if x_t_cod_uf_ibge_to_string code <> \"35\" then failwith \"TCodUfIBGE 35 round "
-            ^^ "trip\"\n"
-        )
-        ++# "    | None => failwith \"35 parses as TCodUfIBGE\"\n"
-        ++# "    if x_t_cnpj_is_valid \"12345678000195\" = false then failwith \"a 14-digit CNPJ is valid\"\n"
-        ++# "    if x_t_cnpj_is_valid \"1234567800019\" then failwith \"a 13-digit CNPJ is not\"\n"
-        ++# (
-            "    match xml.read_xml \"<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550"
-            ^^ "308</cMun><xMun>Sao Paulo</xMun><UF>SP</UF><CEP>01001000</CEP><cPais>1058</cPais></enderEmit>\" with\n"
-        )
-        ++# "    | node :: [] =>\n"
-        ++# "        inl address = x_t_ender_emi_of_xml node\n"
-        ++# (
-            "        if x_t_ender_emi_x_mun_to_string address.x_mun <> \"Sao Paulo\" || x_t_ender_emi_cep_to_string "
-            ^^ "address.cep <> \"01001000\" then failwith \"TEnderEmi text fields\"\n"
-        )
-        ++# "        if x_t_uf_emi_to_string address.uf <> \"SP\" then failwith \"TEnderEmi UF enumeration\"\n"
-        ++# (
-            "        if xml.same_node node (x_t_ender_emi_to_xml \"enderEmit\" address) = false then failwith "
-            ^^ "\"TEnderEmi XML round trip\"\n"
-        )
-        ++# "        match address.c_pais with\n"
-        ++# "        | Some _ => ()\n"
-        ++# "        | None => failwith \"TEnderEmi optional cPais\"\n"
-        ++# "    | _ => failwith \"one enderEmit element\"\n"
+    ? has_extra NfeModelChecks family::extras = !- ?> "" |: nfe_model_checks ()
+
+:= staged_witness (root_staged : bool) (witness : string) : string = ? root_staged ?> witness |: ""
+
+:= family_document_cells (family : family_root) (root_staged : bool) : string =
+    := xml_documents = ? is_json_family family ?> "" |: document_checks family (staged_witness root_staged " Signed")
+    family_example_check family ++# xml_documents ++# family_bench family (staged_witness root_staged " Unsigned")
+
+:= family_checks \* form. (family : family_root) (schema : xsd_schema form) (root_staged : bool) : string =
+    := one_cell = family_document_cells family root_staged
+    one_cell ++# family_nominal_check family schema ++# json_document_checks family ++# unit_checks_of family
+
+:= family_any_content (complements : list (string * family_root)) : string =
+    ?= complements ?|
+    | [] => untyped_any_content ()
+    | _ => generate_complements (listm::map complement_member_of complements) ++# complement_any_content ()
+
+:= write_certificates_unit (family : family_root) (certificates : option string) : () =
+    := name = module_text family::module_name ++# "_certificates"
+    ?= certificates ?|
+    | Some text => write_generated_module name (text ++# certificate_check family)
+    | None => remove_generated_module name
+
+:= unit_dependencies (complements : list (string * family_root)) : list string =
+    generated_runtime::unit_name () :: listm::map complement_unit complements
+
+:= write_runtime_unit () : () =
+    write_generated_module (generated_runtime::unit_name ()) (generated_runtime::unit_text ())
+
+:= unit_checks \* form. (family : family_root) (schema : xsd_schema form) (signatures : list string) : string =
+    family_checks family schema (has_name (root_type_name family) (staged_type_names signatures schema))
+
+:= write_family_unit \* form.
+    (family : family_root) (schema : xsd_schema form) (signatures : list string)
+    (complements : list (string * family_root))
+    (main : string)
+    : ()
+    =
+    := checks = unit_checks family schema signatures
+    write_generated_module_with
+        (unit_dependencies complements)
+        (module_text family::module_name)
+        (main ++# "\n" ++# checks)
+
+:= write_family_parts \* form.
+    (family : family_root) (schema : xsd_schema form) (signatures : list string)
+    (complements : list (string * family_root))
+    : ()
+    =
+    := main, certificates = generated_units_signed signatures (family_any_content complements) schema
+    write_runtime_unit ()
+    write_family_unit family schema signatures complements main
+    write_certificates_unit family certificates
+
+:= write_family_module (family : family_root) : () =
+    write_family_parts family (family_schema family) (signatures_of family) (complements_of family)
 
 :~ ^ write_family_modules (roots : list family_root) (count : i32) : i32 =
     ?= roots ?|
     | family :: rest =>
-        := schema = family_schema family
-        := signatures = signatures_of family
-        := root_staged = has_name (root_type_name family) (staged_type_names signatures schema)
-        := documents_witness = ? root_staged ?> " Signed" |: ""
-        := example_witness = ? root_staged ?> " Unsigned" |: ""
-        := xml_documents = ? is_json_family family ?> "" |: document_checks family documents_witness
-        := one_cell = family_example_check family ++# xml_documents ++# family_bench family example_witness
-        := checks =
-            one_cell ++# family_nominal_check family schema ++# json_document_checks family ++# unit_checks_of family
-        := complements = complements_of family
-        := any_content =
-            ?= complements ?|
-            | [] => untyped_any_content ()
-            | _ =>
-                := members = listm::map complement_member_of complements
-                generate_complements members ++# complement_any_content ()
-        := main, certificates = generated_units_signed signatures any_content schema
-        write_generated_module (generated_runtime::unit_name ()) (generated_runtime::unit_text ())
-        write_generated_module_with
-            (generated_runtime::unit_name () :: listm::map complement_unit complements)
-            (module_text family::module_name)
-            (main ++# "\n" ++# checks)
-        ? certificates <> ""
-        ?> write_generated_module (module_text family::module_name ++# "_certificates") (certificates ++# certificate_check family)
-        |: remove_generated_module (module_text family::module_name ++# "_certificates")
+        write_family_module family
         write_family_modules rest (count + 1i32)
     | [] => count
 
@@ -555,9 +677,11 @@ test generates_cfdi_4_0 =
             (file_system::read_all_text (unit ++# "generated_cfdi_v4_0.spi"))
         = !-
     ?> failwith "CFDI types its complement content"
-    := package = file_system::read_all_text (unit ++# "package.spiproj")
-    ? sm'::contains "    ../generated_cfdi_tfd_1_1-\n    ../generated_cfdi_pagos_2_0-\n" package = !-
-    ?> failwith "the CFDI unit's package lists its complement units"
+    := package = file_system::read_all_text (unit ++# "spiral.toml")
+    ? sm'::contains ", '../generated_cfdi_tfd_1_1-', '../generated_cfdi_pagos_2_0-']\n" package = !-
+    ?> failwith "the CFDI unit's spiral.toml lists its complement units"
+    ? sm'::contains "modules" package ?> failwith "a unit's modules come from its one file, not a list"
+    ? file_system::file_exists (unit ++# "package.spiproj") ?> failwith "a unit keeps one manifest"
 
 ///> rust
 test generates_ubl_invoice_2_1 =
@@ -572,6 +696,17 @@ test ubl_json_documents_read_through_the_transcoder =
     ?> failwith "the JSON documents become the element trees the typed reader takes"
     ? sm'::contains "check_json" (document_checks (ubl_creditnote_2_1 ()) "")
     ?> failwith "a family without JSON documents keeps the XML-only check"
+
+///> rust
+test a_recorded_document_defect_is_asserted_not_read_back =
+    := invoice = document_checks (ubl_invoice_2_1 ()) ""
+    := sample = "deps/corpus/my/samples/1.1-Invoice-ForeignCurrency-Sample.xml"
+    ? sm'::contains ("\"" ++# sample ++# "\"; ") invoice || sm'::contains ("; \"" ++# sample ++# "\"]") invoice
+    ?> failwith "a recorded defect leaves the read-back list"
+    ? sm'::contains ("defect_check \"" ++# sample ++# "\" \"PayableAmount: abc\"") invoice = !-
+    ?> failwith "the LHDN sample must fail with its recorded message"
+    ? sm'::contains "inl defect_check" (document_checks (ubl_creditnote_2_1 ()) "")
+    ?> failwith "a family without recorded defects emits no defect check"
 
 ///> rust
 test generates_ubl_creditnote_2_1 =
@@ -606,6 +741,10 @@ test generates_facturae_3_2_2 =
 test generates_verifactu_registro =
     ? write_family_modules [ verifactu_registro () ] 0i32 <> 1i32
     ?> failwith "VeriFactu RegFactuSistemaFacturacion is written"
+
+///> rust
+test generates_cii_d16b =
+    ? write_family_modules [ cii_d16b () ] 0i32 <> 1i32 ?> failwith "UN/CEFACT CII D16B is written"
 
 ///> rust
 test generates_saft_pt_1_04_01 =

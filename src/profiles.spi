@@ -67,16 +67,23 @@
 
 := peppol_bis3_urn () : string = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0"
 
+:= customization_codes () : list (string * ubl_profile) =
+    [ ("urn:cen.eu:en16931:2017", UblEn16931); (peppol_bis3_urn (), PeppolBis3); ("2.0", SunatUbl20) ]
+
+:= customization_profile (urn : string) : option ubl_profile =
+    ?= listm'::try_find_ (\ (code, _) => code = urn) (customization_codes ()) ?|
+    | Some (_, profile) => Some profile
+    | None => None
+
+:= list_version_profile (list_version : option string) : option ubl_profile =
+    ?= list_version ?|
+    | Some version => optionm::map (\ v => MyInvois v) (myinvois_version_of version)
+    | None => None
+
 := ubl_profile_of (customization : option string) (list_version : option string) : option ubl_profile =
     ?= customization ?|
-    | Some urn ?& urn = "urn:cen.eu:en16931:2017" => Some UblEn16931
-    | Some urn ?& urn = peppol_bis3_urn () => Some PeppolBis3
-    | Some urn ?& urn = "2.0" => Some SunatUbl20
-    | Some _ => None
-    | None =>
-        ?= list_version ?|
-        | Some version => optionm::map (\ v => MyInvois v) (myinvois_version_of version)
-        | None => None
+    | Some urn => customization_profile urn
+    | None => list_version_profile list_version
 
 ///> rust
 test a_basic_invoice_widens_to_en16931_and_extended =

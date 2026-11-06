@@ -12,6 +12,54 @@ inl optional_text_nodes forall t {to_text}. (name : string) (v : option t) : lis
 inl repeated_text_nodes forall t {to_text}. (name : string) (vs : list t) : list xml.xml_node =
     listm.map (text_node name) vs
 
+nominal lexical t = { value : t; text : string }
+
+instance to_text lexical t = fun x => x.text
+
+inl lexical_of forall t. (text : string) (value : option t) : option (lexical t) =
+    optionm.map (fun v => lexical { value = v; text = text }) value
+
+inl whole_of (text : string) : option i64 =
+    if sm'.index_of "." text >= 0i32 then None
+    else optionm.map (fun (d : decimal.decimal) => d.units) (decimal.parse text)
+
+inl whole_at_least (least : i64) (text : string) : option i64 =
+    match whole_of text with
+    | Some n => if n >= least then Some n else None
+    | None => None
+
+inl boolean_of (text : string) : option bool =
+    match xml.collapsed_space text with
+    | "true" => Some true
+    | "1" => Some true
+    | "false" => Some false
+    | "0" => Some false
+    | _ => None
+
+type xsd_decimal = lexical decimal.decimal
+
+inl xsd_decimal_of_string (s : string) : option xsd_decimal = lexical_of s (decimal.parse s)
+
+inl xsd_decimal_example (_ : i32) : xsd_decimal = lexical { value = decimal.of_int 1i64; text = "1" }
+
+inl xsd_decimal_example_text (_ : i32) : string = "1"
+
+type xsd_integer = lexical i64
+
+inl xsd_integer_of_string (s : string) : option xsd_integer = lexical_of s (whole_of s)
+
+inl xsd_integer_example (_ : i32) : xsd_integer = lexical { value = 1i64; text = "1" }
+
+inl xsd_integer_example_text (_ : i32) : string = "1"
+
+type xsd_boolean = lexical bool
+
+inl xsd_boolean_of_string (s : string) : option xsd_boolean = lexical_of s (boolean_of s)
+
+inl xsd_boolean_example (_ : i32) : xsd_boolean = lexical { value = true; text = "true" }
+
+inl xsd_boolean_example_text (_ : i32) : string = "true"
+
 type x_receiving_note_purpose_type = string
 
 inl x_receiving_note_purpose_type_is_valid (s : string) : bool = true
@@ -2318,12 +2366,12 @@ nominal x_income_classification_type =
         classification_type : option (x_income_classification_value_type)
         classification_category : x_income_classification_category_type
         amount : x_amount_type
-        id : option (string)
+        id : option (xsd_integer)
     }
 
 nominal x_invoices_income_classification_detail_type =
     {
-        line_number : string
+        line_number : xsd_integer
         income_classification_detail_data : list (x_income_classification_type)
     }
 
@@ -2344,8 +2392,8 @@ union x_invoice_income_classification_type_choice_transaction_mode =
 
 nominal x_invoice_income_classification_type =
     {
-        invoice_mark : string
-        classification_mark : option (string)
+        invoice_mark : xsd_integer
+        classification_mark : option (xsd_integer)
         entity_vat_number : option (string)
         choice_transaction_mode : x_invoice_income_classification_type_choice_transaction_mode
     }
@@ -2368,12 +2416,12 @@ nominal x_expenses_classification_type =
         vat_amount : option (x_amount_type)
         vat_category : option (x_vat_type)
         vat_exemption_category : option (x_vat_exemption_type)
-        id : option (string)
+        id : option (xsd_integer)
     }
 
 nominal x_invoices_expenses_classification_detail_type =
     {
-        line_number : string
+        line_number : xsd_integer
         expenses_classification_detail_data : list (x_expenses_classification_type)
     }
 
@@ -2403,8 +2451,8 @@ inl x_invoice_expenses_classification_type_classification_post_mode_example_text
 
 nominal x_invoice_expenses_classification_type =
     {
-        invoice_mark : string
-        classification_mark : option (string)
+        invoice_mark : xsd_integer
+        classification_mark : option (xsd_integer)
         entity_vat_number : option (string)
         choice_transaction_mode : x_invoice_expenses_classification_type_choice_transaction_mode
         classification_post_mode : option (x_invoice_expenses_classification_type_classification_post_mode)
@@ -2458,14 +2506,14 @@ inl x_packaging_detail_type_other_packaging_type_title_example_text (k : i32) : 
 nominal x_packaging_detail_type =
     {
         packaging_type : x_packaging_detail_type_packaging_type
-        quantity : string
+        quantity : xsd_integer
         other_packaging_type_title : option (x_packaging_detail_type_other_packaging_type_title)
     }
 
 nominal x_location_type =
     {
-        longitude : string
-        latitude : string
+        longitude : xsd_decimal
+        latitude : xsd_decimal
     }
 
 nominal private x_transport_detail_type_vehicle_number = string
@@ -2648,7 +2696,7 @@ nominal x_tax_totals_type =
         tax_category : option (x_tax_totals_type_tax_category)
         underlying_value : option (x_amount_type)
         tax_amount : x_tax_totals_type_tax_amount
-        id : option (string)
+        id : option (xsd_integer)
     }
 
 type x_payment_method_detail_type_type = string
@@ -2814,7 +2862,7 @@ nominal x_party_type =
     {
         vat_number : x_party_type_vat_number
         country : x_country_type
-        branch : string
+        branch : xsd_integer
         name : option (x_party_type_name)
         address : option (x_address_type)
         document_id_no : option (x_party_type_document_id_no)
@@ -3021,7 +3069,7 @@ nominal x_invoice_row_type =
         vat_amount : x_amount_type
         vat_exemption_category : option (x_vat_exemption_type)
         dienergia : option (x_ship_type)
-        discount_option : option (string)
+        discount_option : option (xsd_boolean)
         withheld_amount : option (x_amount_type)
         withheld_percent_category : option (x_withheld_type)
         stamp_duty_amount : option (x_amount_type)
@@ -3035,9 +3083,9 @@ nominal x_invoice_row_type =
         income_classification : list (x_income_classification_type)
         expenses_classification : list (x_expenses_classification_type)
         quantity15 : option (x_invoice_row_type_quantity15)
-        other_measurement_unit_quantity : option (string)
+        other_measurement_unit_quantity : option (xsd_integer)
         other_measurement_unit_title : option (x_invoice_row_type_other_measurement_unit_title)
-        not_vat195 : option (string)
+        not_vat195 : option (xsd_boolean)
         move_purpose_line : option (x_invoice_row_type_move_purpose_line)
         other_move_purpose_line_title : option (x_invoice_row_type_other_move_purpose_line_title)
     }
@@ -3225,7 +3273,7 @@ nominal x_expenses_classifications_doc =
 nominal x_outcome_details_type =
     {
         outcome : x_delivery_outcome_type
-        delivered_without_recipient : option (string)
+        delivered_without_recipient : option (xsd_boolean)
         delivered_packaging : list (x_packaging_detail_type)
     }
 
@@ -3244,7 +3292,7 @@ nominal x_delivery_event_type =
         event_type : string
         event_timestamp : string
         actor_vat : string
-        mark : option (string)
+        mark : option (xsd_integer)
         choice_transport_details : option (x_delivery_event_type_choice_transport_details)
     }
 
@@ -3252,8 +3300,8 @@ nominal x_other_delivery_note_header_type =
     {
         loading_address : x_address_type
         delivery_address : x_address_type
-        start_shipping_branch : option (string)
-        complete_shipping_branch : option (string)
+        start_shipping_branch : option (xsd_integer)
+        complete_shipping_branch : option (xsd_integer)
     }
 
 nominal x_entity_type =
@@ -3268,33 +3316,33 @@ nominal x_invoice_header_type =
         aa : x_invoice_header_type_aa
         issue_date : string
         invoice_type : x_invoice_type
-        vat_payment_suspension : option (string)
+        vat_payment_suspension : option (xsd_boolean)
         currency : option (x_currency_type)
         exchange_rate : option (x_exchange_rate_type)
-        correlated_invoices : list (string)
-        self_pricing : option (string)
+        correlated_invoices : list (xsd_integer)
+        self_pricing : option (xsd_boolean)
         dispatch_date : option (string)
         dispatch_time : option (string)
         vehicle_number : option (x_invoice_header_type_vehicle_number)
         move_purpose : option (x_invoice_header_type_move_purpose)
-        fuel_invoice : option (string)
+        fuel_invoice : option (xsd_boolean)
         special_invoice_category : option (x_special_invoice_category_type)
         invoice_variation_type : option (x_invoice_variation_type)
         other_correlated_entities : list (x_entity_type)
         other_delivery_note_header : option (x_other_delivery_note_header_type)
-        is_delivery_note : option (string)
+        is_delivery_note : option (xsd_boolean)
         other_move_purpose_title : option (x_invoice_header_type_other_move_purpose_title)
-        third_party_collection : option (string)
-        multiple_connected_marks : list (string)
+        third_party_collection : option (xsd_boolean)
+        multiple_connected_marks : list (xsd_integer)
         table_aa : option (x_invoice_header_type_table_aa)
-        total_cancel_delivery_orders : option (string)
-        reverse_delivery_note : option (string)
+        total_cancel_delivery_orders : option (xsd_boolean)
+        reverse_delivery_note : option (xsd_boolean)
         reverse_delivery_note_purpose : option (x_reverse_delivery_note_purpose_type)
-        to_weigh : option (string)
+        to_weigh : option (xsd_boolean)
         receiving_note_purpose : option (x_receiving_note_purpose_type)
         other_receiving_note_purpose_title : option (x_invoice_header_type_other_receiving_note_purpose_title)
-        non_obligated_recipient : option (string)
-        without_digital_transport_tracking : option (string)
+        non_obligated_recipient : option (xsd_boolean)
+        without_digital_transport_tracking : option (xsd_boolean)
     }
 
 nominal x_aade_book_invoice_type_delivery_lifecycle =
@@ -3305,8 +3353,8 @@ nominal x_aade_book_invoice_type_delivery_lifecycle =
 nominal x_aade_book_invoice_type =
     {
         uid : option (string)
-        mark : option (string)
-        cancelled_by_mark : option (string)
+        mark : option (xsd_integer)
+        cancelled_by_mark : option (xsd_integer)
         authentication_code : option (string)
         transmission_failure : option (x_aade_book_invoice_type_transmission_failure)
         issuer : option (x_party_type)
@@ -3402,8 +3450,8 @@ inl x_income_classifications_doc_group_income_invoice_classification_get forall 
 
 union x_aade_book_invoice_type_field r =
     | AadeBookInvoiceType_field_uid :: x_aade_book_invoice_type_field (option (string))
-    | AadeBookInvoiceType_field_mark :: x_aade_book_invoice_type_field (option (string))
-    | AadeBookInvoiceType_field_cancelledByMark :: x_aade_book_invoice_type_field (option (string))
+    | AadeBookInvoiceType_field_mark :: x_aade_book_invoice_type_field (option (xsd_integer))
+    | AadeBookInvoiceType_field_cancelledByMark :: x_aade_book_invoice_type_field (option (xsd_integer))
     | AadeBookInvoiceType_field_authenticationCode :: x_aade_book_invoice_type_field (option (string))
     | AadeBookInvoiceType_field_transmissionFailure ::
         x_aade_book_invoice_type_field (option (x_aade_book_invoice_type_transmission_failure))
@@ -3482,40 +3530,40 @@ union x_invoice_header_type_field r =
     | InvoiceHeaderType_field_aa :: x_invoice_header_type_field (x_invoice_header_type_aa)
     | InvoiceHeaderType_field_issueDate :: x_invoice_header_type_field (string)
     | InvoiceHeaderType_field_invoiceType :: x_invoice_header_type_field (x_invoice_type)
-    | InvoiceHeaderType_field_vatPaymentSuspension :: x_invoice_header_type_field (option (string))
+    | InvoiceHeaderType_field_vatPaymentSuspension :: x_invoice_header_type_field (option (xsd_boolean))
     | InvoiceHeaderType_field_currency :: x_invoice_header_type_field (option (x_currency_type))
     | InvoiceHeaderType_field_exchangeRate :: x_invoice_header_type_field (option (x_exchange_rate_type))
-    | InvoiceHeaderType_field_correlatedInvoices :: x_invoice_header_type_field (list (string))
-    | InvoiceHeaderType_field_selfPricing :: x_invoice_header_type_field (option (string))
+    | InvoiceHeaderType_field_correlatedInvoices :: x_invoice_header_type_field (list (xsd_integer))
+    | InvoiceHeaderType_field_selfPricing :: x_invoice_header_type_field (option (xsd_boolean))
     | InvoiceHeaderType_field_dispatchDate :: x_invoice_header_type_field (option (string))
     | InvoiceHeaderType_field_dispatchTime :: x_invoice_header_type_field (option (string))
     | InvoiceHeaderType_field_vehicleNumber ::
         x_invoice_header_type_field (option (x_invoice_header_type_vehicle_number))
     | InvoiceHeaderType_field_movePurpose :: x_invoice_header_type_field (option (x_invoice_header_type_move_purpose))
-    | InvoiceHeaderType_field_fuelInvoice :: x_invoice_header_type_field (option (string))
+    | InvoiceHeaderType_field_fuelInvoice :: x_invoice_header_type_field (option (xsd_boolean))
     | InvoiceHeaderType_field_specialInvoiceCategory ::
         x_invoice_header_type_field (option (x_special_invoice_category_type))
     | InvoiceHeaderType_field_invoiceVariationType :: x_invoice_header_type_field (option (x_invoice_variation_type))
     | InvoiceHeaderType_field_otherCorrelatedEntities :: x_invoice_header_type_field (list (x_entity_type))
     | InvoiceHeaderType_field_otherDeliveryNoteHeader ::
         x_invoice_header_type_field (option (x_other_delivery_note_header_type))
-    | InvoiceHeaderType_field_isDeliveryNote :: x_invoice_header_type_field (option (string))
+    | InvoiceHeaderType_field_isDeliveryNote :: x_invoice_header_type_field (option (xsd_boolean))
     | InvoiceHeaderType_field_otherMovePurposeTitle ::
         x_invoice_header_type_field (option (x_invoice_header_type_other_move_purpose_title))
-    | InvoiceHeaderType_field_thirdPartyCollection :: x_invoice_header_type_field (option (string))
-    | InvoiceHeaderType_field_multipleConnectedMarks :: x_invoice_header_type_field (list (string))
+    | InvoiceHeaderType_field_thirdPartyCollection :: x_invoice_header_type_field (option (xsd_boolean))
+    | InvoiceHeaderType_field_multipleConnectedMarks :: x_invoice_header_type_field (list (xsd_integer))
     | InvoiceHeaderType_field_tableAA :: x_invoice_header_type_field (option (x_invoice_header_type_table_aa))
-    | InvoiceHeaderType_field_totalCancelDeliveryOrders :: x_invoice_header_type_field (option (string))
-    | InvoiceHeaderType_field_reverseDeliveryNote :: x_invoice_header_type_field (option (string))
+    | InvoiceHeaderType_field_totalCancelDeliveryOrders :: x_invoice_header_type_field (option (xsd_boolean))
+    | InvoiceHeaderType_field_reverseDeliveryNote :: x_invoice_header_type_field (option (xsd_boolean))
     | InvoiceHeaderType_field_reverseDeliveryNotePurpose ::
         x_invoice_header_type_field (option (x_reverse_delivery_note_purpose_type))
-    | InvoiceHeaderType_field_toWeigh :: x_invoice_header_type_field (option (string))
+    | InvoiceHeaderType_field_toWeigh :: x_invoice_header_type_field (option (xsd_boolean))
     | InvoiceHeaderType_field_receivingNotePurpose ::
         x_invoice_header_type_field (option (x_receiving_note_purpose_type))
     | InvoiceHeaderType_field_otherReceivingNotePurposeTitle ::
         x_invoice_header_type_field (option (x_invoice_header_type_other_receiving_note_purpose_title))
-    | InvoiceHeaderType_field_nonObligatedRecipient :: x_invoice_header_type_field (option (string))
-    | InvoiceHeaderType_field_withoutDigitalTransportTracking :: x_invoice_header_type_field (option (string))
+    | InvoiceHeaderType_field_nonObligatedRecipient :: x_invoice_header_type_field (option (xsd_boolean))
+    | InvoiceHeaderType_field_withoutDigitalTransportTracking :: x_invoice_header_type_field (option (xsd_boolean))
 
 inl x_invoice_header_type_get forall r. (f : x_invoice_header_type_field r) (x : x_invoice_header_type) : r =
     match f with
@@ -3566,7 +3614,7 @@ union x_invoice_row_type_field r =
     | InvoiceRowType_field_vatAmount :: x_invoice_row_type_field (x_amount_type)
     | InvoiceRowType_field_vatExemptionCategory :: x_invoice_row_type_field (option (x_vat_exemption_type))
     | InvoiceRowType_field_dienergia :: x_invoice_row_type_field (option (x_ship_type))
-    | InvoiceRowType_field_discountOption :: x_invoice_row_type_field (option (string))
+    | InvoiceRowType_field_discountOption :: x_invoice_row_type_field (option (xsd_boolean))
     | InvoiceRowType_field_withheldAmount :: x_invoice_row_type_field (option (x_amount_type))
     | InvoiceRowType_field_withheldPercentCategory :: x_invoice_row_type_field (option (x_withheld_type))
     | InvoiceRowType_field_stampDutyAmount :: x_invoice_row_type_field (option (x_amount_type))
@@ -3580,10 +3628,10 @@ union x_invoice_row_type_field r =
     | InvoiceRowType_field_incomeClassification :: x_invoice_row_type_field (list (x_income_classification_type))
     | InvoiceRowType_field_expensesClassification :: x_invoice_row_type_field (list (x_expenses_classification_type))
     | InvoiceRowType_field_quantity15 :: x_invoice_row_type_field (option (x_invoice_row_type_quantity15))
-    | InvoiceRowType_field_otherMeasurementUnitQuantity :: x_invoice_row_type_field (option (string))
+    | InvoiceRowType_field_otherMeasurementUnitQuantity :: x_invoice_row_type_field (option (xsd_integer))
     | InvoiceRowType_field_otherMeasurementUnitTitle ::
         x_invoice_row_type_field (option (x_invoice_row_type_other_measurement_unit_title))
-    | InvoiceRowType_field_notVAT195 :: x_invoice_row_type_field (option (string))
+    | InvoiceRowType_field_notVAT195 :: x_invoice_row_type_field (option (xsd_boolean))
     | InvoiceRowType_field_movePurposeLine :: x_invoice_row_type_field (option (x_invoice_row_type_move_purpose_line))
     | InvoiceRowType_field_otherMovePurposeLineTitle ::
         x_invoice_row_type_field (option (x_invoice_row_type_other_move_purpose_line_title))
@@ -3654,7 +3702,7 @@ inl x_invoice_summary_type_get forall r. (f : x_invoice_summary_type_field r) (x
 union x_party_type_field r =
     | PartyType_field_vatNumber :: x_party_type_field (x_party_type_vat_number)
     | PartyType_field_country :: x_party_type_field (x_country_type)
-    | PartyType_field_branch :: x_party_type_field (string)
+    | PartyType_field_branch :: x_party_type_field (xsd_integer)
     | PartyType_field_name :: x_party_type_field (option (x_party_type_name))
     | PartyType_field_address :: x_party_type_field (option (x_address_type))
     | PartyType_field_documentIdNo :: x_party_type_field (option (x_party_type_document_id_no))
@@ -3729,7 +3777,7 @@ union x_tax_totals_type_field r =
     | TaxTotalsType_field_taxCategory :: x_tax_totals_type_field (option (x_tax_totals_type_tax_category))
     | TaxTotalsType_field_underlyingValue :: x_tax_totals_type_field (option (x_amount_type))
     | TaxTotalsType_field_taxAmount :: x_tax_totals_type_field (x_tax_totals_type_tax_amount)
-    | TaxTotalsType_field_id :: x_tax_totals_type_field (option (string))
+    | TaxTotalsType_field_id :: x_tax_totals_type_field (option (xsd_integer))
 
 inl x_tax_totals_type_get forall r. (f : x_tax_totals_type_field r) (x : x_tax_totals_type) : r =
     match f with
@@ -3751,9 +3799,10 @@ inl x_entity_type_get forall r. (f : x_entity_type_field r) (x : x_entity_type) 
 union x_other_delivery_note_header_type_field r =
     | OtherDeliveryNoteHeaderType_field_loadingAddress :: x_other_delivery_note_header_type_field (x_address_type)
     | OtherDeliveryNoteHeaderType_field_deliveryAddress :: x_other_delivery_note_header_type_field (x_address_type)
-    | OtherDeliveryNoteHeaderType_field_startShippingBranch :: x_other_delivery_note_header_type_field (option (string))
+    | OtherDeliveryNoteHeaderType_field_startShippingBranch ::
+        x_other_delivery_note_header_type_field (option (xsd_integer))
     | OtherDeliveryNoteHeaderType_field_completeShippingBranch ::
-        x_other_delivery_note_header_type_field (option (string))
+        x_other_delivery_note_header_type_field (option (xsd_integer))
 
 inl x_other_delivery_note_header_type_get forall r.
     (f : x_other_delivery_note_header_type_field r) (x : x_other_delivery_note_header_type)
@@ -3793,7 +3842,7 @@ union x_delivery_event_type_field r =
     | DeliveryEventType_field_eventType :: x_delivery_event_type_field (string)
     | DeliveryEventType_field_eventTimestamp :: x_delivery_event_type_field (string)
     | DeliveryEventType_field_actorVat :: x_delivery_event_type_field (string)
-    | DeliveryEventType_field_mark :: x_delivery_event_type_field (option (string))
+    | DeliveryEventType_field_mark :: x_delivery_event_type_field (option (xsd_integer))
     | DeliveryEventType_field_choice_transport_details ::
         x_delivery_event_type_field (option (x_delivery_event_type_choice_transport_details))
 
@@ -3826,8 +3875,8 @@ inl x_transport_detail_type_get forall r. (f : x_transport_detail_type_field r) 
     | TransportDetailType_field_packingsDeclaration => x.packings_declaration
 
 union x_location_type_field r =
-    | LocationType_field_longitude :: x_location_type_field (string)
-    | LocationType_field_latitude :: x_location_type_field (string)
+    | LocationType_field_longitude :: x_location_type_field (xsd_decimal)
+    | LocationType_field_latitude :: x_location_type_field (xsd_decimal)
 
 inl x_location_type_get forall r. (f : x_location_type_field r) (x : x_location_type) : r =
     match f with
@@ -3836,7 +3885,7 @@ inl x_location_type_get forall r. (f : x_location_type_field r) (x : x_location_
 
 union x_packaging_detail_type_field r =
     | PackagingDetailType_field_packagingType :: x_packaging_detail_type_field (x_packaging_detail_type_packaging_type)
-    | PackagingDetailType_field_quantity :: x_packaging_detail_type_field (string)
+    | PackagingDetailType_field_quantity :: x_packaging_detail_type_field (xsd_integer)
     | PackagingDetailType_field_otherPackagingTypeTitle ::
         x_packaging_detail_type_field (option (x_packaging_detail_type_other_packaging_type_title))
 
@@ -3855,7 +3904,7 @@ inl x_packings_declaration_get forall r. (f : x_packings_declaration_field r) (x
 
 union x_outcome_details_type_field r =
     | OutcomeDetailsType_field_outcome :: x_outcome_details_type_field (x_delivery_outcome_type)
-    | OutcomeDetailsType_field_deliveredWithoutRecipient :: x_outcome_details_type_field (option (string))
+    | OutcomeDetailsType_field_deliveredWithoutRecipient :: x_outcome_details_type_field (option (xsd_boolean))
     | OutcomeDetailsType_field_deliveredPackaging :: x_outcome_details_type_field (list (x_packaging_detail_type))
 
 inl x_outcome_details_type_get forall r. (f : x_outcome_details_type_field r) (x : x_outcome_details_type) : r =
@@ -3872,9 +3921,9 @@ inl x_rejection_details_type_get forall r. (f : x_rejection_details_type_field r
     | RejectionDetailsType_field_reason => x.reason
 
 union x_invoice_expenses_classification_type_field r =
-    | InvoiceExpensesClassificationType_field_invoiceMark :: x_invoice_expenses_classification_type_field (string)
+    | InvoiceExpensesClassificationType_field_invoiceMark :: x_invoice_expenses_classification_type_field (xsd_integer)
     | InvoiceExpensesClassificationType_field_classificationMark ::
-        x_invoice_expenses_classification_type_field (option (string))
+        x_invoice_expenses_classification_type_field (option (xsd_integer))
     | InvoiceExpensesClassificationType_field_entityVatNumber ::
         x_invoice_expenses_classification_type_field (option (string))
     | InvoiceExpensesClassificationType_field_choice_transaction_mode ::
@@ -3896,7 +3945,7 @@ inl x_invoice_expenses_classification_type_get forall r.
 
 union x_invoices_expenses_classification_detail_type_field r =
     | InvoicesExpensesClassificationDetailType_field_lineNumber ::
-        x_invoices_expenses_classification_detail_type_field (string)
+        x_invoices_expenses_classification_detail_type_field (xsd_integer)
     | InvoicesExpensesClassificationDetailType_field_expensesClassificationDetailData ::
         x_invoices_expenses_classification_detail_type_field (list (x_expenses_classification_type))
 
@@ -3919,7 +3968,7 @@ union x_expenses_classification_type_field r =
     | ExpensesClassificationType_field_vatCategory :: x_expenses_classification_type_field (option (x_vat_type))
     | ExpensesClassificationType_field_vatExemptionCategory ::
         x_expenses_classification_type_field (option (x_vat_exemption_type))
-    | ExpensesClassificationType_field_id :: x_expenses_classification_type_field (option (string))
+    | ExpensesClassificationType_field_id :: x_expenses_classification_type_field (option (xsd_integer))
 
 inl x_expenses_classification_type_get forall r.
     (f : x_expenses_classification_type_field r) (x : x_expenses_classification_type)
@@ -3935,9 +3984,9 @@ inl x_expenses_classification_type_get forall r.
     | ExpensesClassificationType_field_id => x.id
 
 union x_invoice_income_classification_type_field r =
-    | InvoiceIncomeClassificationType_field_invoiceMark :: x_invoice_income_classification_type_field (string)
+    | InvoiceIncomeClassificationType_field_invoiceMark :: x_invoice_income_classification_type_field (xsd_integer)
     | InvoiceIncomeClassificationType_field_classificationMark ::
-        x_invoice_income_classification_type_field (option (string))
+        x_invoice_income_classification_type_field (option (xsd_integer))
     | InvoiceIncomeClassificationType_field_entityVatNumber ::
         x_invoice_income_classification_type_field (option (string))
     | InvoiceIncomeClassificationType_field_choice_transaction_mode ::
@@ -3955,7 +4004,7 @@ inl x_invoice_income_classification_type_get forall r.
 
 union x_invoices_income_classification_detail_type_field r =
     | InvoicesIncomeClassificationDetailType_field_lineNumber ::
-        x_invoices_income_classification_detail_type_field (string)
+        x_invoices_income_classification_detail_type_field (xsd_integer)
     | InvoicesIncomeClassificationDetailType_field_incomeClassificationDetailData ::
         x_invoices_income_classification_detail_type_field (list (x_income_classification_type))
 
@@ -3973,7 +4022,7 @@ union x_income_classification_type_field r =
     | IncomeClassificationType_field_classificationCategory ::
         x_income_classification_type_field (x_income_classification_category_type)
     | IncomeClassificationType_field_amount :: x_income_classification_type_field (x_amount_type)
-    | IncomeClassificationType_field_id :: x_income_classification_type_field (option (string))
+    | IncomeClassificationType_field_id :: x_income_classification_type_field (option (xsd_integer))
 
 inl x_income_classification_type_get forall r.
     (f : x_income_classification_type_field r) (x : x_income_classification_type)
@@ -3987,55 +4036,79 @@ inl x_income_classification_type_get forall r.
 
 let rec x_invoices_doc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoices_doc
+    : result (x_invoices_doc) (list xml_codec.decode_error)
     =
-    x_invoices_doc {
-        group_invoice =
-            listm.map
-                fun run => x_invoices_doc_group_invoice_of_children [] run
-                (xml.group_runs [ "invoice" ] children)
-    }
+    inl errors = []
+    inl v_group_invoice, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun run => x_invoices_doc_group_invoice_of_children [] run
+                    (xml.group_runs [ "invoice" ] children)
+            )
+            errors
+    xml_codec.decoded_by errors (fun () => x_invoices_doc { group_invoice = v_group_invoice })
 
-and let x_invoices_doc_of_xml (c : xml.xml_node) : x_invoices_doc =
+and let x_invoices_doc_of_xml (c : xml.xml_node) : result (x_invoices_doc) (list xml_codec.decode_error) =
     x_invoices_doc_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoices_doc_group_invoice_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoices_doc_group_invoice
+    : result (x_invoices_doc_group_invoice) (list xml_codec.decode_error)
     =
-    x_invoices_doc_group_invoice {
-        invoice = (fun c => x_aade_book_invoice_type_of_xml c) (xml.required_child "invoice" children)
-    }
+    inl errors = []
+    inl o_invoice, errors = xml_codec.read_required "invoice" x_aade_book_invoice_type_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_invoices_doc_group_invoice { invoice = xml_codec.present o_invoice })
 
-and let x_invoices_doc_group_invoice_of_xml (c : xml.xml_node) : x_invoices_doc_group_invoice =
+and let x_invoices_doc_group_invoice_of_xml
+    (c : xml.xml_node)
+    : result (x_invoices_doc_group_invoice) (list xml_codec.decode_error)
+    =
     x_invoices_doc_group_invoice_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_expenses_classifications_doc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_expenses_classifications_doc
+    : result (x_expenses_classifications_doc) (list xml_codec.decode_error)
     =
-    x_expenses_classifications_doc {
-        group_expenses_invoice_classification =
-            listm.map
-                fun run => x_expenses_classifications_doc_group_expenses_invoice_classification_of_children [] run
-                (xml.group_runs [ "expensesInvoiceClassification" ] children)
-    }
+    inl errors = []
+    inl v_group_expenses_invoice_classification, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun run => x_expenses_classifications_doc_group_expenses_invoice_classification_of_children [] run
+                    (xml.group_runs [ "expensesInvoiceClassification" ] children)
+            )
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_expenses_classifications_doc {
+            group_expenses_invoice_classification = v_group_expenses_invoice_classification
+        }
 
-and let x_expenses_classifications_doc_of_xml (c : xml.xml_node) : x_expenses_classifications_doc =
+and let x_expenses_classifications_doc_of_xml
+    (c : xml.xml_node)
+    : result (x_expenses_classifications_doc) (list xml_codec.decode_error)
+    =
     x_expenses_classifications_doc_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_expenses_classifications_doc_group_expenses_invoice_classification_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_expenses_classifications_doc_group_expenses_invoice_classification
+    : result (x_expenses_classifications_doc_group_expenses_invoice_classification) (list xml_codec.decode_error)
     =
-    x_expenses_classifications_doc_group_expenses_invoice_classification {
-        expenses_invoice_classification =
-            (fun c => x_invoice_expenses_classification_type_of_xml c) (xml.required_child "expensesInvoiceClassification" children)
-    }
+    inl errors = []
+    inl o_expenses_invoice_classification, errors =
+        xml_codec.read_required
+            "expensesInvoiceClassification"
+            x_invoice_expenses_classification_type_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_expenses_classifications_doc_group_expenses_invoice_classification {
+            expenses_invoice_classification = xml_codec.present o_expenses_invoice_classification
+        }
 
 and let x_expenses_classifications_doc_group_expenses_invoice_classification_of_xml
     (c : xml.xml_node)
-    : x_expenses_classifications_doc_group_expenses_invoice_classification
+    : result (x_expenses_classifications_doc_group_expenses_invoice_classification) (list xml_codec.decode_error)
     =
     x_expenses_classifications_doc_group_expenses_invoice_classification_of_children
         (xml.element_attributes c)
@@ -4043,30 +4116,45 @@ and let x_expenses_classifications_doc_group_expenses_invoice_classification_of_
 
 and let x_income_classifications_doc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_income_classifications_doc
+    : result (x_income_classifications_doc) (list xml_codec.decode_error)
     =
-    x_income_classifications_doc {
-        group_income_invoice_classification =
-            listm.map
-                fun run => x_income_classifications_doc_group_income_invoice_classification_of_children [] run
-                (xml.group_runs [ "incomeInvoiceClassification" ] children)
-    }
+    inl errors = []
+    inl v_group_income_invoice_classification, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun run => x_income_classifications_doc_group_income_invoice_classification_of_children [] run
+                    (xml.group_runs [ "incomeInvoiceClassification" ] children)
+            )
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_income_classifications_doc { group_income_invoice_classification = v_group_income_invoice_classification }
 
-and let x_income_classifications_doc_of_xml (c : xml.xml_node) : x_income_classifications_doc =
+and let x_income_classifications_doc_of_xml
+    (c : xml.xml_node)
+    : result (x_income_classifications_doc) (list xml_codec.decode_error)
+    =
     x_income_classifications_doc_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_income_classifications_doc_group_income_invoice_classification_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_income_classifications_doc_group_income_invoice_classification
+    : result (x_income_classifications_doc_group_income_invoice_classification) (list xml_codec.decode_error)
     =
-    x_income_classifications_doc_group_income_invoice_classification {
-        income_invoice_classification =
-            (fun c => x_invoice_income_classification_type_of_xml c) (xml.required_child "incomeInvoiceClassification" children)
-    }
+    inl errors = []
+    inl o_income_invoice_classification, errors =
+        xml_codec.read_required
+            "incomeInvoiceClassification"
+            x_invoice_income_classification_type_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_income_classifications_doc_group_income_invoice_classification {
+            income_invoice_classification = xml_codec.present o_income_invoice_classification
+        }
 
 and let x_income_classifications_doc_group_income_invoice_classification_of_xml
     (c : xml.xml_node)
-    : x_income_classifications_doc_group_income_invoice_classification
+    : result (x_income_classifications_doc_group_income_invoice_classification) (list xml_codec.decode_error)
     =
     x_income_classifications_doc_group_income_invoice_classification_of_children
         (xml.element_attributes c)
@@ -4074,817 +4162,999 @@ and let x_income_classifications_doc_group_income_invoice_classification_of_xml
 
 and let x_aade_book_invoice_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_aade_book_invoice_type
+    : result (x_aade_book_invoice_type) (list xml_codec.decode_error)
     =
-    x_aade_book_invoice_type {
-        uid = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "uid" children)
-        mark = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "mark" children)
-        cancelled_by_mark =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "cancelledByMark" children)
-        authentication_code =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "authenticationCode" children)
-        transmission_failure =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "transmissionFailure" children)
-        issuer = optionm.map (fun c => x_party_type_of_xml c) (xml.first_child "issuer" children)
-        counterpart = optionm.map (fun c => x_party_type_of_xml c) (xml.first_child "counterpart" children)
-        invoice_header = (fun c => x_invoice_header_type_of_xml c) (xml.required_child "invoiceHeader" children)
-        payment_methods =
-            optionm.map
-                fun c => x_aade_book_invoice_type_payment_methods_of_xml c
-                (xml.first_child "paymentMethods" children)
-        invoice_details =
-            listm.map (fun c => x_invoice_row_type_of_xml c) (xml.children_named "invoiceDetails" children)
-        taxes_totals =
-            optionm.map
-                fun c => x_aade_book_invoice_type_taxes_totals_of_xml c
-                (xml.first_child "taxesTotals" children)
-        invoice_summary = (fun c => x_invoice_summary_type_of_xml c) (xml.required_child "invoiceSummary" children)
-        qr_code_url = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "qrCodeUrl" children)
-        downloading_invoice_url =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "downloadingInvoiceUrl" children)
-        packings_declarations =
-            listm.map (fun c => x_packings_declaration_of_xml c) (xml.children_named "packingsDeclarations" children)
-        invoice_delivery_status =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "invoiceDeliveryStatus" children)
-        delivery_lifecycle =
-            optionm.map
-                fun c => x_aade_book_invoice_type_delivery_lifecycle_of_xml c
-                (xml.first_child "deliveryLifecycle" children)
-    }
+    inl errors = []
+    inl v_uid, errors = xml_codec.read_optional "uid" xml_codec.read_text children errors
+    inl v_mark, errors = xml_codec.read_optional "mark" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_cancelled_by_mark, errors =
+        xml_codec.read_optional "cancelledByMark" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_authentication_code, errors = xml_codec.read_optional "authenticationCode" xml_codec.read_text children errors
+    inl v_transmission_failure, errors =
+        xml_codec.read_optional "transmissionFailure" xml_codec.read_text children errors
+    inl v_issuer, errors = xml_codec.read_optional "issuer" x_party_type_of_xml children errors
+    inl v_counterpart, errors = xml_codec.read_optional "counterpart" x_party_type_of_xml children errors
+    inl o_invoice_header, errors = xml_codec.read_required "invoiceHeader" x_invoice_header_type_of_xml children errors
+    inl v_payment_methods, errors =
+        xml_codec.read_optional "paymentMethods" x_aade_book_invoice_type_payment_methods_of_xml children errors
+    inl v_invoice_details, errors = xml_codec.read_repeated "invoiceDetails" x_invoice_row_type_of_xml children errors
+    inl v_taxes_totals, errors =
+        xml_codec.read_optional "taxesTotals" x_aade_book_invoice_type_taxes_totals_of_xml children errors
+    inl o_invoice_summary, errors =
+        xml_codec.read_required "invoiceSummary" x_invoice_summary_type_of_xml children errors
+    inl v_qr_code_url, errors = xml_codec.read_optional "qrCodeUrl" xml_codec.read_text children errors
+    inl v_downloading_invoice_url, errors =
+        xml_codec.read_optional "downloadingInvoiceUrl" xml_codec.read_text children errors
+    inl v_packings_declarations, errors =
+        xml_codec.read_repeated "packingsDeclarations" x_packings_declaration_of_xml children errors
+    inl v_invoice_delivery_status, errors =
+        xml_codec.read_optional "invoiceDeliveryStatus" xml_codec.read_text children errors
+    inl v_delivery_lifecycle, errors =
+        xml_codec.read_optional "deliveryLifecycle" x_aade_book_invoice_type_delivery_lifecycle_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_aade_book_invoice_type {
+            uid = v_uid
+            mark = v_mark
+            cancelled_by_mark = v_cancelled_by_mark
+            authentication_code = v_authentication_code
+            transmission_failure = v_transmission_failure
+            issuer = v_issuer
+            counterpart = v_counterpart
+            invoice_header = xml_codec.present o_invoice_header
+            payment_methods = v_payment_methods
+            invoice_details = v_invoice_details
+            taxes_totals = v_taxes_totals
+            invoice_summary = xml_codec.present o_invoice_summary
+            qr_code_url = v_qr_code_url
+            downloading_invoice_url = v_downloading_invoice_url
+            packings_declarations = v_packings_declarations
+            invoice_delivery_status = v_invoice_delivery_status
+            delivery_lifecycle = v_delivery_lifecycle
+        }
 
-and let x_aade_book_invoice_type_of_xml (c : xml.xml_node) : x_aade_book_invoice_type =
+and let x_aade_book_invoice_type_of_xml
+    (c : xml.xml_node)
+    : result (x_aade_book_invoice_type) (list xml_codec.decode_error)
+    =
     x_aade_book_invoice_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_aade_book_invoice_type_delivery_lifecycle_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_aade_book_invoice_type_delivery_lifecycle
+    : result (x_aade_book_invoice_type_delivery_lifecycle) (list xml_codec.decode_error)
     =
-    x_aade_book_invoice_type_delivery_lifecycle {
-        delivery_events =
-            listm.map (fun c => x_delivery_event_type_of_xml c) (xml.children_named "deliveryEvents" children)
-    }
+    inl errors = []
+    inl v_delivery_events, errors =
+        xml_codec.read_repeated "deliveryEvents" x_delivery_event_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_aade_book_invoice_type_delivery_lifecycle { delivery_events = v_delivery_events }
 
 and let x_aade_book_invoice_type_delivery_lifecycle_of_xml
     (c : xml.xml_node)
-    : x_aade_book_invoice_type_delivery_lifecycle
+    : result (x_aade_book_invoice_type_delivery_lifecycle) (list xml_codec.decode_error)
     =
     x_aade_book_invoice_type_delivery_lifecycle_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_aade_book_invoice_type_taxes_totals_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_aade_book_invoice_type_taxes_totals
+    : result (x_aade_book_invoice_type_taxes_totals) (list xml_codec.decode_error)
     =
-    x_aade_book_invoice_type_taxes_totals {
-        taxes = listm.map (fun c => x_tax_totals_type_of_xml c) (xml.children_named "taxes" children)
-    }
+    inl errors = []
+    inl v_taxes, errors = xml_codec.read_repeated "taxes" x_tax_totals_type_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_aade_book_invoice_type_taxes_totals { taxes = v_taxes })
 
-and let x_aade_book_invoice_type_taxes_totals_of_xml (c : xml.xml_node) : x_aade_book_invoice_type_taxes_totals =
+and let x_aade_book_invoice_type_taxes_totals_of_xml
+    (c : xml.xml_node)
+    : result (x_aade_book_invoice_type_taxes_totals) (list xml_codec.decode_error)
+    =
     x_aade_book_invoice_type_taxes_totals_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_aade_book_invoice_type_payment_methods_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_aade_book_invoice_type_payment_methods
+    : result (x_aade_book_invoice_type_payment_methods) (list xml_codec.decode_error)
     =
-    x_aade_book_invoice_type_payment_methods {
-        payment_method_details =
-            listm.map
-                fun c => x_payment_method_detail_type_of_xml c
-                (xml.children_named "paymentMethodDetails" children)
-    }
+    inl errors = []
+    inl v_payment_method_details, errors =
+        xml_codec.read_repeated "paymentMethodDetails" x_payment_method_detail_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_aade_book_invoice_type_payment_methods { payment_method_details = v_payment_method_details }
 
-and let x_aade_book_invoice_type_payment_methods_of_xml (c : xml.xml_node) : x_aade_book_invoice_type_payment_methods =
+and let x_aade_book_invoice_type_payment_methods_of_xml
+    (c : xml.xml_node)
+    : result (x_aade_book_invoice_type_payment_methods) (list xml_codec.decode_error)
+    =
     x_aade_book_invoice_type_payment_methods_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoice_header_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoice_header_type
+    : result (x_invoice_header_type) (list xml_codec.decode_error)
     =
-    x_invoice_header_type {
-        series =
-            (fun c => xml.required_value "x_invoice_header_type_series" (x_invoice_header_type_series_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "series" children)
-        aa =
-            (fun c => xml.required_value "x_invoice_header_type_aa" (x_invoice_header_type_aa_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "aa" children)
-        issue_date = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "issueDate" children)
-        invoice_type =
-            (fun c => xml.required_value "x_invoice_type" (x_invoice_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "invoiceType" children)
-        vat_payment_suspension =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "vatPaymentSuspension" children)
-        currency =
-            optionm.map
-                fun c =>
-                    xml.required_value
-                        "x_currency_type"
-                        (x_currency_type_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "currency" children)
-        exchange_rate =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "exchangeRate" children)
-        correlated_invoices =
-            listm.map (fun c => xml.text_in (xml.element_children c)) (xml.children_named "correlatedInvoices" children)
-        self_pricing =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "selfPricing" children)
-        dispatch_date =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "dispatchDate" children)
-        dispatch_time =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "dispatchTime" children)
-        vehicle_number =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_header_type_vehicle_number" (
-                        x_invoice_header_type_vehicle_number_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "vehicleNumber" children)
-        move_purpose =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "movePurpose" children)
-        fuel_invoice =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "fuelInvoice" children)
-        special_invoice_category =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "specialInvoiceCategory" children)
-        invoice_variation_type =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "invoiceVariationType" children)
-        other_correlated_entities =
-            listm.map (fun c => x_entity_type_of_xml c) (xml.children_named "otherCorrelatedEntities" children)
-        other_delivery_note_header =
-            optionm.map
-                fun c => x_other_delivery_note_header_type_of_xml c
-                (xml.first_child "otherDeliveryNoteHeader" children)
-        is_delivery_note =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "isDeliveryNote" children)
-        other_move_purpose_title =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_header_type_other_move_purpose_title" (
-                        x_invoice_header_type_other_move_purpose_title_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "otherMovePurposeTitle" children)
-        third_party_collection =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "thirdPartyCollection" children)
-        multiple_connected_marks =
-            listm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.children_named "multipleConnectedMarks" children)
-        table_aa =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_header_type_table_aa" (x_invoice_header_type_table_aa_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "tableAA" children)
-        total_cancel_delivery_orders =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "totalCancelDeliveryOrders" children)
-        reverse_delivery_note =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "reverseDeliveryNote" children)
-        reverse_delivery_note_purpose =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "reverseDeliveryNotePurpose" children)
-        to_weigh = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "toWeigh" children)
-        receiving_note_purpose =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "receivingNotePurpose" children)
-        other_receiving_note_purpose_title =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_header_type_other_receiving_note_purpose_title" (
-                        x_invoice_header_type_other_receiving_note_purpose_title_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "otherReceivingNotePurposeTitle" children)
-        non_obligated_recipient =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "nonObligatedRecipient" children)
-        without_digital_transport_tracking =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "withoutDigitalTransportTracking" children)
-    }
+    inl errors = []
+    inl o_series, errors =
+        xml_codec.read_required "series" (xml_codec.read_value x_invoice_header_type_series_of_string) children errors
+    inl o_aa, errors =
+        xml_codec.read_required "aa" (xml_codec.read_value x_invoice_header_type_aa_of_string) children errors
+    inl o_issue_date, errors = xml_codec.read_required "issueDate" xml_codec.read_text children errors
+    inl o_invoice_type, errors =
+        xml_codec.read_required "invoiceType" (xml_codec.read_value x_invoice_type_of_string) children errors
+    inl v_vat_payment_suspension, errors =
+        xml_codec.read_optional "vatPaymentSuspension" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_currency, errors =
+        xml_codec.read_optional "currency" (xml_codec.read_value x_currency_type_of_string) children errors
+    inl v_exchange_rate, errors = xml_codec.read_optional "exchangeRate" xml_codec.read_text children errors
+    inl v_correlated_invoices, errors =
+        xml_codec.read_repeated "correlatedInvoices" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_self_pricing, errors =
+        xml_codec.read_optional "selfPricing" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_dispatch_date, errors = xml_codec.read_optional "dispatchDate" xml_codec.read_text children errors
+    inl v_dispatch_time, errors = xml_codec.read_optional "dispatchTime" xml_codec.read_text children errors
+    inl v_vehicle_number, errors =
+        xml_codec.read_optional
+            "vehicleNumber"
+            (xml_codec.read_value x_invoice_header_type_vehicle_number_of_string)
+            children
+            errors
+    inl v_move_purpose, errors = xml_codec.read_optional "movePurpose" xml_codec.read_text children errors
+    inl v_fuel_invoice, errors =
+        xml_codec.read_optional "fuelInvoice" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_special_invoice_category, errors =
+        xml_codec.read_optional "specialInvoiceCategory" xml_codec.read_text children errors
+    inl v_invoice_variation_type, errors =
+        xml_codec.read_optional "invoiceVariationType" xml_codec.read_text children errors
+    inl v_other_correlated_entities, errors =
+        xml_codec.read_repeated "otherCorrelatedEntities" x_entity_type_of_xml children errors
+    inl v_other_delivery_note_header, errors =
+        xml_codec.read_optional "otherDeliveryNoteHeader" x_other_delivery_note_header_type_of_xml children errors
+    inl v_is_delivery_note, errors =
+        xml_codec.read_optional "isDeliveryNote" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_other_move_purpose_title, errors =
+        xml_codec.read_optional
+            "otherMovePurposeTitle"
+            (xml_codec.read_value x_invoice_header_type_other_move_purpose_title_of_string)
+            children
+            errors
+    inl v_third_party_collection, errors =
+        xml_codec.read_optional "thirdPartyCollection" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_multiple_connected_marks, errors =
+        xml_codec.read_repeated "multipleConnectedMarks" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_table_aa, errors =
+        xml_codec.read_optional
+            "tableAA"
+            (xml_codec.read_value x_invoice_header_type_table_aa_of_string)
+            children
+            errors
+    inl v_total_cancel_delivery_orders, errors =
+        xml_codec.read_optional "totalCancelDeliveryOrders" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_reverse_delivery_note, errors =
+        xml_codec.read_optional "reverseDeliveryNote" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_reverse_delivery_note_purpose, errors =
+        xml_codec.read_optional "reverseDeliveryNotePurpose" xml_codec.read_text children errors
+    inl v_to_weigh, errors =
+        xml_codec.read_optional "toWeigh" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_receiving_note_purpose, errors =
+        xml_codec.read_optional "receivingNotePurpose" xml_codec.read_text children errors
+    inl v_other_receiving_note_purpose_title, errors =
+        xml_codec.read_optional
+            "otherReceivingNotePurposeTitle"
+            (xml_codec.read_value x_invoice_header_type_other_receiving_note_purpose_title_of_string)
+            children
+            errors
+    inl v_non_obligated_recipient, errors =
+        xml_codec.read_optional "nonObligatedRecipient" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_without_digital_transport_tracking, errors =
+        xml_codec.read_optional
+            "withoutDigitalTransportTracking"
+            (xml_codec.read_value xsd_boolean_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_invoice_header_type {
+            series = xml_codec.present o_series
+            aa = xml_codec.present o_aa
+            issue_date = xml_codec.present o_issue_date
+            invoice_type = xml_codec.present o_invoice_type
+            vat_payment_suspension = v_vat_payment_suspension
+            currency = v_currency
+            exchange_rate = v_exchange_rate
+            correlated_invoices = v_correlated_invoices
+            self_pricing = v_self_pricing
+            dispatch_date = v_dispatch_date
+            dispatch_time = v_dispatch_time
+            vehicle_number = v_vehicle_number
+            move_purpose = v_move_purpose
+            fuel_invoice = v_fuel_invoice
+            special_invoice_category = v_special_invoice_category
+            invoice_variation_type = v_invoice_variation_type
+            other_correlated_entities = v_other_correlated_entities
+            other_delivery_note_header = v_other_delivery_note_header
+            is_delivery_note = v_is_delivery_note
+            other_move_purpose_title = v_other_move_purpose_title
+            third_party_collection = v_third_party_collection
+            multiple_connected_marks = v_multiple_connected_marks
+            table_aa = v_table_aa
+            total_cancel_delivery_orders = v_total_cancel_delivery_orders
+            reverse_delivery_note = v_reverse_delivery_note
+            reverse_delivery_note_purpose = v_reverse_delivery_note_purpose
+            to_weigh = v_to_weigh
+            receiving_note_purpose = v_receiving_note_purpose
+            other_receiving_note_purpose_title = v_other_receiving_note_purpose_title
+            non_obligated_recipient = v_non_obligated_recipient
+            without_digital_transport_tracking = v_without_digital_transport_tracking
+        }
 
-and let x_invoice_header_type_of_xml (c : xml.xml_node) : x_invoice_header_type =
+and let x_invoice_header_type_of_xml (c : xml.xml_node) : result (x_invoice_header_type) (list xml_codec.decode_error) =
     x_invoice_header_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoice_row_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoice_row_type
+    : result (x_invoice_row_type) (list xml_codec.decode_error)
     =
-    x_invoice_row_type {
-        line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineNumber" children)
-        rec_type = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "recType" children)
-        taric_no =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_row_type_taric_no" (x_invoice_row_type_taric_no_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "TaricNo" children)
-        item_code =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_row_type_item_code" (x_invoice_row_type_item_code_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "itemCode" children)
-        item_descr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_row_type_item_descr" (x_invoice_row_type_item_descr_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "itemDescr" children)
-        fuel_code =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_fuel_codes" (x_fuel_codes_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "fuelCode" children)
-        quantity = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "quantity" children)
-        measurement_unit =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "measurementUnit" children)
-        invoice_detail_type =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "invoiceDetailType" children)
-        net_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "netValue" children)
-        vat_category = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "vatCategory" children)
-        vat_amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "vatAmount" children)
-        vat_exemption_category =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "vatExemptionCategory" children)
-        dienergia = optionm.map (fun c => x_ship_type_of_xml c) (xml.first_child "dienergia" children)
-        discount_option =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "discountOption" children)
-        withheld_amount =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "withheldAmount" children)
-        withheld_percent_category =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "withheldPercentCategory" children)
-        stamp_duty_amount =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "stampDutyAmount" children)
-        stamp_duty_percent_category =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "stampDutyPercentCategory" children)
-        fees_amount =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "feesAmount" children)
-        fees_percent_category =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "feesPercentCategory" children)
-        other_taxes_percent_category =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "otherTaxesPercentCategory" children)
-        other_taxes_amount =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "otherTaxesAmount" children)
-        deductions_amount =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "deductionsAmount" children)
-        line_comments =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_invoice_row_type_line_comments" (x_invoice_row_type_line_comments_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "lineComments" children)
-        income_classification =
-            listm.map
-                fun c => x_income_classification_type_of_xml c
-                (xml.children_named "incomeClassification" children)
-        expenses_classification =
-            listm.map
-                fun c => x_expenses_classification_type_of_xml c
-                (xml.children_named "expensesClassification" children)
-        quantity15 = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "quantity15" children)
-        other_measurement_unit_quantity =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "otherMeasurementUnitQuantity" children)
-        other_measurement_unit_title =
-            optionm.map
-                fun c =>
-                    xml.required_value
-                        "x_invoice_row_type_other_measurement_unit_title"
-                        (
-                            x_invoice_row_type_other_measurement_unit_title_of_string (
-                                xml.text_in (xml.element_children c)
-                            )
-                        )
-                (xml.first_child "otherMeasurementUnitTitle" children)
-        not_vat195 = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "notVAT195" children)
-        move_purpose_line =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "movePurposeLine" children)
-        other_move_purpose_line_title =
-            optionm.map
-                fun c =>
-                    xml.required_value
-                        "x_invoice_row_type_other_move_purpose_line_title"
-                        (
-                            x_invoice_row_type_other_move_purpose_line_title_of_string (
-                                xml.text_in (xml.element_children c)
-                            )
-                        )
-                (xml.first_child "otherMovePurposeLineTitle" children)
-    }
+    inl errors = []
+    inl o_line_number, errors = xml_codec.read_required "lineNumber" xml_codec.read_text children errors
+    inl v_rec_type, errors = xml_codec.read_optional "recType" xml_codec.read_text children errors
+    inl v_taric_no, errors =
+        xml_codec.read_optional "TaricNo" (xml_codec.read_value x_invoice_row_type_taric_no_of_string) children errors
+    inl v_item_code, errors =
+        xml_codec.read_optional "itemCode" (xml_codec.read_value x_invoice_row_type_item_code_of_string) children errors
+    inl v_item_descr, errors =
+        xml_codec.read_optional
+            "itemDescr"
+            (xml_codec.read_value x_invoice_row_type_item_descr_of_string)
+            children
+            errors
+    inl v_fuel_code, errors =
+        xml_codec.read_optional "fuelCode" (xml_codec.read_value x_fuel_codes_of_string) children errors
+    inl v_quantity, errors = xml_codec.read_optional "quantity" xml_codec.read_text children errors
+    inl v_measurement_unit, errors = xml_codec.read_optional "measurementUnit" xml_codec.read_text children errors
+    inl v_invoice_detail_type, errors = xml_codec.read_optional "invoiceDetailType" xml_codec.read_text children errors
+    inl o_net_value, errors = xml_codec.read_required "netValue" xml_codec.read_text children errors
+    inl o_vat_category, errors = xml_codec.read_required "vatCategory" xml_codec.read_text children errors
+    inl o_vat_amount, errors = xml_codec.read_required "vatAmount" xml_codec.read_text children errors
+    inl v_vat_exemption_category, errors =
+        xml_codec.read_optional "vatExemptionCategory" xml_codec.read_text children errors
+    inl v_dienergia, errors = xml_codec.read_optional "dienergia" x_ship_type_of_xml children errors
+    inl v_discount_option, errors =
+        xml_codec.read_optional "discountOption" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_withheld_amount, errors = xml_codec.read_optional "withheldAmount" xml_codec.read_text children errors
+    inl v_withheld_percent_category, errors =
+        xml_codec.read_optional "withheldPercentCategory" xml_codec.read_text children errors
+    inl v_stamp_duty_amount, errors = xml_codec.read_optional "stampDutyAmount" xml_codec.read_text children errors
+    inl v_stamp_duty_percent_category, errors =
+        xml_codec.read_optional "stampDutyPercentCategory" xml_codec.read_text children errors
+    inl v_fees_amount, errors = xml_codec.read_optional "feesAmount" xml_codec.read_text children errors
+    inl v_fees_percent_category, errors =
+        xml_codec.read_optional "feesPercentCategory" xml_codec.read_text children errors
+    inl v_other_taxes_percent_category, errors =
+        xml_codec.read_optional "otherTaxesPercentCategory" xml_codec.read_text children errors
+    inl v_other_taxes_amount, errors = xml_codec.read_optional "otherTaxesAmount" xml_codec.read_text children errors
+    inl v_deductions_amount, errors = xml_codec.read_optional "deductionsAmount" xml_codec.read_text children errors
+    inl v_line_comments, errors =
+        xml_codec.read_optional
+            "lineComments"
+            (xml_codec.read_value x_invoice_row_type_line_comments_of_string)
+            children
+            errors
+    inl v_income_classification, errors =
+        xml_codec.read_repeated "incomeClassification" x_income_classification_type_of_xml children errors
+    inl v_expenses_classification, errors =
+        xml_codec.read_repeated "expensesClassification" x_expenses_classification_type_of_xml children errors
+    inl v_quantity15, errors = xml_codec.read_optional "quantity15" xml_codec.read_text children errors
+    inl v_other_measurement_unit_quantity, errors =
+        xml_codec.read_optional
+            "otherMeasurementUnitQuantity"
+            (xml_codec.read_value xsd_integer_of_string)
+            children
+            errors
+    inl v_other_measurement_unit_title, errors =
+        xml_codec.read_optional
+            "otherMeasurementUnitTitle"
+            (xml_codec.read_value x_invoice_row_type_other_measurement_unit_title_of_string)
+            children
+            errors
+    inl v_not_vat195, errors =
+        xml_codec.read_optional "notVAT195" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_move_purpose_line, errors = xml_codec.read_optional "movePurposeLine" xml_codec.read_text children errors
+    inl v_other_move_purpose_line_title, errors =
+        xml_codec.read_optional
+            "otherMovePurposeLineTitle"
+            (xml_codec.read_value x_invoice_row_type_other_move_purpose_line_title_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_invoice_row_type {
+            line_number = xml_codec.present o_line_number
+            rec_type = v_rec_type
+            taric_no = v_taric_no
+            item_code = v_item_code
+            item_descr = v_item_descr
+            fuel_code = v_fuel_code
+            quantity = v_quantity
+            measurement_unit = v_measurement_unit
+            invoice_detail_type = v_invoice_detail_type
+            net_value = xml_codec.present o_net_value
+            vat_category = xml_codec.present o_vat_category
+            vat_amount = xml_codec.present o_vat_amount
+            vat_exemption_category = v_vat_exemption_category
+            dienergia = v_dienergia
+            discount_option = v_discount_option
+            withheld_amount = v_withheld_amount
+            withheld_percent_category = v_withheld_percent_category
+            stamp_duty_amount = v_stamp_duty_amount
+            stamp_duty_percent_category = v_stamp_duty_percent_category
+            fees_amount = v_fees_amount
+            fees_percent_category = v_fees_percent_category
+            other_taxes_percent_category = v_other_taxes_percent_category
+            other_taxes_amount = v_other_taxes_amount
+            deductions_amount = v_deductions_amount
+            line_comments = v_line_comments
+            income_classification = v_income_classification
+            expenses_classification = v_expenses_classification
+            quantity15 = v_quantity15
+            other_measurement_unit_quantity = v_other_measurement_unit_quantity
+            other_measurement_unit_title = v_other_measurement_unit_title
+            not_vat195 = v_not_vat195
+            move_purpose_line = v_move_purpose_line
+            other_move_purpose_line_title = v_other_move_purpose_line_title
+        }
 
-and let x_invoice_row_type_of_xml (c : xml.xml_node) : x_invoice_row_type =
+and let x_invoice_row_type_of_xml (c : xml.xml_node) : result (x_invoice_row_type) (list xml_codec.decode_error) =
     x_invoice_row_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoice_summary_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoice_summary_type
+    : result (x_invoice_summary_type) (list xml_codec.decode_error)
     =
-    x_invoice_summary_type {
-        total_net_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalNetValue" children)
-        total_vat_amount =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalVatAmount" children)
-        total_withheld_amount =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalWithheldAmount" children)
-        total_fees_amount =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalFeesAmount" children)
-        total_stamp_duty_amount =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalStampDutyAmount" children)
-        total_other_taxes_amount =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalOtherTaxesAmount" children)
-        total_deductions_amount =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalDeductionsAmount" children)
-        total_gross_value =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "totalGrossValue" children)
-        income_classification =
-            listm.map
-                fun c => x_income_classification_type_of_xml c
-                (xml.children_named "incomeClassification" children)
-        expenses_classification =
-            listm.map
-                fun c => x_expenses_classification_type_of_xml c
-                (xml.children_named "expensesClassification" children)
-    }
+    inl errors = []
+    inl o_total_net_value, errors = xml_codec.read_required "totalNetValue" xml_codec.read_text children errors
+    inl o_total_vat_amount, errors = xml_codec.read_required "totalVatAmount" xml_codec.read_text children errors
+    inl o_total_withheld_amount, errors =
+        xml_codec.read_required "totalWithheldAmount" xml_codec.read_text children errors
+    inl o_total_fees_amount, errors = xml_codec.read_required "totalFeesAmount" xml_codec.read_text children errors
+    inl o_total_stamp_duty_amount, errors =
+        xml_codec.read_required "totalStampDutyAmount" xml_codec.read_text children errors
+    inl o_total_other_taxes_amount, errors =
+        xml_codec.read_required "totalOtherTaxesAmount" xml_codec.read_text children errors
+    inl o_total_deductions_amount, errors =
+        xml_codec.read_required "totalDeductionsAmount" xml_codec.read_text children errors
+    inl o_total_gross_value, errors = xml_codec.read_required "totalGrossValue" xml_codec.read_text children errors
+    inl v_income_classification, errors =
+        xml_codec.read_repeated "incomeClassification" x_income_classification_type_of_xml children errors
+    inl v_expenses_classification, errors =
+        xml_codec.read_repeated "expensesClassification" x_expenses_classification_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_invoice_summary_type {
+            total_net_value = xml_codec.present o_total_net_value
+            total_vat_amount = xml_codec.present o_total_vat_amount
+            total_withheld_amount = xml_codec.present o_total_withheld_amount
+            total_fees_amount = xml_codec.present o_total_fees_amount
+            total_stamp_duty_amount = xml_codec.present o_total_stamp_duty_amount
+            total_other_taxes_amount = xml_codec.present o_total_other_taxes_amount
+            total_deductions_amount = xml_codec.present o_total_deductions_amount
+            total_gross_value = xml_codec.present o_total_gross_value
+            income_classification = v_income_classification
+            expenses_classification = v_expenses_classification
+        }
 
-and let x_invoice_summary_type_of_xml (c : xml.xml_node) : x_invoice_summary_type =
+and let x_invoice_summary_type_of_xml (c : xml.xml_node) : result (x_invoice_summary_type) (list xml_codec.decode_error) =
     x_invoice_summary_type_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_party_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_party_type =
-    x_party_type {
-        vat_number =
-            (fun c => xml.required_value "x_party_type_vat_number" (x_party_type_vat_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vatNumber" children)
-        country =
-            (fun c => xml.required_value "x_country_type" (x_country_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "country" children)
-        branch = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "branch" children)
-        name =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_party_type_name" (x_party_type_name_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "name" children)
-        address = optionm.map (fun c => x_address_type_of_xml c) (xml.first_child "address" children)
-        document_id_no =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_party_type_document_id_no" (x_party_type_document_id_no_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "documentIdNo" children)
-        supply_account_no =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_party_type_supply_account_no" (x_party_type_supply_account_no_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "supplyAccountNo" children)
-        country_document_id =
-            optionm.map
-                fun c =>
-                    xml.required_value
-                        "x_country_type"
-                        (x_country_type_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "countryDocumentId" children)
-    }
+and let x_party_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_party_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_vat_number, errors =
+        xml_codec.read_required "vatNumber" (xml_codec.read_value x_party_type_vat_number_of_string) children errors
+    inl o_country, errors =
+        xml_codec.read_required "country" (xml_codec.read_value x_country_type_of_string) children errors
+    inl o_branch, errors = xml_codec.read_required "branch" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_name, errors =
+        xml_codec.read_optional "name" (xml_codec.read_value x_party_type_name_of_string) children errors
+    inl v_address, errors = xml_codec.read_optional "address" x_address_type_of_xml children errors
+    inl v_document_id_no, errors =
+        xml_codec.read_optional
+            "documentIdNo"
+            (xml_codec.read_value x_party_type_document_id_no_of_string)
+            children
+            errors
+    inl v_supply_account_no, errors =
+        xml_codec.read_optional
+            "supplyAccountNo"
+            (xml_codec.read_value x_party_type_supply_account_no_of_string)
+            children
+            errors
+    inl v_country_document_id, errors =
+        xml_codec.read_optional "countryDocumentId" (xml_codec.read_value x_country_type_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_party_type {
+            vat_number = xml_codec.present o_vat_number
+            country = xml_codec.present o_country
+            branch = xml_codec.present o_branch
+            name = v_name
+            address = v_address
+            document_id_no = v_document_id_no
+            supply_account_no = v_supply_account_no
+            country_document_id = v_country_document_id
+        }
 
-and let x_party_type_of_xml (c : xml.xml_node) : x_party_type =
+and let x_party_type_of_xml (c : xml.xml_node) : result (x_party_type) (list xml_codec.decode_error) =
     x_party_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_address_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_address_type
+    : result (x_address_type) (list xml_codec.decode_error)
     =
-    x_address_type {
-        street =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_address_type_street" (x_address_type_street_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "street" children)
-        number = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "number" children)
-        postal_code = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "postalCode" children)
-        city =
-            (fun c => xml.required_value "x_address_type_city" (x_address_type_city_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "city" children)
-    }
+    inl errors = []
+    inl v_street, errors =
+        xml_codec.read_optional "street" (xml_codec.read_value x_address_type_street_of_string) children errors
+    inl v_number, errors = xml_codec.read_optional "number" xml_codec.read_text children errors
+    inl o_postal_code, errors = xml_codec.read_required "postalCode" xml_codec.read_text children errors
+    inl o_city, errors =
+        xml_codec.read_required "city" (xml_codec.read_value x_address_type_city_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_address_type {
+            street = v_street
+            number = v_number
+            postal_code = xml_codec.present o_postal_code
+            city = xml_codec.present o_city
+        }
 
-and let x_address_type_of_xml (c : xml.xml_node) : x_address_type =
+and let x_address_type_of_xml (c : xml.xml_node) : result (x_address_type) (list xml_codec.decode_error) =
     x_address_type_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_ship_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_ship_type =
-    x_ship_type {
-        application_id = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "applicationId" children)
-        application_date =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "applicationDate" children)
-        doy =
-            optionm.map
-                fun c =>
-                    xml.required_value
-                        "x_ship_type_doy"
-                        (x_ship_type_doy_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "doy" children)
-        ship_id = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "shipId" children)
-    }
+and let x_ship_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_ship_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_application_id, errors = xml_codec.read_required "applicationId" xml_codec.read_text children errors
+    inl o_application_date, errors = xml_codec.read_required "applicationDate" xml_codec.read_text children errors
+    inl v_doy, errors = xml_codec.read_optional "doy" (xml_codec.read_value x_ship_type_doy_of_string) children errors
+    inl o_ship_id, errors = xml_codec.read_required "shipId" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_ship_type {
+            application_id = xml_codec.present o_application_id
+            application_date = xml_codec.present o_application_date
+            doy = v_doy
+            ship_id = xml_codec.present o_ship_id
+        }
 
-and let x_ship_type_of_xml (c : xml.xml_node) : x_ship_type =
+and let x_ship_type_of_xml (c : xml.xml_node) : result (x_ship_type) (list xml_codec.decode_error) =
     x_ship_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_payment_method_detail_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_payment_method_detail_type
+    : result (x_payment_method_detail_type) (list xml_codec.decode_error)
     =
-    x_payment_method_detail_type {
-        type_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "type" children)
-        amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "amount" children)
-        payment_method_info =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "paymentMethodInfo" children)
-        tip_amount = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "tipAmount" children)
-        transaction_id =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "transactionId" children)
-        tid =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_payment_method_detail_type_tid" (x_payment_method_detail_type_tid_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "tid" children)
-        providers_signature =
-            optionm.map (fun c => x_provider_signature_type_of_xml c) (xml.first_child "ProvidersSignature" children)
-        ecr_token = optionm.map (fun c => x_ecr_token_type_of_xml c) (xml.first_child "ECRToken" children)
-    }
+    inl errors = []
+    inl o_type_value, errors = xml_codec.read_required "type" xml_codec.read_text children errors
+    inl o_amount, errors = xml_codec.read_required "amount" xml_codec.read_text children errors
+    inl v_payment_method_info, errors = xml_codec.read_optional "paymentMethodInfo" xml_codec.read_text children errors
+    inl v_tip_amount, errors = xml_codec.read_optional "tipAmount" xml_codec.read_text children errors
+    inl v_transaction_id, errors = xml_codec.read_optional "transactionId" xml_codec.read_text children errors
+    inl v_tid, errors =
+        xml_codec.read_optional "tid" (xml_codec.read_value x_payment_method_detail_type_tid_of_string) children errors
+    inl v_providers_signature, errors =
+        xml_codec.read_optional "ProvidersSignature" x_provider_signature_type_of_xml children errors
+    inl v_ecr_token, errors = xml_codec.read_optional "ECRToken" x_ecr_token_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_payment_method_detail_type {
+            type_value = xml_codec.present o_type_value
+            amount = xml_codec.present o_amount
+            payment_method_info = v_payment_method_info
+            tip_amount = v_tip_amount
+            transaction_id = v_transaction_id
+            tid = v_tid
+            providers_signature = v_providers_signature
+            ecr_token = v_ecr_token
+        }
 
-and let x_payment_method_detail_type_of_xml (c : xml.xml_node) : x_payment_method_detail_type =
+and let x_payment_method_detail_type_of_xml
+    (c : xml.xml_node)
+    : result (x_payment_method_detail_type) (list xml_codec.decode_error)
+    =
     x_payment_method_detail_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tax_totals_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tax_totals_type
+    : result (x_tax_totals_type) (list xml_codec.decode_error)
     =
-    x_tax_totals_type {
-        tax_type = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "taxType" children)
-        tax_category =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "taxCategory" children)
-        underlying_value =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "underlyingValue" children)
-        tax_amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "taxAmount" children)
-        id = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "id" children)
-    }
+    inl errors = []
+    inl o_tax_type, errors = xml_codec.read_required "taxType" xml_codec.read_text children errors
+    inl v_tax_category, errors = xml_codec.read_optional "taxCategory" xml_codec.read_text children errors
+    inl v_underlying_value, errors = xml_codec.read_optional "underlyingValue" xml_codec.read_text children errors
+    inl o_tax_amount, errors = xml_codec.read_required "taxAmount" xml_codec.read_text children errors
+    inl v_id, errors = xml_codec.read_optional "id" (xml_codec.read_value xsd_integer_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tax_totals_type {
+            tax_type = xml_codec.present o_tax_type
+            tax_category = v_tax_category
+            underlying_value = v_underlying_value
+            tax_amount = xml_codec.present o_tax_amount
+            id = v_id
+        }
 
-and let x_tax_totals_type_of_xml (c : xml.xml_node) : x_tax_totals_type =
+and let x_tax_totals_type_of_xml (c : xml.xml_node) : result (x_tax_totals_type) (list xml_codec.decode_error) =
     x_tax_totals_type_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_entity_type_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_entity_type =
-    x_entity_type {
-        type_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "type" children)
-        entity_data = (fun c => x_party_type_of_xml c) (xml.required_child "entityData" children)
-    }
+and let x_entity_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_entity_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_type_value, errors = xml_codec.read_required "type" xml_codec.read_text children errors
+    inl o_entity_data, errors = xml_codec.read_required "entityData" x_party_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_entity_type { type_value = xml_codec.present o_type_value; entity_data = xml_codec.present o_entity_data }
 
-and let x_entity_type_of_xml (c : xml.xml_node) : x_entity_type =
+and let x_entity_type_of_xml (c : xml.xml_node) : result (x_entity_type) (list xml_codec.decode_error) =
     x_entity_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_other_delivery_note_header_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_other_delivery_note_header_type
+    : result (x_other_delivery_note_header_type) (list xml_codec.decode_error)
     =
-    x_other_delivery_note_header_type {
-        loading_address = (fun c => x_address_type_of_xml c) (xml.required_child "loadingAddress" children)
-        delivery_address = (fun c => x_address_type_of_xml c) (xml.required_child "deliveryAddress" children)
-        start_shipping_branch =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "startShippingBranch" children)
-        complete_shipping_branch =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "completeShippingBranch" children)
-    }
+    inl errors = []
+    inl o_loading_address, errors = xml_codec.read_required "loadingAddress" x_address_type_of_xml children errors
+    inl o_delivery_address, errors = xml_codec.read_required "deliveryAddress" x_address_type_of_xml children errors
+    inl v_start_shipping_branch, errors =
+        xml_codec.read_optional "startShippingBranch" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_complete_shipping_branch, errors =
+        xml_codec.read_optional "completeShippingBranch" (xml_codec.read_value xsd_integer_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_other_delivery_note_header_type {
+            loading_address = xml_codec.present o_loading_address
+            delivery_address = xml_codec.present o_delivery_address
+            start_shipping_branch = v_start_shipping_branch
+            complete_shipping_branch = v_complete_shipping_branch
+        }
 
-and let x_other_delivery_note_header_type_of_xml (c : xml.xml_node) : x_other_delivery_note_header_type =
+and let x_other_delivery_note_header_type_of_xml
+    (c : xml.xml_node)
+    : result (x_other_delivery_note_header_type) (list xml_codec.decode_error)
+    =
     x_other_delivery_note_header_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_provider_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_provider_signature_type
+    : result (x_provider_signature_type) (list xml_codec.decode_error)
     =
-    x_provider_signature_type {
-        signing_author =
-            (fun c => xml.required_value "x_provider_signature_type_signing_author" (x_provider_signature_type_signing_author_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SigningAuthor" children)
-        signature = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Signature" children)
-        end_to_end_reference_id =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "EndToEndReferenceID" children)
-    }
+    inl errors = []
+    inl o_signing_author, errors =
+        xml_codec.read_required
+            "SigningAuthor"
+            (xml_codec.read_value x_provider_signature_type_signing_author_of_string)
+            children
+            errors
+    inl o_signature, errors = xml_codec.read_required "Signature" xml_codec.read_text children errors
+    inl v_end_to_end_reference_id, errors =
+        xml_codec.read_optional "EndToEndReferenceID" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_provider_signature_type {
+            signing_author = xml_codec.present o_signing_author
+            signature = xml_codec.present o_signature
+            end_to_end_reference_id = v_end_to_end_reference_id
+        }
 
-and let x_provider_signature_type_of_xml (c : xml.xml_node) : x_provider_signature_type =
+and let x_provider_signature_type_of_xml
+    (c : xml.xml_node)
+    : result (x_provider_signature_type) (list xml_codec.decode_error)
+    =
     x_provider_signature_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_ecr_token_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_ecr_token_type
+    : result (x_ecr_token_type) (list xml_codec.decode_error)
     =
-    x_ecr_token_type {
-        signing_author =
-            (fun c => xml.required_value "x_ecr_token_type_signing_author" (x_ecr_token_type_signing_author_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SigningAuthor" children)
-        session_number =
-            (fun c => xml.required_value "x_ecr_token_type_session_number" (x_ecr_token_type_session_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SessionNumber" children)
-    }
+    inl errors = []
+    inl o_signing_author, errors =
+        xml_codec.read_required
+            "SigningAuthor"
+            (xml_codec.read_value x_ecr_token_type_signing_author_of_string)
+            children
+            errors
+    inl o_session_number, errors =
+        xml_codec.read_required
+            "SessionNumber"
+            (xml_codec.read_value x_ecr_token_type_session_number_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_ecr_token_type {
+            signing_author = xml_codec.present o_signing_author
+            session_number = xml_codec.present o_session_number
+        }
 
-and let x_ecr_token_type_of_xml (c : xml.xml_node) : x_ecr_token_type =
+and let x_ecr_token_type_of_xml (c : xml.xml_node) : result (x_ecr_token_type) (list xml_codec.decode_error) =
     x_ecr_token_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_delivery_event_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_delivery_event_type
+    : result (x_delivery_event_type) (list xml_codec.decode_error)
     =
-    x_delivery_event_type {
-        event_type = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "eventType" children)
-        event_timestamp = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "eventTimestamp" children)
-        actor_vat = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "actorVat" children)
-        mark = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "mark" children)
-        choice_transport_details =
-            if xml.has_any_child [ "transportDetails"; "outcomeDetails"; "rejectionDetails" ] children
-            then Some (x_delivery_event_type_choice_transport_details_of_children attributes children)
-            else None
-    }
+    inl errors = []
+    inl o_event_type, errors = xml_codec.read_required "eventType" xml_codec.read_text children errors
+    inl o_event_timestamp, errors = xml_codec.read_required "eventTimestamp" xml_codec.read_text children errors
+    inl o_actor_vat, errors = xml_codec.read_required "actorVat" xml_codec.read_text children errors
+    inl v_mark, errors = xml_codec.read_optional "mark" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_choice_transport_details, errors =
+        xml_codec.optional_taken
+            (
+                if xml.has_any_child [ "transportDetails"; "outcomeDetails"; "rejectionDetails" ] children
+                then Some (x_delivery_event_type_choice_transport_details_of_children attributes children)
+                else None
+            )
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_delivery_event_type {
+            event_type = xml_codec.present o_event_type
+            event_timestamp = xml_codec.present o_event_timestamp
+            actor_vat = xml_codec.present o_actor_vat
+            mark = v_mark
+            choice_transport_details = v_choice_transport_details
+        }
 
-and let x_delivery_event_type_of_xml (c : xml.xml_node) : x_delivery_event_type =
+and let x_delivery_event_type_of_xml (c : xml.xml_node) : result (x_delivery_event_type) (list xml_codec.decode_error) =
     x_delivery_event_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_delivery_event_type_choice_transport_details_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_delivery_event_type_choice_transport_details
+    : result (x_delivery_event_type_choice_transport_details) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_delivery_event_type_choice_transport_details"
     elif xml.has_child "transportDetails" children then
-        DeliveryEventType_choice_transportDetails_transportDetails (
-            (fun c => x_transport_detail_type_of_xml c) (xml.required_child "transportDetails" children)
-        )
+        xml_codec.mapped
+            fun v => DeliveryEventType_choice_transportDetails_transportDetails v
+            (xml_codec.read_child "transportDetails" x_transport_detail_type_of_xml children)
     elif xml.has_child "outcomeDetails" children then
-        DeliveryEventType_choice_transportDetails_outcomeDetails (
-            (fun c => x_outcome_details_type_of_xml c) (xml.required_child "outcomeDetails" children)
-        )
+        xml_codec.mapped
+            fun v => DeliveryEventType_choice_transportDetails_outcomeDetails v
+            (xml_codec.read_child "outcomeDetails" x_outcome_details_type_of_xml children)
     elif xml.has_child "rejectionDetails" children then
-        DeliveryEventType_choice_transportDetails_rejectionDetails (
-            (fun c => x_rejection_details_type_of_xml c) (xml.required_child "rejectionDetails" children)
-        )
-    else failwith "x_delivery_event_type_choice_transport_details: no alternative present"
+        xml_codec.mapped
+            fun v => DeliveryEventType_choice_transportDetails_rejectionDetails v
+            (xml_codec.read_child "rejectionDetails" x_rejection_details_type_of_xml children)
+    else xml_codec.no_alternative "x_delivery_event_type_choice_transport_details"
 
 and let x_transport_detail_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_transport_detail_type
+    : result (x_transport_detail_type) (list xml_codec.decode_error)
     =
-    x_transport_detail_type {
-        vehicle_number =
-            (fun c => xml.required_value "x_transport_detail_type_vehicle_number" (x_transport_detail_type_vehicle_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vehicleNumber" children)
-        transport_type = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "transportType" children)
-        time_stamp = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "timeStamp" children)
-        carrier_vat_number =
-            (fun c => xml.required_value "x_transport_detail_type_carrier_vat_number" (x_transport_detail_type_carrier_vat_number_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "carrierVatNumber" children)
-        p_number =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_transport_detail_type_p_number" (x_transport_detail_type_p_number_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "pNumber" children)
-        location = optionm.map (fun c => x_location_type_of_xml c) (xml.first_child "location" children)
-        packings_declaration =
-            listm.map (fun c => x_packaging_detail_type_of_xml c) (xml.children_named "packingsDeclaration" children)
-    }
+    inl errors = []
+    inl o_vehicle_number, errors =
+        xml_codec.read_required
+            "vehicleNumber"
+            (xml_codec.read_value x_transport_detail_type_vehicle_number_of_string)
+            children
+            errors
+    inl o_transport_type, errors = xml_codec.read_required "transportType" xml_codec.read_text children errors
+    inl v_time_stamp, errors = xml_codec.read_optional "timeStamp" xml_codec.read_text children errors
+    inl o_carrier_vat_number, errors =
+        xml_codec.read_required
+            "carrierVatNumber"
+            (xml_codec.read_value x_transport_detail_type_carrier_vat_number_of_string)
+            children
+            errors
+    inl v_p_number, errors =
+        xml_codec.read_optional
+            "pNumber"
+            (xml_codec.read_value x_transport_detail_type_p_number_of_string)
+            children
+            errors
+    inl v_location, errors = xml_codec.read_optional "location" x_location_type_of_xml children errors
+    inl v_packings_declaration, errors =
+        xml_codec.read_repeated "packingsDeclaration" x_packaging_detail_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_transport_detail_type {
+            vehicle_number = xml_codec.present o_vehicle_number
+            transport_type = xml_codec.present o_transport_type
+            time_stamp = v_time_stamp
+            carrier_vat_number = xml_codec.present o_carrier_vat_number
+            p_number = v_p_number
+            location = v_location
+            packings_declaration = v_packings_declaration
+        }
 
-and let x_transport_detail_type_of_xml (c : xml.xml_node) : x_transport_detail_type =
+and let x_transport_detail_type_of_xml (c : xml.xml_node) : result (x_transport_detail_type) (list xml_codec.decode_error) =
     x_transport_detail_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_location_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_location_type
+    : result (x_location_type) (list xml_codec.decode_error)
     =
-    x_location_type {
-        longitude = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "longitude" children)
-        latitude = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "latitude" children)
-    }
+    inl errors = []
+    inl o_longitude, errors =
+        xml_codec.read_required "longitude" (xml_codec.read_value xsd_decimal_of_string) children errors
+    inl o_latitude, errors =
+        xml_codec.read_required "latitude" (xml_codec.read_value xsd_decimal_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_location_type { longitude = xml_codec.present o_longitude; latitude = xml_codec.present o_latitude }
 
-and let x_location_type_of_xml (c : xml.xml_node) : x_location_type =
+and let x_location_type_of_xml (c : xml.xml_node) : result (x_location_type) (list xml_codec.decode_error) =
     x_location_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_packaging_detail_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_packaging_detail_type
+    : result (x_packaging_detail_type) (list xml_codec.decode_error)
     =
-    x_packaging_detail_type {
-        packaging_type = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "packagingType" children)
-        quantity = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "quantity" children)
-        other_packaging_type_title =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_packaging_detail_type_other_packaging_type_title" (
-                        x_packaging_detail_type_other_packaging_type_title_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "otherPackagingTypeTitle" children)
-    }
+    inl errors = []
+    inl o_packaging_type, errors = xml_codec.read_required "packagingType" xml_codec.read_text children errors
+    inl o_quantity, errors =
+        xml_codec.read_required "quantity" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_other_packaging_type_title, errors =
+        xml_codec.read_optional
+            "otherPackagingTypeTitle"
+            (xml_codec.read_value x_packaging_detail_type_other_packaging_type_title_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_packaging_detail_type {
+            packaging_type = xml_codec.present o_packaging_type
+            quantity = xml_codec.present o_quantity
+            other_packaging_type_title = v_other_packaging_type_title
+        }
 
-and let x_packaging_detail_type_of_xml (c : xml.xml_node) : x_packaging_detail_type =
+and let x_packaging_detail_type_of_xml (c : xml.xml_node) : result (x_packaging_detail_type) (list xml_codec.decode_error) =
     x_packaging_detail_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_packings_declaration_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_packings_declaration
+    : result (x_packings_declaration) (list xml_codec.decode_error)
     =
-    x_packings_declaration {
-        packages = listm.map (fun c => x_packaging_detail_type_of_xml c) (xml.children_named "Packages" children)
-    }
+    inl errors = []
+    inl v_packages, errors = xml_codec.read_repeated "Packages" x_packaging_detail_type_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_packings_declaration { packages = v_packages })
 
-and let x_packings_declaration_of_xml (c : xml.xml_node) : x_packings_declaration =
+and let x_packings_declaration_of_xml (c : xml.xml_node) : result (x_packings_declaration) (list xml_codec.decode_error) =
     x_packings_declaration_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_outcome_details_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_outcome_details_type
+    : result (x_outcome_details_type) (list xml_codec.decode_error)
     =
-    x_outcome_details_type {
-        outcome =
-            (fun c => xml.required_value "x_delivery_outcome_type" (x_delivery_outcome_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "outcome" children)
-        delivered_without_recipient =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "deliveredWithoutRecipient" children)
-        delivered_packaging =
-            listm.map (fun c => x_packaging_detail_type_of_xml c) (xml.children_named "deliveredPackaging" children)
-    }
+    inl errors = []
+    inl o_outcome, errors =
+        xml_codec.read_required "outcome" (xml_codec.read_value x_delivery_outcome_type_of_string) children errors
+    inl v_delivered_without_recipient, errors =
+        xml_codec.read_optional "deliveredWithoutRecipient" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl v_delivered_packaging, errors =
+        xml_codec.read_repeated "deliveredPackaging" x_packaging_detail_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_outcome_details_type {
+            outcome = xml_codec.present o_outcome
+            delivered_without_recipient = v_delivered_without_recipient
+            delivered_packaging = v_delivered_packaging
+        }
 
-and let x_outcome_details_type_of_xml (c : xml.xml_node) : x_outcome_details_type =
+and let x_outcome_details_type_of_xml (c : xml.xml_node) : result (x_outcome_details_type) (list xml_codec.decode_error) =
     x_outcome_details_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_rejection_details_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_rejection_details_type
+    : result (x_rejection_details_type) (list xml_codec.decode_error)
     =
-    x_rejection_details_type {
-        reason = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "reason" children)
-    }
+    inl errors = []
+    inl v_reason, errors = xml_codec.read_optional "reason" xml_codec.read_text children errors
+    xml_codec.decoded_by errors (fun () => x_rejection_details_type { reason = v_reason })
 
-and let x_rejection_details_type_of_xml (c : xml.xml_node) : x_rejection_details_type =
+and let x_rejection_details_type_of_xml
+    (c : xml.xml_node)
+    : result (x_rejection_details_type) (list xml_codec.decode_error)
+    =
     x_rejection_details_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoice_expenses_classification_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoice_expenses_classification_type
+    : result (x_invoice_expenses_classification_type) (list xml_codec.decode_error)
     =
-    x_invoice_expenses_classification_type {
-        invoice_mark = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "invoiceMark" children)
-        classification_mark =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "classificationMark" children)
-        entity_vat_number =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "entityVatNumber" children)
-        choice_transaction_mode =
-            x_invoice_expenses_classification_type_choice_transaction_mode_of_children attributes children
-        classification_post_mode =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "classificationPostMode" children)
-    }
+    inl errors = []
+    inl o_invoice_mark, errors =
+        xml_codec.read_required "invoiceMark" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_classification_mark, errors =
+        xml_codec.read_optional "classificationMark" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_entity_vat_number, errors = xml_codec.read_optional "entityVatNumber" xml_codec.read_text children errors
+    inl o_choice_transaction_mode, errors =
+        xml_codec.taken
+            (x_invoice_expenses_classification_type_choice_transaction_mode_of_children attributes children)
+            errors
+    inl v_classification_post_mode, errors =
+        xml_codec.read_optional "classificationPostMode" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_invoice_expenses_classification_type {
+            invoice_mark = xml_codec.present o_invoice_mark
+            classification_mark = v_classification_mark
+            entity_vat_number = v_entity_vat_number
+            choice_transaction_mode = xml_codec.present o_choice_transaction_mode
+            classification_post_mode = v_classification_post_mode
+        }
 
-and let x_invoice_expenses_classification_type_of_xml (c : xml.xml_node) : x_invoice_expenses_classification_type =
+and let x_invoice_expenses_classification_type_of_xml
+    (c : xml.xml_node)
+    : result (x_invoice_expenses_classification_type) (list xml_codec.decode_error)
+    =
     x_invoice_expenses_classification_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoice_expenses_classification_type_choice_transaction_mode_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoice_expenses_classification_type_choice_transaction_mode
+    : result (x_invoice_expenses_classification_type_choice_transaction_mode) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_invoice_expenses_classification_type_choice_transaction_mode"
     elif xml.has_child "transactionMode" children then
-        InvoiceExpensesClassificationType_choice_transactionMode_transactionMode (
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "transactionMode" children)
-        )
+        xml_codec.mapped
+            fun v => InvoiceExpensesClassificationType_choice_transactionMode_transactionMode v
+            (xml_codec.read_child "transactionMode" xml_codec.read_text children)
     elif xml.has_child "invoicesExpensesClassificationDetails" children then
-        InvoiceExpensesClassificationType_choice_transactionMode_invoicesExpensesClassificationDetails (
-            listm.map
-                fun c => x_invoices_expenses_classification_detail_type_of_xml c
-                (xml.children_named "invoicesExpensesClassificationDetails" children)
-        )
-    else failwith "x_invoice_expenses_classification_type_choice_transaction_mode: no alternative present"
+        xml_codec.mapped
+            fun v => InvoiceExpensesClassificationType_choice_transactionMode_invoicesExpensesClassificationDetails v
+            (
+                xml_codec.pair_decoded (
+                    xml_codec.read_repeated
+                        "invoicesExpensesClassificationDetails"
+                        x_invoices_expenses_classification_detail_type_of_xml
+                        children
+                        []
+                )
+            )
+    else xml_codec.no_alternative "x_invoice_expenses_classification_type_choice_transaction_mode"
 
 and let x_invoices_expenses_classification_detail_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoices_expenses_classification_detail_type
+    : result (x_invoices_expenses_classification_detail_type) (list xml_codec.decode_error)
     =
-    x_invoices_expenses_classification_detail_type {
-        line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineNumber" children)
-        expenses_classification_detail_data =
-            listm.map
-                fun c => x_expenses_classification_type_of_xml c
-                (xml.children_named "expensesClassificationDetailData" children)
-    }
+    inl errors = []
+    inl o_line_number, errors =
+        xml_codec.read_required "lineNumber" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_expenses_classification_detail_data, errors =
+        xml_codec.read_repeated "expensesClassificationDetailData" x_expenses_classification_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_invoices_expenses_classification_detail_type {
+            line_number = xml_codec.present o_line_number
+            expenses_classification_detail_data = v_expenses_classification_detail_data
+        }
 
 and let x_invoices_expenses_classification_detail_type_of_xml
     (c : xml.xml_node)
-    : x_invoices_expenses_classification_detail_type
+    : result (x_invoices_expenses_classification_detail_type) (list xml_codec.decode_error)
     =
     x_invoices_expenses_classification_detail_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_expenses_classification_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_expenses_classification_type
+    : result (x_expenses_classification_type) (list xml_codec.decode_error)
     =
-    x_expenses_classification_type {
-        classification_type =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "classificationType" children)
-        classification_category =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_expenses_classification_category_type" (
-                        x_expenses_classification_category_type_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "classificationCategory" children)
-        amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "amount" children)
-        vat_amount = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "vatAmount" children)
-        vat_category =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "vatCategory" children)
-        vat_exemption_category =
-            optionm.map
-                fun c => xml.text_in (xml.element_children c)
-                (xml.first_child "vatExemptionCategory" children)
-        id = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "id" children)
-    }
+    inl errors = []
+    inl v_classification_type, errors = xml_codec.read_optional "classificationType" xml_codec.read_text children errors
+    inl v_classification_category, errors =
+        xml_codec.read_optional
+            "classificationCategory"
+            (xml_codec.read_value x_expenses_classification_category_type_of_string)
+            children
+            errors
+    inl o_amount, errors = xml_codec.read_required "amount" xml_codec.read_text children errors
+    inl v_vat_amount, errors = xml_codec.read_optional "vatAmount" xml_codec.read_text children errors
+    inl v_vat_category, errors = xml_codec.read_optional "vatCategory" xml_codec.read_text children errors
+    inl v_vat_exemption_category, errors =
+        xml_codec.read_optional "vatExemptionCategory" xml_codec.read_text children errors
+    inl v_id, errors = xml_codec.read_optional "id" (xml_codec.read_value xsd_integer_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_expenses_classification_type {
+            classification_type = v_classification_type
+            classification_category = v_classification_category
+            amount = xml_codec.present o_amount
+            vat_amount = v_vat_amount
+            vat_category = v_vat_category
+            vat_exemption_category = v_vat_exemption_category
+            id = v_id
+        }
 
-and let x_expenses_classification_type_of_xml (c : xml.xml_node) : x_expenses_classification_type =
+and let x_expenses_classification_type_of_xml
+    (c : xml.xml_node)
+    : result (x_expenses_classification_type) (list xml_codec.decode_error)
+    =
     x_expenses_classification_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoice_income_classification_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoice_income_classification_type
+    : result (x_invoice_income_classification_type) (list xml_codec.decode_error)
     =
-    x_invoice_income_classification_type {
-        invoice_mark = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "invoiceMark" children)
-        classification_mark =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "classificationMark" children)
-        entity_vat_number =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "entityVatNumber" children)
-        choice_transaction_mode =
-            x_invoice_income_classification_type_choice_transaction_mode_of_children attributes children
-    }
+    inl errors = []
+    inl o_invoice_mark, errors =
+        xml_codec.read_required "invoiceMark" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_classification_mark, errors =
+        xml_codec.read_optional "classificationMark" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_entity_vat_number, errors = xml_codec.read_optional "entityVatNumber" xml_codec.read_text children errors
+    inl o_choice_transaction_mode, errors =
+        xml_codec.taken
+            (x_invoice_income_classification_type_choice_transaction_mode_of_children attributes children)
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_invoice_income_classification_type {
+            invoice_mark = xml_codec.present o_invoice_mark
+            classification_mark = v_classification_mark
+            entity_vat_number = v_entity_vat_number
+            choice_transaction_mode = xml_codec.present o_choice_transaction_mode
+        }
 
-and let x_invoice_income_classification_type_of_xml (c : xml.xml_node) : x_invoice_income_classification_type =
+and let x_invoice_income_classification_type_of_xml
+    (c : xml.xml_node)
+    : result (x_invoice_income_classification_type) (list xml_codec.decode_error)
+    =
     x_invoice_income_classification_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoice_income_classification_type_choice_transaction_mode_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoice_income_classification_type_choice_transaction_mode
+    : result (x_invoice_income_classification_type_choice_transaction_mode) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_invoice_income_classification_type_choice_transaction_mode"
     elif xml.has_child "transactionMode" children then
-        InvoiceIncomeClassificationType_choice_transactionMode_transactionMode (
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "transactionMode" children)
-        )
+        xml_codec.mapped
+            fun v => InvoiceIncomeClassificationType_choice_transactionMode_transactionMode v
+            (xml_codec.read_child "transactionMode" xml_codec.read_text children)
     elif xml.has_child "invoicesIncomeClassificationDetails" children then
-        InvoiceIncomeClassificationType_choice_transactionMode_invoicesIncomeClassificationDetails (
-            listm.map
-                fun c => x_invoices_income_classification_detail_type_of_xml c
-                (xml.children_named "invoicesIncomeClassificationDetails" children)
-        )
-    else failwith "x_invoice_income_classification_type_choice_transaction_mode: no alternative present"
+        xml_codec.mapped
+            fun v => InvoiceIncomeClassificationType_choice_transactionMode_invoicesIncomeClassificationDetails v
+            (
+                xml_codec.pair_decoded (
+                    xml_codec.read_repeated
+                        "invoicesIncomeClassificationDetails"
+                        x_invoices_income_classification_detail_type_of_xml
+                        children
+                        []
+                )
+            )
+    else xml_codec.no_alternative "x_invoice_income_classification_type_choice_transaction_mode"
 
 and let x_invoices_income_classification_detail_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_invoices_income_classification_detail_type
+    : result (x_invoices_income_classification_detail_type) (list xml_codec.decode_error)
     =
-    x_invoices_income_classification_detail_type {
-        line_number = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "lineNumber" children)
-        income_classification_detail_data =
-            listm.map
-                fun c => x_income_classification_type_of_xml c
-                (xml.children_named "incomeClassificationDetailData" children)
-    }
+    inl errors = []
+    inl o_line_number, errors =
+        xml_codec.read_required "lineNumber" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl v_income_classification_detail_data, errors =
+        xml_codec.read_repeated "incomeClassificationDetailData" x_income_classification_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_invoices_income_classification_detail_type {
+            line_number = xml_codec.present o_line_number
+            income_classification_detail_data = v_income_classification_detail_data
+        }
 
 and let x_invoices_income_classification_detail_type_of_xml
     (c : xml.xml_node)
-    : x_invoices_income_classification_detail_type
+    : result (x_invoices_income_classification_detail_type) (list xml_codec.decode_error)
     =
     x_invoices_income_classification_detail_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_income_classification_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_income_classification_type
+    : result (x_income_classification_type) (list xml_codec.decode_error)
     =
-    x_income_classification_type {
-        classification_type =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_income_classification_value_type" (
-                        x_income_classification_value_type_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "classificationType" children)
-        classification_category =
-            (fun c => xml.required_value "x_income_classification_category_type" (x_income_classification_category_type_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "classificationCategory" children)
-        amount = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "amount" children)
-        id = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "id" children)
-    }
+    inl errors = []
+    inl v_classification_type, errors =
+        xml_codec.read_optional
+            "classificationType"
+            (xml_codec.read_value x_income_classification_value_type_of_string)
+            children
+            errors
+    inl o_classification_category, errors =
+        xml_codec.read_required
+            "classificationCategory"
+            (xml_codec.read_value x_income_classification_category_type_of_string)
+            children
+            errors
+    inl o_amount, errors = xml_codec.read_required "amount" xml_codec.read_text children errors
+    inl v_id, errors = xml_codec.read_optional "id" (xml_codec.read_value xsd_integer_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_income_classification_type {
+            classification_type = v_classification_type
+            classification_category = xml_codec.present o_classification_category
+            amount = xml_codec.present o_amount
+            id = v_id
+        }
 
-and let x_income_classification_type_of_xml (c : xml.xml_node) : x_income_classification_type =
+and let x_income_classification_type_of_xml
+    (c : xml.xml_node)
+    : result (x_income_classification_type) (list xml_codec.decode_error)
+    =
     x_income_classification_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_invoices_doc_children (x : x_invoices_doc) : list xml.xml_node =
@@ -5038,10 +5308,8 @@ and let x_aade_book_invoice_type_children (x : x_aade_book_invoice_type) : list 
         match f with
         | AadeBookInvoiceType_field_uid =>
             xml.option_list (optionm.map (fun v => xml.element "uid" [] (xml.text_children v)) v)
-        | AadeBookInvoiceType_field_mark =>
-            xml.option_list (optionm.map (fun v => xml.element "mark" [] (xml.text_children v)) v)
-        | AadeBookInvoiceType_field_cancelledByMark =>
-            xml.option_list (optionm.map (fun v => xml.element "cancelledByMark" [] (xml.text_children v)) v)
+        | AadeBookInvoiceType_field_mark => optional_text_nodes "mark" v
+        | AadeBookInvoiceType_field_cancelledByMark => optional_text_nodes "cancelledByMark" v
         | AadeBookInvoiceType_field_authenticationCode =>
             xml.option_list (optionm.map (fun v => xml.element "authenticationCode" [] (xml.text_children v)) v)
         | AadeBookInvoiceType_field_transmissionFailure =>
@@ -5195,15 +5463,12 @@ and let x_invoice_header_type_children (x : x_invoice_header_type) : list xml.xm
         | InvoiceHeaderType_field_aa => [ text_node "aa" v ]
         | InvoiceHeaderType_field_issueDate => [ xml.element "issueDate" [] (xml.text_children v) ]
         | InvoiceHeaderType_field_invoiceType => [ text_node "invoiceType" v ]
-        | InvoiceHeaderType_field_vatPaymentSuspension =>
-            xml.option_list (optionm.map (fun v => xml.element "vatPaymentSuspension" [] (xml.text_children v)) v)
+        | InvoiceHeaderType_field_vatPaymentSuspension => optional_text_nodes "vatPaymentSuspension" v
         | InvoiceHeaderType_field_currency => optional_text_nodes "currency" v
         | InvoiceHeaderType_field_exchangeRate =>
             xml.option_list (optionm.map (fun v => xml.element "exchangeRate" [] (xml.text_children v)) v)
-        | InvoiceHeaderType_field_correlatedInvoices =>
-            listm.map (fun v => xml.element "correlatedInvoices" [] (xml.text_children v)) v
-        | InvoiceHeaderType_field_selfPricing =>
-            xml.option_list (optionm.map (fun v => xml.element "selfPricing" [] (xml.text_children v)) v)
+        | InvoiceHeaderType_field_correlatedInvoices => repeated_text_nodes "correlatedInvoices" v
+        | InvoiceHeaderType_field_selfPricing => optional_text_nodes "selfPricing" v
         | InvoiceHeaderType_field_dispatchDate =>
             xml.option_list (optionm.map (fun v => xml.element "dispatchDate" [] (xml.text_children v)) v)
         | InvoiceHeaderType_field_dispatchTime =>
@@ -5211,8 +5476,7 @@ and let x_invoice_header_type_children (x : x_invoice_header_type) : list xml.xm
         | InvoiceHeaderType_field_vehicleNumber => optional_text_nodes "vehicleNumber" v
         | InvoiceHeaderType_field_movePurpose =>
             xml.option_list (optionm.map (fun v => xml.element "movePurpose" [] (xml.text_children v)) v)
-        | InvoiceHeaderType_field_fuelInvoice =>
-            xml.option_list (optionm.map (fun v => xml.element "fuelInvoice" [] (xml.text_children v)) v)
+        | InvoiceHeaderType_field_fuelInvoice => optional_text_nodes "fuelInvoice" v
         | InvoiceHeaderType_field_specialInvoiceCategory =>
             xml.option_list (optionm.map (fun v => xml.element "specialInvoiceCategory" [] (xml.text_children v)) v)
         | InvoiceHeaderType_field_invoiceVariationType =>
@@ -5223,32 +5487,23 @@ and let x_invoice_header_type_children (x : x_invoice_header_type) : list xml.xm
             xml.option_list (
                 optionm.map (fun v => x_other_delivery_note_header_type_to_xml "otherDeliveryNoteHeader" v) v
             )
-        | InvoiceHeaderType_field_isDeliveryNote =>
-            xml.option_list (optionm.map (fun v => xml.element "isDeliveryNote" [] (xml.text_children v)) v)
+        | InvoiceHeaderType_field_isDeliveryNote => optional_text_nodes "isDeliveryNote" v
         | InvoiceHeaderType_field_otherMovePurposeTitle => optional_text_nodes "otherMovePurposeTitle" v
-        | InvoiceHeaderType_field_thirdPartyCollection =>
-            xml.option_list (optionm.map (fun v => xml.element "thirdPartyCollection" [] (xml.text_children v)) v)
-        | InvoiceHeaderType_field_multipleConnectedMarks =>
-            listm.map (fun v => xml.element "multipleConnectedMarks" [] (xml.text_children v)) v
+        | InvoiceHeaderType_field_thirdPartyCollection => optional_text_nodes "thirdPartyCollection" v
+        | InvoiceHeaderType_field_multipleConnectedMarks => repeated_text_nodes "multipleConnectedMarks" v
         | InvoiceHeaderType_field_tableAA => optional_text_nodes "tableAA" v
-        | InvoiceHeaderType_field_totalCancelDeliveryOrders =>
-            xml.option_list (optionm.map (fun v => xml.element "totalCancelDeliveryOrders" [] (xml.text_children v)) v)
-        | InvoiceHeaderType_field_reverseDeliveryNote =>
-            xml.option_list (optionm.map (fun v => xml.element "reverseDeliveryNote" [] (xml.text_children v)) v)
+        | InvoiceHeaderType_field_totalCancelDeliveryOrders => optional_text_nodes "totalCancelDeliveryOrders" v
+        | InvoiceHeaderType_field_reverseDeliveryNote => optional_text_nodes "reverseDeliveryNote" v
         | InvoiceHeaderType_field_reverseDeliveryNotePurpose =>
             xml.option_list (optionm.map (fun v => xml.element "reverseDeliveryNotePurpose" [] (xml.text_children v)) v)
-        | InvoiceHeaderType_field_toWeigh =>
-            xml.option_list (optionm.map (fun v => xml.element "toWeigh" [] (xml.text_children v)) v)
+        | InvoiceHeaderType_field_toWeigh => optional_text_nodes "toWeigh" v
         | InvoiceHeaderType_field_receivingNotePurpose =>
             xml.option_list (optionm.map (fun v => xml.element "receivingNotePurpose" [] (xml.text_children v)) v)
         | InvoiceHeaderType_field_otherReceivingNotePurposeTitle =>
             optional_text_nodes "otherReceivingNotePurposeTitle" v
-        | InvoiceHeaderType_field_nonObligatedRecipient =>
-            xml.option_list (optionm.map (fun v => xml.element "nonObligatedRecipient" [] (xml.text_children v)) v)
+        | InvoiceHeaderType_field_nonObligatedRecipient => optional_text_nodes "nonObligatedRecipient" v
         | InvoiceHeaderType_field_withoutDigitalTransportTracking =>
-            xml.option_list (
-                optionm.map (fun v => xml.element "withoutDigitalTransportTracking" [] (xml.text_children v)) v
-            )
+            optional_text_nodes "withoutDigitalTransportTracking" v
     inl rec walk (fields : list (exists r. x_invoice_header_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
@@ -5316,8 +5571,7 @@ and let x_invoice_row_type_children (x : x_invoice_row_type) : list xml.xml_node
         | InvoiceRowType_field_vatExemptionCategory =>
             xml.option_list (optionm.map (fun v => xml.element "vatExemptionCategory" [] (xml.text_children v)) v)
         | InvoiceRowType_field_dienergia => xml.option_list (optionm.map (fun v => x_ship_type_to_xml "dienergia" v) v)
-        | InvoiceRowType_field_discountOption =>
-            xml.option_list (optionm.map (fun v => xml.element "discountOption" [] (xml.text_children v)) v)
+        | InvoiceRowType_field_discountOption => optional_text_nodes "discountOption" v
         | InvoiceRowType_field_withheldAmount =>
             xml.option_list (optionm.map (fun v => xml.element "withheldAmount" [] (xml.text_children v)) v)
         | InvoiceRowType_field_withheldPercentCategory =>
@@ -5343,13 +5597,9 @@ and let x_invoice_row_type_children (x : x_invoice_row_type) : list xml.xml_node
             listm.map (fun v => x_expenses_classification_type_to_xml "expensesClassification" v) v
         | InvoiceRowType_field_quantity15 =>
             xml.option_list (optionm.map (fun v => xml.element "quantity15" [] (xml.text_children v)) v)
-        | InvoiceRowType_field_otherMeasurementUnitQuantity =>
-            xml.option_list (
-                optionm.map (fun v => xml.element "otherMeasurementUnitQuantity" [] (xml.text_children v)) v
-            )
+        | InvoiceRowType_field_otherMeasurementUnitQuantity => optional_text_nodes "otherMeasurementUnitQuantity" v
         | InvoiceRowType_field_otherMeasurementUnitTitle => optional_text_nodes "otherMeasurementUnitTitle" v
-        | InvoiceRowType_field_notVAT195 =>
-            xml.option_list (optionm.map (fun v => xml.element "notVAT195" [] (xml.text_children v)) v)
+        | InvoiceRowType_field_notVAT195 => optional_text_nodes "notVAT195" v
         | InvoiceRowType_field_movePurposeLine =>
             xml.option_list (optionm.map (fun v => xml.element "movePurposeLine" [] (xml.text_children v)) v)
         | InvoiceRowType_field_otherMovePurposeLineTitle => optional_text_nodes "otherMovePurposeLineTitle" v
@@ -5447,7 +5697,7 @@ and let x_party_type_children (x : x_party_type) : list xml.xml_node =
         match f with
         | PartyType_field_vatNumber => [ text_node "vatNumber" v ]
         | PartyType_field_country => [ text_node "country" v ]
-        | PartyType_field_branch => [ xml.element "branch" [] (xml.text_children v) ]
+        | PartyType_field_branch => [ text_node "branch" v ]
         | PartyType_field_name => optional_text_nodes "name" v
         | PartyType_field_address => xml.option_list (optionm.map (fun v => x_address_type_to_xml "address" v) v)
         | PartyType_field_documentIdNo => optional_text_nodes "documentIdNo" v
@@ -5573,7 +5823,7 @@ and let x_tax_totals_type_children (x : x_tax_totals_type) : list xml.xml_node =
         | TaxTotalsType_field_underlyingValue =>
             xml.option_list (optionm.map (fun v => xml.element "underlyingValue" [] (xml.text_children v)) v)
         | TaxTotalsType_field_taxAmount => [ xml.element "taxAmount" [] (xml.text_children v) ]
-        | TaxTotalsType_field_id => xml.option_list (optionm.map (fun v => xml.element "id" [] (xml.text_children v)) v)
+        | TaxTotalsType_field_id => optional_text_nodes "id" v
     inl rec walk (fields : list (exists r. x_tax_totals_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
@@ -5616,10 +5866,8 @@ and let x_other_delivery_note_header_type_children (x : x_other_delivery_note_he
         match f with
         | OtherDeliveryNoteHeaderType_field_loadingAddress => [ x_address_type_to_xml "loadingAddress" v ]
         | OtherDeliveryNoteHeaderType_field_deliveryAddress => [ x_address_type_to_xml "deliveryAddress" v ]
-        | OtherDeliveryNoteHeaderType_field_startShippingBranch =>
-            xml.option_list (optionm.map (fun v => xml.element "startShippingBranch" [] (xml.text_children v)) v)
-        | OtherDeliveryNoteHeaderType_field_completeShippingBranch =>
-            xml.option_list (optionm.map (fun v => xml.element "completeShippingBranch" [] (xml.text_children v)) v)
+        | OtherDeliveryNoteHeaderType_field_startShippingBranch => optional_text_nodes "startShippingBranch" v
+        | OtherDeliveryNoteHeaderType_field_completeShippingBranch => optional_text_nodes "completeShippingBranch" v
     inl rec walk (fields : list (exists r. x_other_delivery_note_header_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
@@ -5687,8 +5935,7 @@ and let x_delivery_event_type_children (x : x_delivery_event_type) : list xml.xm
         | DeliveryEventType_field_eventType => [ xml.element "eventType" [] (xml.text_children v) ]
         | DeliveryEventType_field_eventTimestamp => [ xml.element "eventTimestamp" [] (xml.text_children v) ]
         | DeliveryEventType_field_actorVat => [ xml.element "actorVat" [] (xml.text_children v) ]
-        | DeliveryEventType_field_mark =>
-            xml.option_list (optionm.map (fun v => xml.element "mark" [] (xml.text_children v)) v)
+        | DeliveryEventType_field_mark => optional_text_nodes "mark" v
         | DeliveryEventType_field_choice_transport_details =>
             xml.option_concat (optionm.map x_delivery_event_type_choice_transport_details_children v)
     inl rec walk (fields : list (exists r. x_delivery_event_type_field r)) : list xml.xml_node =
@@ -5758,8 +6005,8 @@ and let x_transport_detail_type_to_xml (name : string) (x : x_transport_detail_t
 and let x_location_type_children (x : x_location_type) : list xml.xml_node =
     inl nodes forall r. (f : x_location_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | LocationType_field_longitude => [ xml.element "longitude" [] (xml.text_children v) ]
-        | LocationType_field_latitude => [ xml.element "latitude" [] (xml.text_children v) ]
+        | LocationType_field_longitude => [ text_node "longitude" v ]
+        | LocationType_field_latitude => [ text_node "latitude" v ]
     inl rec walk (fields : list (exists r. x_location_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
@@ -5777,7 +6024,7 @@ and let x_packaging_detail_type_children (x : x_packaging_detail_type) : list xm
     inl nodes forall r. (f : x_packaging_detail_type_field r) (v : r) : list xml.xml_node =
         match f with
         | PackagingDetailType_field_packagingType => [ xml.element "packagingType" [] (xml.text_children v) ]
-        | PackagingDetailType_field_quantity => [ xml.element "quantity" [] (xml.text_children v) ]
+        | PackagingDetailType_field_quantity => [ text_node "quantity" v ]
         | PackagingDetailType_field_otherPackagingTypeTitle => optional_text_nodes "otherPackagingTypeTitle" v
     inl rec walk (fields : list (exists r. x_packaging_detail_type_field r)) : list xml.xml_node =
         match fields with
@@ -5817,8 +6064,7 @@ and let x_outcome_details_type_children (x : x_outcome_details_type) : list xml.
     inl nodes forall r. (f : x_outcome_details_type_field r) (v : r) : list xml.xml_node =
         match f with
         | OutcomeDetailsType_field_outcome => [ text_node "outcome" v ]
-        | OutcomeDetailsType_field_deliveredWithoutRecipient =>
-            xml.option_list (optionm.map (fun v => xml.element "deliveredWithoutRecipient" [] (xml.text_children v)) v)
+        | OutcomeDetailsType_field_deliveredWithoutRecipient => optional_text_nodes "deliveredWithoutRecipient" v
         | OutcomeDetailsType_field_deliveredPackaging =>
             listm.map (fun v => x_packaging_detail_type_to_xml "deliveredPackaging" v) v
     inl rec walk (fields : list (exists r. x_outcome_details_type_field r)) : list xml.xml_node =
@@ -5859,9 +6105,8 @@ and let x_rejection_details_type_to_xml (name : string) (x : x_rejection_details
 and let x_invoice_expenses_classification_type_children (x : x_invoice_expenses_classification_type) : list xml.xml_node =
     inl nodes forall r. (f : x_invoice_expenses_classification_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | InvoiceExpensesClassificationType_field_invoiceMark => [ xml.element "invoiceMark" [] (xml.text_children v) ]
-        | InvoiceExpensesClassificationType_field_classificationMark =>
-            xml.option_list (optionm.map (fun v => xml.element "classificationMark" [] (xml.text_children v)) v)
+        | InvoiceExpensesClassificationType_field_invoiceMark => [ text_node "invoiceMark" v ]
+        | InvoiceExpensesClassificationType_field_classificationMark => optional_text_nodes "classificationMark" v
         | InvoiceExpensesClassificationType_field_entityVatNumber =>
             xml.option_list (optionm.map (fun v => xml.element "entityVatNumber" [] (xml.text_children v)) v)
         | InvoiceExpensesClassificationType_field_choice_transaction_mode =>
@@ -5914,8 +6159,7 @@ and let x_invoices_expenses_classification_detail_type_children
     =
     inl nodes forall r. (f : x_invoices_expenses_classification_detail_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | InvoicesExpensesClassificationDetailType_field_lineNumber =>
-            [ xml.element "lineNumber" [] (xml.text_children v) ]
+        | InvoicesExpensesClassificationDetailType_field_lineNumber => [ text_node "lineNumber" v ]
         | InvoicesExpensesClassificationDetailType_field_expensesClassificationDetailData =>
             listm.map (fun v => x_expenses_classification_type_to_xml "expensesClassificationDetailData" v) v
     inl rec walk
@@ -5959,8 +6203,7 @@ and let x_expenses_classification_type_children (x : x_expenses_classification_t
             xml.option_list (optionm.map (fun v => xml.element "vatCategory" [] (xml.text_children v)) v)
         | ExpensesClassificationType_field_vatExemptionCategory =>
             xml.option_list (optionm.map (fun v => xml.element "vatExemptionCategory" [] (xml.text_children v)) v)
-        | ExpensesClassificationType_field_id =>
-            xml.option_list (optionm.map (fun v => xml.element "id" [] (xml.text_children v)) v)
+        | ExpensesClassificationType_field_id => optional_text_nodes "id" v
     inl rec walk (fields : list (exists r. x_expenses_classification_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
@@ -5985,9 +6228,8 @@ and let x_expenses_classification_type_to_xml (name : string) (x : x_expenses_cl
 and let x_invoice_income_classification_type_children (x : x_invoice_income_classification_type) : list xml.xml_node =
     inl nodes forall r. (f : x_invoice_income_classification_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | InvoiceIncomeClassificationType_field_invoiceMark => [ xml.element "invoiceMark" [] (xml.text_children v) ]
-        | InvoiceIncomeClassificationType_field_classificationMark =>
-            xml.option_list (optionm.map (fun v => xml.element "classificationMark" [] (xml.text_children v)) v)
+        | InvoiceIncomeClassificationType_field_invoiceMark => [ text_node "invoiceMark" v ]
+        | InvoiceIncomeClassificationType_field_classificationMark => optional_text_nodes "classificationMark" v
         | InvoiceIncomeClassificationType_field_entityVatNumber =>
             xml.option_list (optionm.map (fun v => xml.element "entityVatNumber" [] (xml.text_children v)) v)
         | InvoiceIncomeClassificationType_field_choice_transaction_mode =>
@@ -6037,8 +6279,7 @@ and let x_invoices_income_classification_detail_type_children
     =
     inl nodes forall r. (f : x_invoices_income_classification_detail_type_field r) (v : r) : list xml.xml_node =
         match f with
-        | InvoicesIncomeClassificationDetailType_field_lineNumber =>
-            [ xml.element "lineNumber" [] (xml.text_children v) ]
+        | InvoicesIncomeClassificationDetailType_field_lineNumber => [ text_node "lineNumber" v ]
         | InvoicesIncomeClassificationDetailType_field_incomeClassificationDetailData =>
             listm.map (fun v => x_income_classification_type_to_xml "incomeClassificationDetailData" v) v
     inl rec walk (fields : list (exists r. x_invoices_income_classification_detail_type_field r)) : list xml.xml_node =
@@ -6072,8 +6313,7 @@ and let x_income_classification_type_children (x : x_income_classification_type)
         | IncomeClassificationType_field_classificationType => optional_text_nodes "classificationType" v
         | IncomeClassificationType_field_classificationCategory => [ text_node "classificationCategory" v ]
         | IncomeClassificationType_field_amount => [ xml.element "amount" [] (xml.text_children v) ]
-        | IncomeClassificationType_field_id =>
-            xml.option_list (optionm.map (fun v => xml.element "id" [] (xml.text_children v)) v)
+        | IncomeClassificationType_field_id => optional_text_nodes "id" v
     inl rec walk (fields : list (exists r. x_income_classification_type_field r)) : list xml.xml_node =
         match fields with
         | packed :: rest =>
@@ -6256,7 +6496,7 @@ and let x_party_type_example (k : i32) : x_party_type =
     x_party_type {
         vat_number = x_party_type_vat_number_example k
         country = x_country_type_example k
-        branch = "1"
+        branch = xsd_integer_example k
         name = None
         address = None
         document_id_no = None
@@ -6353,14 +6593,14 @@ and let x_transport_detail_type_example (k : i32) : x_transport_detail_type =
 
 and let x_location_type_example (k : i32) : x_location_type =
     x_location_type {
-        longitude = "1"
-        latitude = "1"
+        longitude = xsd_decimal_example k
+        latitude = xsd_decimal_example k
     }
 
 and let x_packaging_detail_type_example (k : i32) : x_packaging_detail_type =
     x_packaging_detail_type {
         packaging_type = x_packaging_detail_type_packaging_type_example k
-        quantity = "1"
+        quantity = xsd_integer_example k
         other_packaging_type_title = None
     }
 
@@ -6383,7 +6623,7 @@ and let x_rejection_details_type_example (k : i32) : x_rejection_details_type =
 
 and let x_invoice_expenses_classification_type_example (k : i32) : x_invoice_expenses_classification_type =
     x_invoice_expenses_classification_type {
-        invoice_mark = "1"
+        invoice_mark = xsd_integer_example k
         classification_mark = None
         entity_vat_number = None
         choice_transaction_mode = x_invoice_expenses_classification_type_choice_transaction_mode_example k
@@ -6400,7 +6640,7 @@ and let x_invoice_expenses_classification_type_choice_transaction_mode_example
 
 and let x_invoices_expenses_classification_detail_type_example (k : i32) : x_invoices_expenses_classification_detail_type =
     x_invoices_expenses_classification_detail_type {
-        line_number = "1"
+        line_number = xsd_integer_example k
         expenses_classification_detail_data = [ x_expenses_classification_type_example (k + 0i32) ]
     }
 
@@ -6417,7 +6657,7 @@ and let x_expenses_classification_type_example (k : i32) : x_expenses_classifica
 
 and let x_invoice_income_classification_type_example (k : i32) : x_invoice_income_classification_type =
     x_invoice_income_classification_type {
-        invoice_mark = "1"
+        invoice_mark = xsd_integer_example k
         classification_mark = None
         entity_vat_number = None
         choice_transaction_mode = x_invoice_income_classification_type_choice_transaction_mode_example k
@@ -6433,7 +6673,7 @@ and let x_invoice_income_classification_type_choice_transaction_mode_example
 
 and let x_invoices_income_classification_detail_type_example (k : i32) : x_invoices_income_classification_detail_type =
     x_invoices_income_classification_detail_type {
-        line_number = "1"
+        line_number = xsd_integer_example k
         income_classification_detail_data = [ x_income_classification_type_example (k + 0i32) ]
     }
 
@@ -6577,7 +6817,7 @@ test generated_gr_mydata_2_0_2_writes_its_example =
         inl text = file_system.read_all_text (generated_fiscal_runtime.sample_path (sm'.(++#) "../" path))
         match xml.read_xml text with
         | node :: [] =>
-            match xml.first_difference node (x_invoices_doc_to_xml "InvoicesDoc" (x_invoices_doc_of_xml node)) with
+            match xml_codec.read_back_difference (x_invoices_doc_of_xml) (x_invoices_doc_to_xml "InvoicesDoc") node with
             | Some difference => [ sm'.(++#) path (sm'.(++#) ": " difference) ]
             | None => []
         | _ => [ sm'.(++#) path ": not one root element" ]
@@ -6598,7 +6838,7 @@ test generated_gr_mydata_2_0_2_writes_its_example =
             inl start = date_time.stopwatch_elapsed_microseconds watch
             match xml.read_xml text with
             | node :: [] =>
-                inl parsed = x_invoices_doc_of_xml node
+                inl parsed = xml_codec.expect_decoded (x_invoices_doc_of_xml node)
                 inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
                 inl written = xml.write_node (x_invoices_doc_to_xml "InvoicesDoc" parsed)
                 inl written_at = date_time.stopwatch_elapsed_microseconds watch
@@ -6614,7 +6854,7 @@ test generated_gr_mydata_2_0_2_writes_its_example =
     console.write_line row
     match xml.read_xml text with
     | node :: [] =>
-        inl parsed = x_invoices_doc_of_xml node
+        inl parsed = xml_codec.expect_decoded (x_invoices_doc_of_xml node)
         inl document =
             xml.element
                 "InvoicesDoc"

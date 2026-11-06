@@ -1,7 +1,0 @@
-packageDir: ../../deps/spiral/lib
-packages:
-    |core-
-    spiral-
-    ../generated_fiscal_runtime-
-modules:
-    generated_ubl_receiptadvice_2_1

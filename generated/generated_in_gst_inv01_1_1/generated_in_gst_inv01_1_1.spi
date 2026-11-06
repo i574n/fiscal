@@ -3975,693 +3975,809 @@ inl x_gst_invoice_tran_dtls_get forall r. (f : x_gst_invoice_tran_dtls_field r) 
     | GstInvoice_TranDtls_field_EcmGstin => x.ecm_gstin
     | GstInvoice_TranDtls_field_IgstOnIntra => x.igst_on_intra
 
-let rec x_gst_invoice_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_gst_invoice =
-    x_gst_invoice {
-        version =
-            (fun c => xml.required_value "x_gst_invoice_version" (x_gst_invoice_version_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Version" children)
-        irn =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_irn" (x_gst_invoice_irn_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "Irn" children)
-        tran_dtls = (fun c => x_gst_invoice_tran_dtls_of_xml c) (xml.required_child "TranDtls" children)
-        doc_dtls = (fun c => x_gst_invoice_doc_dtls_of_xml c) (xml.required_child "DocDtls" children)
-        seller_dtls = (fun c => x_gst_invoice_seller_dtls_of_xml c) (xml.required_child "SellerDtls" children)
-        buyer_dtls = (fun c => x_gst_invoice_buyer_dtls_of_xml c) (xml.required_child "BuyerDtls" children)
-        disp_dtls = optionm.map (fun c => x_gst_invoice_disp_dtls_of_xml c) (xml.first_child "DispDtls" children)
-        ship_dtls = optionm.map (fun c => x_gst_invoice_ship_dtls_of_xml c) (xml.first_child "ShipDtls" children)
-        item_list = listm.map (fun c => x_gst_invoice_item_list_of_xml c) (xml.children_named "ItemList" children)
-        val_dtls = (fun c => x_gst_invoice_val_dtls_of_xml c) (xml.required_child "ValDtls" children)
-        pay_dtls = optionm.map (fun c => x_gst_invoice_pay_dtls_of_xml c) (xml.first_child "PayDtls" children)
-        ref_dtls = optionm.map (fun c => x_gst_invoice_ref_dtls_of_xml c) (xml.first_child "RefDtls" children)
-        addl_doc_dtls =
-            listm.map (fun c => x_gst_invoice_addl_doc_dtls_of_xml c) (xml.children_named "AddlDocDtls" children)
-        exp_dtls = optionm.map (fun c => x_gst_invoice_exp_dtls_of_xml c) (xml.first_child "ExpDtls" children)
-        ewb_dtls = optionm.map (fun c => x_gst_invoice_ewb_dtls_of_xml c) (xml.first_child "EwbDtls" children)
-    }
+let rec x_gst_invoice_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_gst_invoice) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_version, errors =
+        xml_codec.read_required "Version" (xml_codec.read_value x_gst_invoice_version_of_string) children errors
+    inl v_irn, errors = xml_codec.read_optional "Irn" (xml_codec.read_value x_gst_invoice_irn_of_string) children errors
+    inl o_tran_dtls, errors = xml_codec.read_required "TranDtls" x_gst_invoice_tran_dtls_of_xml children errors
+    inl o_doc_dtls, errors = xml_codec.read_required "DocDtls" x_gst_invoice_doc_dtls_of_xml children errors
+    inl o_seller_dtls, errors = xml_codec.read_required "SellerDtls" x_gst_invoice_seller_dtls_of_xml children errors
+    inl o_buyer_dtls, errors = xml_codec.read_required "BuyerDtls" x_gst_invoice_buyer_dtls_of_xml children errors
+    inl v_disp_dtls, errors = xml_codec.read_optional "DispDtls" x_gst_invoice_disp_dtls_of_xml children errors
+    inl v_ship_dtls, errors = xml_codec.read_optional "ShipDtls" x_gst_invoice_ship_dtls_of_xml children errors
+    inl v_item_list, errors = xml_codec.read_repeated "ItemList" x_gst_invoice_item_list_of_xml children errors
+    inl o_val_dtls, errors = xml_codec.read_required "ValDtls" x_gst_invoice_val_dtls_of_xml children errors
+    inl v_pay_dtls, errors = xml_codec.read_optional "PayDtls" x_gst_invoice_pay_dtls_of_xml children errors
+    inl v_ref_dtls, errors = xml_codec.read_optional "RefDtls" x_gst_invoice_ref_dtls_of_xml children errors
+    inl v_addl_doc_dtls, errors =
+        xml_codec.read_repeated "AddlDocDtls" x_gst_invoice_addl_doc_dtls_of_xml children errors
+    inl v_exp_dtls, errors = xml_codec.read_optional "ExpDtls" x_gst_invoice_exp_dtls_of_xml children errors
+    inl v_ewb_dtls, errors = xml_codec.read_optional "EwbDtls" x_gst_invoice_ewb_dtls_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice {
+            version = xml_codec.present o_version
+            irn = v_irn
+            tran_dtls = xml_codec.present o_tran_dtls
+            doc_dtls = xml_codec.present o_doc_dtls
+            seller_dtls = xml_codec.present o_seller_dtls
+            buyer_dtls = xml_codec.present o_buyer_dtls
+            disp_dtls = v_disp_dtls
+            ship_dtls = v_ship_dtls
+            item_list = v_item_list
+            val_dtls = xml_codec.present o_val_dtls
+            pay_dtls = v_pay_dtls
+            ref_dtls = v_ref_dtls
+            addl_doc_dtls = v_addl_doc_dtls
+            exp_dtls = v_exp_dtls
+            ewb_dtls = v_ewb_dtls
+        }
 
-and let x_gst_invoice_of_xml (c : xml.xml_node) : x_gst_invoice =
+and let x_gst_invoice_of_xml (c : xml.xml_node) : result (x_gst_invoice) (list xml_codec.decode_error) =
     x_gst_invoice_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_ewb_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_ewb_dtls
+    : result (x_gst_invoice_ewb_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_ewb_dtls {
-        trans_id =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ewb_dtls_trans_id" (x_gst_invoice_ewb_dtls_trans_id_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "TransId" children)
-        trans_name =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ewb_dtls_trans_name" (
-                        x_gst_invoice_ewb_dtls_trans_name_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "TransName" children)
-        trans_mode =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ewb_dtls_trans_mode" (
-                        x_gst_invoice_ewb_dtls_trans_mode_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "TransMode" children)
-        distance = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Distance" children)
-        trans_doc_no =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ewb_dtls_trans_doc_no" (
-                        x_gst_invoice_ewb_dtls_trans_doc_no_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "TransDocNo" children)
-        trans_doc_dt =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ewb_dtls_trans_doc_dt" (
-                        x_gst_invoice_ewb_dtls_trans_doc_dt_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "TransDocDt" children)
-        veh_no =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ewb_dtls_veh_no" (x_gst_invoice_ewb_dtls_veh_no_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "VehNo" children)
-        veh_type =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ewb_dtls_veh_type" (x_gst_invoice_ewb_dtls_veh_type_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "VehType" children)
-    }
+    inl errors = []
+    inl v_trans_id, errors =
+        xml_codec.read_optional
+            "TransId"
+            (xml_codec.read_value x_gst_invoice_ewb_dtls_trans_id_of_string)
+            children
+            errors
+    inl v_trans_name, errors =
+        xml_codec.read_optional
+            "TransName"
+            (xml_codec.read_value x_gst_invoice_ewb_dtls_trans_name_of_string)
+            children
+            errors
+    inl v_trans_mode, errors =
+        xml_codec.read_optional
+            "TransMode"
+            (xml_codec.read_value x_gst_invoice_ewb_dtls_trans_mode_of_string)
+            children
+            errors
+    inl o_distance, errors = xml_codec.read_required "Distance" xml_codec.read_text children errors
+    inl v_trans_doc_no, errors =
+        xml_codec.read_optional
+            "TransDocNo"
+            (xml_codec.read_value x_gst_invoice_ewb_dtls_trans_doc_no_of_string)
+            children
+            errors
+    inl v_trans_doc_dt, errors =
+        xml_codec.read_optional
+            "TransDocDt"
+            (xml_codec.read_value x_gst_invoice_ewb_dtls_trans_doc_dt_of_string)
+            children
+            errors
+    inl v_veh_no, errors =
+        xml_codec.read_optional "VehNo" (xml_codec.read_value x_gst_invoice_ewb_dtls_veh_no_of_string) children errors
+    inl v_veh_type, errors =
+        xml_codec.read_optional
+            "VehType"
+            (xml_codec.read_value x_gst_invoice_ewb_dtls_veh_type_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_ewb_dtls {
+            trans_id = v_trans_id
+            trans_name = v_trans_name
+            trans_mode = v_trans_mode
+            distance = xml_codec.present o_distance
+            trans_doc_no = v_trans_doc_no
+            trans_doc_dt = v_trans_doc_dt
+            veh_no = v_veh_no
+            veh_type = v_veh_type
+        }
 
-and let x_gst_invoice_ewb_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_ewb_dtls =
+and let x_gst_invoice_ewb_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_ewb_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_ewb_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_exp_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_exp_dtls
+    : result (x_gst_invoice_exp_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_exp_dtls {
-        ship_b_no =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_exp_dtls_ship_b_no" (x_gst_invoice_exp_dtls_ship_b_no_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "ShipBNo" children)
-        ship_b_dt =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_exp_dtls_ship_b_dt" (x_gst_invoice_exp_dtls_ship_b_dt_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "ShipBDt" children)
-        port =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_exp_dtls_port" (x_gst_invoice_exp_dtls_port_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Port" children)
-        ref_clm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_exp_dtls_ref_clm" (x_gst_invoice_exp_dtls_ref_clm_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "RefClm" children)
-        for_cur =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_exp_dtls_for_cur" (x_gst_invoice_exp_dtls_for_cur_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "ForCur" children)
-        cnt_code =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_exp_dtls_cnt_code" (x_gst_invoice_exp_dtls_cnt_code_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "CntCode" children)
-        exp_duty = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "ExpDuty" children)
-    }
+    inl errors = []
+    inl v_ship_b_no, errors =
+        xml_codec.read_optional
+            "ShipBNo"
+            (xml_codec.read_value x_gst_invoice_exp_dtls_ship_b_no_of_string)
+            children
+            errors
+    inl v_ship_b_dt, errors =
+        xml_codec.read_optional
+            "ShipBDt"
+            (xml_codec.read_value x_gst_invoice_exp_dtls_ship_b_dt_of_string)
+            children
+            errors
+    inl v_port, errors =
+        xml_codec.read_optional "Port" (xml_codec.read_value x_gst_invoice_exp_dtls_port_of_string) children errors
+    inl v_ref_clm, errors =
+        xml_codec.read_optional "RefClm" (xml_codec.read_value x_gst_invoice_exp_dtls_ref_clm_of_string) children errors
+    inl v_for_cur, errors =
+        xml_codec.read_optional "ForCur" (xml_codec.read_value x_gst_invoice_exp_dtls_for_cur_of_string) children errors
+    inl v_cnt_code, errors =
+        xml_codec.read_optional
+            "CntCode"
+            (xml_codec.read_value x_gst_invoice_exp_dtls_cnt_code_of_string)
+            children
+            errors
+    inl v_exp_duty, errors = xml_codec.read_optional "ExpDuty" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_exp_dtls {
+            ship_b_no = v_ship_b_no
+            ship_b_dt = v_ship_b_dt
+            port = v_port
+            ref_clm = v_ref_clm
+            for_cur = v_for_cur
+            cnt_code = v_cnt_code
+            exp_duty = v_exp_duty
+        }
 
-and let x_gst_invoice_exp_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_exp_dtls =
+and let x_gst_invoice_exp_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_exp_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_exp_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_addl_doc_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_addl_doc_dtls
+    : result (x_gst_invoice_addl_doc_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_addl_doc_dtls {
-        url =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_addl_doc_dtls_url" (x_gst_invoice_addl_doc_dtls_url_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Url" children)
-        docs =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_addl_doc_dtls_docs" (x_gst_invoice_addl_doc_dtls_docs_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Docs" children)
-        info =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_addl_doc_dtls_info" (x_gst_invoice_addl_doc_dtls_info_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Info" children)
-    }
+    inl errors = []
+    inl v_url, errors =
+        xml_codec.read_optional "Url" (xml_codec.read_value x_gst_invoice_addl_doc_dtls_url_of_string) children errors
+    inl v_docs, errors =
+        xml_codec.read_optional "Docs" (xml_codec.read_value x_gst_invoice_addl_doc_dtls_docs_of_string) children errors
+    inl v_info, errors =
+        xml_codec.read_optional "Info" (xml_codec.read_value x_gst_invoice_addl_doc_dtls_info_of_string) children errors
+    xml_codec.decoded_by errors (fun () => x_gst_invoice_addl_doc_dtls { url = v_url; docs = v_docs; info = v_info })
 
-and let x_gst_invoice_addl_doc_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_addl_doc_dtls =
+and let x_gst_invoice_addl_doc_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_addl_doc_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_addl_doc_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_ref_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_ref_dtls
+    : result (x_gst_invoice_ref_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_ref_dtls {
-        inv_rm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_inv_rm" (x_gst_invoice_ref_dtls_inv_rm_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "InvRm" children)
-        doc_perd_dtls =
-            optionm.map
-                fun c => x_gst_invoice_ref_dtls_doc_perd_dtls_of_xml c
-                (xml.first_child "DocPerdDtls" children)
-        prec_doc_dtls =
-            listm.map
-                fun c => x_gst_invoice_ref_dtls_prec_doc_dtls_of_xml c
-                (xml.children_named "PrecDocDtls" children)
-        contr_dtls =
-            listm.map (fun c => x_gst_invoice_ref_dtls_contr_dtls_of_xml c) (xml.children_named "ContrDtls" children)
-    }
+    inl errors = []
+    inl v_inv_rm, errors =
+        xml_codec.read_optional "InvRm" (xml_codec.read_value x_gst_invoice_ref_dtls_inv_rm_of_string) children errors
+    inl v_doc_perd_dtls, errors =
+        xml_codec.read_optional "DocPerdDtls" x_gst_invoice_ref_dtls_doc_perd_dtls_of_xml children errors
+    inl v_prec_doc_dtls, errors =
+        xml_codec.read_repeated "PrecDocDtls" x_gst_invoice_ref_dtls_prec_doc_dtls_of_xml children errors
+    inl v_contr_dtls, errors =
+        xml_codec.read_repeated "ContrDtls" x_gst_invoice_ref_dtls_contr_dtls_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_ref_dtls {
+            inv_rm = v_inv_rm
+            doc_perd_dtls = v_doc_perd_dtls
+            prec_doc_dtls = v_prec_doc_dtls
+            contr_dtls = v_contr_dtls
+        }
 
-and let x_gst_invoice_ref_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_ref_dtls =
+and let x_gst_invoice_ref_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_ref_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_ref_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_ref_dtls_contr_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_ref_dtls_contr_dtls
+    : result (x_gst_invoice_ref_dtls_contr_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_ref_dtls_contr_dtls {
-        rec_adv_refr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_rec_adv_refr" (
-                        x_gst_invoice_ref_dtls_contr_dtls_rec_adv_refr_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "RecAdvRefr" children)
-        rec_adv_dt =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_rec_adv_dt" (
-                        x_gst_invoice_ref_dtls_contr_dtls_rec_adv_dt_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "RecAdvDt" children)
-        tend_refr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_tend_refr" (
-                        x_gst_invoice_ref_dtls_contr_dtls_tend_refr_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "TendRefr" children)
-        contr_refr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_contr_refr" (
-                        x_gst_invoice_ref_dtls_contr_dtls_contr_refr_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "ContrRefr" children)
-        ext_refr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_ext_refr" (
-                        x_gst_invoice_ref_dtls_contr_dtls_ext_refr_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "ExtRefr" children)
-        proj_refr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_proj_refr" (
-                        x_gst_invoice_ref_dtls_contr_dtls_proj_refr_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "ProjRefr" children)
-        po_refr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_po_refr" (
-                        x_gst_invoice_ref_dtls_contr_dtls_po_refr_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "PORefr" children)
-        po_ref_dt =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt" (
-                        x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "PORefDt" children)
-    }
+    inl errors = []
+    inl v_rec_adv_refr, errors =
+        xml_codec.read_optional
+            "RecAdvRefr"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_rec_adv_refr_of_string)
+            children
+            errors
+    inl v_rec_adv_dt, errors =
+        xml_codec.read_optional
+            "RecAdvDt"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_rec_adv_dt_of_string)
+            children
+            errors
+    inl v_tend_refr, errors =
+        xml_codec.read_optional
+            "TendRefr"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_tend_refr_of_string)
+            children
+            errors
+    inl v_contr_refr, errors =
+        xml_codec.read_optional
+            "ContrRefr"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_contr_refr_of_string)
+            children
+            errors
+    inl v_ext_refr, errors =
+        xml_codec.read_optional
+            "ExtRefr"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_ext_refr_of_string)
+            children
+            errors
+    inl v_proj_refr, errors =
+        xml_codec.read_optional
+            "ProjRefr"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_proj_refr_of_string)
+            children
+            errors
+    inl v_po_refr, errors =
+        xml_codec.read_optional
+            "PORefr"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_po_refr_of_string)
+            children
+            errors
+    inl v_po_ref_dt, errors =
+        xml_codec.read_optional
+            "PORefDt"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_contr_dtls_po_ref_dt_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_ref_dtls_contr_dtls {
+            rec_adv_refr = v_rec_adv_refr
+            rec_adv_dt = v_rec_adv_dt
+            tend_refr = v_tend_refr
+            contr_refr = v_contr_refr
+            ext_refr = v_ext_refr
+            proj_refr = v_proj_refr
+            po_refr = v_po_refr
+            po_ref_dt = v_po_ref_dt
+        }
 
-and let x_gst_invoice_ref_dtls_contr_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_ref_dtls_contr_dtls =
+and let x_gst_invoice_ref_dtls_contr_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_ref_dtls_contr_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_ref_dtls_contr_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_ref_dtls_prec_doc_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_ref_dtls_prec_doc_dtls
+    : result (x_gst_invoice_ref_dtls_prec_doc_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_ref_dtls_prec_doc_dtls {
-        inv_no =
-            (fun c => xml.required_value "x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no" (x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvNo" children)
-        inv_dt =
-            (fun c => xml.required_value "x_gst_invoice_ref_dtls_prec_doc_dtls_inv_dt" (x_gst_invoice_ref_dtls_prec_doc_dtls_inv_dt_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvDt" children)
-        oth_ref_no =
-            optionm.map
-                fun c =>
-                    xml.required_value
-                        "x_gst_invoice_ref_dtls_prec_doc_dtls_oth_ref_no"
-                        (
-                            x_gst_invoice_ref_dtls_prec_doc_dtls_oth_ref_no_of_string (
-                                xml.text_in (xml.element_children c)
-                            )
-                        )
-                (xml.first_child "OthRefNo" children)
-    }
+    inl errors = []
+    inl o_inv_no, errors =
+        xml_codec.read_required
+            "InvNo"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no_of_string)
+            children
+            errors
+    inl o_inv_dt, errors =
+        xml_codec.read_required
+            "InvDt"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_prec_doc_dtls_inv_dt_of_string)
+            children
+            errors
+    inl v_oth_ref_no, errors =
+        xml_codec.read_optional
+            "OthRefNo"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_prec_doc_dtls_oth_ref_no_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_ref_dtls_prec_doc_dtls {
+            inv_no = xml_codec.present o_inv_no
+            inv_dt = xml_codec.present o_inv_dt
+            oth_ref_no = v_oth_ref_no
+        }
 
-and let x_gst_invoice_ref_dtls_prec_doc_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_ref_dtls_prec_doc_dtls =
+and let x_gst_invoice_ref_dtls_prec_doc_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_ref_dtls_prec_doc_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_ref_dtls_prec_doc_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_ref_dtls_doc_perd_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_ref_dtls_doc_perd_dtls
+    : result (x_gst_invoice_ref_dtls_doc_perd_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_ref_dtls_doc_perd_dtls {
-        inv_st_dt =
-            (fun c => xml.required_value "x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt" (x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvStDt" children)
-        inv_end_dt =
-            (fun c => xml.required_value "x_gst_invoice_ref_dtls_doc_perd_dtls_inv_end_dt" (x_gst_invoice_ref_dtls_doc_perd_dtls_inv_end_dt_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "InvEndDt" children)
-    }
+    inl errors = []
+    inl o_inv_st_dt, errors =
+        xml_codec.read_required
+            "InvStDt"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt_of_string)
+            children
+            errors
+    inl o_inv_end_dt, errors =
+        xml_codec.read_required
+            "InvEndDt"
+            (xml_codec.read_value x_gst_invoice_ref_dtls_doc_perd_dtls_inv_end_dt_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_ref_dtls_doc_perd_dtls {
+            inv_st_dt = xml_codec.present o_inv_st_dt
+            inv_end_dt = xml_codec.present o_inv_end_dt
+        }
 
-and let x_gst_invoice_ref_dtls_doc_perd_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_ref_dtls_doc_perd_dtls =
+and let x_gst_invoice_ref_dtls_doc_perd_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_ref_dtls_doc_perd_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_ref_dtls_doc_perd_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_pay_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_pay_dtls
+    : result (x_gst_invoice_pay_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_pay_dtls {
-        nm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_nm" (x_gst_invoice_pay_dtls_nm_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "Nm" children)
-        acc_det =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_acc_det" (x_gst_invoice_pay_dtls_acc_det_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "AccDet" children)
-        mode =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_mode" (x_gst_invoice_pay_dtls_mode_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Mode" children)
-        fin_ins_br =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_fin_ins_br" (
-                        x_gst_invoice_pay_dtls_fin_ins_br_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "FinInsBr" children)
-        pay_term =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_pay_term" (x_gst_invoice_pay_dtls_pay_term_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "PayTerm" children)
-        pay_instr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_pay_instr" (x_gst_invoice_pay_dtls_pay_instr_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "PayInstr" children)
-        cr_trn =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_cr_trn" (x_gst_invoice_pay_dtls_cr_trn_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "CrTrn" children)
-        dir_dr =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_pay_dtls_dir_dr" (x_gst_invoice_pay_dtls_dir_dr_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "DirDr" children)
-        cr_day = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CrDay" children)
-        paid_amt = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "PaidAmt" children)
-        paymt_due = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "PaymtDue" children)
-    }
+    inl errors = []
+    inl v_nm, errors =
+        xml_codec.read_optional "Nm" (xml_codec.read_value x_gst_invoice_pay_dtls_nm_of_string) children errors
+    inl v_acc_det, errors =
+        xml_codec.read_optional "AccDet" (xml_codec.read_value x_gst_invoice_pay_dtls_acc_det_of_string) children errors
+    inl v_mode, errors =
+        xml_codec.read_optional "Mode" (xml_codec.read_value x_gst_invoice_pay_dtls_mode_of_string) children errors
+    inl v_fin_ins_br, errors =
+        xml_codec.read_optional
+            "FinInsBr"
+            (xml_codec.read_value x_gst_invoice_pay_dtls_fin_ins_br_of_string)
+            children
+            errors
+    inl v_pay_term, errors =
+        xml_codec.read_optional
+            "PayTerm"
+            (xml_codec.read_value x_gst_invoice_pay_dtls_pay_term_of_string)
+            children
+            errors
+    inl v_pay_instr, errors =
+        xml_codec.read_optional
+            "PayInstr"
+            (xml_codec.read_value x_gst_invoice_pay_dtls_pay_instr_of_string)
+            children
+            errors
+    inl v_cr_trn, errors =
+        xml_codec.read_optional "CrTrn" (xml_codec.read_value x_gst_invoice_pay_dtls_cr_trn_of_string) children errors
+    inl v_dir_dr, errors =
+        xml_codec.read_optional "DirDr" (xml_codec.read_value x_gst_invoice_pay_dtls_dir_dr_of_string) children errors
+    inl v_cr_day, errors = xml_codec.read_optional "CrDay" xml_codec.read_text children errors
+    inl v_paid_amt, errors = xml_codec.read_optional "PaidAmt" xml_codec.read_text children errors
+    inl v_paymt_due, errors = xml_codec.read_optional "PaymtDue" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_pay_dtls {
+            nm = v_nm
+            acc_det = v_acc_det
+            mode = v_mode
+            fin_ins_br = v_fin_ins_br
+            pay_term = v_pay_term
+            pay_instr = v_pay_instr
+            cr_trn = v_cr_trn
+            dir_dr = v_dir_dr
+            cr_day = v_cr_day
+            paid_amt = v_paid_amt
+            paymt_due = v_paymt_due
+        }
 
-and let x_gst_invoice_pay_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_pay_dtls =
+and let x_gst_invoice_pay_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_pay_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_pay_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_val_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_val_dtls
+    : result (x_gst_invoice_val_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_val_dtls {
-        ass_val = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "AssVal" children)
-        cgst_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CgstVal" children)
-        sgst_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "SgstVal" children)
-        igst_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "IgstVal" children)
-        ces_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CesVal" children)
-        st_ces_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "StCesVal" children)
-        discount = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "Discount" children)
-        oth_chrg = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "OthChrg" children)
-        rnd_off_amt = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "RndOffAmt" children)
-        tot_inv_val = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotInvVal" children)
-        tot_inv_val_fc =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "TotInvValFc" children)
-    }
+    inl errors = []
+    inl o_ass_val, errors = xml_codec.read_required "AssVal" xml_codec.read_text children errors
+    inl v_cgst_val, errors = xml_codec.read_optional "CgstVal" xml_codec.read_text children errors
+    inl v_sgst_val, errors = xml_codec.read_optional "SgstVal" xml_codec.read_text children errors
+    inl v_igst_val, errors = xml_codec.read_optional "IgstVal" xml_codec.read_text children errors
+    inl v_ces_val, errors = xml_codec.read_optional "CesVal" xml_codec.read_text children errors
+    inl v_st_ces_val, errors = xml_codec.read_optional "StCesVal" xml_codec.read_text children errors
+    inl v_discount, errors = xml_codec.read_optional "Discount" xml_codec.read_text children errors
+    inl v_oth_chrg, errors = xml_codec.read_optional "OthChrg" xml_codec.read_text children errors
+    inl v_rnd_off_amt, errors = xml_codec.read_optional "RndOffAmt" xml_codec.read_text children errors
+    inl o_tot_inv_val, errors = xml_codec.read_required "TotInvVal" xml_codec.read_text children errors
+    inl v_tot_inv_val_fc, errors = xml_codec.read_optional "TotInvValFc" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_val_dtls {
+            ass_val = xml_codec.present o_ass_val
+            cgst_val = v_cgst_val
+            sgst_val = v_sgst_val
+            igst_val = v_igst_val
+            ces_val = v_ces_val
+            st_ces_val = v_st_ces_val
+            discount = v_discount
+            oth_chrg = v_oth_chrg
+            rnd_off_amt = v_rnd_off_amt
+            tot_inv_val = xml_codec.present o_tot_inv_val
+            tot_inv_val_fc = v_tot_inv_val_fc
+        }
 
-and let x_gst_invoice_val_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_val_dtls =
+and let x_gst_invoice_val_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_val_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_val_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_item_list_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_item_list
+    : result (x_gst_invoice_item_list) (list xml_codec.decode_error)
     =
-    x_gst_invoice_item_list {
-        sl_no =
-            (fun c => xml.required_value "x_gst_invoice_item_list_sl_no" (x_gst_invoice_item_list_sl_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SlNo" children)
-        prd_desc =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_prd_desc" (x_gst_invoice_item_list_prd_desc_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "PrdDesc" children)
-        is_servc =
-            (fun c => xml.required_value "x_gst_invoice_item_list_is_servc" (x_gst_invoice_item_list_is_servc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "IsServc" children)
-        hsn_cd =
-            (fun c => xml.required_value "x_gst_invoice_item_list_hsn_cd" (x_gst_invoice_item_list_hsn_cd_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "HsnCd" children)
-        barcde =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_barcde" (x_gst_invoice_item_list_barcde_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Barcde" children)
-        qty = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "Qty" children)
-        free_qty = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "FreeQty" children)
-        unit =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_unit" (x_gst_invoice_item_list_unit_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Unit" children)
-        unit_price = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "UnitPrice" children)
-        tot_amt = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotAmt" children)
-        discount = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "Discount" children)
-        pre_tax_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "PreTaxVal" children)
-        ass_amt = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "AssAmt" children)
-        gst_rt = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "GstRt" children)
-        igst_amt = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "IgstAmt" children)
-        cgst_amt = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CgstAmt" children)
-        sgst_amt = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "SgstAmt" children)
-        ces_rt = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CesRt" children)
-        ces_amt = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CesAmt" children)
-        ces_non_advl_amt =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "CesNonAdvlAmt" children)
-        state_ces_rt =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "StateCesRt" children)
-        state_ces_amt =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "StateCesAmt" children)
-        state_ces_non_advl_amt =
-            optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "StateCesNonAdvlAmt" children)
-        oth_chrg = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "OthChrg" children)
-        tot_item_val = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "TotItemVal" children)
-        ord_line_ref =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_ord_line_ref" (
-                        x_gst_invoice_item_list_ord_line_ref_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "OrdLineRef" children)
-        org_cntry =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_org_cntry" (
-                        x_gst_invoice_item_list_org_cntry_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "OrgCntry" children)
-        prd_sl_no =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_prd_sl_no" (
-                        x_gst_invoice_item_list_prd_sl_no_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "PrdSlNo" children)
-        bch_dtls = optionm.map (fun c => x_gst_invoice_item_list_bch_dtls_of_xml c) (xml.first_child "BchDtls" children)
-        attrib_dtls =
-            listm.map (fun c => x_gst_invoice_item_list_attrib_dtls_of_xml c) (xml.children_named "AttribDtls" children)
-    }
+    inl errors = []
+    inl o_sl_no, errors =
+        xml_codec.read_required "SlNo" (xml_codec.read_value x_gst_invoice_item_list_sl_no_of_string) children errors
+    inl v_prd_desc, errors =
+        xml_codec.read_optional
+            "PrdDesc"
+            (xml_codec.read_value x_gst_invoice_item_list_prd_desc_of_string)
+            children
+            errors
+    inl o_is_servc, errors =
+        xml_codec.read_required
+            "IsServc"
+            (xml_codec.read_value x_gst_invoice_item_list_is_servc_of_string)
+            children
+            errors
+    inl o_hsn_cd, errors =
+        xml_codec.read_required "HsnCd" (xml_codec.read_value x_gst_invoice_item_list_hsn_cd_of_string) children errors
+    inl v_barcde, errors =
+        xml_codec.read_optional "Barcde" (xml_codec.read_value x_gst_invoice_item_list_barcde_of_string) children errors
+    inl v_qty, errors = xml_codec.read_optional "Qty" xml_codec.read_text children errors
+    inl v_free_qty, errors = xml_codec.read_optional "FreeQty" xml_codec.read_text children errors
+    inl v_unit, errors =
+        xml_codec.read_optional "Unit" (xml_codec.read_value x_gst_invoice_item_list_unit_of_string) children errors
+    inl o_unit_price, errors = xml_codec.read_required "UnitPrice" xml_codec.read_text children errors
+    inl o_tot_amt, errors = xml_codec.read_required "TotAmt" xml_codec.read_text children errors
+    inl v_discount, errors = xml_codec.read_optional "Discount" xml_codec.read_text children errors
+    inl v_pre_tax_val, errors = xml_codec.read_optional "PreTaxVal" xml_codec.read_text children errors
+    inl o_ass_amt, errors = xml_codec.read_required "AssAmt" xml_codec.read_text children errors
+    inl o_gst_rt, errors = xml_codec.read_required "GstRt" xml_codec.read_text children errors
+    inl v_igst_amt, errors = xml_codec.read_optional "IgstAmt" xml_codec.read_text children errors
+    inl v_cgst_amt, errors = xml_codec.read_optional "CgstAmt" xml_codec.read_text children errors
+    inl v_sgst_amt, errors = xml_codec.read_optional "SgstAmt" xml_codec.read_text children errors
+    inl v_ces_rt, errors = xml_codec.read_optional "CesRt" xml_codec.read_text children errors
+    inl v_ces_amt, errors = xml_codec.read_optional "CesAmt" xml_codec.read_text children errors
+    inl v_ces_non_advl_amt, errors = xml_codec.read_optional "CesNonAdvlAmt" xml_codec.read_text children errors
+    inl v_state_ces_rt, errors = xml_codec.read_optional "StateCesRt" xml_codec.read_text children errors
+    inl v_state_ces_amt, errors = xml_codec.read_optional "StateCesAmt" xml_codec.read_text children errors
+    inl v_state_ces_non_advl_amt, errors =
+        xml_codec.read_optional "StateCesNonAdvlAmt" xml_codec.read_text children errors
+    inl v_oth_chrg, errors = xml_codec.read_optional "OthChrg" xml_codec.read_text children errors
+    inl o_tot_item_val, errors = xml_codec.read_required "TotItemVal" xml_codec.read_text children errors
+    inl v_ord_line_ref, errors =
+        xml_codec.read_optional
+            "OrdLineRef"
+            (xml_codec.read_value x_gst_invoice_item_list_ord_line_ref_of_string)
+            children
+            errors
+    inl v_org_cntry, errors =
+        xml_codec.read_optional
+            "OrgCntry"
+            (xml_codec.read_value x_gst_invoice_item_list_org_cntry_of_string)
+            children
+            errors
+    inl v_prd_sl_no, errors =
+        xml_codec.read_optional
+            "PrdSlNo"
+            (xml_codec.read_value x_gst_invoice_item_list_prd_sl_no_of_string)
+            children
+            errors
+    inl v_bch_dtls, errors = xml_codec.read_optional "BchDtls" x_gst_invoice_item_list_bch_dtls_of_xml children errors
+    inl v_attrib_dtls, errors =
+        xml_codec.read_repeated "AttribDtls" x_gst_invoice_item_list_attrib_dtls_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_item_list {
+            sl_no = xml_codec.present o_sl_no
+            prd_desc = v_prd_desc
+            is_servc = xml_codec.present o_is_servc
+            hsn_cd = xml_codec.present o_hsn_cd
+            barcde = v_barcde
+            qty = v_qty
+            free_qty = v_free_qty
+            unit = v_unit
+            unit_price = xml_codec.present o_unit_price
+            tot_amt = xml_codec.present o_tot_amt
+            discount = v_discount
+            pre_tax_val = v_pre_tax_val
+            ass_amt = xml_codec.present o_ass_amt
+            gst_rt = xml_codec.present o_gst_rt
+            igst_amt = v_igst_amt
+            cgst_amt = v_cgst_amt
+            sgst_amt = v_sgst_amt
+            ces_rt = v_ces_rt
+            ces_amt = v_ces_amt
+            ces_non_advl_amt = v_ces_non_advl_amt
+            state_ces_rt = v_state_ces_rt
+            state_ces_amt = v_state_ces_amt
+            state_ces_non_advl_amt = v_state_ces_non_advl_amt
+            oth_chrg = v_oth_chrg
+            tot_item_val = xml_codec.present o_tot_item_val
+            ord_line_ref = v_ord_line_ref
+            org_cntry = v_org_cntry
+            prd_sl_no = v_prd_sl_no
+            bch_dtls = v_bch_dtls
+            attrib_dtls = v_attrib_dtls
+        }
 
-and let x_gst_invoice_item_list_of_xml (c : xml.xml_node) : x_gst_invoice_item_list =
+and let x_gst_invoice_item_list_of_xml (c : xml.xml_node) : result (x_gst_invoice_item_list) (list xml_codec.decode_error) =
     x_gst_invoice_item_list_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_item_list_attrib_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_item_list_attrib_dtls
+    : result (x_gst_invoice_item_list_attrib_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_item_list_attrib_dtls {
-        nm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_attrib_dtls_nm" (
-                        x_gst_invoice_item_list_attrib_dtls_nm_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "Nm" children)
-        val =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_attrib_dtls_val" (
-                        x_gst_invoice_item_list_attrib_dtls_val_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "Val" children)
-    }
+    inl errors = []
+    inl v_nm, errors =
+        xml_codec.read_optional
+            "Nm"
+            (xml_codec.read_value x_gst_invoice_item_list_attrib_dtls_nm_of_string)
+            children
+            errors
+    inl v_val, errors =
+        xml_codec.read_optional
+            "Val"
+            (xml_codec.read_value x_gst_invoice_item_list_attrib_dtls_val_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors (fun () => x_gst_invoice_item_list_attrib_dtls { nm = v_nm; val = v_val })
 
-and let x_gst_invoice_item_list_attrib_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_item_list_attrib_dtls =
+and let x_gst_invoice_item_list_attrib_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_item_list_attrib_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_item_list_attrib_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_item_list_bch_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_item_list_bch_dtls
+    : result (x_gst_invoice_item_list_bch_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_item_list_bch_dtls {
-        nm =
-            (fun c => xml.required_value "x_gst_invoice_item_list_bch_dtls_nm" (x_gst_invoice_item_list_bch_dtls_nm_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nm" children)
-        exp_dt =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_bch_dtls_exp_dt" (
-                        x_gst_invoice_item_list_bch_dtls_exp_dt_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "ExpDt" children)
-        wr_dt =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_item_list_bch_dtls_wr_dt" (
-                        x_gst_invoice_item_list_bch_dtls_wr_dt_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "WrDt" children)
-    }
+    inl errors = []
+    inl o_nm, errors =
+        xml_codec.read_required
+            "Nm"
+            (xml_codec.read_value x_gst_invoice_item_list_bch_dtls_nm_of_string)
+            children
+            errors
+    inl v_exp_dt, errors =
+        xml_codec.read_optional
+            "ExpDt"
+            (xml_codec.read_value x_gst_invoice_item_list_bch_dtls_exp_dt_of_string)
+            children
+            errors
+    inl v_wr_dt, errors =
+        xml_codec.read_optional
+            "WrDt"
+            (xml_codec.read_value x_gst_invoice_item_list_bch_dtls_wr_dt_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_item_list_bch_dtls { nm = xml_codec.present o_nm; exp_dt = v_exp_dt; wr_dt = v_wr_dt }
 
-and let x_gst_invoice_item_list_bch_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_item_list_bch_dtls =
+and let x_gst_invoice_item_list_bch_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_item_list_bch_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_item_list_bch_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_ship_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_ship_dtls
+    : result (x_gst_invoice_ship_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_ship_dtls {
-        gstin =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ship_dtls_gstin" (x_gst_invoice_ship_dtls_gstin_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Gstin" children)
-        lgl_nm =
-            (fun c => xml.required_value "x_gst_invoice_ship_dtls_lgl_nm" (x_gst_invoice_ship_dtls_lgl_nm_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "LglNm" children)
-        trd_nm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ship_dtls_trd_nm" (x_gst_invoice_ship_dtls_trd_nm_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "TrdNm" children)
-        addr1 =
-            (fun c => xml.required_value "x_gst_invoice_ship_dtls_addr1" (x_gst_invoice_ship_dtls_addr1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Addr1" children)
-        addr2 =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_ship_dtls_addr2" (x_gst_invoice_ship_dtls_addr2_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Addr2" children)
-        loc =
-            (fun c => xml.required_value "x_gst_invoice_ship_dtls_loc" (x_gst_invoice_ship_dtls_loc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Loc" children)
-        pin = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Pin" children)
-        stcd =
-            (fun c => xml.required_value "x_gst_invoice_ship_dtls_stcd" (x_gst_invoice_ship_dtls_stcd_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Stcd" children)
-    }
+    inl errors = []
+    inl v_gstin, errors =
+        xml_codec.read_optional "Gstin" (xml_codec.read_value x_gst_invoice_ship_dtls_gstin_of_string) children errors
+    inl o_lgl_nm, errors =
+        xml_codec.read_required "LglNm" (xml_codec.read_value x_gst_invoice_ship_dtls_lgl_nm_of_string) children errors
+    inl v_trd_nm, errors =
+        xml_codec.read_optional "TrdNm" (xml_codec.read_value x_gst_invoice_ship_dtls_trd_nm_of_string) children errors
+    inl o_addr1, errors =
+        xml_codec.read_required "Addr1" (xml_codec.read_value x_gst_invoice_ship_dtls_addr1_of_string) children errors
+    inl v_addr2, errors =
+        xml_codec.read_optional "Addr2" (xml_codec.read_value x_gst_invoice_ship_dtls_addr2_of_string) children errors
+    inl o_loc, errors =
+        xml_codec.read_required "Loc" (xml_codec.read_value x_gst_invoice_ship_dtls_loc_of_string) children errors
+    inl o_pin, errors = xml_codec.read_required "Pin" xml_codec.read_text children errors
+    inl o_stcd, errors =
+        xml_codec.read_required "Stcd" (xml_codec.read_value x_gst_invoice_ship_dtls_stcd_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_ship_dtls {
+            gstin = v_gstin
+            lgl_nm = xml_codec.present o_lgl_nm
+            trd_nm = v_trd_nm
+            addr1 = xml_codec.present o_addr1
+            addr2 = v_addr2
+            loc = xml_codec.present o_loc
+            pin = xml_codec.present o_pin
+            stcd = xml_codec.present o_stcd
+        }
 
-and let x_gst_invoice_ship_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_ship_dtls =
+and let x_gst_invoice_ship_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_ship_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_ship_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_disp_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_disp_dtls
+    : result (x_gst_invoice_disp_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_disp_dtls {
-        nm =
-            (fun c => xml.required_value "x_gst_invoice_disp_dtls_nm" (x_gst_invoice_disp_dtls_nm_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Nm" children)
-        addr1 =
-            (fun c => xml.required_value "x_gst_invoice_disp_dtls_addr1" (x_gst_invoice_disp_dtls_addr1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Addr1" children)
-        addr2 =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_disp_dtls_addr2" (x_gst_invoice_disp_dtls_addr2_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Addr2" children)
-        loc =
-            (fun c => xml.required_value "x_gst_invoice_disp_dtls_loc" (x_gst_invoice_disp_dtls_loc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Loc" children)
-        pin = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Pin" children)
-        stcd =
-            (fun c => xml.required_value "x_gst_invoice_disp_dtls_stcd" (x_gst_invoice_disp_dtls_stcd_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Stcd" children)
-    }
+    inl errors = []
+    inl o_nm, errors =
+        xml_codec.read_required "Nm" (xml_codec.read_value x_gst_invoice_disp_dtls_nm_of_string) children errors
+    inl o_addr1, errors =
+        xml_codec.read_required "Addr1" (xml_codec.read_value x_gst_invoice_disp_dtls_addr1_of_string) children errors
+    inl v_addr2, errors =
+        xml_codec.read_optional "Addr2" (xml_codec.read_value x_gst_invoice_disp_dtls_addr2_of_string) children errors
+    inl o_loc, errors =
+        xml_codec.read_required "Loc" (xml_codec.read_value x_gst_invoice_disp_dtls_loc_of_string) children errors
+    inl o_pin, errors = xml_codec.read_required "Pin" xml_codec.read_text children errors
+    inl o_stcd, errors =
+        xml_codec.read_required "Stcd" (xml_codec.read_value x_gst_invoice_disp_dtls_stcd_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_disp_dtls {
+            nm = xml_codec.present o_nm
+            addr1 = xml_codec.present o_addr1
+            addr2 = v_addr2
+            loc = xml_codec.present o_loc
+            pin = xml_codec.present o_pin
+            stcd = xml_codec.present o_stcd
+        }
 
-and let x_gst_invoice_disp_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_disp_dtls =
+and let x_gst_invoice_disp_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_disp_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_disp_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_buyer_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_buyer_dtls
+    : result (x_gst_invoice_buyer_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_buyer_dtls {
-        gstin =
-            (fun c => xml.required_value "x_gst_invoice_buyer_dtls_gstin" (x_gst_invoice_buyer_dtls_gstin_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Gstin" children)
-        lgl_nm =
-            (fun c => xml.required_value "x_gst_invoice_buyer_dtls_lgl_nm" (x_gst_invoice_buyer_dtls_lgl_nm_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "LglNm" children)
-        trd_nm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_buyer_dtls_trd_nm" (x_gst_invoice_buyer_dtls_trd_nm_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "TrdNm" children)
-        pos =
-            (fun c => xml.required_value "x_gst_invoice_buyer_dtls_pos" (x_gst_invoice_buyer_dtls_pos_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Pos" children)
-        addr1 =
-            (fun c => xml.required_value "x_gst_invoice_buyer_dtls_addr1" (x_gst_invoice_buyer_dtls_addr1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Addr1" children)
-        addr2 =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_buyer_dtls_addr2" (x_gst_invoice_buyer_dtls_addr2_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Addr2" children)
-        loc =
-            (fun c => xml.required_value "x_gst_invoice_buyer_dtls_loc" (x_gst_invoice_buyer_dtls_loc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Loc" children)
-        pin = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "Pin" children)
-        stcd =
-            (fun c => xml.required_value "x_gst_invoice_buyer_dtls_stcd" (x_gst_invoice_buyer_dtls_stcd_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Stcd" children)
-        ph =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_buyer_dtls_ph" (x_gst_invoice_buyer_dtls_ph_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Ph" children)
-        em =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_buyer_dtls_em" (x_gst_invoice_buyer_dtls_em_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Em" children)
-    }
+    inl errors = []
+    inl o_gstin, errors =
+        xml_codec.read_required "Gstin" (xml_codec.read_value x_gst_invoice_buyer_dtls_gstin_of_string) children errors
+    inl o_lgl_nm, errors =
+        xml_codec.read_required "LglNm" (xml_codec.read_value x_gst_invoice_buyer_dtls_lgl_nm_of_string) children errors
+    inl v_trd_nm, errors =
+        xml_codec.read_optional "TrdNm" (xml_codec.read_value x_gst_invoice_buyer_dtls_trd_nm_of_string) children errors
+    inl o_pos, errors =
+        xml_codec.read_required "Pos" (xml_codec.read_value x_gst_invoice_buyer_dtls_pos_of_string) children errors
+    inl o_addr1, errors =
+        xml_codec.read_required "Addr1" (xml_codec.read_value x_gst_invoice_buyer_dtls_addr1_of_string) children errors
+    inl v_addr2, errors =
+        xml_codec.read_optional "Addr2" (xml_codec.read_value x_gst_invoice_buyer_dtls_addr2_of_string) children errors
+    inl o_loc, errors =
+        xml_codec.read_required "Loc" (xml_codec.read_value x_gst_invoice_buyer_dtls_loc_of_string) children errors
+    inl v_pin, errors = xml_codec.read_optional "Pin" xml_codec.read_text children errors
+    inl o_stcd, errors =
+        xml_codec.read_required "Stcd" (xml_codec.read_value x_gst_invoice_buyer_dtls_stcd_of_string) children errors
+    inl v_ph, errors =
+        xml_codec.read_optional "Ph" (xml_codec.read_value x_gst_invoice_buyer_dtls_ph_of_string) children errors
+    inl v_em, errors =
+        xml_codec.read_optional "Em" (xml_codec.read_value x_gst_invoice_buyer_dtls_em_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_buyer_dtls {
+            gstin = xml_codec.present o_gstin
+            lgl_nm = xml_codec.present o_lgl_nm
+            trd_nm = v_trd_nm
+            pos = xml_codec.present o_pos
+            addr1 = xml_codec.present o_addr1
+            addr2 = v_addr2
+            loc = xml_codec.present o_loc
+            pin = v_pin
+            stcd = xml_codec.present o_stcd
+            ph = v_ph
+            em = v_em
+        }
 
-and let x_gst_invoice_buyer_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_buyer_dtls =
+and let x_gst_invoice_buyer_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_buyer_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_buyer_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_seller_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_seller_dtls
+    : result (x_gst_invoice_seller_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_seller_dtls {
-        gstin =
-            (fun c => xml.required_value "x_gst_invoice_seller_dtls_gstin" (x_gst_invoice_seller_dtls_gstin_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Gstin" children)
-        lgl_nm =
-            (fun c => xml.required_value "x_gst_invoice_seller_dtls_lgl_nm" (x_gst_invoice_seller_dtls_lgl_nm_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "LglNm" children)
-        trd_nm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_seller_dtls_trd_nm" (x_gst_invoice_seller_dtls_trd_nm_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "TrdNm" children)
-        addr1 =
-            (fun c => xml.required_value "x_gst_invoice_seller_dtls_addr1" (x_gst_invoice_seller_dtls_addr1_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Addr1" children)
-        addr2 =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_seller_dtls_addr2" (x_gst_invoice_seller_dtls_addr2_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Addr2" children)
-        loc =
-            (fun c => xml.required_value "x_gst_invoice_seller_dtls_loc" (x_gst_invoice_seller_dtls_loc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Loc" children)
-        pin = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Pin" children)
-        stcd =
-            (fun c => xml.required_value "x_gst_invoice_seller_dtls_stcd" (x_gst_invoice_seller_dtls_stcd_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Stcd" children)
-        ph =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_seller_dtls_ph" (x_gst_invoice_seller_dtls_ph_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Ph" children)
-        em =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_seller_dtls_em" (x_gst_invoice_seller_dtls_em_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "Em" children)
-    }
+    inl errors = []
+    inl o_gstin, errors =
+        xml_codec.read_required "Gstin" (xml_codec.read_value x_gst_invoice_seller_dtls_gstin_of_string) children errors
+    inl o_lgl_nm, errors =
+        xml_codec.read_required
+            "LglNm"
+            (xml_codec.read_value x_gst_invoice_seller_dtls_lgl_nm_of_string)
+            children
+            errors
+    inl v_trd_nm, errors =
+        xml_codec.read_optional
+            "TrdNm"
+            (xml_codec.read_value x_gst_invoice_seller_dtls_trd_nm_of_string)
+            children
+            errors
+    inl o_addr1, errors =
+        xml_codec.read_required "Addr1" (xml_codec.read_value x_gst_invoice_seller_dtls_addr1_of_string) children errors
+    inl v_addr2, errors =
+        xml_codec.read_optional "Addr2" (xml_codec.read_value x_gst_invoice_seller_dtls_addr2_of_string) children errors
+    inl o_loc, errors =
+        xml_codec.read_required "Loc" (xml_codec.read_value x_gst_invoice_seller_dtls_loc_of_string) children errors
+    inl o_pin, errors = xml_codec.read_required "Pin" xml_codec.read_text children errors
+    inl o_stcd, errors =
+        xml_codec.read_required "Stcd" (xml_codec.read_value x_gst_invoice_seller_dtls_stcd_of_string) children errors
+    inl v_ph, errors =
+        xml_codec.read_optional "Ph" (xml_codec.read_value x_gst_invoice_seller_dtls_ph_of_string) children errors
+    inl v_em, errors =
+        xml_codec.read_optional "Em" (xml_codec.read_value x_gst_invoice_seller_dtls_em_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_seller_dtls {
+            gstin = xml_codec.present o_gstin
+            lgl_nm = xml_codec.present o_lgl_nm
+            trd_nm = v_trd_nm
+            addr1 = xml_codec.present o_addr1
+            addr2 = v_addr2
+            loc = xml_codec.present o_loc
+            pin = xml_codec.present o_pin
+            stcd = xml_codec.present o_stcd
+            ph = v_ph
+            em = v_em
+        }
 
-and let x_gst_invoice_seller_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_seller_dtls =
+and let x_gst_invoice_seller_dtls_of_xml
+    (c : xml.xml_node)
+    : result (x_gst_invoice_seller_dtls) (list xml_codec.decode_error)
+    =
     x_gst_invoice_seller_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_doc_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_doc_dtls
+    : result (x_gst_invoice_doc_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_doc_dtls {
-        typ =
-            (fun c => xml.required_value "x_gst_invoice_doc_dtls_typ" (x_gst_invoice_doc_dtls_typ_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Typ" children)
-        no =
-            (fun c => xml.required_value "x_gst_invoice_doc_dtls_no" (x_gst_invoice_doc_dtls_no_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "No" children)
-        dt =
-            (fun c => xml.required_value "x_gst_invoice_doc_dtls_dt" (x_gst_invoice_doc_dtls_dt_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "Dt" children)
-    }
+    inl errors = []
+    inl o_typ, errors =
+        xml_codec.read_required "Typ" (xml_codec.read_value x_gst_invoice_doc_dtls_typ_of_string) children errors
+    inl o_no, errors =
+        xml_codec.read_required "No" (xml_codec.read_value x_gst_invoice_doc_dtls_no_of_string) children errors
+    inl o_dt, errors =
+        xml_codec.read_required "Dt" (xml_codec.read_value x_gst_invoice_doc_dtls_dt_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_doc_dtls {
+            typ = xml_codec.present o_typ
+            no = xml_codec.present o_no
+            dt = xml_codec.present o_dt
+        }
 
-and let x_gst_invoice_doc_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_doc_dtls =
+and let x_gst_invoice_doc_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_doc_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_doc_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_tran_dtls_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_gst_invoice_tran_dtls
+    : result (x_gst_invoice_tran_dtls) (list xml_codec.decode_error)
     =
-    x_gst_invoice_tran_dtls {
-        tax_sch =
-            (fun c => xml.required_value "x_gst_invoice_tran_dtls_tax_sch" (x_gst_invoice_tran_dtls_tax_sch_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "TaxSch" children)
-        sup_typ =
-            (fun c => xml.required_value "x_gst_invoice_tran_dtls_sup_typ" (x_gst_invoice_tran_dtls_sup_typ_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "SupTyp" children)
-        reg_rev =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_tran_dtls_reg_rev" (x_gst_invoice_tran_dtls_reg_rev_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "RegRev" children)
-        ecm_gstin =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_tran_dtls_ecm_gstin" (
-                        x_gst_invoice_tran_dtls_ecm_gstin_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "EcmGstin" children)
-        igst_on_intra =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_gst_invoice_tran_dtls_igst_on_intra" (
-                        x_gst_invoice_tran_dtls_igst_on_intra_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "IgstOnIntra" children)
-    }
+    inl errors = []
+    inl o_tax_sch, errors =
+        xml_codec.read_required
+            "TaxSch"
+            (xml_codec.read_value x_gst_invoice_tran_dtls_tax_sch_of_string)
+            children
+            errors
+    inl o_sup_typ, errors =
+        xml_codec.read_required
+            "SupTyp"
+            (xml_codec.read_value x_gst_invoice_tran_dtls_sup_typ_of_string)
+            children
+            errors
+    inl v_reg_rev, errors =
+        xml_codec.read_optional
+            "RegRev"
+            (xml_codec.read_value x_gst_invoice_tran_dtls_reg_rev_of_string)
+            children
+            errors
+    inl v_ecm_gstin, errors =
+        xml_codec.read_optional
+            "EcmGstin"
+            (xml_codec.read_value x_gst_invoice_tran_dtls_ecm_gstin_of_string)
+            children
+            errors
+    inl v_igst_on_intra, errors =
+        xml_codec.read_optional
+            "IgstOnIntra"
+            (xml_codec.read_value x_gst_invoice_tran_dtls_igst_on_intra_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_gst_invoice_tran_dtls {
+            tax_sch = xml_codec.present o_tax_sch
+            sup_typ = xml_codec.present o_sup_typ
+            reg_rev = v_reg_rev
+            ecm_gstin = v_ecm_gstin
+            igst_on_intra = v_igst_on_intra
+        }
 
-and let x_gst_invoice_tran_dtls_of_xml (c : xml.xml_node) : x_gst_invoice_tran_dtls =
+and let x_gst_invoice_tran_dtls_of_xml (c : xml.xml_node) : result (x_gst_invoice_tran_dtls) (list xml_codec.decode_error) =
     x_gst_invoice_tran_dtls_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_gst_invoice_children (x : x_gst_invoice) : list xml.xml_node =
@@ -5635,7 +5751,8 @@ test generated_in_gst_inv01_1_1_writes_its_example =
     match json_schema.json_document "GstInvoice" text with
     | node :: [] =>
         inl again =
-            json_schema.json_document_text schema (x_gst_invoice_to_xml "GstInvoice" (x_gst_invoice_of_xml node))
+            json_schema.json_document_text schema (x_gst_invoice_to_xml "GstInvoice" (xml_codec.expect_decoded (
+                x_gst_invoice_of_xml node)))
         if again <> text then failwith "the JSON example round-trips through the typed reader and writer"
     | _ => failwith "one root"
 
@@ -5649,7 +5766,8 @@ test generated_in_gst_inv01_1_1_reads_its_documents =
         | node :: [] =>
             inl expected = json_schema.json_document_text schema node
             inl again =
-                json_schema.json_document_text schema (x_gst_invoice_to_xml "GstInvoice" (x_gst_invoice_of_xml node))
+                json_schema.json_document_text schema (x_gst_invoice_to_xml "GstInvoice" (xml_codec.expect_decoded (
+                    x_gst_invoice_of_xml node)))
             if again = expected then [] else
                 [ sm'.(++#) path ": the typed reader does not keep every member" ]
         | _ => [ sm'.(++#) path ": not one root" ]

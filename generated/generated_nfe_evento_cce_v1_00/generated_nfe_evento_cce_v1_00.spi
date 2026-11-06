@@ -27,10 +27,16 @@ prototype stage_of s : () -> stage s
 instance stage_of unsigned = fun () => Unsigned
 instance stage_of signed = fun () => Signed
 
-inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
+inl staged_read forall s a.
+    (witness : stage s) (read : list xml_codec.decode_error -> option a * list xml_codec.decode_error)
+    (errors : list xml_codec.decode_error)
+    : option (staged s a) * list xml_codec.decode_error
+    =
     match witness with
-    | Unsigned => Pending "unsigned"
-    | Signed => Present (read ())
+    | Unsigned => Some (Pending "unsigned"), errors
+    | Signed =>
+        inl value, errors = read errors
+        optionm.map (fun v => Present v) value, errors
 
 inl signed_value forall a. (x : staged signed a) : a =
     match x with
@@ -5507,408 +5513,523 @@ inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_da
 
 let rec x_t_evento_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_evento s
+    : result (x_t_evento s) (list xml_codec.decode_error)
     =
-    x_t_evento {
-        inf_evento = (fun c => x_t_evento_inf_evento_of_xml c) (xml.required_child "infEvento" children)
-        signature =
-            staged_of witness fun () =>
-                (fun c => x_signature_type_of_xml c) (xml.required_child "ds:Signature" children)
-        versao =
-            xml.required_value "x_t_ver_evento" (x_t_ver_evento_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_inf_evento, errors = xml_codec.read_required "infEvento" x_t_evento_inf_evento_of_xml children errors
+    inl o_signature, errors =
+        staged_read witness
+            fun errors => xml_codec.read_required "ds:Signature" x_signature_type_of_xml children errors
+            errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_evento_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_evento {
+            inf_evento = xml_codec.present o_inf_evento
+            signature = xml_codec.present o_signature
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_evento_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_t_evento s =
+and let x_t_evento_of_xml forall s.
+    (witness : stage s) (c : xml.xml_node)
+    : result (x_t_evento s) (list xml_codec.decode_error)
+    =
     x_t_evento_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_evento_inf_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_evento_inf_evento
+    : result (x_t_evento_inf_evento) (list xml_codec.decode_error)
     =
-    x_t_evento_inf_evento {
-        c_orgao =
-            (fun c => xml.required_value "x_tc_orgao_ibge" (x_tc_orgao_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cOrgao" children)
-        tp_amb =
-            (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
-        choice_cnpj = x_t_evento_inf_evento_choice_cnpj_of_children attributes children
-        ch_n_fe =
-            (fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chNFe" children)
-        dh_evento =
-            (fun c => xml.required_value "x_t_date_time_utc" (x_t_date_time_utc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "dhEvento" children)
-        tp_evento =
-            (fun c => xml.required_value "x_t_evento_inf_evento_tp_evento" (x_t_evento_inf_evento_tp_evento_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpEvento" children)
-        n_seq_evento =
-            (fun c => xml.required_value "x_t_evento_inf_evento_n_seq_evento" (x_t_evento_inf_evento_n_seq_evento_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nSeqEvento" children)
-        ver_evento =
-            (fun c => xml.required_value "x_t_evento_inf_evento_ver_evento" (x_t_evento_inf_evento_ver_evento_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "verEvento" children)
-        det_evento = (fun c => x_t_evento_inf_evento_det_evento_of_xml c) (xml.required_child "detEvento" children)
-        id =
-            xml.required_value
-                "x_t_evento_inf_evento_id"
-                (x_t_evento_inf_evento_id_of_string (xml.required_attribute "Id" attributes))
-    }
+    inl errors = []
+    inl o_c_orgao, errors =
+        xml_codec.read_required "cOrgao" (xml_codec.read_value x_tc_orgao_ibge_of_string) children errors
+    inl o_tp_amb, errors = xml_codec.read_required "tpAmb" (xml_codec.read_value x_t_amb_of_string) children errors
+    inl o_choice_cnpj, errors =
+        xml_codec.taken (x_t_evento_inf_evento_choice_cnpj_of_children attributes children) errors
+    inl o_ch_n_fe, errors = xml_codec.read_required "chNFe" (xml_codec.read_value x_t_ch_n_fe_of_string) children errors
+    inl o_dh_evento, errors =
+        xml_codec.read_required "dhEvento" (xml_codec.read_value x_t_date_time_utc_of_string) children errors
+    inl o_tp_evento, errors =
+        xml_codec.read_required
+            "tpEvento"
+            (xml_codec.read_value x_t_evento_inf_evento_tp_evento_of_string)
+            children
+            errors
+    inl o_n_seq_evento, errors =
+        xml_codec.read_required
+            "nSeqEvento"
+            (xml_codec.read_value x_t_evento_inf_evento_n_seq_evento_of_string)
+            children
+            errors
+    inl o_ver_evento, errors =
+        xml_codec.read_required
+            "verEvento"
+            (xml_codec.read_value x_t_evento_inf_evento_ver_evento_of_string)
+            children
+            errors
+    inl o_det_evento, errors =
+        xml_codec.read_required "detEvento" x_t_evento_inf_evento_det_evento_of_xml children errors
+    inl o_id, errors = xml_codec.attribute_parsed x_t_evento_inf_evento_id_of_string "Id" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_evento_inf_evento {
+            c_orgao = xml_codec.present o_c_orgao
+            tp_amb = xml_codec.present o_tp_amb
+            choice_cnpj = xml_codec.present o_choice_cnpj
+            ch_n_fe = xml_codec.present o_ch_n_fe
+            dh_evento = xml_codec.present o_dh_evento
+            tp_evento = xml_codec.present o_tp_evento
+            n_seq_evento = xml_codec.present o_n_seq_evento
+            ver_evento = xml_codec.present o_ver_evento
+            det_evento = xml_codec.present o_det_evento
+            id = xml_codec.present o_id
+        }
 
-and let x_t_evento_inf_evento_of_xml (c : xml.xml_node) : x_t_evento_inf_evento =
+and let x_t_evento_inf_evento_of_xml (c : xml.xml_node) : result (x_t_evento_inf_evento) (list xml_codec.decode_error) =
     x_t_evento_inf_evento_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_evento_inf_evento_det_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_evento_inf_evento_det_evento
+    : result (x_t_evento_inf_evento_det_evento) (list xml_codec.decode_error)
     =
-    x_t_evento_inf_evento_det_evento {
-        desc_evento =
-            (fun c => xml.required_value "x_t_evento_inf_evento_det_evento_desc_evento" (x_t_evento_inf_evento_det_evento_desc_evento_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "descEvento" children)
-        x_correcao =
-            (fun c => xml.required_value "x_t_evento_inf_evento_det_evento_x_correcao" (x_t_evento_inf_evento_det_evento_x_correcao_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xCorrecao" children)
-        x_cond_uso =
-            (fun c => xml.required_value "x_t_evento_inf_evento_det_evento_x_cond_uso" (x_t_evento_inf_evento_det_evento_x_cond_uso_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xCondUso" children)
-        versao =
-            xml.required_value
-                "x_t_evento_inf_evento_det_evento_versao"
-                (x_t_evento_inf_evento_det_evento_versao_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_desc_evento, errors =
+        xml_codec.read_required
+            "descEvento"
+            (xml_codec.read_value x_t_evento_inf_evento_det_evento_desc_evento_of_string)
+            children
+            errors
+    inl o_x_correcao, errors =
+        xml_codec.read_required
+            "xCorrecao"
+            (xml_codec.read_value x_t_evento_inf_evento_det_evento_x_correcao_of_string)
+            children
+            errors
+    inl o_x_cond_uso, errors =
+        xml_codec.read_required
+            "xCondUso"
+            (xml_codec.read_value x_t_evento_inf_evento_det_evento_x_cond_uso_of_string)
+            children
+            errors
+    inl o_versao, errors =
+        xml_codec.attribute_parsed x_t_evento_inf_evento_det_evento_versao_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_evento_inf_evento_det_evento {
+            desc_evento = xml_codec.present o_desc_evento
+            x_correcao = xml_codec.present o_x_correcao
+            x_cond_uso = xml_codec.present o_x_cond_uso
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_evento_inf_evento_det_evento_of_xml (c : xml.xml_node) : x_t_evento_inf_evento_det_evento =
+and let x_t_evento_inf_evento_det_evento_of_xml
+    (c : xml.xml_node)
+    : result (x_t_evento_inf_evento_det_evento) (list xml_codec.decode_error)
+    =
     x_t_evento_inf_evento_det_evento_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_evento_inf_evento_choice_cnpj_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_evento_inf_evento_choice_cnpj
+    : result (x_t_evento_inf_evento_choice_cnpj) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_t_evento_inf_evento_choice_cnpj"
     elif xml.has_child "CNPJ" children then
-        TEvento_infEvento_choice_CNPJ_CNPJ (
-            (fun c => xml.required_value "x_t_cnpj_opc" (x_t_cnpj_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        )
+        xml_codec.mapped
+            fun v => TEvento_infEvento_choice_CNPJ_CNPJ v
+            (xml_codec.read_child "CNPJ" (xml_codec.read_value x_t_cnpj_opc_of_string) children)
     elif xml.has_child "CPF" children then
-        TEvento_infEvento_choice_CNPJ_CPF (
-            (fun c => xml.required_value "x_t_cpf" (x_t_cpf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CPF" children)
-        )
-    else failwith "x_t_evento_inf_evento_choice_cnpj: no alternative present"
+        xml_codec.mapped
+            fun v => TEvento_infEvento_choice_CNPJ_CPF v
+            (xml_codec.read_child "CPF" (xml_codec.read_value x_t_cpf_of_string) children)
+    else xml_codec.no_alternative "x_t_evento_inf_evento_choice_cnpj"
 
-and let x_tret_evento_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_tret_evento =
-    x_tret_evento {
-        inf_evento = (fun c => x_tret_evento_inf_evento_of_xml c) (xml.required_child "infEvento" children)
-        signature = optionm.map (fun c => x_signature_type_of_xml c) (xml.first_child "ds:Signature" children)
-        versao =
-            xml.required_value "x_t_ver_evento" (x_t_ver_evento_of_string (xml.required_attribute "versao" attributes))
-    }
+and let x_tret_evento_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_tret_evento) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_inf_evento, errors = xml_codec.read_required "infEvento" x_tret_evento_inf_evento_of_xml children errors
+    inl v_signature, errors = xml_codec.read_optional "ds:Signature" x_signature_type_of_xml children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_evento_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_tret_evento {
+            inf_evento = xml_codec.present o_inf_evento
+            signature = v_signature
+            versao = xml_codec.present o_versao
+        }
 
-and let x_tret_evento_of_xml (c : xml.xml_node) : x_tret_evento =
+and let x_tret_evento_of_xml (c : xml.xml_node) : result (x_tret_evento) (list xml_codec.decode_error) =
     x_tret_evento_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tret_evento_inf_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tret_evento_inf_evento
+    : result (x_tret_evento_inf_evento) (list xml_codec.decode_error)
     =
-    x_tret_evento_inf_evento {
-        tp_amb =
-            (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
-        ver_aplic =
-            (fun c => xml.required_value "x_t_ver_aplic" (x_t_ver_aplic_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "verAplic" children)
-        c_orgao =
-            (fun c => xml.required_value "x_tc_orgao_ibge" (x_tc_orgao_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cOrgao" children)
-        c_stat =
-            (fun c => xml.required_value "x_t_stat" (x_t_stat_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cStat" children)
-        x_motivo =
-            (fun c => xml.required_value "x_t_motivo" (x_t_motivo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMotivo" children)
-        ch_n_fe =
-            optionm.map
-                fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "chNFe" children)
-        tp_evento =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tret_evento_inf_evento_tp_evento" (
-                        x_tret_evento_inf_evento_tp_evento_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "tpEvento" children)
-        x_evento =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tret_evento_inf_evento_x_evento" (
-                        x_tret_evento_inf_evento_x_evento_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "xEvento" children)
-        n_seq_evento =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tret_evento_inf_evento_n_seq_evento" (
-                        x_tret_evento_inf_evento_n_seq_evento_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "nSeqEvento" children)
-        choice_cnpj_dest =
-            if xml.has_any_child [ "CNPJDest"; "CPFDest" ] children
-            then Some (x_tret_evento_inf_evento_choice_cnpj_dest_of_children attributes children)
-            else None
-        email_dest =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tret_evento_inf_evento_email_dest" (
-                        x_tret_evento_inf_evento_email_dest_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "emailDest" children)
-        dh_reg_evento =
-            (fun c => xml.required_value "x_tret_evento_inf_evento_dh_reg_evento" (x_tret_evento_inf_evento_dh_reg_evento_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "dhRegEvento" children)
-        n_prot =
-            optionm.map
-                fun c => xml.required_value "x_t_prot" (x_t_prot_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "nProt" children)
-        id =
-            optionm.map
-                fun v => xml.required_value "x_tret_evento_inf_evento_id" (x_tret_evento_inf_evento_id_of_string v)
-                (xml.attribute_of "Id" attributes)
-    }
+    inl errors = []
+    inl o_tp_amb, errors = xml_codec.read_required "tpAmb" (xml_codec.read_value x_t_amb_of_string) children errors
+    inl o_ver_aplic, errors =
+        xml_codec.read_required "verAplic" (xml_codec.read_value x_t_ver_aplic_of_string) children errors
+    inl o_c_orgao, errors =
+        xml_codec.read_required "cOrgao" (xml_codec.read_value x_tc_orgao_ibge_of_string) children errors
+    inl o_c_stat, errors = xml_codec.read_required "cStat" (xml_codec.read_value x_t_stat_of_string) children errors
+    inl o_x_motivo, errors =
+        xml_codec.read_required "xMotivo" (xml_codec.read_value x_t_motivo_of_string) children errors
+    inl v_ch_n_fe, errors = xml_codec.read_optional "chNFe" (xml_codec.read_value x_t_ch_n_fe_of_string) children errors
+    inl v_tp_evento, errors =
+        xml_codec.read_optional
+            "tpEvento"
+            (xml_codec.read_value x_tret_evento_inf_evento_tp_evento_of_string)
+            children
+            errors
+    inl v_x_evento, errors =
+        xml_codec.read_optional
+            "xEvento"
+            (xml_codec.read_value x_tret_evento_inf_evento_x_evento_of_string)
+            children
+            errors
+    inl v_n_seq_evento, errors =
+        xml_codec.read_optional
+            "nSeqEvento"
+            (xml_codec.read_value x_tret_evento_inf_evento_n_seq_evento_of_string)
+            children
+            errors
+    inl v_choice_cnpj_dest, errors =
+        xml_codec.optional_taken
+            (
+                if xml.has_any_child [ "CNPJDest"; "CPFDest" ] children
+                then Some (x_tret_evento_inf_evento_choice_cnpj_dest_of_children attributes children)
+                else None
+            )
+            errors
+    inl v_email_dest, errors =
+        xml_codec.read_optional
+            "emailDest"
+            (xml_codec.read_value x_tret_evento_inf_evento_email_dest_of_string)
+            children
+            errors
+    inl o_dh_reg_evento, errors =
+        xml_codec.read_required
+            "dhRegEvento"
+            (xml_codec.read_value x_tret_evento_inf_evento_dh_reg_evento_of_string)
+            children
+            errors
+    inl v_n_prot, errors = xml_codec.read_optional "nProt" (xml_codec.read_value x_t_prot_of_string) children errors
+    inl v_id, errors = xml_codec.attribute_optional_parsed x_tret_evento_inf_evento_id_of_string "Id" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_tret_evento_inf_evento {
+            tp_amb = xml_codec.present o_tp_amb
+            ver_aplic = xml_codec.present o_ver_aplic
+            c_orgao = xml_codec.present o_c_orgao
+            c_stat = xml_codec.present o_c_stat
+            x_motivo = xml_codec.present o_x_motivo
+            ch_n_fe = v_ch_n_fe
+            tp_evento = v_tp_evento
+            x_evento = v_x_evento
+            n_seq_evento = v_n_seq_evento
+            choice_cnpj_dest = v_choice_cnpj_dest
+            email_dest = v_email_dest
+            dh_reg_evento = xml_codec.present o_dh_reg_evento
+            n_prot = v_n_prot
+            id = v_id
+        }
 
-and let x_tret_evento_inf_evento_of_xml (c : xml.xml_node) : x_tret_evento_inf_evento =
+and let x_tret_evento_inf_evento_of_xml
+    (c : xml.xml_node)
+    : result (x_tret_evento_inf_evento) (list xml_codec.decode_error)
+    =
     x_tret_evento_inf_evento_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tret_evento_inf_evento_choice_cnpj_dest_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tret_evento_inf_evento_choice_cnpj_dest
+    : result (x_tret_evento_inf_evento_choice_cnpj_dest) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tret_evento_inf_evento_choice_cnpj_dest"
     elif xml.has_child "CNPJDest" children then
-        TretEvento_infEvento_choice_CNPJDest_CNPJDest (
-            (fun c => xml.required_value "x_t_cnpj_opc" (x_t_cnpj_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJDest" children)
-        )
+        xml_codec.mapped
+            fun v => TretEvento_infEvento_choice_CNPJDest_CNPJDest v
+            (xml_codec.read_child "CNPJDest" (xml_codec.read_value x_t_cnpj_opc_of_string) children)
     elif xml.has_child "CPFDest" children then
-        TretEvento_infEvento_choice_CNPJDest_CPFDest (
-            (fun c => xml.required_value "x_t_cpf" (x_t_cpf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CPFDest" children)
-        )
-    else failwith "x_tret_evento_inf_evento_choice_cnpj_dest: no alternative present"
+        xml_codec.mapped
+            fun v => TretEvento_infEvento_choice_CNPJDest_CPFDest v
+            (xml_codec.read_child "CPFDest" (xml_codec.read_value x_t_cpf_of_string) children)
+    else xml_codec.no_alternative "x_tret_evento_inf_evento_choice_cnpj_dest"
 
 and let x_t_env_evento_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_env_evento s
+    : result (x_t_env_evento s) (list xml_codec.decode_error)
     =
-    x_t_env_evento {
-        id_lote =
-            (fun c => xml.required_value "x_t_env_evento_id_lote" (x_t_env_evento_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
-        evento = listm.map (fun c => x_t_evento_of_xml witness c) (xml.children_named "evento" children)
-        versao =
-            xml.required_value
-                "x_t_ver_env_evento"
-                (x_t_ver_env_evento_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_id_lote, errors =
+        xml_codec.read_required "idLote" (xml_codec.read_value x_t_env_evento_id_lote_of_string) children errors
+    inl v_evento, errors = xml_codec.read_repeated "evento" (x_t_evento_of_xml witness) children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_env_evento_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_env_evento { id_lote = xml_codec.present o_id_lote; evento = v_evento; versao = xml_codec.present o_versao }
 
-and let x_t_env_evento_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_t_env_evento s =
+and let x_t_env_evento_of_xml forall s.
+    (witness : stage s) (c : xml.xml_node)
+    : result (x_t_env_evento s) (list xml_codec.decode_error)
+    =
     x_t_env_evento_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_ret_env_evento_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_ret_env_evento
+    : result (x_t_ret_env_evento) (list xml_codec.decode_error)
     =
-    x_t_ret_env_evento {
-        id_lote =
-            (fun c => xml.required_value "x_t_ret_env_evento_id_lote" (x_t_ret_env_evento_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
-        tp_amb =
-            (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
-        ver_aplic =
-            (fun c => xml.required_value "x_t_ver_aplic" (x_t_ver_aplic_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "verAplic" children)
-        c_orgao =
-            (fun c => xml.required_value "x_tc_orgao_ibge" (x_tc_orgao_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cOrgao" children)
-        c_stat =
-            (fun c => xml.required_value "x_t_stat" (x_t_stat_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cStat" children)
-        x_motivo =
-            (fun c => xml.required_value "x_t_motivo" (x_t_motivo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMotivo" children)
-        ret_evento = listm.map (fun c => x_tret_evento_of_xml c) (xml.children_named "retEvento" children)
-        versao =
-            xml.required_value
-                "x_t_ver_env_evento"
-                (x_t_ver_env_evento_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_id_lote, errors =
+        xml_codec.read_required "idLote" (xml_codec.read_value x_t_ret_env_evento_id_lote_of_string) children errors
+    inl o_tp_amb, errors = xml_codec.read_required "tpAmb" (xml_codec.read_value x_t_amb_of_string) children errors
+    inl o_ver_aplic, errors =
+        xml_codec.read_required "verAplic" (xml_codec.read_value x_t_ver_aplic_of_string) children errors
+    inl o_c_orgao, errors =
+        xml_codec.read_required "cOrgao" (xml_codec.read_value x_tc_orgao_ibge_of_string) children errors
+    inl o_c_stat, errors = xml_codec.read_required "cStat" (xml_codec.read_value x_t_stat_of_string) children errors
+    inl o_x_motivo, errors =
+        xml_codec.read_required "xMotivo" (xml_codec.read_value x_t_motivo_of_string) children errors
+    inl v_ret_evento, errors = xml_codec.read_repeated "retEvento" x_tret_evento_of_xml children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_env_evento_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_ret_env_evento {
+            id_lote = xml_codec.present o_id_lote
+            tp_amb = xml_codec.present o_tp_amb
+            ver_aplic = xml_codec.present o_ver_aplic
+            c_orgao = xml_codec.present o_c_orgao
+            c_stat = xml_codec.present o_c_stat
+            x_motivo = xml_codec.present o_x_motivo
+            ret_evento = v_ret_evento
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_ret_env_evento_of_xml (c : xml.xml_node) : x_t_ret_env_evento =
+and let x_t_ret_env_evento_of_xml (c : xml.xml_node) : result (x_t_ret_env_evento) (list xml_codec.decode_error) =
     x_t_ret_env_evento_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_proc_evento_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_proc_evento s
+    : result (x_t_proc_evento s) (list xml_codec.decode_error)
     =
-    x_t_proc_evento {
-        evento = (fun c => x_t_evento_of_xml witness c) (xml.required_child "evento" children)
-        ret_evento = (fun c => x_tret_evento_of_xml c) (xml.required_child "retEvento" children)
-        versao =
-            xml.required_value "x_t_ver_evento" (x_t_ver_evento_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_evento, errors = xml_codec.read_required "evento" (x_t_evento_of_xml witness) children errors
+    inl o_ret_evento, errors = xml_codec.read_required "retEvento" x_tret_evento_of_xml children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_evento_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_proc_evento {
+            evento = xml_codec.present o_evento
+            ret_evento = xml_codec.present o_ret_evento
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_proc_evento_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_t_proc_evento s =
+and let x_t_proc_evento_of_xml forall s.
+    (witness : stage s) (c : xml.xml_node)
+    : result (x_t_proc_evento s) (list xml_codec.decode_error)
+    =
     x_t_proc_evento_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_trsa_key_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_trsa_key_value_type
+    : result (x_trsa_key_value_type) (list xml_codec.decode_error)
     =
-    x_trsa_key_value_type {
-        modulus = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Modulus" children)
-        exponent = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Exponent" children)
-    }
+    inl errors = []
+    inl o_modulus, errors = xml_codec.read_required "Modulus" xml_codec.read_text children errors
+    inl o_exponent, errors = xml_codec.read_required "Exponent" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_trsa_key_value_type { modulus = xml_codec.present o_modulus; exponent = xml_codec.present o_exponent }
 
-and let x_trsa_key_value_type_of_xml (c : xml.xml_node) : x_trsa_key_value_type =
+and let x_trsa_key_value_type_of_xml (c : xml.xml_node) : result (x_trsa_key_value_type) (list xml_codec.decode_error) =
     x_trsa_key_value_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signature_type
+    : result (x_signature_type) (list xml_codec.decode_error)
     =
-    x_signature_type {
-        signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
-        signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
-        key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl o_signed_info, errors = xml_codec.read_required "SignedInfo" x_signed_info_type_of_xml children errors
+    inl o_signature_value, errors =
+        xml_codec.read_required "SignatureValue" x_signature_value_type_of_xml children errors
+    inl o_key_info, errors = xml_codec.read_required "KeyInfo" x_key_info_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_signature_type {
+            signed_info = xml_codec.present o_signed_info
+            signature_value = xml_codec.present o_signature_value
+            key_info = xml_codec.present o_key_info
+            id = v_id
+        }
 
-and let x_signature_type_of_xml (c : xml.xml_node) : x_signature_type =
+and let x_signature_type_of_xml (c : xml.xml_node) : result (x_signature_type) (list xml_codec.decode_error) =
     x_signature_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signature_value_type
+    : result (x_signature_value_type) (list xml_codec.decode_error)
     =
-    x_signature_value_type {
-        base = xml.text_in children
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl v_base, errors = xml.text_in children, errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_signature_value_type { base = v_base; id = v_id })
 
-and let x_signature_value_type_of_xml (c : xml.xml_node) : x_signature_value_type =
+and let x_signature_value_type_of_xml (c : xml.xml_node) : result (x_signature_value_type) (list xml_codec.decode_error) =
     x_signature_value_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signed_info_type
+    : result (x_signed_info_type) (list xml_codec.decode_error)
     =
-    x_signed_info_type {
-        canonicalization_method =
-            (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
-        signature_method =
-            (fun c => x_signed_info_type_signature_method_of_xml c) (xml.required_child "SignatureMethod" children)
-        reference = (fun c => x_reference_type_of_xml c) (xml.required_child "Reference" children)
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl o_canonicalization_method, errors =
+        xml_codec.read_required
+            "CanonicalizationMethod"
+            x_signed_info_type_canonicalization_method_of_xml
+            children
+            errors
+    inl o_signature_method, errors =
+        xml_codec.read_required "SignatureMethod" x_signed_info_type_signature_method_of_xml children errors
+    inl o_reference, errors = xml_codec.read_required "Reference" x_reference_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_signed_info_type {
+            canonicalization_method = xml_codec.present o_canonicalization_method
+            signature_method = xml_codec.present o_signature_method
+            reference = xml_codec.present o_reference
+            id = v_id
+        }
 
-and let x_signed_info_type_of_xml (c : xml.xml_node) : x_signed_info_type =
+and let x_signed_info_type_of_xml (c : xml.xml_node) : result (x_signed_info_type) (list xml_codec.decode_error) =
     x_signed_info_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signed_info_type_signature_method
+    : result (x_signed_info_type_signature_method) (list xml_codec.decode_error)
     =
-    x_signed_info_type_signature_method {
-        algorithm =
-            xml.required_attribute
-                "Algorithm"
-                (xml.checked_fixed "Algorithm" "http://www.w3.org/2000/09/xmldsig#rsa-sha1" attributes)
-    }
+    inl errors = []
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    inl errors = xml_codec.fixed_checked "Algorithm" "http://www.w3.org/2000/09/xmldsig#rsa-sha1" attributes errors
+    xml_codec.decoded_by errors (fun () => x_signed_info_type_signature_method { algorithm = v_algorithm })
 
-and let x_signed_info_type_signature_method_of_xml (c : xml.xml_node) : x_signed_info_type_signature_method =
+and let x_signed_info_type_signature_method_of_xml
+    (c : xml.xml_node)
+    : result (x_signed_info_type_signature_method) (list xml_codec.decode_error)
+    =
     x_signed_info_type_signature_method_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signed_info_type_canonicalization_method
+    : result (x_signed_info_type_canonicalization_method) (list xml_codec.decode_error)
     =
-    x_signed_info_type_canonicalization_method {
-        algorithm =
-            xml.required_attribute
-                "Algorithm"
-                (xml.checked_fixed "Algorithm" "http://www.w3.org/TR/2001/REC-xml-c14n-20010315" attributes)
-    }
+    inl errors = []
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    inl errors = xml_codec.fixed_checked "Algorithm" "http://www.w3.org/TR/2001/REC-xml-c14n-20010315" attributes errors
+    xml_codec.decoded_by errors (fun () => x_signed_info_type_canonicalization_method { algorithm = v_algorithm })
 
-and let x_signed_info_type_canonicalization_method_of_xml (c : xml.xml_node) : x_signed_info_type_canonicalization_method =
+and let x_signed_info_type_canonicalization_method_of_xml
+    (c : xml.xml_node)
+    : result (x_signed_info_type_canonicalization_method) (list xml_codec.decode_error)
+    =
     x_signed_info_type_canonicalization_method_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_reference_type
+    : result (x_reference_type) (list xml_codec.decode_error)
     =
-    x_reference_type {
-        transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
-        digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
-        digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
-        id = xml.attribute_of "Id" attributes
-        uri =
-            xml.required_value
-                "x_reference_type_uri"
-                (x_reference_type_uri_of_string (xml.required_attribute "URI" attributes))
-        type_value = xml.attribute_of "Type" attributes
-    }
+    inl errors = []
+    inl o_transforms, errors = xml_codec.read_required "Transforms" x_transforms_type_of_xml children errors
+    inl o_digest_method, errors =
+        xml_codec.read_required "DigestMethod" x_reference_type_digest_method_of_xml children errors
+    inl o_digest_value, errors = xml_codec.read_required "DigestValue" xml_codec.read_text children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    inl o_uri, errors = xml_codec.attribute_parsed x_reference_type_uri_of_string "URI" attributes errors
+    inl v_type_value, errors = xml.attribute_of "Type" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_reference_type {
+            transforms = xml_codec.present o_transforms
+            digest_method = xml_codec.present o_digest_method
+            digest_value = xml_codec.present o_digest_value
+            id = v_id
+            uri = xml_codec.present o_uri
+            type_value = v_type_value
+        }
 
-and let x_reference_type_of_xml (c : xml.xml_node) : x_reference_type =
+and let x_reference_type_of_xml (c : xml.xml_node) : result (x_reference_type) (list xml_codec.decode_error) =
     x_reference_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_reference_type_digest_method
+    : result (x_reference_type_digest_method) (list xml_codec.decode_error)
     =
-    x_reference_type_digest_method {
-        algorithm =
-            xml.required_attribute
-                "Algorithm"
-                (xml.checked_fixed "Algorithm" "http://www.w3.org/2000/09/xmldsig#sha1" attributes)
-    }
+    inl errors = []
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    inl errors = xml_codec.fixed_checked "Algorithm" "http://www.w3.org/2000/09/xmldsig#sha1" attributes errors
+    xml_codec.decoded_by errors (fun () => x_reference_type_digest_method { algorithm = v_algorithm })
 
-and let x_reference_type_digest_method_of_xml (c : xml.xml_node) : x_reference_type_digest_method =
+and let x_reference_type_digest_method_of_xml
+    (c : xml.xml_node)
+    : result (x_reference_type_digest_method) (list xml_codec.decode_error)
+    =
     x_reference_type_digest_method_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_transforms_type
+    : result (x_transforms_type) (list xml_codec.decode_error)
     =
-    x_transforms_type {
-        transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
-    }
+    inl errors = []
+    inl v_transform, errors = xml_codec.read_repeated "Transform" x_transform_type_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_transforms_type { transform = v_transform })
 
-and let x_transforms_type_of_xml (c : xml.xml_node) : x_transforms_type =
+and let x_transforms_type_of_xml (c : xml.xml_node) : result (x_transforms_type) (list xml_codec.decode_error) =
     x_transforms_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_transform_type
+    : result (x_transform_type) (list xml_codec.decode_error)
     =
-    x_transform_type {
-        group_x_path =
-            listm.map
-                fun run => x_transform_type_group_x_path_of_children [] run
-                (xml.group_runs [ "XPath" ] children)
-        algorithm =
-            xml.required_value
-                "x_t_transform_uri"
-                (x_t_transform_uri_of_string (xml.required_attribute "Algorithm" attributes))
-    }
+    inl errors = []
+    inl v_group_x_path, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun run => x_transform_type_group_x_path_of_children [] run
+                    (xml.group_runs [ "XPath" ] children)
+            )
+            errors
+    inl o_algorithm, errors = xml_codec.attribute_parsed x_t_transform_uri_of_string "Algorithm" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_transform_type { group_x_path = v_group_x_path; algorithm = xml_codec.present o_algorithm }
 
-and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
+and let x_transform_type_of_xml (c : xml.xml_node) : result (x_transform_type) (list xml_codec.decode_error) =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_transform_type_group_x_path_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_transform_type_group_x_path
+    : result (x_transform_type_group_x_path) (list xml_codec.decode_error)
     =
-    x_transform_type_group_x_path {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
-    }
+    inl errors = []
+    inl o_x_path, errors = xml_codec.read_required "XPath" xml_codec.read_text children errors
+    xml_codec.decoded_by errors (fun () => x_transform_type_group_x_path { x_path = xml_codec.present o_x_path })
 
-and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+and let x_transform_type_group_x_path_of_xml
+    (c : xml.xml_node)
+    : result (x_transform_type_group_x_path) (list xml_codec.decode_error)
+    =
     x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_key_info_type
+    : result (x_key_info_type) (list xml_codec.decode_error)
     =
-    x_key_info_type {
-        x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl o_x509_data, errors = xml_codec.read_required "X509Data" x_x509_data_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_key_info_type { x509_data = xml_codec.present o_x509_data; id = v_id })
 
-and let x_key_info_type_of_xml (c : xml.xml_node) : x_key_info_type =
+and let x_key_info_type_of_xml (c : xml.xml_node) : result (x_key_info_type) (list xml_codec.decode_error) =
     x_key_info_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_x509_data_type
+    : result (x_x509_data_type) (list xml_codec.decode_error)
     =
-    x_x509_data_type {
-        x509_certificate =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
-    }
+    inl errors = []
+    inl o_x509_certificate, errors = xml_codec.read_required "X509Certificate" xml_codec.read_text children errors
+    xml_codec.decoded_by errors (fun () => x_x509_data_type { x509_certificate = xml_codec.present o_x509_certificate })
 
-and let x_x509_data_type_of_xml (c : xml.xml_node) : x_x509_data_type =
+and let x_x509_data_type_of_xml (c : xml.xml_node) : result (x_x509_data_type) (list xml_codec.decode_error) =
     x_x509_data_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_evento_children forall s. (x : x_t_evento s) : list xml.xml_node =
@@ -6590,7 +6711,7 @@ test generated_nfe_evento_cce_v1_00_writes_its_example =
             inl start = date_time.stopwatch_elapsed_microseconds watch
             match xml.read_xml text with
             | node :: [] =>
-                inl parsed = x_t_proc_evento_of_xml Unsigned node
+                inl parsed = xml_codec.expect_decoded (x_t_proc_evento_of_xml Unsigned node)
                 inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
                 inl written = xml.write_node (x_t_proc_evento_to_xml "procEventoNFe" parsed)
                 inl written_at = date_time.stopwatch_elapsed_microseconds watch
@@ -6606,7 +6727,7 @@ test generated_nfe_evento_cce_v1_00_writes_its_example =
     console.write_line row
     match xml.read_xml text with
     | node :: [] =>
-        inl parsed = x_t_proc_evento_of_xml Unsigned node
+        inl parsed = xml_codec.expect_decoded (x_t_proc_evento_of_xml Unsigned node)
         inl document =
             xml.element
                 "procEventoNFe"

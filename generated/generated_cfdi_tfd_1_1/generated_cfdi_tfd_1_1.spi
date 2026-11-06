@@ -3560,36 +3560,36 @@ nominal x_timbre_fiscal_digital =
 
 let rec x_timbre_fiscal_digital_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_timbre_fiscal_digital
+    : result (x_timbre_fiscal_digital) (list xml_codec.decode_error)
     =
-    x_timbre_fiscal_digital {
-        version = xml.required_attribute "Version" (xml.checked_fixed "Version" "1.1" attributes)
-        uuid =
-            xml.required_value
-                "x_timbre_fiscal_digital_uuid"
-                (x_timbre_fiscal_digital_uuid_of_string (xml.required_attribute "UUID" attributes))
-        fecha_timbrado =
-            xml.required_value "x_t_fecha_h" (x_t_fecha_h_of_string (xml.required_attribute "FechaTimbrado" attributes))
-        rfc_prov_certif =
-            xml.required_value "x_t_rfc_pm" (x_t_rfc_pm_of_string (xml.required_attribute "RfcProvCertif" attributes))
-        leyenda =
-            optionm.map
-                fun v =>
-                    xml.required_value "x_timbre_fiscal_digital_leyenda" (x_timbre_fiscal_digital_leyenda_of_string v)
-                (xml.attribute_of "Leyenda" attributes)
-        sello_cfd = xml.required_attribute "SelloCFD" attributes
-        no_certificado_sat =
-            xml.required_value
-                "x_timbre_fiscal_digital_no_certificado_sat"
-                (
-                    x_timbre_fiscal_digital_no_certificado_sat_of_string (
-                        xml.required_attribute "NoCertificadoSAT" attributes
-                    )
-                )
-        sello_sat = xml.required_attribute "SelloSAT" attributes
-    }
+    inl errors = []
+    inl v_version, errors = xml_codec.attribute_required "Version" attributes errors
+    inl errors = xml_codec.fixed_checked "Version" "1.1" attributes errors
+    inl o_uuid, errors = xml_codec.attribute_parsed x_timbre_fiscal_digital_uuid_of_string "UUID" attributes errors
+    inl o_fecha_timbrado, errors = xml_codec.attribute_parsed x_t_fecha_h_of_string "FechaTimbrado" attributes errors
+    inl o_rfc_prov_certif, errors = xml_codec.attribute_parsed x_t_rfc_pm_of_string "RfcProvCertif" attributes errors
+    inl v_leyenda, errors =
+        xml_codec.attribute_optional_parsed x_timbre_fiscal_digital_leyenda_of_string "Leyenda" attributes errors
+    inl v_sello_cfd, errors = xml_codec.attribute_required "SelloCFD" attributes errors
+    inl o_no_certificado_sat, errors =
+        xml_codec.attribute_parsed x_timbre_fiscal_digital_no_certificado_sat_of_string
+            "NoCertificadoSAT"
+            attributes
+            errors
+    inl v_sello_sat, errors = xml_codec.attribute_required "SelloSAT" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_timbre_fiscal_digital {
+            version = v_version
+            uuid = xml_codec.present o_uuid
+            fecha_timbrado = xml_codec.present o_fecha_timbrado
+            rfc_prov_certif = xml_codec.present o_rfc_prov_certif
+            leyenda = v_leyenda
+            sello_cfd = v_sello_cfd
+            no_certificado_sat = xml_codec.present o_no_certificado_sat
+            sello_sat = v_sello_sat
+        }
 
-and let x_timbre_fiscal_digital_of_xml (c : xml.xml_node) : x_timbre_fiscal_digital =
+and let x_timbre_fiscal_digital_of_xml (c : xml.xml_node) : result (x_timbre_fiscal_digital) (list xml_codec.decode_error) =
     x_timbre_fiscal_digital_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_timbre_fiscal_digital_children (x : x_timbre_fiscal_digital) : list xml.xml_node = []
@@ -3647,7 +3647,7 @@ test generated_cfdi_tfd_1_1_writes_its_example =
             inl start = date_time.stopwatch_elapsed_microseconds watch
             match xml.read_xml text with
             | node :: [] =>
-                inl parsed = x_timbre_fiscal_digital_of_xml node
+                inl parsed = xml_codec.expect_decoded (x_timbre_fiscal_digital_of_xml node)
                 inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
                 inl written = xml.write_node (x_timbre_fiscal_digital_to_xml "TimbreFiscalDigital" parsed)
                 inl written_at = date_time.stopwatch_elapsed_microseconds watch
@@ -3663,7 +3663,7 @@ test generated_cfdi_tfd_1_1_writes_its_example =
     console.write_line row
     match xml.read_xml text with
     | node :: [] =>
-        inl parsed = x_timbre_fiscal_digital_of_xml node
+        inl parsed = xml_codec.expect_decoded (x_timbre_fiscal_digital_of_xml node)
         inl document =
             xml.element
                 "TimbreFiscalDigital"

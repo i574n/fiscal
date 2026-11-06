@@ -125,13 +125,16 @@ test models_the_corpus_census =
 
 := one_if (flag : bool) : i32 = ? flag ?> 1i32 |: 0i32
 
-:= resolved_file (totals : corpus_resolution) (has_missing : bool) (unresolved : bool) : corpus_resolution =
+:= unresolved_counts (totals : corpus_resolution) (has_missing : bool) (unresolved : bool) : corpus_resolution =
     {
-        files = totals::files + 1i32
-        with_missing_include = totals::with_missing_include + one_if has_missing
+        totals ?|
         with_unresolved = totals::with_unresolved + one_if (unresolved && has_missing = !-)
         unresolved_beside_missing = totals::unresolved_beside_missing + one_if (unresolved && has_missing)
     }
+
+:= resolved_file (totals : corpus_resolution) (has_missing : bool) (unresolved : bool) : corpus_resolution =
+    := missing = totals::with_missing_include + one_if has_missing
+    unresolved_counts { totals ?| files = totals::files + 1i32; with_missing_include = missing } has_missing unresolved
 
 := resolve_file (totals : corpus_resolution) (path : string) : corpus_resolution =
     := tree = load_schema_tree (fiscal_paths::under path)
@@ -526,7 +529,10 @@ test dian_compiled_rules_read_fully =
 
 :~ ^ catalog_states \* form. (types : list (xsd type_def form)) (acc : list (string * i32)) : list (string * i32) =
     ?= types ?|
-    | (Simple s) :: rest => catalog_states rest (with_large_catalog (definition_text s::name) (xsd_emit::enumeration_values s::facets []) acc)
+    | (Simple s) :: rest =>
+        catalog_states rest (
+            with_large_catalog (definition_text s::name) (xsd_emit::enumeration_values s::facets []) acc
+        )
     | _ :: rest => catalog_states rest acc
     | [] => listm::rev acc
 
@@ -601,7 +607,9 @@ test cen_examples_pass_the_en16931_rules =
 
 := example_fatal_in (folder : string) (rules : list schematron::pattern) (name : string) : fatal_check =
     := text = file_system::read_all_text (fiscal_paths::under folder ++# name)
-    fatal_of (\ root => schematron_run::fatal_count (schematron_run::validate_on (evaluated_on ()) rules root) 0i32) text
+    fatal_of
+        \ root => schematron_run::fatal_count (schematron_run::validate_on (evaluated_on ()) rules root) 0i32
+        text
 
 :~ ^ examples_fatal_in
     (folder : string) (rules : list schematron::pattern) (names : list string) (acc : list (string * fatal_check))
@@ -854,11 +862,7 @@ test ubl_tr_other_documents_keep_their_main_schematron_findings =
     | CreditNoteKind
     | DebitNoteKind
 
-:= kind_label (kind : ubl_kind) : string =
-    ?= kind ?|
-    | InvoiceKind => "invoice"
-    | CreditNoteKind => "creditnote"
-    | DebitNoteKind => "debitnote"
+:= kind_label (kind : ubl_kind) : string = sm'::to_lower (sm'::replace "Kind" "" (reflection::case_name kind))
 
 := ubl_manifest (kind : ubl_kind) (syntax : ubl_syntax) : string =
     ?= syntax ?|
@@ -868,6 +872,13 @@ test ubl_tr_other_documents_keep_their_main_schematron_findings =
 := entries_under (prefix : string) (kind : ubl_kind) (syntax : ubl_syntax) : i32 =
     := text = xml::read_text_replacing_invalid_utf8 (fiscal_paths::under (ubl_manifest kind syntax))
     listm::length (listm'::filter (\ (line : string) => sm'::starts_with prefix line) (sm'::split_list "\n" text))
+
+///> rust
+test each_ubl_kind_names_its_manifest =
+    := labels = listm::map kind_label [ InvoiceKind; CreditNoteKind; DebitNoteKind ]
+    ? ubl_manifest CreditNoteKind UblJson <> "deps/corpus/ubl-creditnote-json-documents.txt"
+        || labels <> [ "invoice"; "creditnote"; "debitnote" ]
+    ?> failwith "a UBL kind's manifest is named by its case, without the Kind suffix"
 
 ///> rust
 test every_myinvois_sample_reaches_the_ubl_invoice_unit_in_both_syntaxes =

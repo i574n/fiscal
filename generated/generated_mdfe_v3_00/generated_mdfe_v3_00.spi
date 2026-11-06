@@ -27,10 +27,16 @@ prototype stage_of s : () -> stage s
 instance stage_of unsigned = fun () => Unsigned
 instance stage_of signed = fun () => Signed
 
-inl staged_of forall s a. (witness : stage s) (read : () -> a) : staged s a =
+inl staged_read forall s a.
+    (witness : stage s) (read : list xml_codec.decode_error -> option a * list xml_codec.decode_error)
+    (errors : list xml_codec.decode_error)
+    : option (staged s a) * list xml_codec.decode_error
+    =
     match witness with
-    | Unsigned => Pending "unsigned"
-    | Signed => Present (read ())
+    | Unsigned => Some (Pending "unsigned"), errors
+    | Signed =>
+        inl value, errors = read errors
+        optionm.map (fun v => Present v) value, errors
 
 inl signed_value forall a. (x : staged signed a) : a =
     match x with
@@ -9146,249 +9152,336 @@ inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_da
 
 let rec x_tmd_fe_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe s
+    : result (x_tmd_fe s) (list xml_codec.decode_error)
     =
-    x_tmd_fe {
-        inf_md_fe = (fun c => x_tmd_fe_inf_md_fe_of_xml c) (xml.required_child "infMDFe" children)
-        inf_md_fe_supl =
-            optionm.map (fun c => x_tmd_fe_inf_md_fe_supl_of_xml c) (xml.first_child "infMDFeSupl" children)
-        signature =
-            staged_of witness fun () =>
-                (fun c => x_signature_type_of_xml c) (xml.required_child "ds:Signature" children)
-    }
+    inl errors = []
+    inl o_inf_md_fe, errors = xml_codec.read_required "infMDFe" x_tmd_fe_inf_md_fe_of_xml children errors
+    inl v_inf_md_fe_supl, errors = xml_codec.read_optional "infMDFeSupl" x_tmd_fe_inf_md_fe_supl_of_xml children errors
+    inl o_signature, errors =
+        staged_read witness
+            fun errors => xml_codec.read_required "ds:Signature" x_signature_type_of_xml children errors
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe {
+            inf_md_fe = xml_codec.present o_inf_md_fe
+            inf_md_fe_supl = v_inf_md_fe_supl
+            signature = xml_codec.present o_signature
+        }
 
-and let x_tmd_fe_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_tmd_fe s =
+and let x_tmd_fe_of_xml forall s.
+    (witness : stage s) (c : xml.xml_node)
+    : result (x_tmd_fe s) (list xml_codec.decode_error)
+    =
     x_tmd_fe_of_children witness (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_supl_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_supl
+    : result (x_tmd_fe_inf_md_fe_supl) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_supl {
-        qr_cod_md_fe =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_supl_qr_cod_md_fe" (x_tmd_fe_inf_md_fe_supl_qr_cod_md_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qrCodMDFe" children)
-    }
+    inl errors = []
+    inl o_qr_cod_md_fe, errors =
+        xml_codec.read_required
+            "qrCodMDFe"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_supl_qr_cod_md_fe_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors (fun () => x_tmd_fe_inf_md_fe_supl { qr_cod_md_fe = xml_codec.present o_qr_cod_md_fe })
 
-and let x_tmd_fe_inf_md_fe_supl_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_supl =
+and let x_tmd_fe_inf_md_fe_supl_of_xml (c : xml.xml_node) : result (x_tmd_fe_inf_md_fe_supl) (list xml_codec.decode_error) =
     x_tmd_fe_inf_md_fe_supl_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe
+    : result (x_tmd_fe_inf_md_fe) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe {
-        ide = (fun c => x_tmd_fe_inf_md_fe_ide_of_xml c) (xml.required_child "ide" children)
-        emit = (fun c => x_tmd_fe_inf_md_fe_emit_of_xml c) (xml.required_child "emit" children)
-        inf_modal = (fun c => x_tmd_fe_inf_md_fe_inf_modal_of_xml c) (xml.required_child "infModal" children)
-        inf_doc = (fun c => x_tmd_fe_inf_md_fe_inf_doc_of_xml c) (xml.required_child "infDoc" children)
-        seg = listm.map (fun c => x_tmd_fe_inf_md_fe_seg_of_xml c) (xml.children_named "seg" children)
-        prod_pred = optionm.map (fun c => x_tmd_fe_inf_md_fe_prod_pred_of_xml c) (xml.first_child "prodPred" children)
-        tot = (fun c => x_tmd_fe_inf_md_fe_tot_of_xml c) (xml.required_child "tot" children)
-        lacres = listm.map (fun c => x_tmd_fe_inf_md_fe_lacres_of_xml c) (xml.children_named "lacres" children)
-        aut_xml = listm.map (fun c => x_tmd_fe_inf_md_fe_aut_xml_of_xml c) (xml.children_named "autXML" children)
-        inf_adic = optionm.map (fun c => x_tmd_fe_inf_md_fe_inf_adic_of_xml c) (xml.first_child "infAdic" children)
-        inf_resp_tec = optionm.map (fun c => x_t_resp_tec_of_xml c) (xml.first_child "infRespTec" children)
-        inf_solic_nff =
-            optionm.map (fun c => x_tmd_fe_inf_md_fe_inf_solic_nff_of_xml c) (xml.first_child "infSolicNFF" children)
-        inf_paa = optionm.map (fun c => x_tmd_fe_inf_md_fe_inf_paa_of_xml c) (xml.first_child "infPAA" children)
-        versao = xml.required_value "x_t_ver_m_de" (x_t_ver_m_de_of_string (xml.required_attribute "versao" attributes))
-        id =
-            xml.required_value
-                "x_tmd_fe_inf_md_fe_id"
-                (x_tmd_fe_inf_md_fe_id_of_string (xml.required_attribute "Id" attributes))
-    }
+    inl errors = []
+    inl o_ide, errors = xml_codec.read_required "ide" x_tmd_fe_inf_md_fe_ide_of_xml children errors
+    inl o_emit, errors = xml_codec.read_required "emit" x_tmd_fe_inf_md_fe_emit_of_xml children errors
+    inl o_inf_modal, errors = xml_codec.read_required "infModal" x_tmd_fe_inf_md_fe_inf_modal_of_xml children errors
+    inl o_inf_doc, errors = xml_codec.read_required "infDoc" x_tmd_fe_inf_md_fe_inf_doc_of_xml children errors
+    inl v_seg, errors = xml_codec.read_repeated "seg" x_tmd_fe_inf_md_fe_seg_of_xml children errors
+    inl v_prod_pred, errors = xml_codec.read_optional "prodPred" x_tmd_fe_inf_md_fe_prod_pred_of_xml children errors
+    inl o_tot, errors = xml_codec.read_required "tot" x_tmd_fe_inf_md_fe_tot_of_xml children errors
+    inl v_lacres, errors = xml_codec.read_repeated "lacres" x_tmd_fe_inf_md_fe_lacres_of_xml children errors
+    inl v_aut_xml, errors = xml_codec.read_repeated "autXML" x_tmd_fe_inf_md_fe_aut_xml_of_xml children errors
+    inl v_inf_adic, errors = xml_codec.read_optional "infAdic" x_tmd_fe_inf_md_fe_inf_adic_of_xml children errors
+    inl v_inf_resp_tec, errors = xml_codec.read_optional "infRespTec" x_t_resp_tec_of_xml children errors
+    inl v_inf_solic_nff, errors =
+        xml_codec.read_optional "infSolicNFF" x_tmd_fe_inf_md_fe_inf_solic_nff_of_xml children errors
+    inl v_inf_paa, errors = xml_codec.read_optional "infPAA" x_tmd_fe_inf_md_fe_inf_paa_of_xml children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_m_de_of_string "versao" attributes errors
+    inl o_id, errors = xml_codec.attribute_parsed x_tmd_fe_inf_md_fe_id_of_string "Id" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe {
+            ide = xml_codec.present o_ide
+            emit = xml_codec.present o_emit
+            inf_modal = xml_codec.present o_inf_modal
+            inf_doc = xml_codec.present o_inf_doc
+            seg = v_seg
+            prod_pred = v_prod_pred
+            tot = xml_codec.present o_tot
+            lacres = v_lacres
+            aut_xml = v_aut_xml
+            inf_adic = v_inf_adic
+            inf_resp_tec = v_inf_resp_tec
+            inf_solic_nff = v_inf_solic_nff
+            inf_paa = v_inf_paa
+            versao = xml_codec.present o_versao
+            id = xml_codec.present o_id
+        }
 
-and let x_tmd_fe_inf_md_fe_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe =
+and let x_tmd_fe_inf_md_fe_of_xml (c : xml.xml_node) : result (x_tmd_fe_inf_md_fe) (list xml_codec.decode_error) =
     x_tmd_fe_inf_md_fe_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_paa_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_paa
+    : result (x_tmd_fe_inf_md_fe_inf_paa) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_paa {
-        cnpjpaa =
-            (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJPAA" children)
-        paa_signature =
-            (fun c => x_tmd_fe_inf_md_fe_inf_paa_paa_signature_of_xml c) (xml.required_child "PAASignature" children)
-    }
+    inl errors = []
+    inl o_cnpjpaa, errors = xml_codec.read_required "CNPJPAA" (xml_codec.read_value x_t_cnpj_of_string) children errors
+    inl o_paa_signature, errors =
+        xml_codec.read_required "PAASignature" x_tmd_fe_inf_md_fe_inf_paa_paa_signature_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_paa {
+            cnpjpaa = xml_codec.present o_cnpjpaa
+            paa_signature = xml_codec.present o_paa_signature
+        }
 
-and let x_tmd_fe_inf_md_fe_inf_paa_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_inf_paa =
+and let x_tmd_fe_inf_md_fe_inf_paa_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_paa) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_inf_paa_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_paa_paa_signature_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_paa_paa_signature
+    : result (x_tmd_fe_inf_md_fe_inf_paa_paa_signature) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_paa_paa_signature {
-        signature_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "SignatureValue" children)
-        rsa_key_value = (fun c => x_trsa_key_value_type_of_xml c) (xml.required_child "RSAKeyValue" children)
-    }
+    inl errors = []
+    inl o_signature_value, errors = xml_codec.read_required "SignatureValue" xml_codec.read_text children errors
+    inl o_rsa_key_value, errors = xml_codec.read_required "RSAKeyValue" x_trsa_key_value_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_paa_paa_signature {
+            signature_value = xml_codec.present o_signature_value
+            rsa_key_value = xml_codec.present o_rsa_key_value
+        }
 
-and let x_tmd_fe_inf_md_fe_inf_paa_paa_signature_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_inf_paa_paa_signature =
+and let x_tmd_fe_inf_md_fe_inf_paa_paa_signature_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_paa_paa_signature) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_inf_paa_paa_signature_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_solic_nff_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_solic_nff
+    : result (x_tmd_fe_inf_md_fe_inf_solic_nff) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_solic_nff {
-        x_solic =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_solic_nff_x_solic" (x_tmd_fe_inf_md_fe_inf_solic_nff_x_solic_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xSolic" children)
-    }
+    inl errors = []
+    inl o_x_solic, errors =
+        xml_codec.read_required
+            "xSolic"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_solic_nff_x_solic_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors (fun () => x_tmd_fe_inf_md_fe_inf_solic_nff { x_solic = xml_codec.present o_x_solic })
 
-and let x_tmd_fe_inf_md_fe_inf_solic_nff_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_inf_solic_nff =
+and let x_tmd_fe_inf_md_fe_inf_solic_nff_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_solic_nff) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_inf_solic_nff_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_adic_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_adic
+    : result (x_tmd_fe_inf_md_fe_inf_adic) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_adic {
-        inf_ad_fisco =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_adic_inf_ad_fisco" (
-                        x_tmd_fe_inf_md_fe_inf_adic_inf_ad_fisco_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "infAdFisco" children)
-        inf_cpl =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_adic_inf_cpl" (
-                        x_tmd_fe_inf_md_fe_inf_adic_inf_cpl_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "infCpl" children)
-    }
+    inl errors = []
+    inl v_inf_ad_fisco, errors =
+        xml_codec.read_optional
+            "infAdFisco"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_adic_inf_ad_fisco_of_string)
+            children
+            errors
+    inl v_inf_cpl, errors =
+        xml_codec.read_optional
+            "infCpl"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_adic_inf_cpl_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_adic { inf_ad_fisco = v_inf_ad_fisco; inf_cpl = v_inf_cpl }
 
-and let x_tmd_fe_inf_md_fe_inf_adic_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_inf_adic =
+and let x_tmd_fe_inf_md_fe_inf_adic_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_adic) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_inf_adic_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_aut_xml_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_aut_xml
+    : result (x_tmd_fe_inf_md_fe_aut_xml) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_aut_xml {
-        choice_cnpj = x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj_of_children attributes children
-    }
+    inl errors = []
+    inl o_choice_cnpj, errors =
+        xml_codec.taken (x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj_of_children attributes children) errors
+    xml_codec.decoded_by errors (fun () => x_tmd_fe_inf_md_fe_aut_xml { choice_cnpj = xml_codec.present o_choice_cnpj })
 
-and let x_tmd_fe_inf_md_fe_aut_xml_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_aut_xml =
+and let x_tmd_fe_inf_md_fe_aut_xml_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_aut_xml) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_aut_xml_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj
+    : result (x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj"
     elif xml.has_child "CNPJ" children then
-        TMDFe_infMDFe_autXML_choice_CNPJ_CNPJ (
-            (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        )
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_autXML_choice_CNPJ_CNPJ v
+            (xml_codec.read_child "CNPJ" (xml_codec.read_value x_t_cnpj_of_string) children)
     elif xml.has_child "CPF" children then
-        TMDFe_infMDFe_autXML_choice_CNPJ_CPF (
-            (fun c => xml.required_value "x_t_cpf" (x_t_cpf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CPF" children)
-        )
-    else failwith "x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj: no alternative present"
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_autXML_choice_CNPJ_CPF v
+            (xml_codec.read_child "CPF" (xml_codec.read_value x_t_cpf_of_string) children)
+    else xml_codec.no_alternative "x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj"
 
 and let x_tmd_fe_inf_md_fe_lacres_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_lacres
+    : result (x_tmd_fe_inf_md_fe_lacres) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_lacres {
-        n_lacre =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_lacres_n_lacre" (x_tmd_fe_inf_md_fe_lacres_n_lacre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nLacre" children)
-    }
+    inl errors = []
+    inl o_n_lacre, errors =
+        xml_codec.read_required
+            "nLacre"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_lacres_n_lacre_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors (fun () => x_tmd_fe_inf_md_fe_lacres { n_lacre = xml_codec.present o_n_lacre })
 
-and let x_tmd_fe_inf_md_fe_lacres_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_lacres =
+and let x_tmd_fe_inf_md_fe_lacres_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_lacres) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_lacres_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_tot_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_tot
+    : result (x_tmd_fe_inf_md_fe_tot) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_tot {
-        q_c_te =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_tot_q_c_te" (x_tmd_fe_inf_md_fe_tot_q_c_te_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "qCTe" children)
-        q_n_fe =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_tot_q_n_fe" (x_tmd_fe_inf_md_fe_tot_q_n_fe_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "qNFe" children)
-        q_md_fe =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_tot_q_md_fe" (x_tmd_fe_inf_md_fe_tot_q_md_fe_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "qMDFe" children)
-        v_carga =
-            (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vCarga" children)
-        c_unid =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_tot_c_unid" (x_tmd_fe_inf_md_fe_tot_c_unid_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUnid" children)
-        q_carga =
-            (fun c => xml.required_value "x_t_dec_1104" (x_t_dec_1104_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qCarga" children)
-    }
+    inl errors = []
+    inl v_q_c_te, errors =
+        xml_codec.read_optional "qCTe" (xml_codec.read_value x_tmd_fe_inf_md_fe_tot_q_c_te_of_string) children errors
+    inl v_q_n_fe, errors =
+        xml_codec.read_optional "qNFe" (xml_codec.read_value x_tmd_fe_inf_md_fe_tot_q_n_fe_of_string) children errors
+    inl v_q_md_fe, errors =
+        xml_codec.read_optional "qMDFe" (xml_codec.read_value x_tmd_fe_inf_md_fe_tot_q_md_fe_of_string) children errors
+    inl o_v_carga, errors =
+        xml_codec.read_required "vCarga" (xml_codec.read_value x_t_dec_1302_of_string) children errors
+    inl o_c_unid, errors =
+        xml_codec.read_required "cUnid" (xml_codec.read_value x_tmd_fe_inf_md_fe_tot_c_unid_of_string) children errors
+    inl o_q_carga, errors =
+        xml_codec.read_required "qCarga" (xml_codec.read_value x_t_dec_1104_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_tot {
+            q_c_te = v_q_c_te
+            q_n_fe = v_q_n_fe
+            q_md_fe = v_q_md_fe
+            v_carga = xml_codec.present o_v_carga
+            c_unid = xml_codec.present o_c_unid
+            q_carga = xml_codec.present o_q_carga
+        }
 
-and let x_tmd_fe_inf_md_fe_tot_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_tot =
+and let x_tmd_fe_inf_md_fe_tot_of_xml (c : xml.xml_node) : result (x_tmd_fe_inf_md_fe_tot) (list xml_codec.decode_error) =
     x_tmd_fe_inf_md_fe_tot_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_prod_pred_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred
+    : result (x_tmd_fe_inf_md_fe_prod_pred) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_prod_pred {
-        tp_carga =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_prod_pred_tp_carga" (x_tmd_fe_inf_md_fe_prod_pred_tp_carga_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpCarga" children)
-        x_prod =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_prod_pred_x_prod" (x_tmd_fe_inf_md_fe_prod_pred_x_prod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xProd" children)
-        c_ean =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_prod_pred_c_ean" (
-                        x_tmd_fe_inf_md_fe_prod_pred_c_ean_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "cEAN" children)
-        ncm =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_prod_pred_ncm" (x_tmd_fe_inf_md_fe_prod_pred_ncm_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "NCM" children)
-        inf_lotacao =
-            optionm.map
-                fun c => x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_of_xml c
-                (xml.first_child "infLotacao" children)
-    }
+    inl errors = []
+    inl o_tp_carga, errors =
+        xml_codec.read_required
+            "tpCarga"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_prod_pred_tp_carga_of_string)
+            children
+            errors
+    inl o_x_prod, errors =
+        xml_codec.read_required
+            "xProd"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_prod_pred_x_prod_of_string)
+            children
+            errors
+    inl v_c_ean, errors =
+        xml_codec.read_optional
+            "cEAN"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_prod_pred_c_ean_of_string)
+            children
+            errors
+    inl v_ncm, errors =
+        xml_codec.read_optional "NCM" (xml_codec.read_value x_tmd_fe_inf_md_fe_prod_pred_ncm_of_string) children errors
+    inl v_inf_lotacao, errors =
+        xml_codec.read_optional "infLotacao" x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_prod_pred {
+            tp_carga = xml_codec.present o_tp_carga
+            x_prod = xml_codec.present o_x_prod
+            c_ean = v_c_ean
+            ncm = v_ncm
+            inf_lotacao = v_inf_lotacao
+        }
 
-and let x_tmd_fe_inf_md_fe_prod_pred_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_prod_pred =
+and let x_tmd_fe_inf_md_fe_prod_pred_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_prod_pred) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_prod_pred_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao {
-        inf_local_carrega =
-            (fun c => x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_of_xml c) (xml.required_child "infLocalCarrega" children)
-        inf_local_descarrega =
-            (fun c => x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_of_xml c) (xml.required_child "infLocalDescarrega" children)
-    }
+    inl errors = []
+    inl o_inf_local_carrega, errors =
+        xml_codec.read_required
+            "infLocalCarrega"
+            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_of_xml
+            children
+            errors
+    inl o_inf_local_descarrega, errors =
+        xml_codec.read_required
+            "infLocalDescarrega"
+            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao {
+            inf_local_carrega = xml_codec.present o_inf_local_carrega
+            inf_local_descarrega = xml_codec.present o_inf_local_descarrega
+        }
 
-and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao =
+and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega {
-        choice_cep =
-            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_of_children attributes children
-    }
+    inl errors = []
+    inl o_choice_cep, errors =
+        xml_codec.taken
+            (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_of_children attributes children)
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega { choice_cep = xml_codec.present o_choice_cep }
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_of_children
         (xml.element_attributes c)
@@ -9396,35 +9489,51 @@ and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_of_xml
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep"
     elif xml.has_child "CEP" children then
-        TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_CEP (
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_cep" (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_cep_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CEP" children)
-        )
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_CEP v
+            (
+                xml_codec.read_child
+                    "CEP"
+                    (
+                        xml_codec.read_value
+                            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_cep_of_string
+                    )
+                    children
+            )
     elif xml.has_child "latitude" children then
-        TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude (
-            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_of_children
-                attributes
-                children
-        )
-    else failwith "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep: no alternative present"
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude v
+            (
+                x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_of_children
+                    attributes
+                    children
+            )
+    else xml_codec.no_alternative "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep"
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude)
+        (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude {
-        latitude =
-            (fun c => xml.required_value "x_t_latitude" (x_t_latitude_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "latitude" children)
-        longitude =
-            (fun c => xml.required_value "x_t_longitude" (x_t_longitude_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "longitude" children)
-    }
+    inl errors = []
+    inl o_latitude, errors =
+        xml_codec.read_required "latitude" (xml_codec.read_value x_t_latitude_of_string) children errors
+    inl o_longitude, errors =
+        xml_codec.read_required "longitude" (xml_codec.read_value x_t_longitude_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude {
+            latitude = xml_codec.present o_latitude
+            longitude = xml_codec.present o_longitude
+        }
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude)
+        (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_of_children
         (xml.element_attributes c)
@@ -9432,16 +9541,19 @@ and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega {
-        choice_cep =
-            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_of_children attributes children
-    }
+    inl errors = []
+    inl o_choice_cep, errors =
+        xml_codec.taken
+            (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_of_children attributes children)
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega { choice_cep = xml_codec.present o_choice_cep }
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_of_children
         (xml.element_attributes c)
@@ -9449,35 +9561,51 @@ and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_of_xml
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep"
     elif xml.has_child "CEP" children then
-        TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_CEP (
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_cep" (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_cep_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CEP" children)
-        )
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_CEP v
+            (
+                xml_codec.read_child
+                    "CEP"
+                    (
+                        xml_codec.read_value
+                            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_cep_of_string
+                    )
+                    children
+            )
     elif xml.has_child "latitude" children then
-        TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude (
-            x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_of_children
-                attributes
-                children
-        )
-    else failwith "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep: no alternative present"
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude v
+            (
+                x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_of_children
+                    attributes
+                    children
+            )
+    else xml_codec.no_alternative "x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep"
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude)
+        (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude {
-        latitude =
-            (fun c => xml.required_value "x_t_latitude" (x_t_latitude_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "latitude" children)
-        longitude =
-            (fun c => xml.required_value "x_t_longitude" (x_t_longitude_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "longitude" children)
-    }
+    inl errors = []
+    inl o_latitude, errors =
+        xml_codec.read_required "latitude" (xml_codec.read_value x_t_latitude_of_string) children errors
+    inl o_longitude, errors =
+        xml_codec.read_required "longitude" (xml_codec.read_value x_t_longitude_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude {
+            latitude = xml_codec.present o_latitude
+            longitude = xml_codec.present o_longitude
+        }
 
 and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude
+    : result (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude)
+        (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_of_children
         (xml.element_attributes c)
@@ -9485,140 +9613,174 @@ and let x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_gr
 
 and let x_tmd_fe_inf_md_fe_seg_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_seg
+    : result (x_tmd_fe_inf_md_fe_seg) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_seg {
-        inf_resp = (fun c => x_tmd_fe_inf_md_fe_seg_inf_resp_of_xml c) (xml.required_child "infResp" children)
-        inf_seg = optionm.map (fun c => x_tmd_fe_inf_md_fe_seg_inf_seg_of_xml c) (xml.first_child "infSeg" children)
-        n_apol =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_seg_n_apol" (x_tmd_fe_inf_md_fe_seg_n_apol_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "nApol" children)
-        n_aver =
-            listm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_seg_n_aver" (x_tmd_fe_inf_md_fe_seg_n_aver_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.children_named "nAver" children)
-    }
+    inl errors = []
+    inl o_inf_resp, errors = xml_codec.read_required "infResp" x_tmd_fe_inf_md_fe_seg_inf_resp_of_xml children errors
+    inl v_inf_seg, errors = xml_codec.read_optional "infSeg" x_tmd_fe_inf_md_fe_seg_inf_seg_of_xml children errors
+    inl v_n_apol, errors =
+        xml_codec.read_optional "nApol" (xml_codec.read_value x_tmd_fe_inf_md_fe_seg_n_apol_of_string) children errors
+    inl v_n_aver, errors =
+        xml_codec.read_repeated "nAver" (xml_codec.read_value x_tmd_fe_inf_md_fe_seg_n_aver_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_seg {
+            inf_resp = xml_codec.present o_inf_resp
+            inf_seg = v_inf_seg
+            n_apol = v_n_apol
+            n_aver = v_n_aver
+        }
 
-and let x_tmd_fe_inf_md_fe_seg_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_seg =
+and let x_tmd_fe_inf_md_fe_seg_of_xml (c : xml.xml_node) : result (x_tmd_fe_inf_md_fe_seg) (list xml_codec.decode_error) =
     x_tmd_fe_inf_md_fe_seg_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_seg_inf_seg_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_seg_inf_seg
+    : result (x_tmd_fe_inf_md_fe_seg_inf_seg) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_seg_inf_seg {
-        x_seg =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_seg_inf_seg_x_seg" (x_tmd_fe_inf_md_fe_seg_inf_seg_x_seg_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xSeg" children)
-        cnpj =
-            (fun c => xml.required_value "x_t_cnpj_opc" (x_t_cnpj_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-    }
+    inl errors = []
+    inl o_x_seg, errors =
+        xml_codec.read_required
+            "xSeg"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_seg_inf_seg_x_seg_of_string)
+            children
+            errors
+    inl o_cnpj, errors = xml_codec.read_required "CNPJ" (xml_codec.read_value x_t_cnpj_opc_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_seg_inf_seg { x_seg = xml_codec.present o_x_seg; cnpj = xml_codec.present o_cnpj }
 
-and let x_tmd_fe_inf_md_fe_seg_inf_seg_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_seg_inf_seg =
+and let x_tmd_fe_inf_md_fe_seg_inf_seg_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_seg_inf_seg) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_seg_inf_seg_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_seg_inf_resp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_seg_inf_resp
+    : result (x_tmd_fe_inf_md_fe_seg_inf_resp) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_seg_inf_resp {
-        resp_seg =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_seg_inf_resp_resp_seg" (x_tmd_fe_inf_md_fe_seg_inf_resp_resp_seg_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "respSeg" children)
-        choice_cnpj =
-            if xml.has_any_child [ "CNPJ"; "CPF" ] children
-            then Some (x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj_of_children attributes children)
-            else None
-    }
+    inl errors = []
+    inl o_resp_seg, errors =
+        xml_codec.read_required
+            "respSeg"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_seg_inf_resp_resp_seg_of_string)
+            children
+            errors
+    inl v_choice_cnpj, errors =
+        xml_codec.optional_taken
+            (
+                if xml.has_any_child [ "CNPJ"; "CPF" ] children
+                then Some (x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj_of_children attributes children)
+                else None
+            )
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_seg_inf_resp { resp_seg = xml_codec.present o_resp_seg; choice_cnpj = v_choice_cnpj }
 
-and let x_tmd_fe_inf_md_fe_seg_inf_resp_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_seg_inf_resp =
+and let x_tmd_fe_inf_md_fe_seg_inf_resp_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_seg_inf_resp) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_seg_inf_resp_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj
+    : result (x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj"
     elif xml.has_child "CNPJ" children then
-        TMDFe_infMDFe_seg_infResp_choice_CNPJ_CNPJ (
-            (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        )
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_seg_infResp_choice_CNPJ_CNPJ v
+            (xml_codec.read_child "CNPJ" (xml_codec.read_value x_t_cnpj_of_string) children)
     elif xml.has_child "CPF" children then
-        TMDFe_infMDFe_seg_infResp_choice_CNPJ_CPF (
-            (fun c => xml.required_value "x_t_cpf" (x_t_cpf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CPF" children)
-        )
-    else failwith "x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj: no alternative present"
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_seg_infResp_choice_CNPJ_CPF v
+            (xml_codec.read_child "CPF" (xml_codec.read_value x_t_cpf_of_string) children)
+    else xml_codec.no_alternative "x_tmd_fe_inf_md_fe_seg_inf_resp_choice_cnpj"
 
 and let x_tmd_fe_inf_md_fe_inf_doc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc
+    : result (x_tmd_fe_inf_md_fe_inf_doc) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc {
-        inf_mun_descarga =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_xml c
-                (xml.children_named "infMunDescarga" children)
-    }
+    inl errors = []
+    inl v_inf_mun_descarga, errors =
+        xml_codec.read_repeated "infMunDescarga" x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_tmd_fe_inf_md_fe_inf_doc { inf_mun_descarga = v_inf_mun_descarga })
 
-and let x_tmd_fe_inf_md_fe_inf_doc_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_inf_doc =
+and let x_tmd_fe_inf_md_fe_inf_doc_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_doc) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_inf_doc_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga {
-        c_mun_descarga =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMunDescarga" children)
-        x_mun_descarga =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_x_mun_descarga" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_x_mun_descarga_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMunDescarga" children)
-        inf_c_te =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_xml c
-                (xml.children_named "infCTe" children)
-        inf_n_fe =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_xml c
-                (xml.children_named "infNFe" children)
-        inf_md_fe_transp =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_xml c
-                (xml.children_named "infMDFeTransp" children)
-    }
+    inl errors = []
+    inl o_c_mun_descarga, errors =
+        xml_codec.read_required "cMunDescarga" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun_descarga, errors =
+        xml_codec.read_required
+            "xMunDescarga"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_x_mun_descarga_of_string)
+            children
+            errors
+    inl v_inf_c_te, errors =
+        xml_codec.read_repeated "infCTe" x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_xml children errors
+    inl v_inf_n_fe, errors =
+        xml_codec.read_repeated "infNFe" x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_xml children errors
+    inl v_inf_md_fe_transp, errors =
+        xml_codec.read_repeated
+            "infMDFeTransp"
+            x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga {
+            c_mun_descarga = xml_codec.present o_c_mun_descarga
+            x_mun_descarga = xml_codec.present o_x_mun_descarga
+            inf_c_te = v_inf_c_te
+            inf_n_fe = v_inf_n_fe
+            inf_md_fe_transp = v_inf_md_fe_transp
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp {
-        ch_md_fe =
-            (fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chMDFe" children)
-        ind_reentrega =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_ind_reentrega" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_ind_reentrega_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "indReentrega" children)
-        inf_unid_transp = listm.map (fun c => x_t_unidade_transp_of_xml c) (xml.children_named "infUnidTransp" children)
-        peri =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_of_xml c
-                (xml.children_named "peri" children)
-    }
+    inl errors = []
+    inl o_ch_md_fe, errors =
+        xml_codec.read_required "chMDFe" (xml_codec.read_value x_t_ch_n_fe_of_string) children errors
+    inl v_ind_reentrega, errors =
+        xml_codec.read_optional
+            "indReentrega"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_ind_reentrega_of_string)
+            children
+            errors
+    inl v_inf_unid_transp, errors = xml_codec.read_repeated "infUnidTransp" x_t_unidade_transp_of_xml children errors
+    inl v_peri, errors =
+        xml_codec.read_repeated
+            "peri"
+            x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp {
+            ch_md_fe = xml_codec.present o_ch_md_fe
+            ind_reentrega = v_ind_reentrega
+            inf_unid_transp = v_inf_unid_transp
+            peri = v_peri
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_children
         (xml.element_attributes c)
@@ -9626,46 +9788,67 @@ and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_xml
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri {
-        n_onu =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_n_onu" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_n_onu_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nONU" children)
-        x_nome_ae =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_x_nome_ae" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_x_nome_ae_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "xNomeAE" children)
-        x_cla_risco =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_x_cla_risco" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_x_cla_risco_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "xClaRisco" children)
-        gr_emb =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_gr_emb" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_gr_emb_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "grEmb" children)
-        q_tot_prod =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_q_tot_prod" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_q_tot_prod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qTotProd" children)
-        q_vol_tipo =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_q_vol_tipo" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_q_vol_tipo_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "qVolTipo" children)
-    }
+    inl errors = []
+    inl o_n_onu, errors =
+        xml_codec.read_required
+            "nONU"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_n_onu_of_string)
+            children
+            errors
+    inl v_x_nome_ae, errors =
+        xml_codec.read_optional
+            "xNomeAE"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_x_nome_ae_of_string)
+            children
+            errors
+    inl v_x_cla_risco, errors =
+        xml_codec.read_optional
+            "xClaRisco"
+            (
+                xml_codec.read_value
+                    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_x_cla_risco_of_string
+            )
+            children
+            errors
+    inl v_gr_emb, errors =
+        xml_codec.read_optional
+            "grEmb"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_gr_emb_of_string)
+            children
+            errors
+    inl o_q_tot_prod, errors =
+        xml_codec.read_required
+            "qTotProd"
+            (
+                xml_codec.read_value
+                    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_q_tot_prod_of_string
+            )
+            children
+            errors
+    inl v_q_vol_tipo, errors =
+        xml_codec.read_optional
+            "qVolTipo"
+            (
+                xml_codec.read_value
+                    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_q_vol_tipo_of_string
+            )
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri {
+            n_onu = xml_codec.present o_n_onu
+            x_nome_ae = v_x_nome_ae
+            x_cla_risco = v_x_cla_risco
+            gr_emb = v_gr_emb
+            q_tot_prod = xml_codec.present o_q_tot_prod
+            q_vol_tipo = v_q_vol_tipo
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_of_children
         (xml.element_attributes c)
@@ -9673,79 +9856,90 @@ and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_of_xml
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe {
-        ch_n_fe =
-            (fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chNFe" children)
-        seg_cod_barra =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_seg_cod_barra" (x_t_seg_cod_barra_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "SegCodBarra" children)
-        ind_reentrega =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_ind_reentrega" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_ind_reentrega_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "indReentrega" children)
-        inf_unid_transp = listm.map (fun c => x_t_unidade_transp_of_xml c) (xml.children_named "infUnidTransp" children)
-        peri =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_of_xml c
-                (xml.children_named "peri" children)
-    }
+    inl errors = []
+    inl o_ch_n_fe, errors = xml_codec.read_required "chNFe" (xml_codec.read_value x_t_ch_n_fe_of_string) children errors
+    inl v_seg_cod_barra, errors =
+        xml_codec.read_optional "SegCodBarra" (xml_codec.read_value x_t_seg_cod_barra_of_string) children errors
+    inl v_ind_reentrega, errors =
+        xml_codec.read_optional
+            "indReentrega"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_ind_reentrega_of_string)
+            children
+            errors
+    inl v_inf_unid_transp, errors = xml_codec.read_repeated "infUnidTransp" x_t_unidade_transp_of_xml children errors
+    inl v_peri, errors =
+        xml_codec.read_repeated "peri" x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe {
+            ch_n_fe = xml_codec.present o_ch_n_fe
+            seg_cod_barra = v_seg_cod_barra
+            ind_reentrega = v_ind_reentrega
+            inf_unid_transp = v_inf_unid_transp
+            peri = v_peri
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri {
-        n_onu =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_n_onu" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_n_onu_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nONU" children)
-        x_nome_ae =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_x_nome_ae" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_x_nome_ae_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xNomeAE" children)
-        x_cla_risco =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_x_cla_risco" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_x_cla_risco_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xClaRisco" children)
-        gr_emb =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_gr_emb" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_gr_emb_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "grEmb" children)
-        q_tot_prod =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_q_tot_prod" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_q_tot_prod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qTotProd" children)
-        q_vol_tipo =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_q_vol_tipo" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_q_vol_tipo_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "qVolTipo" children)
-    }
+    inl errors = []
+    inl o_n_onu, errors =
+        xml_codec.read_required
+            "nONU"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_n_onu_of_string)
+            children
+            errors
+    inl v_x_nome_ae, errors =
+        xml_codec.read_optional
+            "xNomeAE"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_x_nome_ae_of_string)
+            children
+            errors
+    inl v_x_cla_risco, errors =
+        xml_codec.read_optional
+            "xClaRisco"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_x_cla_risco_of_string)
+            children
+            errors
+    inl v_gr_emb, errors =
+        xml_codec.read_optional
+            "grEmb"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_gr_emb_of_string)
+            children
+            errors
+    inl o_q_tot_prod, errors =
+        xml_codec.read_required
+            "qTotProd"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_q_tot_prod_of_string)
+            children
+            errors
+    inl v_q_vol_tipo, errors =
+        xml_codec.read_optional
+            "qVolTipo"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_q_vol_tipo_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri {
+            n_onu = xml_codec.present o_n_onu
+            x_nome_ae = v_x_nome_ae
+            x_cla_risco = v_x_cla_risco
+            gr_emb = v_gr_emb
+            q_tot_prod = xml_codec.present o_q_tot_prod
+            q_vol_tipo = v_q_vol_tipo
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_of_children
         (xml.element_attributes c)
@@ -9753,59 +9947,71 @@ and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_of_xml
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te {
-        ch_c_te =
-            (fun c => xml.required_value "x_t_ch_c_te" (x_t_ch_c_te_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chCTe" children)
-        seg_cod_barra =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_seg_cod_barra" (x_t_seg_cod_barra_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "SegCodBarra" children)
-        ind_reentrega =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_ind_reentrega" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_ind_reentrega_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "indReentrega" children)
-        inf_unid_transp = listm.map (fun c => x_t_unidade_transp_of_xml c) (xml.children_named "infUnidTransp" children)
-        peri =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_of_xml c
-                (xml.children_named "peri" children)
-        inf_entrega_parcial =
-            optionm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_of_xml c
-                (xml.first_child "infEntregaParcial" children)
-        ind_prestacao_parcial =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_ind_prestacao_parcial" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_ind_prestacao_parcial_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "indPrestacaoParcial" children)
-        inf_n_fe_prest_parcial =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_of_xml c
-                (xml.children_named "infNFePrestParcial" children)
-    }
+    inl errors = []
+    inl o_ch_c_te, errors = xml_codec.read_required "chCTe" (xml_codec.read_value x_t_ch_c_te_of_string) children errors
+    inl v_seg_cod_barra, errors =
+        xml_codec.read_optional "SegCodBarra" (xml_codec.read_value x_t_seg_cod_barra_of_string) children errors
+    inl v_ind_reentrega, errors =
+        xml_codec.read_optional
+            "indReentrega"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_ind_reentrega_of_string)
+            children
+            errors
+    inl v_inf_unid_transp, errors = xml_codec.read_repeated "infUnidTransp" x_t_unidade_transp_of_xml children errors
+    inl v_peri, errors =
+        xml_codec.read_repeated "peri" x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_of_xml children errors
+    inl v_inf_entrega_parcial, errors =
+        xml_codec.read_optional
+            "infEntregaParcial"
+            x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_of_xml
+            children
+            errors
+    inl o_ind_prestacao_parcial, errors =
+        xml_codec.read_required
+            "indPrestacaoParcial"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_ind_prestacao_parcial_of_string)
+            children
+            errors
+    inl v_inf_n_fe_prest_parcial, errors =
+        xml_codec.read_repeated
+            "infNFePrestParcial"
+            x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te {
+            ch_c_te = xml_codec.present o_ch_c_te
+            seg_cod_barra = v_seg_cod_barra
+            ind_reentrega = v_ind_reentrega
+            inf_unid_transp = v_inf_unid_transp
+            peri = v_peri
+            inf_entrega_parcial = v_inf_entrega_parcial
+            ind_prestacao_parcial = xml_codec.present o_ind_prestacao_parcial
+            inf_n_fe_prest_parcial = v_inf_n_fe_prest_parcial
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial {
-        ch_n_fe =
-            (fun c => xml.required_value "x_t_ch_c_te" (x_t_ch_c_te_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chNFe" children)
-    }
+    inl errors = []
+    inl o_ch_n_fe, errors = xml_codec.read_required "chNFe" (xml_codec.read_value x_t_ch_c_te_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial {
+            ch_n_fe = xml_codec.present o_ch_n_fe
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_of_children
         (xml.element_attributes c)
@@ -9813,18 +10019,22 @@ and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parc
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial {
-        qtd_total =
-            (fun c => xml.required_value "x_t_dec_1104" (x_t_dec_1104_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qtdTotal" children)
-        qtd_parcial =
-            (fun c => xml.required_value "x_t_dec_1104" (x_t_dec_1104_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qtdParcial" children)
-    }
+    inl errors = []
+    inl o_qtd_total, errors =
+        xml_codec.read_required "qtdTotal" (xml_codec.read_value x_t_dec_1104_of_string) children errors
+    inl o_qtd_parcial, errors =
+        xml_codec.read_required "qtdParcial" (xml_codec.read_value x_t_dec_1104_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial {
+            qtd_total = xml_codec.present o_qtd_total
+            qtd_parcial = xml_codec.present o_qtd_parcial
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_of_children
         (xml.element_attributes c)
@@ -9832,46 +10042,58 @@ and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri {
-        n_onu =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_n_onu" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_n_onu_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nONU" children)
-        x_nome_ae =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_x_nome_ae" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_x_nome_ae_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xNomeAE" children)
-        x_cla_risco =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_x_cla_risco" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_x_cla_risco_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xClaRisco" children)
-        gr_emb =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_gr_emb" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_gr_emb_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "grEmb" children)
-        q_tot_prod =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_q_tot_prod" (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_q_tot_prod_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "qTotProd" children)
-        q_vol_tipo =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_q_vol_tipo" (
-                        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_q_vol_tipo_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "qVolTipo" children)
-    }
+    inl errors = []
+    inl o_n_onu, errors =
+        xml_codec.read_required
+            "nONU"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_n_onu_of_string)
+            children
+            errors
+    inl v_x_nome_ae, errors =
+        xml_codec.read_optional
+            "xNomeAE"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_x_nome_ae_of_string)
+            children
+            errors
+    inl v_x_cla_risco, errors =
+        xml_codec.read_optional
+            "xClaRisco"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_x_cla_risco_of_string)
+            children
+            errors
+    inl v_gr_emb, errors =
+        xml_codec.read_optional
+            "grEmb"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_gr_emb_of_string)
+            children
+            errors
+    inl o_q_tot_prod, errors =
+        xml_codec.read_required
+            "qTotProd"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_q_tot_prod_of_string)
+            children
+            errors
+    inl v_q_vol_tipo, errors =
+        xml_codec.read_optional
+            "qVolTipo"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_q_vol_tipo_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri {
+            n_onu = xml_codec.present o_n_onu
+            x_nome_ae = v_x_nome_ae
+            x_cla_risco = v_x_cla_risco
+            gr_emb = v_gr_emb
+            q_tot_prod = xml_codec.present o_q_tot_prod
+            q_vol_tipo = v_q_vol_tipo
+        }
 
 and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_of_xml
     (c : xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri) (list xml_codec.decode_error)
     =
     x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_of_children
         (xml.element_attributes c)
@@ -9879,902 +10101,1072 @@ and let x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_of_xml
 
 and let x_tmd_fe_inf_md_fe_inf_modal_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_inf_modal
+    : result (x_tmd_fe_inf_md_fe_inf_modal) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_inf_modal {
-        any = any_content_of (xml.unclaimed_children [] children)
-        versao_modal =
-            xml.required_value
-                "x_tmd_fe_inf_md_fe_inf_modal_versao_modal"
-                (x_tmd_fe_inf_md_fe_inf_modal_versao_modal_of_string (xml.required_attribute "versaoModal" attributes))
-    }
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    inl o_versao_modal, errors =
+        xml_codec.attribute_parsed x_tmd_fe_inf_md_fe_inf_modal_versao_modal_of_string "versaoModal" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_inf_modal { any = v_any; versao_modal = xml_codec.present o_versao_modal }
 
-and let x_tmd_fe_inf_md_fe_inf_modal_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_inf_modal =
+and let x_tmd_fe_inf_md_fe_inf_modal_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_modal) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_inf_modal_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_emit_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_emit
+    : result (x_tmd_fe_inf_md_fe_emit) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_emit {
-        choice_cnpj = x_tmd_fe_inf_md_fe_emit_choice_cnpj_of_children attributes children
-        ie = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "IE" children)
-        x_nome =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_emit_x_nome" (x_tmd_fe_inf_md_fe_emit_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
-        x_fant =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_emit_x_fant" (x_tmd_fe_inf_md_fe_emit_x_fant_of_string (
-                        xml.text_in (xml.element_children c)))
-                (xml.first_child "xFant" children)
-        ender_emit = (fun c => x_t_ende_emi_of_xml c) (xml.required_child "enderEmit" children)
-    }
+    inl errors = []
+    inl o_choice_cnpj, errors =
+        xml_codec.taken (x_tmd_fe_inf_md_fe_emit_choice_cnpj_of_children attributes children) errors
+    inl v_ie, errors = xml_codec.read_optional "IE" xml_codec.read_text children errors
+    inl o_x_nome, errors =
+        xml_codec.read_required "xNome" (xml_codec.read_value x_tmd_fe_inf_md_fe_emit_x_nome_of_string) children errors
+    inl v_x_fant, errors =
+        xml_codec.read_optional "xFant" (xml_codec.read_value x_tmd_fe_inf_md_fe_emit_x_fant_of_string) children errors
+    inl o_ender_emit, errors = xml_codec.read_required "enderEmit" x_t_ende_emi_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_emit {
+            choice_cnpj = xml_codec.present o_choice_cnpj
+            ie = v_ie
+            x_nome = xml_codec.present o_x_nome
+            x_fant = v_x_fant
+            ender_emit = xml_codec.present o_ender_emit
+        }
 
-and let x_tmd_fe_inf_md_fe_emit_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_emit =
+and let x_tmd_fe_inf_md_fe_emit_of_xml (c : xml.xml_node) : result (x_tmd_fe_inf_md_fe_emit) (list xml_codec.decode_error) =
     x_tmd_fe_inf_md_fe_emit_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_emit_choice_cnpj_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_emit_choice_cnpj
+    : result (x_tmd_fe_inf_md_fe_emit_choice_cnpj) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tmd_fe_inf_md_fe_emit_choice_cnpj"
     elif xml.has_child "CNPJ" children then
-        TMDFe_infMDFe_emit_choice_CNPJ_CNPJ (
-            (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        )
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_emit_choice_CNPJ_CNPJ v
+            (xml_codec.read_child "CNPJ" (xml_codec.read_value x_t_cnpj_of_string) children)
     elif xml.has_child "CPF" children then
-        TMDFe_infMDFe_emit_choice_CNPJ_CPF (
-            (fun c => xml.required_value "x_t_cpf" (x_t_cpf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CPF" children)
-        )
-    else failwith "x_tmd_fe_inf_md_fe_emit_choice_cnpj: no alternative present"
+        xml_codec.mapped
+            fun v => TMDFe_infMDFe_emit_choice_CNPJ_CPF v
+            (xml_codec.read_child "CPF" (xml_codec.read_value x_t_cpf_of_string) children)
+    else xml_codec.no_alternative "x_tmd_fe_inf_md_fe_emit_choice_cnpj"
 
 and let x_tmd_fe_inf_md_fe_ide_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_ide
+    : result (x_tmd_fe_inf_md_fe_ide) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_ide {
-        c_uf =
-            (fun c => xml.required_value "x_t_cod_uf_ibge" (x_t_cod_uf_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUF" children)
-        tp_amb =
-            (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
-        tp_emit =
-            (fun c => xml.required_value "x_t_emit" (x_t_emit_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpEmit" children)
-        tp_transp =
-            optionm.map
-                fun c => xml.required_value "x_t_transp" (x_t_transp_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "tpTransp" children)
-        mod =
-            (fun c => xml.required_value "x_t_mod_md" (x_t_mod_md_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "mod" children)
-        serie =
-            (fun c => xml.required_value "x_t_serie" (x_t_serie_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "serie" children)
-        n_mdf =
-            (fun c => xml.required_value "x_tnf" (x_tnf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nMDF" children)
-        c_mdf =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_ide_c_mdf" (x_tmd_fe_inf_md_fe_ide_c_mdf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMDF" children)
-        c_dv =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_ide_c_dv" (x_tmd_fe_inf_md_fe_ide_c_dv_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cDV" children)
-        modal =
-            (fun c => xml.required_value "x_t_modal_md" (x_t_modal_md_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "modal" children)
-        dh_emi =
-            (fun c => xml.required_value "x_t_date_time_utc" (x_t_date_time_utc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "dhEmi" children)
-        tp_emis =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_ide_tp_emis" (x_tmd_fe_inf_md_fe_ide_tp_emis_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpEmis" children)
-        proc_emi = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "procEmi" children)
-        ver_proc =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_ide_ver_proc" (x_tmd_fe_inf_md_fe_ide_ver_proc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "verProc" children)
-        uf_ini =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UFIni" children)
-        uf_fim =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UFFim" children)
-        inf_mun_carrega =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_of_xml c
-                (xml.children_named "infMunCarrega" children)
-        inf_percurso =
-            listm.map
-                fun c => x_tmd_fe_inf_md_fe_ide_inf_percurso_of_xml c
-                (xml.children_named "infPercurso" children)
-        dh_ini_viagem =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_date_time_utc" (x_t_date_time_utc_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "dhIniViagem" children)
-        ind_canal_verde =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_ide_ind_canal_verde" (
-                        x_tmd_fe_inf_md_fe_ide_ind_canal_verde_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "indCanalVerde" children)
-        ind_carrega_posterior =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_tmd_fe_inf_md_fe_ide_ind_carrega_posterior" (
-                        x_tmd_fe_inf_md_fe_ide_ind_carrega_posterior_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "indCarregaPosterior" children)
-    }
+    inl errors = []
+    inl o_c_uf, errors = xml_codec.read_required "cUF" (xml_codec.read_value x_t_cod_uf_ibge_of_string) children errors
+    inl o_tp_amb, errors = xml_codec.read_required "tpAmb" (xml_codec.read_value x_t_amb_of_string) children errors
+    inl o_tp_emit, errors = xml_codec.read_required "tpEmit" (xml_codec.read_value x_t_emit_of_string) children errors
+    inl v_tp_transp, errors =
+        xml_codec.read_optional "tpTransp" (xml_codec.read_value x_t_transp_of_string) children errors
+    inl o_mod, errors = xml_codec.read_required "mod" (xml_codec.read_value x_t_mod_md_of_string) children errors
+    inl o_serie, errors = xml_codec.read_required "serie" (xml_codec.read_value x_t_serie_of_string) children errors
+    inl o_n_mdf, errors = xml_codec.read_required "nMDF" (xml_codec.read_value x_tnf_of_string) children errors
+    inl o_c_mdf, errors =
+        xml_codec.read_required "cMDF" (xml_codec.read_value x_tmd_fe_inf_md_fe_ide_c_mdf_of_string) children errors
+    inl o_c_dv, errors =
+        xml_codec.read_required "cDV" (xml_codec.read_value x_tmd_fe_inf_md_fe_ide_c_dv_of_string) children errors
+    inl o_modal, errors = xml_codec.read_required "modal" (xml_codec.read_value x_t_modal_md_of_string) children errors
+    inl o_dh_emi, errors =
+        xml_codec.read_required "dhEmi" (xml_codec.read_value x_t_date_time_utc_of_string) children errors
+    inl o_tp_emis, errors =
+        xml_codec.read_required "tpEmis" (xml_codec.read_value x_tmd_fe_inf_md_fe_ide_tp_emis_of_string) children errors
+    inl o_proc_emi, errors = xml_codec.read_required "procEmi" xml_codec.read_text children errors
+    inl o_ver_proc, errors =
+        xml_codec.read_required
+            "verProc"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_ide_ver_proc_of_string)
+            children
+            errors
+    inl o_uf_ini, errors = xml_codec.read_required "UFIni" (xml_codec.read_value x_t_uf_of_string) children errors
+    inl o_uf_fim, errors = xml_codec.read_required "UFFim" (xml_codec.read_value x_t_uf_of_string) children errors
+    inl v_inf_mun_carrega, errors =
+        xml_codec.read_repeated "infMunCarrega" x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_of_xml children errors
+    inl v_inf_percurso, errors =
+        xml_codec.read_repeated "infPercurso" x_tmd_fe_inf_md_fe_ide_inf_percurso_of_xml children errors
+    inl v_dh_ini_viagem, errors =
+        xml_codec.read_optional "dhIniViagem" (xml_codec.read_value x_t_date_time_utc_of_string) children errors
+    inl v_ind_canal_verde, errors =
+        xml_codec.read_optional
+            "indCanalVerde"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_ide_ind_canal_verde_of_string)
+            children
+            errors
+    inl v_ind_carrega_posterior, errors =
+        xml_codec.read_optional
+            "indCarregaPosterior"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_ide_ind_carrega_posterior_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_ide {
+            c_uf = xml_codec.present o_c_uf
+            tp_amb = xml_codec.present o_tp_amb
+            tp_emit = xml_codec.present o_tp_emit
+            tp_transp = v_tp_transp
+            mod = xml_codec.present o_mod
+            serie = xml_codec.present o_serie
+            n_mdf = xml_codec.present o_n_mdf
+            c_mdf = xml_codec.present o_c_mdf
+            c_dv = xml_codec.present o_c_dv
+            modal = xml_codec.present o_modal
+            dh_emi = xml_codec.present o_dh_emi
+            tp_emis = xml_codec.present o_tp_emis
+            proc_emi = xml_codec.present o_proc_emi
+            ver_proc = xml_codec.present o_ver_proc
+            uf_ini = xml_codec.present o_uf_ini
+            uf_fim = xml_codec.present o_uf_fim
+            inf_mun_carrega = v_inf_mun_carrega
+            inf_percurso = v_inf_percurso
+            dh_ini_viagem = v_dh_ini_viagem
+            ind_canal_verde = v_ind_canal_verde
+            ind_carrega_posterior = v_ind_carrega_posterior
+        }
 
-and let x_tmd_fe_inf_md_fe_ide_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_ide =
+and let x_tmd_fe_inf_md_fe_ide_of_xml (c : xml.xml_node) : result (x_tmd_fe_inf_md_fe_ide) (list xml_codec.decode_error) =
     x_tmd_fe_inf_md_fe_ide_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_ide_inf_percurso_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_ide_inf_percurso
+    : result (x_tmd_fe_inf_md_fe_ide_inf_percurso) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_ide_inf_percurso {
-        uf_per =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UFPer" children)
-    }
+    inl errors = []
+    inl o_uf_per, errors = xml_codec.read_required "UFPer" (xml_codec.read_value x_t_uf_of_string) children errors
+    xml_codec.decoded_by errors (fun () => x_tmd_fe_inf_md_fe_ide_inf_percurso { uf_per = xml_codec.present o_uf_per })
 
-and let x_tmd_fe_inf_md_fe_ide_inf_percurso_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_ide_inf_percurso =
+and let x_tmd_fe_inf_md_fe_ide_inf_percurso_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_ide_inf_percurso) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_ide_inf_percurso_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tmd_fe_inf_md_fe_ide_inf_mun_carrega
+    : result (x_tmd_fe_inf_md_fe_ide_inf_mun_carrega) (list xml_codec.decode_error)
     =
-    x_tmd_fe_inf_md_fe_ide_inf_mun_carrega {
-        c_mun_carrega =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMunCarrega" children)
-        x_mun_carrega =
-            (fun c => xml.required_value "x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_x_mun_carrega" (x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_x_mun_carrega_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMunCarrega" children)
-    }
+    inl errors = []
+    inl o_c_mun_carrega, errors =
+        xml_codec.read_required "cMunCarrega" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun_carrega, errors =
+        xml_codec.read_required
+            "xMunCarrega"
+            (xml_codec.read_value x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_x_mun_carrega_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_tmd_fe_inf_md_fe_ide_inf_mun_carrega {
+            c_mun_carrega = xml_codec.present o_c_mun_carrega
+            x_mun_carrega = xml_codec.present o_x_mun_carrega
+        }
 
-and let x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_of_xml (c : xml.xml_node) : x_tmd_fe_inf_md_fe_ide_inf_mun_carrega =
+and let x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_of_xml
+    (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_ide_inf_mun_carrega) (list xml_codec.decode_error)
+    =
     x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_envi_md_fe_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_envi_md_fe s
+    : result (x_t_envi_md_fe s) (list xml_codec.decode_error)
     =
-    x_t_envi_md_fe {
-        id_lote =
-            (fun c => xml.required_value "x_t_id_lote" (x_t_id_lote_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idLote" children)
-        md_fe = (fun c => x_tmd_fe_of_xml witness c) (xml.required_child "MDFe" children)
-        versao = xml.required_value "x_t_ver_m_de" (x_t_ver_m_de_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_id_lote, errors =
+        xml_codec.read_required "idLote" (xml_codec.read_value x_t_id_lote_of_string) children errors
+    inl o_md_fe, errors = xml_codec.read_required "MDFe" (x_tmd_fe_of_xml witness) children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_m_de_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_envi_md_fe {
+            id_lote = xml_codec.present o_id_lote
+            md_fe = xml_codec.present o_md_fe
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_envi_md_fe_of_xml forall s. (witness : stage s) (c : xml.xml_node) : x_t_envi_md_fe s =
+and let x_t_envi_md_fe_of_xml forall s.
+    (witness : stage s) (c : xml.xml_node)
+    : result (x_t_envi_md_fe s) (list xml_codec.decode_error)
+    =
     x_t_envi_md_fe_of_children witness (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_ret_md_fe_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_ret_md_fe =
-    x_t_ret_md_fe {
-        tp_amb = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "tpAmb" children)
-        c_uf =
-            (fun c => xml.required_value "x_t_cod_uf_ibge" (x_t_cod_uf_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUF" children)
-        ver_aplic =
-            (fun c => xml.required_value "x_t_ver_aplic" (x_t_ver_aplic_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "verAplic" children)
-        c_stat =
-            (fun c => xml.required_value "x_t_stat" (x_t_stat_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cStat" children)
-        x_motivo =
-            (fun c => xml.required_value "x_t_motivo" (x_t_motivo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMotivo" children)
-        prot_md_fe = optionm.map (fun c => x_t_prot_md_fe_of_xml c) (xml.first_child "protMDFe" children)
-        versao = xml.required_value "x_t_ver_m_de" (x_t_ver_m_de_of_string (xml.required_attribute "versao" attributes))
-    }
+and let x_t_ret_md_fe_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_ret_md_fe) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_tp_amb, errors = xml_codec.read_required "tpAmb" xml_codec.read_text children errors
+    inl o_c_uf, errors = xml_codec.read_required "cUF" (xml_codec.read_value x_t_cod_uf_ibge_of_string) children errors
+    inl o_ver_aplic, errors =
+        xml_codec.read_required "verAplic" (xml_codec.read_value x_t_ver_aplic_of_string) children errors
+    inl o_c_stat, errors = xml_codec.read_required "cStat" (xml_codec.read_value x_t_stat_of_string) children errors
+    inl o_x_motivo, errors =
+        xml_codec.read_required "xMotivo" (xml_codec.read_value x_t_motivo_of_string) children errors
+    inl v_prot_md_fe, errors = xml_codec.read_optional "protMDFe" x_t_prot_md_fe_of_xml children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_m_de_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_ret_md_fe {
+            tp_amb = xml_codec.present o_tp_amb
+            c_uf = xml_codec.present o_c_uf
+            ver_aplic = xml_codec.present o_ver_aplic
+            c_stat = xml_codec.present o_c_stat
+            x_motivo = xml_codec.present o_x_motivo
+            prot_md_fe = v_prot_md_fe
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_ret_md_fe_of_xml (c : xml.xml_node) : x_t_ret_md_fe =
+and let x_t_ret_md_fe_of_xml (c : xml.xml_node) : result (x_t_ret_md_fe) (list xml_codec.decode_error) =
     x_t_ret_md_fe_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_ret_envi_md_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_ret_envi_md_fe
+    : result (x_t_ret_envi_md_fe) (list xml_codec.decode_error)
     =
-    x_t_ret_envi_md_fe {
-        tp_amb = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "tpAmb" children)
-        c_uf =
-            (fun c => xml.required_value "x_t_cod_uf_ibge" (x_t_cod_uf_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cUF" children)
-        ver_aplic =
-            (fun c => xml.required_value "x_t_ver_aplic" (x_t_ver_aplic_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "verAplic" children)
-        c_stat =
-            (fun c => xml.required_value "x_t_stat" (x_t_stat_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cStat" children)
-        x_motivo =
-            (fun c => xml.required_value "x_t_motivo" (x_t_motivo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMotivo" children)
-        inf_rec = optionm.map (fun c => x_t_ret_envi_md_fe_inf_rec_of_xml c) (xml.first_child "infRec" children)
-        versao = xml.required_value "x_t_ver_m_de" (x_t_ver_m_de_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_tp_amb, errors = xml_codec.read_required "tpAmb" xml_codec.read_text children errors
+    inl o_c_uf, errors = xml_codec.read_required "cUF" (xml_codec.read_value x_t_cod_uf_ibge_of_string) children errors
+    inl o_ver_aplic, errors =
+        xml_codec.read_required "verAplic" (xml_codec.read_value x_t_ver_aplic_of_string) children errors
+    inl o_c_stat, errors = xml_codec.read_required "cStat" (xml_codec.read_value x_t_stat_of_string) children errors
+    inl o_x_motivo, errors =
+        xml_codec.read_required "xMotivo" (xml_codec.read_value x_t_motivo_of_string) children errors
+    inl v_inf_rec, errors = xml_codec.read_optional "infRec" x_t_ret_envi_md_fe_inf_rec_of_xml children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_m_de_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_ret_envi_md_fe {
+            tp_amb = xml_codec.present o_tp_amb
+            c_uf = xml_codec.present o_c_uf
+            ver_aplic = xml_codec.present o_ver_aplic
+            c_stat = xml_codec.present o_c_stat
+            x_motivo = xml_codec.present o_x_motivo
+            inf_rec = v_inf_rec
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_ret_envi_md_fe_of_xml (c : xml.xml_node) : x_t_ret_envi_md_fe =
+and let x_t_ret_envi_md_fe_of_xml (c : xml.xml_node) : result (x_t_ret_envi_md_fe) (list xml_codec.decode_error) =
     x_t_ret_envi_md_fe_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_ret_envi_md_fe_inf_rec_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_ret_envi_md_fe_inf_rec
+    : result (x_t_ret_envi_md_fe_inf_rec) (list xml_codec.decode_error)
     =
-    x_t_ret_envi_md_fe_inf_rec {
-        n_rec =
-            (fun c => xml.required_value "x_t_rec" (x_t_rec_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nRec" children)
-        dh_recbto = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "dhRecbto" children)
-        t_med =
-            (fun c => xml.required_value "x_t_ret_envi_md_fe_inf_rec_t_med" (x_t_ret_envi_md_fe_inf_rec_t_med_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tMed" children)
-    }
+    inl errors = []
+    inl o_n_rec, errors = xml_codec.read_required "nRec" (xml_codec.read_value x_t_rec_of_string) children errors
+    inl o_dh_recbto, errors = xml_codec.read_required "dhRecbto" xml_codec.read_text children errors
+    inl o_t_med, errors =
+        xml_codec.read_required "tMed" (xml_codec.read_value x_t_ret_envi_md_fe_inf_rec_t_med_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_ret_envi_md_fe_inf_rec {
+            n_rec = xml_codec.present o_n_rec
+            dh_recbto = xml_codec.present o_dh_recbto
+            t_med = xml_codec.present o_t_med
+        }
 
-and let x_t_ret_envi_md_fe_inf_rec_of_xml (c : xml.xml_node) : x_t_ret_envi_md_fe_inf_rec =
+and let x_t_ret_envi_md_fe_inf_rec_of_xml
+    (c : xml.xml_node)
+    : result (x_t_ret_envi_md_fe_inf_rec) (list xml_codec.decode_error)
+    =
     x_t_ret_envi_md_fe_inf_rec_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_ende_emi_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_ende_emi =
-    x_t_ende_emi {
-        x_lgr =
-            (fun c => xml.required_value "x_t_ende_emi_x_lgr" (x_t_ende_emi_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
-        nro =
-            (fun c => xml.required_value "x_t_ende_emi_nro" (x_t_ende_emi_nro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nro" children)
-        x_cpl =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_ende_emi_x_cpl" (x_t_ende_emi_x_cpl_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xCpl" children)
-        x_bairro =
-            (fun c => xml.required_value "x_t_ende_emi_x_bairro" (x_t_ende_emi_x_bairro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xBairro" children)
-        c_mun =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
-        x_mun =
-            (fun c => xml.required_value "x_t_ende_emi_x_mun" (x_t_ende_emi_x_mun_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMun" children)
-        cep =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_ende_emi_cep" (x_t_ende_emi_cep_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "CEP" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-        fone =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_ende_emi_fone" (x_t_ende_emi_fone_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "fone" children)
-        email =
-            optionm.map
-                fun c => xml.required_value "x_t_email" (x_t_email_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "email" children)
-    }
+and let x_t_ende_emi_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_ende_emi) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_x_lgr, errors =
+        xml_codec.read_required "xLgr" (xml_codec.read_value x_t_ende_emi_x_lgr_of_string) children errors
+    inl o_nro, errors = xml_codec.read_required "nro" (xml_codec.read_value x_t_ende_emi_nro_of_string) children errors
+    inl v_x_cpl, errors =
+        xml_codec.read_optional "xCpl" (xml_codec.read_value x_t_ende_emi_x_cpl_of_string) children errors
+    inl o_x_bairro, errors =
+        xml_codec.read_required "xBairro" (xml_codec.read_value x_t_ende_emi_x_bairro_of_string) children errors
+    inl o_c_mun, errors =
+        xml_codec.read_required "cMun" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun, errors =
+        xml_codec.read_required "xMun" (xml_codec.read_value x_t_ende_emi_x_mun_of_string) children errors
+    inl v_cep, errors = xml_codec.read_optional "CEP" (xml_codec.read_value x_t_ende_emi_cep_of_string) children errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    inl v_fone, errors =
+        xml_codec.read_optional "fone" (xml_codec.read_value x_t_ende_emi_fone_of_string) children errors
+    inl v_email, errors = xml_codec.read_optional "email" (xml_codec.read_value x_t_email_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_ende_emi {
+            x_lgr = xml_codec.present o_x_lgr
+            nro = xml_codec.present o_nro
+            x_cpl = v_x_cpl
+            x_bairro = xml_codec.present o_x_bairro
+            c_mun = xml_codec.present o_c_mun
+            x_mun = xml_codec.present o_x_mun
+            cep = v_cep
+            uf = xml_codec.present o_uf
+            fone = v_fone
+            email = v_email
+        }
 
-and let x_t_ende_emi_of_xml (c : xml.xml_node) : x_t_ende_emi =
+and let x_t_ende_emi_of_xml (c : xml.xml_node) : result (x_t_ende_emi) (list xml_codec.decode_error) =
     x_t_ende_emi_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_endereco_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_endereco =
-    x_t_endereco {
-        x_lgr =
-            (fun c => xml.required_value "x_t_endereco_x_lgr" (x_t_endereco_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
-        nro =
-            (fun c => xml.required_value "x_t_endereco_nro" (x_t_endereco_nro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nro" children)
-        x_cpl =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_endereco_x_cpl" (x_t_endereco_x_cpl_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xCpl" children)
-        x_bairro =
-            (fun c => xml.required_value "x_t_endereco_x_bairro" (x_t_endereco_x_bairro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xBairro" children)
-        c_mun =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
-        x_mun =
-            (fun c => xml.required_value "x_t_endereco_x_mun" (x_t_endereco_x_mun_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMun" children)
-        cep =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_endereco_cep" (x_t_endereco_cep_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "CEP" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-        c_pais =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_endereco_c_pais" (x_t_endereco_c_pais_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "cPais" children)
-        x_pais =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_endereco_x_pais" (x_t_endereco_x_pais_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xPais" children)
-    }
+and let x_t_endereco_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_endereco) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_x_lgr, errors =
+        xml_codec.read_required "xLgr" (xml_codec.read_value x_t_endereco_x_lgr_of_string) children errors
+    inl o_nro, errors = xml_codec.read_required "nro" (xml_codec.read_value x_t_endereco_nro_of_string) children errors
+    inl v_x_cpl, errors =
+        xml_codec.read_optional "xCpl" (xml_codec.read_value x_t_endereco_x_cpl_of_string) children errors
+    inl o_x_bairro, errors =
+        xml_codec.read_required "xBairro" (xml_codec.read_value x_t_endereco_x_bairro_of_string) children errors
+    inl o_c_mun, errors =
+        xml_codec.read_required "cMun" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun, errors =
+        xml_codec.read_required "xMun" (xml_codec.read_value x_t_endereco_x_mun_of_string) children errors
+    inl v_cep, errors = xml_codec.read_optional "CEP" (xml_codec.read_value x_t_endereco_cep_of_string) children errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    inl v_c_pais, errors =
+        xml_codec.read_optional "cPais" (xml_codec.read_value x_t_endereco_c_pais_of_string) children errors
+    inl v_x_pais, errors =
+        xml_codec.read_optional "xPais" (xml_codec.read_value x_t_endereco_x_pais_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_endereco {
+            x_lgr = xml_codec.present o_x_lgr
+            nro = xml_codec.present o_nro
+            x_cpl = v_x_cpl
+            x_bairro = xml_codec.present o_x_bairro
+            c_mun = xml_codec.present o_c_mun
+            x_mun = xml_codec.present o_x_mun
+            cep = v_cep
+            uf = xml_codec.present o_uf
+            c_pais = v_c_pais
+            x_pais = v_x_pais
+        }
 
-and let x_t_endereco_of_xml (c : xml.xml_node) : x_t_endereco =
+and let x_t_endereco_of_xml (c : xml.xml_node) : result (x_t_endereco) (list xml_codec.decode_error) =
     x_t_endereco_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_endernac_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_endernac =
-    x_t_endernac {
-        x_lgr =
-            (fun c => xml.required_value "x_t_endernac_x_lgr" (x_t_endernac_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
-        nro =
-            (fun c => xml.required_value "x_t_endernac_nro" (x_t_endernac_nro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nro" children)
-        x_cpl =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_endernac_x_cpl" (x_t_endernac_x_cpl_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xCpl" children)
-        x_bairro =
-            (fun c => xml.required_value "x_t_endernac_x_bairro" (x_t_endernac_x_bairro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xBairro" children)
-        c_mun =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
-        x_mun =
-            (fun c => xml.required_value "x_t_endernac_x_mun" (x_t_endernac_x_mun_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMun" children)
-        cep =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_endernac_cep" (x_t_endernac_cep_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "CEP" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-    }
+and let x_t_endernac_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_endernac) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_x_lgr, errors =
+        xml_codec.read_required "xLgr" (xml_codec.read_value x_t_endernac_x_lgr_of_string) children errors
+    inl o_nro, errors = xml_codec.read_required "nro" (xml_codec.read_value x_t_endernac_nro_of_string) children errors
+    inl v_x_cpl, errors =
+        xml_codec.read_optional "xCpl" (xml_codec.read_value x_t_endernac_x_cpl_of_string) children errors
+    inl o_x_bairro, errors =
+        xml_codec.read_required "xBairro" (xml_codec.read_value x_t_endernac_x_bairro_of_string) children errors
+    inl o_c_mun, errors =
+        xml_codec.read_required "cMun" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun, errors =
+        xml_codec.read_required "xMun" (xml_codec.read_value x_t_endernac_x_mun_of_string) children errors
+    inl v_cep, errors = xml_codec.read_optional "CEP" (xml_codec.read_value x_t_endernac_cep_of_string) children errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_endernac {
+            x_lgr = xml_codec.present o_x_lgr
+            nro = xml_codec.present o_nro
+            x_cpl = v_x_cpl
+            x_bairro = xml_codec.present o_x_bairro
+            c_mun = xml_codec.present o_c_mun
+            x_mun = xml_codec.present o_x_mun
+            cep = v_cep
+            uf = xml_codec.present o_uf
+        }
 
-and let x_t_endernac_of_xml (c : xml.xml_node) : x_t_endernac =
+and let x_t_endernac_of_xml (c : xml.xml_node) : result (x_t_endernac) (list xml_codec.decode_error) =
     x_t_endernac_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_ender_fer_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_ender_fer =
-    x_t_ender_fer {
-        x_lgr =
-            (fun c => xml.required_value "x_t_ender_fer_x_lgr" (x_t_ender_fer_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
-        nro =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_ender_fer_nro" (x_t_ender_fer_nro_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "nro" children)
-        x_cpl =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_ender_fer_x_cpl" (x_t_ender_fer_x_cpl_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xCpl" children)
-        x_bairro =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_ender_fer_x_bairro" (x_t_ender_fer_x_bairro_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xBairro" children)
-        c_mun =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
-        x_mun =
-            (fun c => xml.required_value "x_t_ender_fer_x_mun" (x_t_ender_fer_x_mun_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMun" children)
-        cep =
-            (fun c => xml.required_value "x_t_ender_fer_cep" (x_t_ender_fer_cep_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CEP" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-    }
+and let x_t_ender_fer_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_ender_fer) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_x_lgr, errors =
+        xml_codec.read_required "xLgr" (xml_codec.read_value x_t_ender_fer_x_lgr_of_string) children errors
+    inl v_nro, errors = xml_codec.read_optional "nro" (xml_codec.read_value x_t_ender_fer_nro_of_string) children errors
+    inl v_x_cpl, errors =
+        xml_codec.read_optional "xCpl" (xml_codec.read_value x_t_ender_fer_x_cpl_of_string) children errors
+    inl v_x_bairro, errors =
+        xml_codec.read_optional "xBairro" (xml_codec.read_value x_t_ender_fer_x_bairro_of_string) children errors
+    inl o_c_mun, errors =
+        xml_codec.read_required "cMun" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun, errors =
+        xml_codec.read_required "xMun" (xml_codec.read_value x_t_ender_fer_x_mun_of_string) children errors
+    inl o_cep, errors = xml_codec.read_required "CEP" (xml_codec.read_value x_t_ender_fer_cep_of_string) children errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_ender_fer {
+            x_lgr = xml_codec.present o_x_lgr
+            nro = v_nro
+            x_cpl = v_x_cpl
+            x_bairro = v_x_bairro
+            c_mun = xml_codec.present o_c_mun
+            x_mun = xml_codec.present o_x_mun
+            cep = xml_codec.present o_cep
+            uf = xml_codec.present o_uf
+        }
 
-and let x_t_ender_fer_of_xml (c : xml.xml_node) : x_t_ender_fer =
+and let x_t_ender_fer_of_xml (c : xml.xml_node) : result (x_t_ender_fer) (list xml_codec.decode_error) =
     x_t_ender_fer_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_end_org_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_end_org =
-    x_t_end_org {
-        x_lgr =
-            (fun c => xml.required_value "x_t_end_org_x_lgr" (x_t_end_org_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
-        nro =
-            (fun c => xml.required_value "x_t_end_org_nro" (x_t_end_org_nro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nro" children)
-        x_cpl =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_end_org_x_cpl" (x_t_end_org_x_cpl_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xCpl" children)
-        x_bairro =
-            (fun c => xml.required_value "x_t_end_org_x_bairro" (x_t_end_org_x_bairro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xBairro" children)
-        c_mun =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
-        x_mun =
-            (fun c => xml.required_value "x_t_end_org_x_mun" (x_t_end_org_x_mun_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMun" children)
-        cep =
-            optionm.map
-                fun c =>
-                    xml.required_value
-                        "x_t_end_org_cep"
-                        (x_t_end_org_cep_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "CEP" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-        c_pais =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_end_org_c_pais" (x_t_end_org_c_pais_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "cPais" children)
-        x_pais =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_end_org_x_pais" (x_t_end_org_x_pais_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xPais" children)
-        fone =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_end_org_fone" (x_t_end_org_fone_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "fone" children)
-    }
+and let x_t_end_org_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_end_org) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_x_lgr, errors =
+        xml_codec.read_required "xLgr" (xml_codec.read_value x_t_end_org_x_lgr_of_string) children errors
+    inl o_nro, errors = xml_codec.read_required "nro" (xml_codec.read_value x_t_end_org_nro_of_string) children errors
+    inl v_x_cpl, errors =
+        xml_codec.read_optional "xCpl" (xml_codec.read_value x_t_end_org_x_cpl_of_string) children errors
+    inl o_x_bairro, errors =
+        xml_codec.read_required "xBairro" (xml_codec.read_value x_t_end_org_x_bairro_of_string) children errors
+    inl o_c_mun, errors =
+        xml_codec.read_required "cMun" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun, errors =
+        xml_codec.read_required "xMun" (xml_codec.read_value x_t_end_org_x_mun_of_string) children errors
+    inl v_cep, errors = xml_codec.read_optional "CEP" (xml_codec.read_value x_t_end_org_cep_of_string) children errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    inl v_c_pais, errors =
+        xml_codec.read_optional "cPais" (xml_codec.read_value x_t_end_org_c_pais_of_string) children errors
+    inl v_x_pais, errors =
+        xml_codec.read_optional "xPais" (xml_codec.read_value x_t_end_org_x_pais_of_string) children errors
+    inl v_fone, errors =
+        xml_codec.read_optional "fone" (xml_codec.read_value x_t_end_org_fone_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_end_org {
+            x_lgr = xml_codec.present o_x_lgr
+            nro = xml_codec.present o_nro
+            x_cpl = v_x_cpl
+            x_bairro = xml_codec.present o_x_bairro
+            c_mun = xml_codec.present o_c_mun
+            x_mun = xml_codec.present o_x_mun
+            cep = v_cep
+            uf = xml_codec.present o_uf
+            c_pais = v_c_pais
+            x_pais = v_x_pais
+            fone = v_fone
+        }
 
-and let x_t_end_org_of_xml (c : xml.xml_node) : x_t_end_org =
+and let x_t_end_org_of_xml (c : xml.xml_node) : result (x_t_end_org) (list xml_codec.decode_error) =
     x_t_end_org_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_local_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_local =
-    x_t_local {
-        c_mun =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
-        x_mun =
-            (fun c => xml.required_value "x_t_local_x_mun" (x_t_local_x_mun_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMun" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-    }
+and let x_t_local_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_local) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_c_mun, errors =
+        xml_codec.read_required "cMun" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun, errors =
+        xml_codec.read_required "xMun" (xml_codec.read_value x_t_local_x_mun_of_string) children errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_local { c_mun = xml_codec.present o_c_mun; x_mun = xml_codec.present o_x_mun; uf = xml_codec.present o_uf }
 
-and let x_t_local_of_xml (c : xml.xml_node) : x_t_local =
+and let x_t_local_of_xml (c : xml.xml_node) : result (x_t_local) (list xml_codec.decode_error) =
     x_t_local_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_end_re_ent_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_end_re_ent
+    : result (x_t_end_re_ent) (list xml_codec.decode_error)
     =
-    x_t_end_re_ent {
-        choice_cnpj = x_t_end_re_ent_choice_cnpj_of_children attributes children
-        x_nome =
-            (fun c => xml.required_value "x_t_end_re_ent_x_nome" (x_t_end_re_ent_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
-        x_lgr =
-            (fun c => xml.required_value "x_t_end_re_ent_x_lgr" (x_t_end_re_ent_x_lgr_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xLgr" children)
-        nro =
-            (fun c => xml.required_value "x_t_end_re_ent_nro" (x_t_end_re_ent_nro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nro" children)
-        x_cpl =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_end_re_ent_x_cpl" (x_t_end_re_ent_x_cpl_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "xCpl" children)
-        x_bairro =
-            (fun c => xml.required_value "x_t_end_re_ent_x_bairro" (x_t_end_re_ent_x_bairro_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xBairro" children)
-        c_mun =
-            (fun c => xml.required_value "x_t_cod_mun_ibge" (x_t_cod_mun_ibge_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "cMun" children)
-        x_mun =
-            (fun c => xml.required_value "x_t_end_re_ent_x_mun" (x_t_end_re_ent_x_mun_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMun" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-    }
+    inl errors = []
+    inl o_choice_cnpj, errors = xml_codec.taken (x_t_end_re_ent_choice_cnpj_of_children attributes children) errors
+    inl o_x_nome, errors =
+        xml_codec.read_required "xNome" (xml_codec.read_value x_t_end_re_ent_x_nome_of_string) children errors
+    inl o_x_lgr, errors =
+        xml_codec.read_required "xLgr" (xml_codec.read_value x_t_end_re_ent_x_lgr_of_string) children errors
+    inl o_nro, errors =
+        xml_codec.read_required "nro" (xml_codec.read_value x_t_end_re_ent_nro_of_string) children errors
+    inl v_x_cpl, errors =
+        xml_codec.read_optional "xCpl" (xml_codec.read_value x_t_end_re_ent_x_cpl_of_string) children errors
+    inl o_x_bairro, errors =
+        xml_codec.read_required "xBairro" (xml_codec.read_value x_t_end_re_ent_x_bairro_of_string) children errors
+    inl o_c_mun, errors =
+        xml_codec.read_required "cMun" (xml_codec.read_value x_t_cod_mun_ibge_of_string) children errors
+    inl o_x_mun, errors =
+        xml_codec.read_required "xMun" (xml_codec.read_value x_t_end_re_ent_x_mun_of_string) children errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_end_re_ent {
+            choice_cnpj = xml_codec.present o_choice_cnpj
+            x_nome = xml_codec.present o_x_nome
+            x_lgr = xml_codec.present o_x_lgr
+            nro = xml_codec.present o_nro
+            x_cpl = v_x_cpl
+            x_bairro = xml_codec.present o_x_bairro
+            c_mun = xml_codec.present o_c_mun
+            x_mun = xml_codec.present o_x_mun
+            uf = xml_codec.present o_uf
+        }
 
-and let x_t_end_re_ent_of_xml (c : xml.xml_node) : x_t_end_re_ent =
+and let x_t_end_re_ent_of_xml (c : xml.xml_node) : result (x_t_end_re_ent) (list xml_codec.decode_error) =
     x_t_end_re_ent_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_end_re_ent_choice_cnpj_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_end_re_ent_choice_cnpj
+    : result (x_t_end_re_ent_choice_cnpj) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_t_end_re_ent_choice_cnpj"
     elif xml.has_child "CNPJ" children then
-        TEndReEnt_choice_CNPJ_CNPJ (
-            (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        )
+        xml_codec.mapped
+            fun v => TEndReEnt_choice_CNPJ_CNPJ v
+            (xml_codec.read_child "CNPJ" (xml_codec.read_value x_t_cnpj_of_string) children)
     elif xml.has_child "CPF" children then
-        TEndReEnt_choice_CNPJ_CPF (
-            (fun c => xml.required_value "x_t_cpf" (x_t_cpf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CPF" children)
-        )
-    else failwith "x_t_end_re_ent_choice_cnpj: no alternative present"
+        xml_codec.mapped
+            fun v => TEndReEnt_choice_CNPJ_CPF v
+            (xml_codec.read_child "CPF" (xml_codec.read_value x_t_cpf_of_string) children)
+    else xml_codec.no_alternative "x_t_end_re_ent_choice_cnpj"
 
-and let x_tn_fe_nf_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_tn_fe_nf =
-    x_tn_fe_nf {
-        choice_inf_n_fe = x_tn_fe_nf_choice_inf_n_fe_of_children attributes children
-    }
+and let x_tn_fe_nf_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_tn_fe_nf) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_choice_inf_n_fe, errors = xml_codec.taken (x_tn_fe_nf_choice_inf_n_fe_of_children attributes children) errors
+    xml_codec.decoded_by errors (fun () => x_tn_fe_nf { choice_inf_n_fe = xml_codec.present o_choice_inf_n_fe })
 
-and let x_tn_fe_nf_of_xml (c : xml.xml_node) : x_tn_fe_nf =
+and let x_tn_fe_nf_of_xml (c : xml.xml_node) : result (x_tn_fe_nf) (list xml_codec.decode_error) =
     x_tn_fe_nf_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tn_fe_nf_choice_inf_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tn_fe_nf_choice_inf_n_fe
+    : result (x_tn_fe_nf_choice_inf_n_fe) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tn_fe_nf_choice_inf_n_fe"
     elif xml.has_child "infNFe" children then
-        TNFeNF_choice_infNFe_infNFe (
-            (fun c => x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_xml c) (xml.required_child "infNFe" children)
-        )
+        xml_codec.mapped
+            fun v => TNFeNF_choice_infNFe_infNFe v
+            (xml_codec.read_child "infNFe" x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_xml children)
     elif xml.has_child "infNF" children then
-        TNFeNF_choice_infNFe_infNF (
-            (fun c => x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_xml c) (xml.required_child "infNF" children)
-        )
-    else failwith "x_tn_fe_nf_choice_inf_n_fe: no alternative present"
+        xml_codec.mapped
+            fun v => TNFeNF_choice_infNFe_infNF v
+            (xml_codec.read_child "infNF" x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_xml children)
+    else xml_codec.no_alternative "x_tn_fe_nf_choice_inf_n_fe"
 
 and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tn_fe_nf_choice_inf_n_fe_inf_nf
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf) (list xml_codec.decode_error)
     =
-    x_tn_fe_nf_choice_inf_n_fe_inf_nf {
-        emi = (fun c => x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_xml c) (xml.required_child "emi" children)
-        dest = (fun c => x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_xml c) (xml.required_child "dest" children)
-        serie =
-            (fun c => xml.required_value "x_tn_fe_nf_choice_inf_n_fe_inf_nf_serie" (x_tn_fe_nf_choice_inf_n_fe_inf_nf_serie_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "serie" children)
-        n_nf =
-            (fun c => xml.required_value "x_tn_fe_nf_choice_inf_n_fe_inf_nf_n_nf" (x_tn_fe_nf_choice_inf_n_fe_inf_nf_n_nf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nNF" children)
-        d_emi =
-            (fun c => xml.required_value "x_t_data" (x_t_data_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "dEmi" children)
-        v_nf =
-            (fun c => xml.required_value "x_t_dec_1302" (x_t_dec_1302_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "vNF" children)
-        pin =
-            optionm.map
-                fun c => xml.required_value "x_tpin" (x_tpin_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "PIN" children)
-    }
+    inl errors = []
+    inl o_emi, errors = xml_codec.read_required "emi" x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_xml children errors
+    inl o_dest, errors = xml_codec.read_required "dest" x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_xml children errors
+    inl o_serie, errors =
+        xml_codec.read_required
+            "serie"
+            (xml_codec.read_value x_tn_fe_nf_choice_inf_n_fe_inf_nf_serie_of_string)
+            children
+            errors
+    inl o_n_nf, errors =
+        xml_codec.read_required
+            "nNF"
+            (xml_codec.read_value x_tn_fe_nf_choice_inf_n_fe_inf_nf_n_nf_of_string)
+            children
+            errors
+    inl o_d_emi, errors = xml_codec.read_required "dEmi" (xml_codec.read_value x_t_data_of_string) children errors
+    inl o_v_nf, errors = xml_codec.read_required "vNF" (xml_codec.read_value x_t_dec_1302_of_string) children errors
+    inl v_pin, errors = xml_codec.read_optional "PIN" (xml_codec.read_value x_tpin_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf {
+            emi = xml_codec.present o_emi
+            dest = xml_codec.present o_dest
+            serie = xml_codec.present o_serie
+            n_nf = xml_codec.present o_n_nf
+            d_emi = xml_codec.present o_d_emi
+            v_nf = xml_codec.present o_v_nf
+            pin = v_pin
+        }
 
-and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_xml (c : xml.xml_node) : x_tn_fe_nf_choice_inf_n_fe_inf_nf =
+and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_xml
+    (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf) (list xml_codec.decode_error)
+    =
     x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest) (list xml_codec.decode_error)
     =
-    x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest {
-        choice_cnpj = x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj_of_children attributes children
-        x_nome =
-            (fun c => xml.required_value "x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_x_nome" (x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-    }
+    inl errors = []
+    inl o_choice_cnpj, errors =
+        xml_codec.taken (x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj_of_children attributes children) errors
+    inl o_x_nome, errors =
+        xml_codec.read_required
+            "xNome"
+            (xml_codec.read_value x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_x_nome_of_string)
+            children
+            errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest {
+            choice_cnpj = xml_codec.present o_choice_cnpj
+            x_nome = xml_codec.present o_x_nome
+            uf = xml_codec.present o_uf
+        }
 
-and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_xml (c : xml.xml_node) : x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest =
+and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_xml
+    (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest) (list xml_codec.decode_error)
+    =
     x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj) (list xml_codec.decode_error)
     =
-    if false then failwith "unreachable"
+    if false then xml_codec.no_alternative "x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj"
     elif xml.has_child "CNPJ" children then
-        TNFeNF_choice_infNFe_infNF_dest_choice_CNPJ_CNPJ (
-            (fun c => xml.required_value "x_t_cnpj_opc" (x_t_cnpj_opc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        )
+        xml_codec.mapped
+            fun v => TNFeNF_choice_infNFe_infNF_dest_choice_CNPJ_CNPJ v
+            (xml_codec.read_child "CNPJ" (xml_codec.read_value x_t_cnpj_opc_of_string) children)
     elif xml.has_child "CPF" children then
-        TNFeNF_choice_infNFe_infNF_dest_choice_CNPJ_CPF (
-            (fun c => xml.required_value "x_t_cpf" (x_t_cpf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CPF" children)
-        )
-    else failwith "x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj: no alternative present"
+        xml_codec.mapped
+            fun v => TNFeNF_choice_infNFe_infNF_dest_choice_CNPJ_CPF v
+            (xml_codec.read_child "CPF" (xml_codec.read_value x_t_cpf_of_string) children)
+    else xml_codec.no_alternative "x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj"
 
 and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi) (list xml_codec.decode_error)
     =
-    x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi {
-        cnpj =
-            (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        x_nome =
-            (fun c => xml.required_value "x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_x_nome" (x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_x_nome_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xNome" children)
-        uf =
-            (fun c => xml.required_value "x_t_uf" (x_t_uf_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "UF" children)
-    }
+    inl errors = []
+    inl o_cnpj, errors = xml_codec.read_required "CNPJ" (xml_codec.read_value x_t_cnpj_of_string) children errors
+    inl o_x_nome, errors =
+        xml_codec.read_required
+            "xNome"
+            (xml_codec.read_value x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_x_nome_of_string)
+            children
+            errors
+    inl o_uf, errors = xml_codec.read_required "UF" (xml_codec.read_value x_t_uf_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi {
+            cnpj = xml_codec.present o_cnpj
+            x_nome = xml_codec.present o_x_nome
+            uf = xml_codec.present o_uf
+        }
 
-and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_xml (c : xml.xml_node) : x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi =
+and let x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_xml
+    (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi) (list xml_codec.decode_error)
+    =
     x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_tn_fe_nf_choice_inf_n_fe_inf_n_fe
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_n_fe) (list xml_codec.decode_error)
     =
-    x_tn_fe_nf_choice_inf_n_fe_inf_n_fe {
-        ch_n_fe =
-            (fun c => xml.required_value "x_t_ch_n_fe" (x_t_ch_n_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chNFe" children)
-        pin =
-            optionm.map
-                fun c => xml.required_value "x_tpin" (x_tpin_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "PIN" children)
-    }
+    inl errors = []
+    inl o_ch_n_fe, errors = xml_codec.read_required "chNFe" (xml_codec.read_value x_t_ch_n_fe_of_string) children errors
+    inl v_pin, errors = xml_codec.read_optional "PIN" (xml_codec.read_value x_tpin_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_tn_fe_nf_choice_inf_n_fe_inf_n_fe { ch_n_fe = xml_codec.present o_ch_n_fe; pin = v_pin }
 
-and let x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_xml (c : xml.xml_node) : x_tn_fe_nf_choice_inf_n_fe_inf_n_fe =
+and let x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_xml
+    (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_n_fe) (list xml_codec.decode_error)
+    =
     x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_unidade_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_unidade_transp
+    : result (x_t_unidade_transp) (list xml_codec.decode_error)
     =
-    x_t_unidade_transp {
-        tp_unid_transp =
-            (fun c => xml.required_value "x_ttipo_unid_transp" (x_ttipo_unid_transp_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpUnidTransp" children)
-        id_unid_transp =
-            (fun c => xml.required_value "x_t_container" (x_t_container_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idUnidTransp" children)
-        lac_unid_transp =
-            listm.map
-                fun c => x_t_unidade_transp_lac_unid_transp_of_xml c
-                (xml.children_named "lacUnidTransp" children)
-        inf_unid_carga = listm.map (fun c => x_t_unid_carga_of_xml c) (xml.children_named "infUnidCarga" children)
-        qtd_rat =
-            optionm.map
-                fun c =>
-                    xml.required_value "x_t_dec_0302_0303" (x_t_dec_0302_0303_of_string (xml.text_in (
-                        xml.element_children c)))
-                (xml.first_child "qtdRat" children)
-    }
+    inl errors = []
+    inl o_tp_unid_transp, errors =
+        xml_codec.read_required "tpUnidTransp" (xml_codec.read_value x_ttipo_unid_transp_of_string) children errors
+    inl o_id_unid_transp, errors =
+        xml_codec.read_required "idUnidTransp" (xml_codec.read_value x_t_container_of_string) children errors
+    inl v_lac_unid_transp, errors =
+        xml_codec.read_repeated "lacUnidTransp" x_t_unidade_transp_lac_unid_transp_of_xml children errors
+    inl v_inf_unid_carga, errors = xml_codec.read_repeated "infUnidCarga" x_t_unid_carga_of_xml children errors
+    inl v_qtd_rat, errors =
+        xml_codec.read_optional "qtdRat" (xml_codec.read_value x_t_dec_0302_0303_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_unidade_transp {
+            tp_unid_transp = xml_codec.present o_tp_unid_transp
+            id_unid_transp = xml_codec.present o_id_unid_transp
+            lac_unid_transp = v_lac_unid_transp
+            inf_unid_carga = v_inf_unid_carga
+            qtd_rat = v_qtd_rat
+        }
 
-and let x_t_unidade_transp_of_xml (c : xml.xml_node) : x_t_unidade_transp =
+and let x_t_unidade_transp_of_xml (c : xml.xml_node) : result (x_t_unidade_transp) (list xml_codec.decode_error) =
     x_t_unidade_transp_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_unidade_transp_lac_unid_transp_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_unidade_transp_lac_unid_transp
+    : result (x_t_unidade_transp_lac_unid_transp) (list xml_codec.decode_error)
     =
-    x_t_unidade_transp_lac_unid_transp {
-        n_lacre =
-            (fun c => xml.required_value "x_t_unidade_transp_lac_unid_transp_n_lacre" (x_t_unidade_transp_lac_unid_transp_n_lacre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nLacre" children)
-    }
+    inl errors = []
+    inl o_n_lacre, errors =
+        xml_codec.read_required
+            "nLacre"
+            (xml_codec.read_value x_t_unidade_transp_lac_unid_transp_n_lacre_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors (fun () => x_t_unidade_transp_lac_unid_transp { n_lacre = xml_codec.present o_n_lacre })
 
-and let x_t_unidade_transp_lac_unid_transp_of_xml (c : xml.xml_node) : x_t_unidade_transp_lac_unid_transp =
+and let x_t_unidade_transp_lac_unid_transp_of_xml
+    (c : xml.xml_node)
+    : result (x_t_unidade_transp_lac_unid_transp) (list xml_codec.decode_error)
+    =
     x_t_unidade_transp_lac_unid_transp_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_unid_carga_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_unid_carga
+    : result (x_t_unid_carga) (list xml_codec.decode_error)
     =
-    x_t_unid_carga {
-        tp_unid_carga =
-            (fun c => xml.required_value "x_ttipo_unid_carga" (x_ttipo_unid_carga_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpUnidCarga" children)
-        id_unid_carga =
-            (fun c => xml.required_value "x_t_container" (x_t_container_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idUnidCarga" children)
-        lac_unid_carga =
-            listm.map (fun c => x_t_unid_carga_lac_unid_carga_of_xml c) (xml.children_named "lacUnidCarga" children)
-        qtd_rat = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "qtdRat" children)
-    }
+    inl errors = []
+    inl o_tp_unid_carga, errors =
+        xml_codec.read_required "tpUnidCarga" (xml_codec.read_value x_ttipo_unid_carga_of_string) children errors
+    inl o_id_unid_carga, errors =
+        xml_codec.read_required "idUnidCarga" (xml_codec.read_value x_t_container_of_string) children errors
+    inl v_lac_unid_carga, errors =
+        xml_codec.read_repeated "lacUnidCarga" x_t_unid_carga_lac_unid_carga_of_xml children errors
+    inl v_qtd_rat, errors = xml_codec.read_optional "qtdRat" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_unid_carga {
+            tp_unid_carga = xml_codec.present o_tp_unid_carga
+            id_unid_carga = xml_codec.present o_id_unid_carga
+            lac_unid_carga = v_lac_unid_carga
+            qtd_rat = v_qtd_rat
+        }
 
-and let x_t_unid_carga_of_xml (c : xml.xml_node) : x_t_unid_carga =
+and let x_t_unid_carga_of_xml (c : xml.xml_node) : result (x_t_unid_carga) (list xml_codec.decode_error) =
     x_t_unid_carga_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_unid_carga_lac_unid_carga_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_unid_carga_lac_unid_carga
+    : result (x_t_unid_carga_lac_unid_carga) (list xml_codec.decode_error)
     =
-    x_t_unid_carga_lac_unid_carga {
-        n_lacre =
-            (fun c => xml.required_value "x_t_unid_carga_lac_unid_carga_n_lacre" (x_t_unid_carga_lac_unid_carga_n_lacre_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "nLacre" children)
-    }
+    inl errors = []
+    inl o_n_lacre, errors =
+        xml_codec.read_required
+            "nLacre"
+            (xml_codec.read_value x_t_unid_carga_lac_unid_carga_n_lacre_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors (fun () => x_t_unid_carga_lac_unid_carga { n_lacre = xml_codec.present o_n_lacre })
 
-and let x_t_unid_carga_lac_unid_carga_of_xml (c : xml.xml_node) : x_t_unid_carga_lac_unid_carga =
+and let x_t_unid_carga_lac_unid_carga_of_xml
+    (c : xml.xml_node)
+    : result (x_t_unid_carga_lac_unid_carga) (list xml_codec.decode_error)
+    =
     x_t_unid_carga_lac_unid_carga_of_children (xml.element_attributes c) (xml.element_children c)
 
-and let x_t_resp_tec_of_children (attributes : list (string * string)) (children : list xml.xml_node) : x_t_resp_tec =
-    x_t_resp_tec {
-        cnpj =
-            (fun c => xml.required_value "x_t_cnpj" (x_t_cnpj_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "CNPJ" children)
-        x_contato =
-            (fun c => xml.required_value "x_t_resp_tec_x_contato" (x_t_resp_tec_x_contato_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xContato" children)
-        email =
-            (fun c => xml.required_value "x_t_email" (x_t_email_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "email" children)
-        fone =
-            (fun c => xml.required_value "x_t_resp_tec_fone" (x_t_resp_tec_fone_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "fone" children)
-        id_csrt =
-            (fun c => xml.required_value "x_t_resp_tec_id_csrt" (x_t_resp_tec_id_csrt_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "idCSRT" children)
-        hash_csrt =
-            (fun c => xml.required_value "x_t_resp_tec_hash_csrt" (x_t_resp_tec_hash_csrt_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "hashCSRT" children)
-    }
+and let x_t_resp_tec_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_t_resp_tec) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_cnpj, errors = xml_codec.read_required "CNPJ" (xml_codec.read_value x_t_cnpj_of_string) children errors
+    inl o_x_contato, errors =
+        xml_codec.read_required "xContato" (xml_codec.read_value x_t_resp_tec_x_contato_of_string) children errors
+    inl o_email, errors = xml_codec.read_required "email" (xml_codec.read_value x_t_email_of_string) children errors
+    inl o_fone, errors =
+        xml_codec.read_required "fone" (xml_codec.read_value x_t_resp_tec_fone_of_string) children errors
+    inl o_id_csrt, errors =
+        xml_codec.read_required "idCSRT" (xml_codec.read_value x_t_resp_tec_id_csrt_of_string) children errors
+    inl o_hash_csrt, errors =
+        xml_codec.read_required "hashCSRT" (xml_codec.read_value x_t_resp_tec_hash_csrt_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_resp_tec {
+            cnpj = xml_codec.present o_cnpj
+            x_contato = xml_codec.present o_x_contato
+            email = xml_codec.present o_email
+            fone = xml_codec.present o_fone
+            id_csrt = xml_codec.present o_id_csrt
+            hash_csrt = xml_codec.present o_hash_csrt
+        }
 
-and let x_t_resp_tec_of_xml (c : xml.xml_node) : x_t_resp_tec =
+and let x_t_resp_tec_of_xml (c : xml.xml_node) : result (x_t_resp_tec) (list xml_codec.decode_error) =
     x_t_resp_tec_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_prot_md_fe_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_prot_md_fe
+    : result (x_t_prot_md_fe) (list xml_codec.decode_error)
     =
-    x_t_prot_md_fe {
-        inf_prot = (fun c => x_t_prot_md_fe_inf_prot_of_xml c) (xml.required_child "infProt" children)
-        inf_fisco = optionm.map (fun c => x_t_prot_md_fe_inf_fisco_of_xml c) (xml.first_child "infFisco" children)
-        signature = optionm.map (fun c => x_signature_type_of_xml c) (xml.first_child "ds:Signature" children)
-        versao = xml.required_value "x_t_ver_m_de" (x_t_ver_m_de_of_string (xml.required_attribute "versao" attributes))
-    }
+    inl errors = []
+    inl o_inf_prot, errors = xml_codec.read_required "infProt" x_t_prot_md_fe_inf_prot_of_xml children errors
+    inl v_inf_fisco, errors = xml_codec.read_optional "infFisco" x_t_prot_md_fe_inf_fisco_of_xml children errors
+    inl v_signature, errors = xml_codec.read_optional "ds:Signature" x_signature_type_of_xml children errors
+    inl o_versao, errors = xml_codec.attribute_parsed x_t_ver_m_de_of_string "versao" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_prot_md_fe {
+            inf_prot = xml_codec.present o_inf_prot
+            inf_fisco = v_inf_fisco
+            signature = v_signature
+            versao = xml_codec.present o_versao
+        }
 
-and let x_t_prot_md_fe_of_xml (c : xml.xml_node) : x_t_prot_md_fe =
+and let x_t_prot_md_fe_of_xml (c : xml.xml_node) : result (x_t_prot_md_fe) (list xml_codec.decode_error) =
     x_t_prot_md_fe_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_prot_md_fe_inf_fisco_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_prot_md_fe_inf_fisco
+    : result (x_t_prot_md_fe_inf_fisco) (list xml_codec.decode_error)
     =
-    x_t_prot_md_fe_inf_fisco {
-        c_msg = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "cMsg" children)
-        x_msg =
-            (fun c => xml.required_value "x_t_motivo" (x_t_motivo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMsg" children)
-    }
+    inl errors = []
+    inl o_c_msg, errors = xml_codec.read_required "cMsg" xml_codec.read_text children errors
+    inl o_x_msg, errors = xml_codec.read_required "xMsg" (xml_codec.read_value x_t_motivo_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_prot_md_fe_inf_fisco { c_msg = xml_codec.present o_c_msg; x_msg = xml_codec.present o_x_msg }
 
-and let x_t_prot_md_fe_inf_fisco_of_xml (c : xml.xml_node) : x_t_prot_md_fe_inf_fisco =
+and let x_t_prot_md_fe_inf_fisco_of_xml
+    (c : xml.xml_node)
+    : result (x_t_prot_md_fe_inf_fisco) (list xml_codec.decode_error)
+    =
     x_t_prot_md_fe_inf_fisco_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_t_prot_md_fe_inf_prot_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_t_prot_md_fe_inf_prot
+    : result (x_t_prot_md_fe_inf_prot) (list xml_codec.decode_error)
     =
-    x_t_prot_md_fe_inf_prot {
-        tp_amb =
-            (fun c => xml.required_value "x_t_amb" (x_t_amb_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "tpAmb" children)
-        ver_aplic =
-            (fun c => xml.required_value "x_t_ver_aplic" (x_t_ver_aplic_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "verAplic" children)
-        ch_md_fe =
-            (fun c => xml.required_value "x_t_ch_md_fe" (x_t_ch_md_fe_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "chMDFe" children)
-        dh_recbto =
-            (fun c => xml.required_value "x_t_date_time_utc" (x_t_date_time_utc_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "dhRecbto" children)
-        n_prot =
-            optionm.map
-                fun c => xml.required_value "x_t_prot" (x_t_prot_of_string (xml.text_in (xml.element_children c)))
-                (xml.first_child "nProt" children)
-        dig_val = optionm.map (fun c => xml.text_in (xml.element_children c)) (xml.first_child "digVal" children)
-        c_stat = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "cStat" children)
-        x_motivo =
-            (fun c => xml.required_value "x_t_motivo" (x_t_motivo_of_string (xml.text_in (xml.element_children c)))) (xml.required_child "xMotivo" children)
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl o_tp_amb, errors = xml_codec.read_required "tpAmb" (xml_codec.read_value x_t_amb_of_string) children errors
+    inl o_ver_aplic, errors =
+        xml_codec.read_required "verAplic" (xml_codec.read_value x_t_ver_aplic_of_string) children errors
+    inl o_ch_md_fe, errors =
+        xml_codec.read_required "chMDFe" (xml_codec.read_value x_t_ch_md_fe_of_string) children errors
+    inl o_dh_recbto, errors =
+        xml_codec.read_required "dhRecbto" (xml_codec.read_value x_t_date_time_utc_of_string) children errors
+    inl v_n_prot, errors = xml_codec.read_optional "nProt" (xml_codec.read_value x_t_prot_of_string) children errors
+    inl v_dig_val, errors = xml_codec.read_optional "digVal" xml_codec.read_text children errors
+    inl o_c_stat, errors = xml_codec.read_required "cStat" xml_codec.read_text children errors
+    inl o_x_motivo, errors =
+        xml_codec.read_required "xMotivo" (xml_codec.read_value x_t_motivo_of_string) children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_t_prot_md_fe_inf_prot {
+            tp_amb = xml_codec.present o_tp_amb
+            ver_aplic = xml_codec.present o_ver_aplic
+            ch_md_fe = xml_codec.present o_ch_md_fe
+            dh_recbto = xml_codec.present o_dh_recbto
+            n_prot = v_n_prot
+            dig_val = v_dig_val
+            c_stat = xml_codec.present o_c_stat
+            x_motivo = xml_codec.present o_x_motivo
+            id = v_id
+        }
 
-and let x_t_prot_md_fe_inf_prot_of_xml (c : xml.xml_node) : x_t_prot_md_fe_inf_prot =
+and let x_t_prot_md_fe_inf_prot_of_xml (c : xml.xml_node) : result (x_t_prot_md_fe_inf_prot) (list xml_codec.decode_error) =
     x_t_prot_md_fe_inf_prot_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_trsa_key_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_trsa_key_value_type
+    : result (x_trsa_key_value_type) (list xml_codec.decode_error)
     =
-    x_trsa_key_value_type {
-        modulus = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Modulus" children)
-        exponent = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "Exponent" children)
-    }
+    inl errors = []
+    inl o_modulus, errors = xml_codec.read_required "Modulus" xml_codec.read_text children errors
+    inl o_exponent, errors = xml_codec.read_required "Exponent" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_trsa_key_value_type { modulus = xml_codec.present o_modulus; exponent = xml_codec.present o_exponent }
 
-and let x_trsa_key_value_type_of_xml (c : xml.xml_node) : x_trsa_key_value_type =
+and let x_trsa_key_value_type_of_xml (c : xml.xml_node) : result (x_trsa_key_value_type) (list xml_codec.decode_error) =
     x_trsa_key_value_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signature_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signature_type
+    : result (x_signature_type) (list xml_codec.decode_error)
     =
-    x_signature_type {
-        signed_info = (fun c => x_signed_info_type_of_xml c) (xml.required_child "SignedInfo" children)
-        signature_value = (fun c => x_signature_value_type_of_xml c) (xml.required_child "SignatureValue" children)
-        key_info = (fun c => x_key_info_type_of_xml c) (xml.required_child "KeyInfo" children)
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl o_signed_info, errors = xml_codec.read_required "SignedInfo" x_signed_info_type_of_xml children errors
+    inl o_signature_value, errors =
+        xml_codec.read_required "SignatureValue" x_signature_value_type_of_xml children errors
+    inl o_key_info, errors = xml_codec.read_required "KeyInfo" x_key_info_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_signature_type {
+            signed_info = xml_codec.present o_signed_info
+            signature_value = xml_codec.present o_signature_value
+            key_info = xml_codec.present o_key_info
+            id = v_id
+        }
 
-and let x_signature_type_of_xml (c : xml.xml_node) : x_signature_type =
+and let x_signature_type_of_xml (c : xml.xml_node) : result (x_signature_type) (list xml_codec.decode_error) =
     x_signature_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signature_value_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signature_value_type
+    : result (x_signature_value_type) (list xml_codec.decode_error)
     =
-    x_signature_value_type {
-        base = xml.text_in children
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl v_base, errors = xml.text_in children, errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_signature_value_type { base = v_base; id = v_id })
 
-and let x_signature_value_type_of_xml (c : xml.xml_node) : x_signature_value_type =
+and let x_signature_value_type_of_xml (c : xml.xml_node) : result (x_signature_value_type) (list xml_codec.decode_error) =
     x_signature_value_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signed_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signed_info_type
+    : result (x_signed_info_type) (list xml_codec.decode_error)
     =
-    x_signed_info_type {
-        canonicalization_method =
-            (fun c => x_signed_info_type_canonicalization_method_of_xml c) (xml.required_child "CanonicalizationMethod" children)
-        signature_method =
-            (fun c => x_signed_info_type_signature_method_of_xml c) (xml.required_child "SignatureMethod" children)
-        reference = (fun c => x_reference_type_of_xml c) (xml.required_child "Reference" children)
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl o_canonicalization_method, errors =
+        xml_codec.read_required
+            "CanonicalizationMethod"
+            x_signed_info_type_canonicalization_method_of_xml
+            children
+            errors
+    inl o_signature_method, errors =
+        xml_codec.read_required "SignatureMethod" x_signed_info_type_signature_method_of_xml children errors
+    inl o_reference, errors = xml_codec.read_required "Reference" x_reference_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_signed_info_type {
+            canonicalization_method = xml_codec.present o_canonicalization_method
+            signature_method = xml_codec.present o_signature_method
+            reference = xml_codec.present o_reference
+            id = v_id
+        }
 
-and let x_signed_info_type_of_xml (c : xml.xml_node) : x_signed_info_type =
+and let x_signed_info_type_of_xml (c : xml.xml_node) : result (x_signed_info_type) (list xml_codec.decode_error) =
     x_signed_info_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signed_info_type_signature_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signed_info_type_signature_method
+    : result (x_signed_info_type_signature_method) (list xml_codec.decode_error)
     =
-    x_signed_info_type_signature_method {
-        algorithm =
-            xml.required_attribute
-                "Algorithm"
-                (xml.checked_fixed "Algorithm" "http://www.w3.org/2000/09/xmldsig#rsa-sha1" attributes)
-    }
+    inl errors = []
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    inl errors = xml_codec.fixed_checked "Algorithm" "http://www.w3.org/2000/09/xmldsig#rsa-sha1" attributes errors
+    xml_codec.decoded_by errors (fun () => x_signed_info_type_signature_method { algorithm = v_algorithm })
 
-and let x_signed_info_type_signature_method_of_xml (c : xml.xml_node) : x_signed_info_type_signature_method =
+and let x_signed_info_type_signature_method_of_xml
+    (c : xml.xml_node)
+    : result (x_signed_info_type_signature_method) (list xml_codec.decode_error)
+    =
     x_signed_info_type_signature_method_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_signed_info_type_canonicalization_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_signed_info_type_canonicalization_method
+    : result (x_signed_info_type_canonicalization_method) (list xml_codec.decode_error)
     =
-    x_signed_info_type_canonicalization_method {
-        algorithm =
-            xml.required_attribute
-                "Algorithm"
-                (xml.checked_fixed "Algorithm" "http://www.w3.org/TR/2001/REC-xml-c14n-20010315" attributes)
-    }
+    inl errors = []
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    inl errors = xml_codec.fixed_checked "Algorithm" "http://www.w3.org/TR/2001/REC-xml-c14n-20010315" attributes errors
+    xml_codec.decoded_by errors (fun () => x_signed_info_type_canonicalization_method { algorithm = v_algorithm })
 
-and let x_signed_info_type_canonicalization_method_of_xml (c : xml.xml_node) : x_signed_info_type_canonicalization_method =
+and let x_signed_info_type_canonicalization_method_of_xml
+    (c : xml.xml_node)
+    : result (x_signed_info_type_canonicalization_method) (list xml_codec.decode_error)
+    =
     x_signed_info_type_canonicalization_method_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_reference_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_reference_type
+    : result (x_reference_type) (list xml_codec.decode_error)
     =
-    x_reference_type {
-        transforms = (fun c => x_transforms_type_of_xml c) (xml.required_child "Transforms" children)
-        digest_method = (fun c => x_reference_type_digest_method_of_xml c) (xml.required_child "DigestMethod" children)
-        digest_value = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "DigestValue" children)
-        id = xml.attribute_of "Id" attributes
-        uri =
-            xml.required_value
-                "x_reference_type_uri"
-                (x_reference_type_uri_of_string (xml.required_attribute "URI" attributes))
-        type_value = xml.attribute_of "Type" attributes
-    }
+    inl errors = []
+    inl o_transforms, errors = xml_codec.read_required "Transforms" x_transforms_type_of_xml children errors
+    inl o_digest_method, errors =
+        xml_codec.read_required "DigestMethod" x_reference_type_digest_method_of_xml children errors
+    inl o_digest_value, errors = xml_codec.read_required "DigestValue" xml_codec.read_text children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    inl o_uri, errors = xml_codec.attribute_parsed x_reference_type_uri_of_string "URI" attributes errors
+    inl v_type_value, errors = xml.attribute_of "Type" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_reference_type {
+            transforms = xml_codec.present o_transforms
+            digest_method = xml_codec.present o_digest_method
+            digest_value = xml_codec.present o_digest_value
+            id = v_id
+            uri = xml_codec.present o_uri
+            type_value = v_type_value
+        }
 
-and let x_reference_type_of_xml (c : xml.xml_node) : x_reference_type =
+and let x_reference_type_of_xml (c : xml.xml_node) : result (x_reference_type) (list xml_codec.decode_error) =
     x_reference_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_reference_type_digest_method_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_reference_type_digest_method
+    : result (x_reference_type_digest_method) (list xml_codec.decode_error)
     =
-    x_reference_type_digest_method {
-        algorithm =
-            xml.required_attribute
-                "Algorithm"
-                (xml.checked_fixed "Algorithm" "http://www.w3.org/2000/09/xmldsig#sha1" attributes)
-    }
+    inl errors = []
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    inl errors = xml_codec.fixed_checked "Algorithm" "http://www.w3.org/2000/09/xmldsig#sha1" attributes errors
+    xml_codec.decoded_by errors (fun () => x_reference_type_digest_method { algorithm = v_algorithm })
 
-and let x_reference_type_digest_method_of_xml (c : xml.xml_node) : x_reference_type_digest_method =
+and let x_reference_type_digest_method_of_xml
+    (c : xml.xml_node)
+    : result (x_reference_type_digest_method) (list xml_codec.decode_error)
+    =
     x_reference_type_digest_method_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_transforms_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_transforms_type
+    : result (x_transforms_type) (list xml_codec.decode_error)
     =
-    x_transforms_type {
-        transform = listm.map (fun c => x_transform_type_of_xml c) (xml.children_named "Transform" children)
-    }
+    inl errors = []
+    inl v_transform, errors = xml_codec.read_repeated "Transform" x_transform_type_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_transforms_type { transform = v_transform })
 
-and let x_transforms_type_of_xml (c : xml.xml_node) : x_transforms_type =
+and let x_transforms_type_of_xml (c : xml.xml_node) : result (x_transforms_type) (list xml_codec.decode_error) =
     x_transforms_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_transform_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_transform_type
+    : result (x_transform_type) (list xml_codec.decode_error)
     =
-    x_transform_type {
-        group_x_path =
-            listm.map
-                fun run => x_transform_type_group_x_path_of_children [] run
-                (xml.group_runs [ "XPath" ] children)
-        algorithm =
-            xml.required_value
-                "x_t_transform_uri"
-                (x_t_transform_uri_of_string (xml.required_attribute "Algorithm" attributes))
-    }
+    inl errors = []
+    inl v_group_x_path, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun run => x_transform_type_group_x_path_of_children [] run
+                    (xml.group_runs [ "XPath" ] children)
+            )
+            errors
+    inl o_algorithm, errors = xml_codec.attribute_parsed x_t_transform_uri_of_string "Algorithm" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_transform_type { group_x_path = v_group_x_path; algorithm = xml_codec.present o_algorithm }
 
-and let x_transform_type_of_xml (c : xml.xml_node) : x_transform_type =
+and let x_transform_type_of_xml (c : xml.xml_node) : result (x_transform_type) (list xml_codec.decode_error) =
     x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_transform_type_group_x_path_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_transform_type_group_x_path
+    : result (x_transform_type_group_x_path) (list xml_codec.decode_error)
     =
-    x_transform_type_group_x_path {
-        x_path = (fun c => xml.text_in (xml.element_children c)) (xml.required_child "XPath" children)
-    }
+    inl errors = []
+    inl o_x_path, errors = xml_codec.read_required "XPath" xml_codec.read_text children errors
+    xml_codec.decoded_by errors (fun () => x_transform_type_group_x_path { x_path = xml_codec.present o_x_path })
 
-and let x_transform_type_group_x_path_of_xml (c : xml.xml_node) : x_transform_type_group_x_path =
+and let x_transform_type_group_x_path_of_xml
+    (c : xml.xml_node)
+    : result (x_transform_type_group_x_path) (list xml_codec.decode_error)
+    =
     x_transform_type_group_x_path_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_key_info_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_key_info_type
+    : result (x_key_info_type) (list xml_codec.decode_error)
     =
-    x_key_info_type {
-        x509_data = (fun c => x_x509_data_type_of_xml c) (xml.required_child "X509Data" children)
-        id = xml.attribute_of "Id" attributes
-    }
+    inl errors = []
+    inl o_x509_data, errors = xml_codec.read_required "X509Data" x_x509_data_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_key_info_type { x509_data = xml_codec.present o_x509_data; id = v_id })
 
-and let x_key_info_type_of_xml (c : xml.xml_node) : x_key_info_type =
+and let x_key_info_type_of_xml (c : xml.xml_node) : result (x_key_info_type) (list xml_codec.decode_error) =
     x_key_info_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_x509_data_type_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
-    : x_x509_data_type
+    : result (x_x509_data_type) (list xml_codec.decode_error)
     =
-    x_x509_data_type {
-        x509_certificate =
-            (fun c => xml.text_in (xml.element_children c)) (xml.required_child "X509Certificate" children)
-    }
+    inl errors = []
+    inl o_x509_certificate, errors = xml_codec.read_required "X509Certificate" xml_codec.read_text children errors
+    xml_codec.decoded_by errors (fun () => x_x509_data_type { x509_certificate = xml_codec.present o_x509_certificate })
 
-and let x_x509_data_type_of_xml (c : xml.xml_node) : x_x509_data_type =
+and let x_x509_data_type_of_xml (c : xml.xml_node) : result (x_x509_data_type) (list xml_codec.decode_error) =
     x_x509_data_type_of_children (xml.element_attributes c) (xml.element_children c)
 
 and let x_tmd_fe_children forall s. (x : x_tmd_fe s) : list xml.xml_node =
@@ -13682,7 +14074,7 @@ test generated_mdfe_v3_00_writes_its_example =
             inl start = date_time.stopwatch_elapsed_microseconds watch
             match xml.read_xml text with
             | node :: [] =>
-                inl parsed = x_tmd_fe_of_xml Unsigned node
+                inl parsed = xml_codec.expect_decoded (x_tmd_fe_of_xml Unsigned node)
                 inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
                 inl written = xml.write_node (x_tmd_fe_to_xml "MDFe" parsed)
                 inl written_at = date_time.stopwatch_elapsed_microseconds watch
@@ -13698,7 +14090,7 @@ test generated_mdfe_v3_00_writes_its_example =
     console.write_line row
     match xml.read_xml text with
     | node :: [] =>
-        inl parsed = x_tmd_fe_of_xml Unsigned node
+        inl parsed = xml_codec.expect_decoded (x_tmd_fe_of_xml Unsigned node)
         inl document =
             xml.element
                 "MDFe"

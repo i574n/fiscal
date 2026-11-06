@@ -54,7 +54,10 @@ Every CI run on `main` rebuilds these from the official sources and publishes th
   test row per backend target, and the time each module took.
 - [`samples/`](samples/): the example documents the generated code writes.
 - [`canon/en16931-terms.json`](canon/en16931-terms.json): the EN 16931 business terms and groups with their UBL paths,
-  taken from the OpenPeppol BIS Billing 3.0.20 syntax bindings.
+  taken from the OpenPeppol BIS Billing 3.0.20 syntax bindings; each term has its own cardinality and its effective
+  one, counting its optional or repeated ancestors.
+- [`canon/pint-terms.json`](canon/pint-terms.json): the Peppol PINT Billing 1.1.3 terms (IBT/IBG) with their invoice
+  and credit-note bindings, and the PINT terms that have no EN 16931 row.
 
 ## Reach today
 
@@ -142,7 +145,7 @@ deps/corpus/*.xsd ──xml.read_xml──▶ xsd.read_schema ──xsd_resolve�
 - `src/generator.spi` maps a resolved schema to Spiral: sequences become records (occurs become `option` or `list`),
   choices and enumerations become unions (shared by value set), facet-constrained strings get validators whose patterns
   are compiled to DFA tables by `xsd_regex`. Its tests write every generated module to `generated/<module>/`,
-  each beside a one-module `package.spiproj`, so a test cell type-checks only its own module.
+  each beside a one-module `spiral.toml`, so a test cell type-checks only its own module.
 - Each generated module carries its own test, which builds the module's example document and writes it to `samples/`
   (the NF-e 4.00 module also parses an address back and checks the XML round trip). `scripts/family-gates.ps1`
   then validates the examples against the official XSDs with .NET's `XmlSchemaSet`. SAF-T PT is left to its typed
@@ -175,6 +178,12 @@ from the committed copy. Example documents and the pattern oracle's output are b
 | `src/families.spi` | every family as data (schema, root, namespace, documents), indexed by regime (Brazil, UBL, Mexico) |
 | `src/generated_runtime.spi` | the shared runtime unit the generated modules use |
 | `src/canon.spi`, `src/document.spi` | EN 16931 terms and the typed canonical document every family projects to, with measured loss |
+| `src/pint_terms.spi` | the Peppol PINT terms read from its published syntax trees (pinned by `scripts/init.ps1`) |
+| `src/canon_coverage.spi` | whether each EN 16931 term's UBL path reaches a typed field of the UBL 2.1 schemas the generator reads, written to `target/ci-metrics/canon-coverage.tsv` |
+| `src/canon_nfe.spi` | the EN 16931 terms NF-e 4.00 carries directly, each checked against a declared field of the NF-e schema, and the required terms it lacks |
+| `src/canon_cfdi.spi` | the same census for CFDI 4.0, against `cfdv40.xsd` |
+| `src/canon_codes.spi` | national code lists as types (CFDI TipoDeComprobante, NF-e finNFe), checked against the schemas' enumerations, and the EN 16931 invoice type code (BT-3) each one yields |
+| `src/canon_derived.spi` | terms a family does not write but implies by arithmetic (BT-109 = lines − allowances + charges), checked on a real stamped CFDI |
 | `src/lifecycle.spi` | document lifecycle as types (issued, authorized, cancelled), events and the durable outbox |
 | `src/p2p.spi`, `src/posting.spi` | purchase-to-payment typestate and the double-entry journal an invoice books, per regime |
 | `src/profiles.spi` | the Factur-X / ZUGFeRD profile lattice as types (widening only along proven steps), and the UBL profiles (EN 16931, PEPPOL BIS 3, SUNAT, MyInvois 1.0/1.1) |

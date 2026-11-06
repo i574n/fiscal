@@ -718,6 +718,22 @@ if (-not (Test-Path $pint)) {
     Remove-Item -LiteralPath $zip
     "deps/corpus/eu/peppol-pint: PINT Billing 1.1.3 resources ($(@(Get-ChildItem $pint -Recurse -Filter *.sch).Count) preprocessed schematron, $(@(Get-ChildItem $pint -Recurse -Filter *.gc).Count) genericode lists)"
 }
+$pintSyntax = Join-Path $pint 'syntax'
+if (-not (Test-Path $pintSyntax)) {
+    $filling = $pintSyntax
+    New-Item -ItemType Directory -Force $pintSyntax | Out-Null
+    $pages = [ordered]@{
+        'trn-invoice' = '0B3DE3A675FBA9109E75A0174E866238A7FC68D49E7A88A84CF3C97E715BF309'
+        'trn-creditnote' = '066108AB055879ED3A7D0911589098B0E4320AC75318CA56F8DD758DEF82E45E'
+    }
+    foreach ($page in $pages.Keys) {
+        $to = Join-Path $pintSyntax "$page.html"
+        Invoke-WebRequest -Uri "https://docs.peppol.eu/poac/pint/pint/$page/syntax/" -OutFile $to -TimeoutSec 120 -UseBasicParsing
+        $hash = (Get-FileHash -LiteralPath $to -Algorithm SHA256).Hash
+        if ($hash -ne $pages[$page]) { throw "init.ps1 / PINT $page syntax page changed upstream (sha256 $hash); review the new release before re-pinning" }
+    }
+    "deps/corpus/eu/peppol-pint/syntax: PINT Billing 1.1.3 syntax trees (IBT/IBG term -> UBL path and cardinality), $($pages.Count) transactions"
+}
 $ubl = Join-Path $deps 'corpus/eu/ubl21'
 if (-not (Test-Path $ubl)) {
     $filling = $ubl
