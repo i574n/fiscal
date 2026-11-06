@@ -1,0 +1,6 @@
+File	Test	Target	Status	Ms	Memo
+canon	data_types_and_cardinalities_read_back_as_written	rust	passed	5155	
+canon	a_cardinality_within_its_ancestors_is_their_product	rust	passed	3388	
+canon	only_business_term_references_name_terms	rust	passed	2584	
+canon	each_ubl_document_is_named_by_its_case	rust	passed	1339	
+canon	en16931_terms_are_written_to_the_canon	rust	passed	6142	

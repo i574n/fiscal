@@ -1,0 +1,26 @@
+File	Test	Target	Status	Ms	Memo
+generator	a_family_without_certificates_leaves_no_certificates_unit	rust	passed	18559	
+generator	generates_the_uf_code_union	rust	passed	50233	
+generator	generates_every_family_version	rust	passed	222471	
+generator	generates_nfe_v4_with_a_staged_signature	rust	passed	223920	
+generator	generates_nfe_events_with_a_staged_author_signature	rust	passed	380668	
+generator	generates_cfdi_4_0	rust	passed	372762	
+generator	generates_ubl_invoice_2_1	rust	passed	369119	
+generator	ubl_json_documents_read_through_the_transcoder	rust	passed	192646	
+generator	a_recorded_document_defect_is_asserted_not_read_back	rust	passed	37014	
+generator	generates_ubl_creditnote_2_1	rust	passed	205278	
+generator	generates_ubl_business_documents_2_1	rust	passed	348695	
+generator	generates_fatturapa_1_2_3	rust	passed	372793	
+generator	generates_ksef_fa_3	rust	passed	376554	
+generator	generates_chile_dte_v10	rust	passed	367406	
+generator	generates_chile_envio_dte_v10	rust	passed	370545	
+generator	generates_facturae_3_2_2	rust	passed	370904	
+generator	generates_verifactu_registro	rust	passed	365021	
+generator	generates_cii_d16b	rust	passed	364514	
+generator	generates_saft_pt_1_04_01	rust	passed	368971	
+generator	generates_mydata_2_0_2	rust	passed	371888	
+generator	generates_hacienda_factura_4_4	rust	passed	372481	
+generator	generates_hacienda_documents_4_4	rust	passed	379393	
+generator	generates_nav_invoice_data_3_0	rust	passed	362770	
+generator	generates_gst_inv01_1_1	rust	passed	360962	
+generator	unqualified_schemas_prefix_the_example_root	rust	passed	180369	

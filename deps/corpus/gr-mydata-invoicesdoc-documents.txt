@@ -1,0 +1,2 @@
+gr/mydata-derived/invoice-with-taxes-on-invoice-level.invoices.xml
+gr/mydata-derived/request-doc-with-delivery-lifecycle.invoices.xml

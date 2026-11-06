@@ -1,0 +1,4 @@
+cell-budget /home/runner/work/fiscal/fiscal/src/pint_terms.spi:237:72: mention: @unitCode (a renderer turns '@' before a name into a mention)
+cell-budget /home/runner/work/fiscal/fiscal/src/pint_terms.spi:285:65: mention: @schemeID (a renderer turns '@' before a name into a mention)
+spiral-tests file {"accept_refused":{},"accepted":0,"accepted_sites":{},"built":0,"discovered":3,"executed":3,"failed":0,"failed_targets":{},"failed_tests":[],"file":"/home/runner/work/fiscal/fiscal/src/pint_terms.spi","filtered":0,"headroom":0.01,"memo_hits":0,"mismatches":{},"no_agree_reasons":{},"not_run":0,"passed":3,"preludes":0,"skipped":0,"slowest_ms":11646,"static":0,"timeout_ms":1200000,"unsupported":0}
+spiral-tests total {"accepted":0,"built":0,"discovered":3,"executed":3,"failed":0,"files":1,"filtered":0,"memo_hits":0,"no_agree_reasons":{},"not_run":0,"passed":3,"preludes":0,"skipped":0,"static":0,"unsupported":0}

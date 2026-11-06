@@ -1,0 +1,101 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xml
+:< xsd
+
+:= bt109
+    (line_total : decimal::decimal) (allowances : decimal::decimal) (charges : decimal::decimal)
+    : decimal::decimal
+    =
+    decimal::add (decimal::subtract line_total allowances) charges
+
+:= reconciles
+    (bt109_value : decimal::decimal) (bt110_value : decimal::decimal) (bt112_value : decimal::decimal)
+    : bool
+    =
+    decimal::compare (decimal::add bt109_value bt110_value) bt112_value = 0i32
+
+:= amount_or_zero (text : string) : decimal::decimal =
+    ?= decimal::parse text ?|
+    | Some d => d
+    | None => decimal::of_int 0i64
+
+:== cfdi_tax_totals = { carried : decimal::decimal; withheld : decimal::decimal }
+
+:== cfdi_totals =
+    {
+        subtotal : decimal::decimal
+        discount : decimal::decimal
+        taxes : cfdi_tax_totals
+        total : decimal::decimal
+    }
+
+:= cfdi_tax (key : string) (children : list xml_node) : decimal::decimal =
+    ?= first_named "Impuestos" children ?|
+    | Some (attributes, _) => amount_or_zero (attribute_or key "" attributes)
+    | None => decimal::of_int 0i64
+
+:= cfdi_amount (attributes : list (string * string)) (key : string) : decimal::decimal =
+    amount_or_zero (attribute_or key "" attributes)
+
+:= cfdi_tax_totals_of (children : list xml_node) : cfdi_tax_totals =
+    { carried = cfdi_tax "TotalImpuestosTrasladados" children; withheld = cfdi_tax "TotalImpuestosRetenidos" children }
+
+:= cfdi_totals_from (attributes : list (string * string)) (children : list xml_node) : cfdi_totals =
+    := amount = cfdi_amount attributes
+    {
+        subtotal = amount "SubTotal"
+        discount = amount "Descuento"
+        taxes = cfdi_tax_totals_of children
+        total = amount "Total"
+    }
+
+:= cfdi_totals_of (text : string) : option cfdi_totals =
+    ?= first_named "Comprobante" (read_xml text) ?|
+    | Some (attributes, children) => Some (cfdi_totals_from attributes children)
+    | None => None
+
+:= cfdi_bt109 (t : cfdi_totals) : decimal::decimal = bt109 t::subtotal t::discount (decimal::of_int 0i64)
+
+:= cfdi_bt112 (t : cfdi_totals) : decimal::decimal = decimal::add (cfdi_bt109 t) t::taxes::carried
+
+:= cfdi_bt115 (t : cfdi_totals) : decimal::decimal = decimal::subtract (cfdi_bt112 t) t::taxes::withheld
+
+:= cfdi_due_matches (t : cfdi_totals) : bool = decimal::compare (cfdi_bt115 t) t::total = 0i32
+
+///> rust
+test bt_109_is_lines_minus_allowances_plus_charges =
+    := cents (n : i64) : decimal::decimal = { units = n; scale = 2i32 }
+    ? decimal::compare (bt109 (cents 100000i64) (cents 2500i64) (cents 1000i64)) (cents 98500i64) <> 0i32
+    ?> failwith "1000.00 - 25.00 + 10.00 = 985.00"
+    ? reconciles (cents 98500i64) (cents 18915i64) (cents 117415i64) = !- ?> failwith "985.00 + 189.15 = 1174.15"
+    ? reconciles (cents 98500i64) (cents 18915i64) (cents 117416i64) ?> failwith "one cent off does not reconcile"
+
+///> rust
+test a_cfdi_total_is_the_amount_due_after_withholding =
+    := cents (n : i64) : decimal::decimal = { units = n; scale = 2i32 }
+    := zero = cents 0i64
+    := service =
+        {
+            subtotal = cents 100000i64
+            discount = zero
+            taxes = { carried = cents 16000i64; withheld = cents 10667i64 }
+
+            total = cents 105333i64
+        }
+    ? decimal::compare (cfdi_bt112 service) (cents 116000i64) <> 0i32
+    ?> failwith "BT-112 = BT-109 + traslados, before withholding"
+    ? cfdi_due_matches service = !- ?> failwith "@Total = BT-112 - TotalImpuestosRetenidos = BT-115"
+    ? cfdi_due_matches { service ?| taxes = { carried = cents 16000i64; withheld = zero } }
+    ?> failwith "ignoring the withholding no longer matches @Total"
+
+///> rust
+test a_stamped_cfdi_reconciles_through_its_derived_terms =
+    := text = file_system::read_all_text (fiscal_paths::under "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml")
+    ?= cfdi_totals_of text ?|
+    | Some t =>
+        := line_net = cfdi_bt109 t
+        ? decimal::text line_net <> "2868.11" ?> failwith ("BT-109 = SubTotal - Descuento: " ++# decimal::text line_net)
+        ? reconciles line_net t::taxes::carried (cfdi_bt112 t) = !- ?> failwith "BT-112 = BT-109 + BT-110"
+        ? cfdi_due_matches t = !- ?> failwith "a real stamped CFDI's @Total is its BT-115"
+    | None => failwith "the stamped CFDI has a Comprobante root"

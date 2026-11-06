@@ -1,0 +1,152 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:! text_data = ()
+:! identifier_data = ()
+:! amount_data = ()
+:! code_data = ()
+:! date_data = ()
+:! percentage_data = ()
+:! quantity_data = ()
+
+:| term_value d =
+    | TextValue :: string -> term_value text_data
+    | IdentifierValue :: string -> term_value identifier_data
+    | AmountValue :: decimal::decimal -> term_value amount_data
+    | CodeValue :: string -> term_value code_data
+    | DateValue :: string -> term_value date_data
+    | PercentageValue :: decimal::decimal -> term_value percentage_data
+    | QuantityValue :: decimal::decimal -> term_value quantity_data
+
+:= amount_in (v : term_value amount_data) : decimal::decimal =
+    ?= v ?|
+    | AmountValue d => d
+
+:= text_in (v : term_value text_data) : string =
+    ?= v ?|
+    | TextValue t => t
+
+:= code_in (v : term_value code_data) : string =
+    ?= v ?|
+    | CodeValue c => c
+
+:= data_type_of_term \* d. (v : term_value d) : canon::data_type =
+    ?= v ?|
+    | TextValue _ => canon::Text
+    | IdentifierValue _ => canon::Identifier
+    | AmountValue _ => canon::Amount
+    | CodeValue _ => canon::Code
+    | DateValue _ => canon::Date
+    | PercentageValue _ => canon::Percentage
+    | QuantityValue _ => canon::Quantity
+
+:== canon_document =
+    {
+        number : term_value identifier_data
+        issued : term_value date_data
+        currency : term_value code_data
+        seller : term_value text_data
+        buyer : term_value text_data
+        without_tax : term_value amount_data
+        tax_total : term_value amount_data
+        with_tax : term_value amount_data
+    }
+
+:? canon_of f : f -> canon_document
+
+:= canon_reconciles (c : canon_document) : bool =
+    decimal::compare (decimal::add (amount_in c::without_tax) (amount_in c::tax_total)) (amount_in c::with_tax) = 0i32
+
+:= totals_reconcile \* f {canon_of}. (doc : f) : bool = canon_reconciles (canon_of doc)
+
+:! exact a = a
+:! with_losses a = a * list string
+
+:? content f a : f a -> a
+:? losses f a : f a -> list string
+
+:+ content exact = \ (exact x) => x
+:+ content with_losses = \ (with_losses (x, _)) => x
+:+ losses exact = \ _ => []
+:+ losses with_losses = \ (with_losses (_, lost)) => lost
+
+:= measured \* (f : * -> *) {content; losses}. (view : f canon_document) : bool * i32 =
+    canon_reconciles (content view), listm::length (losses view)
+
+:! manual_invoice = string * string * string * string * string * decimal::decimal * decimal::decimal
+
+:= canon_record
+    (parties : string * string * string * string * string) (net : decimal::decimal) (tax : decimal::decimal)
+    : canon_document
+    =
+    := number, issued, currency, seller, buyer = parties
+    {
+        number = IdentifierValue number
+        issued = DateValue issued
+        currency = CodeValue currency
+        seller = TextValue seller
+        buyer = TextValue buyer
+        without_tax = AmountValue net
+        tax_total = AmountValue tax
+        with_tax = AmountValue (decimal::add net tax)
+    }
+
+:= manual_canon
+    ((manual_invoice (number, issued, currency, seller, buyer, net, tax)) : manual_invoice)
+    : canon_document
+    =
+    canon_record (number, issued, currency, seller, buyer) net tax
+
+:+ canon_of manual_invoice = \ doc => manual_canon doc
+
+:= exactly (doc : manual_invoice) : exact canon_document = exact (canon_of doc)
+
+:! cash_receipt = string * string * string * string * decimal::decimal * decimal::decimal
+
+:= receipt_view
+    ((cash_receipt (number, issued, currency, seller, net, tax)) : cash_receipt)
+    : with_losses canon_document
+    =
+    with_losses (canon_record (number, issued, currency, seller, "") net tax, [ "BT-44" ])
+
+
+:= cents (units : i64) : decimal::decimal = { units = units; scale = 2i32 }
+
+///> rust
+test a_manual_invoice_reconciles_its_totals =
+    := doc = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 10000i64, cents 1800i64)
+    ? totals_reconcile doc = !- ?> failwith "BT-109 100.00 + BT-110 18.00 is BT-112 118.00"
+    := c = canon_of doc
+    ? decimal::compare (amount_in c::with_tax) (cents 11800i64) <> 0i32 ?> failwith "BT-112 is 118.00"
+    ? code_in c::currency <> "BRL" || text_in c::seller <> "Seller Ltda" ?> failwith "BT-5 and BT-27 read back"
+
+///> rust
+test each_term_value_names_its_canon_data_type =
+    := c = canon_of (manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 100i64, cents 0i64))
+    := names = [
+        canon::data_type_text (data_type_of_term c::number); canon::data_type_text (data_type_of_term c::issued)
+        canon::data_type_text (data_type_of_term c::currency); canon::data_type_text (data_type_of_term c::with_tax)
+    ]
+    ? names <> [ "Identifier"; "Date"; "Code"; "Amount" ]
+    ?> failwith "BT-1, BT-2, BT-5 and BT-112 carry their EN 16931 data types"
+
+///> rust
+test a_projection_carries_its_measured_loss_in_its_type =
+    := invoice = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 10000i64, cents 1800i64)
+    := receipt = cash_receipt ("T-9", "2026-11-03", "EUR", "Kiosk SL", cents 1000i64, cents 210i64)
+    ? measured (exactly invoice) <> (!+, 0i32) ?> failwith "an exact projection reconciles and loses nothing"
+    ? measured (receipt_view receipt) <> (!+, 1i32)
+    ?> failwith "a receipt reconciles and loses one term (BT-44, no buyer)"
+    ? losses (receipt_view receipt) <> [ "BT-44" ] ?> failwith "the loss names the dropped business term"
+
+///> rust
+test an_option_is_not_a_measured_view fails "does not have the prototype content" =
+    measured (Some (canon_of (manual_invoice ("A-1", "2026-11-03", "BRL", "S", "B", cents 1i64, cents 0i64)))) |> ignore
+
+///> rust
+test an_amount_term_does_not_take_a_date fails "Unification failure" =
+    amount_in (DateValue "2026-11-03") |> ignore
+
+///> rust
+test a_string_is_not_a_fiscal_document fails "Fails to satisfy: canon_of" =
+    totals_reconcile "A-1" |> ignore

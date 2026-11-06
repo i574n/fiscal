@@ -1,0 +1,4 @@
+File	Test	Target	Status	Ms	Memo
+generated_fiscal_runtime	median_takes_the_middle_run	rust	passed	14297	
+generated_fiscal_runtime	median_walks_a_runtime_list	rust	passed	13227	
+generated_fiscal_runtime	insert_run_keeps_runtime_runs_ascending	rust	passed	13425	

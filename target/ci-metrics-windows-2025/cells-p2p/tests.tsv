@@ -1,0 +1,4 @@
+File	Test	Target	Status	Ms	Memo
+p2p	a_purchase_flows_from_requisition_to_payment	rust	passed	1800	
+p2p	a_three_way_mismatch_does_not_match	rust	passed	1749	
+p2p	budget_and_quorum_gate_a_purchase	rust	passed	2237	

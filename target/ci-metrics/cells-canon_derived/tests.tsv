@@ -1,0 +1,4 @@
+File	Test	Target	Status	Ms	Memo
+canon_derived	bt_109_is_lines_minus_allowances_plus_charges	rust	passed	1265	
+canon_derived	a_cfdi_total_is_the_amount_due_after_withholding	rust	passed	1310	
+canon_derived	a_stamped_cfdi_reconciles_through_its_derived_terms	rust	passed	4581	

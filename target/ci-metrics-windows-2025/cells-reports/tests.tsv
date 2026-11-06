@@ -1,0 +1,6 @@
+File	Test	Target	Status	Ms	Memo
+reports	tsv_rows_read_into_their_typed_columns	rust	passed	15006	
+reports	report_tables_escape_and_rank	rust	passed	17063	
+reports	status_counts_cover_every_status	rust	passed	18079	
+reports	writes_the_ci_reports	rust	passed	22760	
+reports	the_canon_census_counts_each_family	rust	passed	12506	

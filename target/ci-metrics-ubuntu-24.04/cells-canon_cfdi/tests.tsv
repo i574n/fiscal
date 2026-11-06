@@ -1,0 +1,5 @@
+File	Test	Target	Status	Ms	Memo
+canon_cfdi	every_cfdi_binding_reaches_a_declared_field	rust	passed	32777	
+canon_cfdi	cfdi_supplies_11_of_the_24_required_terms	rust	passed	25147	
+canon_cfdi	cfdi_implies_its_seller_country	rust	passed	25120	
+canon_cfdi	every_required_term_is_bound_implied_or_a_typed_gap_in_cfdi	rust	passed	7976	

@@ -1,0 +1,71 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:= unit_name () : string = "generated_fiscal_runtime"
+
+:= sample_root_text () : string =
+    "    inl from_env = env.get_environment_variable \"FISCAL_ROOT\"\n"
+    ++# "    inl root =\n"
+    ++# "        if from_env <> \"\" then from_env\n"
+    ++# "        else\n"
+    ++# "            inl here = file_system.get_current_directory ()\n"
+
+:= sample_path_tail () : string =
+    "            match here |> file_system.find_parent file_system.File \"src/generator.spi\" with\n"
+    ++# "            | Ok dir => dir\n"
+    ++# "            | Error message => failwith message\n"
+    ++# "    sm'.(++#) (sm'.(++#) root \"/samples/\") name\n"
+
+:= sample_path_text () : string =
+    "inl sample_path (name : string) : string =\n" ++# sample_root_text () ++# sample_path_tail ()
+
+:= run_count_text () : string =
+    "\nlet rec run_count (n : i32) (xs : list i64) : i32 =\n"
+    ++# "    match xs with\n"
+    ++# "    | _ :: rest => run_count (n + 1i32) rest\n"
+    ++# "    | [] => n\n"
+
+:= run_at_text () : string =
+    "\nlet rec run_at (i : i32) (xs : list i64) : i64 =\n"
+    ++# "    match xs with\n"
+    ++# "    | x :: rest => if i = 0i32 then x else run_at (i - 1i32) rest\n"
+    ++# "    | [] => failwith \"a bench row needs its timed runs\"\n"
+
+:= insert_run_text () : string =
+    "\nlet rec insert_run (x : i64) (xs : list i64) : list i64 =\n"
+    ++# "    match xs with\n"
+    ++# "    | y :: rest => if x <= y then x :: xs else y :: insert_run x rest\n"
+    ++# "    | [] => x :: []\n"
+
+:= median_text () : string =
+    "\ninl median (xs : list i64) : string =\n"
+    ++# "    sm'.obj_to_string (run_at (run_count 0i32 xs / 2i32) xs)\n"
+    ++# "\nlet rec countdown (n : i64) : list i64 =\n"
+    ++# "    if n <= 0i64 then [] else n :: countdown (n - 1i64)\n"
+
+:= sorted_runs_text () : string =
+    "\nlet rec sorted_runs (xs : list i64) (acc : list i64) : list i64 =\n"
+    ++# "    match xs with\n"
+    ++# "    | x :: rest => sorted_runs rest (insert_run x acc)\n"
+    ++# "    | [] => acc\n"
+
+:= median_tests_text () : string =
+    "\n///> rust\ntest median_takes_the_middle_run =\n"
+    ++# "    if median [1i64; 5i64; 9i64] <> \"5\" then failwith \"the middle of three runs\"\n"
+    ++# "\n///> rust\ntest median_walks_a_runtime_list =\n"
+    ++# "    if median (countdown (dyn 31i64)) <> \"16\" then failwith \"the middle of thirty-one timed runs\"\n"
+
+:= insert_run_test_text () : string =
+    "\n///> rust\ntest insert_run_keeps_runtime_runs_ascending =\n"
+    ++# "    if run_at 0i32 (sorted_runs (countdown (dyn 31i64)) []) <> 1i64 then "
+    ++# "failwith \"the fastest run comes first\"\n"
+
+:= unit_text () : string =
+    sample_path_text ()
+    ++# run_count_text ()
+    ++# run_at_text ()
+    ++# insert_run_text ()
+    ++# median_text ()
+    ++# sorted_runs_text ()
+    ++# median_tests_text ()
+    ++# insert_run_test_text ()
