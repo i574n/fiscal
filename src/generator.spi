@@ -541,42 +541,8 @@ test generates_the_uf_code_union =
 
 := signatures_of (family : family_root) : list string = ? has_extra Signed family::extras ?> [ "Signature" ] |: []
 
-:= nfe_model_checks () : string =
-    "\n///> rust\ntest generated_nfe_model_type_checks =\n"
-    ++# "    match x_t_cod_uf_ibge_of_string \"35\" with\n"
-    ++# (
-        "    | Some code => if x_t_cod_uf_ibge_to_string code <> \"35\" then failwith \"TCodUfIBGE 35 round "
-        ^^ "trip\"\n"
-    )
-    ++# "    | None => failwith \"35 parses as TCodUfIBGE\"\n"
-    ++# "    if x_t_cnpj_is_valid \"12345678000195\" = false then failwith \"a 14-digit CNPJ is valid\"\n"
-    ++# "    if x_t_cnpj_is_valid \"1234567800019\" then failwith \"a 13-digit CNPJ is not\"\n"
-    ++# (
-        "    match xml.read_xml \"<enderEmit><xLgr>Rua A</xLgr><nro>10</nro><xBairro>Centro</xBairro><cMun>3550"
-        ^^ "308</cMun><xMun>Sao Paulo</xMun><UF>SP</UF><CEP>01001000</CEP><cPais>1058</cPais></enderEmit>\" with\n"
-    )
-    ++# "    | node :: [] =>\n"
-    ++# "        inl address = xml_codec.expect_decoded (x_t_ender_emi_of_xml node)\n"
-    ++# (
-        "        if x_t_ender_emi_x_mun_to_string address.x_mun <> \"Sao Paulo\" || x_t_ender_emi_cep_to_string "
-        ^^ "address.cep <> \"01001000\" then failwith \"TEnderEmi text fields\"\n"
-    )
-    ++# "        if x_t_uf_emi_to_string address.uf <> \"SP\" then failwith \"TEnderEmi UF enumeration\"\n"
-    ++# (
-        "        if xml.same_node node (x_t_ender_emi_to_xml \"enderEmit\" address) = false then failwith "
-        ^^ "\"TEnderEmi XML round trip\"\n"
-    )
-    ++# "        match address.c_pais with\n"
-    ++# "        | Some _ => ()\n"
-    ++# "        | None => failwith \"TEnderEmi optional cPais\"\n"
-    ++# "    | _ => failwith \"one enderEmit element\"\n"
-    ++# "\n///> rust\ntest generated_nfe_reports_a_missing_element_with_its_path =\n"
-    ++# "    inl document = xml_codec.pruned \"cUF\" (x_tn_fe_to_xml \"NFe\" (x_tn_fe_example 0i32))\n"
-    ++# "    if xml_codec.reports \"missing infNFe/ide/cUF\" (x_tn_fe_of_xml Unsigned document) = false then\n"
-    ++# "        failwith \"an NF-e without ide/cUF is reported as missing infNFe/ide/cUF, not raised\"\n"
 
-:= unit_checks_of (family : family_root) : string =
-    ? has_extra NfeModelChecks family::extras = !- ?> "" |: nfe_model_checks ()
+:= unit_checks_of (family : family_root) : string = model_check_texts family::extras
 
 := staged_witness (root_staged : bool) (witness : string) : string = ? root_staged ?> witness |: ""
 

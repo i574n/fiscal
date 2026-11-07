@@ -1,7 +1,9 @@
 param(
     [string[]] $Files = @(),
     [string[]] $Exclude = @(),
-    [string] $Label = 'all'
+    [string] $Label = 'all',
+    [switch] $NoGateCache,
+    [int] $Parallel = 1
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
@@ -26,6 +28,7 @@ New-Item -ItemType Directory -Force (Join-Path $root 'samples') | Out-Null
 $notebooks =(New-Item -ItemType Directory -Force (Join-Path $root 'notebooks')).FullName
 $metrics = (New-Item -ItemType Directory -Force (Join-Path $root 'target/ci-metrics')).FullName
 $labelSuffix = if ($Label -eq 'all') { '' } else { "-$Label" }
+$Parallel = if ($Parallel -gt 0) { $Parallel } else { [math]::Max(1, [math]::Floor([Environment]::ProcessorCount / 2)) }
 
 $fileRows = [Collections.Generic.List[object]]::new()
 $testRows = [Collections.Generic.List[object]]::new()
@@ -46,21 +49,88 @@ function Select-TestFiles([scriptblock] $Where) {
         Sort-Object { if ($_.BaseName -match '^generated_') { 1 } else { 0 } }, Name
 }
 
-function Invoke-TestFile([IO.FileInfo] $Source) {
+$gateCache = Join-Path $root 'target/unit-gate-cache/green.tsv'
+$gateKeys = [Collections.Generic.HashSet[string]]::new()
+$gateContext = ''
+
+function Get-GateKey([IO.FileInfo] $Source) {
+    if ($NoGateCache -or !$script:gateContext -or $Source.BaseName -notmatch '^generated_') { return '' }
+    "$($Source.BaseName)`t$((Get-FileHash -LiteralPath $Source.FullName -Algorithm SHA256).Hash)`t$script:gateContext"
+}
+
+function Set-GateContext {
+    $lib = Join-Path $root 'deps/spiral/lib/spiral'
+    $rows = Get-ChildItem $lib -File -Filter '*.spi' | Sort-Object Name | ForEach-Object { "$($_.Name):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" }
+    $libDigest = [BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($rows -join "`n"))) -replace '-', ''
+    $core = (Get-FileHash -LiteralPath (Join-Path (Split-Path $spiral.Compiler) 'SpiralCompilerCore.dll') -Algorithm SHA256).Hash
+    $runtimeUnit = Join-Path $root 'generated/generated_fiscal_runtime/generated_fiscal_runtime.spi'
+    $runtime = if (Test-Path -LiteralPath $runtimeUnit) { (Get-FileHash -LiteralPath $runtimeUnit -Algorithm SHA256).Hash } else { 'none' }
+    $script:gateContext = "$libDigest`t$core`t$runtime"
+    if (Test-Path -LiteralPath $gateCache) { foreach ($line in [IO.File]::ReadAllLines($gateCache)) { [void]$script:gateKeys.Add($line) } }
+    Write-Output "build.ps1 / gate cache / $($script:gateKeys.Count) green rows, lib $($libDigest.Substring(0, 12)), core $($core.Substring(0, 12))"
+}
+
+function Start-TestFile([IO.FileInfo] $Source, [int] $Slot = -1) {
     $name = $Source.BaseName
     $tested.Add($name)
-    $clock = [Diagnostics.Stopwatch]::StartNew()
+    $gateKey = Get-GateKey $Source
+    if ($gateKey -and $gateKeys.Contains($gateKey)) {
+        Write-Output "build.ps1 / $name / gate cache: same unit, lib, compiler and runtime as a green run; skipped"
+        return
+    }
     $output = Join-Path $metrics "$name.out"
     $cellsMetrics = Join-Path $metrics "cells-$name"
     Remove-Item $cellsMetrics -Recurse -Force -ErrorAction Ignore
     $notebook = Join-Path $notebooks "$name.spi.ipynb"
     $arguments = @('-NoProfile', '-File', $runNotebook, '--path', $Source.FullName, '--output-path', $notebook, '--no-spi',
         '--metrics', $cellsMetrics) | ForEach-Object { "`"$_`"" }
+    $options = @{ ArgumentList = $arguments; NoNewWindow = $true; PassThru = $true; RedirectStandardOutput = $output; RedirectStandardError = "$output.err" }
+    if ($Slot -ge 0) { $options.Environment = @{ MIX_BUILD_PATH = (New-Item -ItemType Directory -Force (Join-Path $root "target/mix-workers/$Slot")).FullName } }
     $started = Get-Date
-    $run = Start-Process pwsh -ArgumentList $arguments -NoNewWindow -PassThru `
-        -RedirectStandardOutput $output -RedirectStandardError "$output.err"
+    $run = Start-Process pwsh @options
     $null = $run.Handle
-    while (!$run.WaitForExit(60000)) { Write-Output "build.ps1 / $name / running $([int]$clock.Elapsed.TotalSeconds) s" }
+    [pscustomobject]@{ Name = $name; Run = $run; Clock = [Diagnostics.Stopwatch]::StartNew(); Started = $started; Output = $output; CellsMetrics = $cellsMetrics; GateKey = $gateKey; Slot = $Slot }
+}
+
+function Invoke-TestFile([IO.FileInfo] $Source) {
+    $started = @(Start-TestFile $Source)
+    $started | Where-Object { $_ -is [string] }
+    $job = $started | Where-Object { $_ -isnot [string] }
+    if (!$job) { return }
+    while (!$job.Run.WaitForExit(60000)) { Write-Output "build.ps1 / $($job.Name) / running $([int]$job.Clock.Elapsed.TotalSeconds) s" }
+    Complete-TestFile $job
+}
+
+function Invoke-TestFiles([IO.FileInfo[]] $Sources) {
+    if ($Parallel -le 1) { foreach ($source in $Sources) { Invoke-TestFile $source }; return }
+    Write-Output "build.ps1 / parallel / $($Sources.Count) units, at most $Parallel at once, one MIX_BUILD_PATH per worker slot"
+    $pending = [Collections.Generic.Queue[IO.FileInfo]]::new([IO.FileInfo[]] @($Sources))
+    $free = [Collections.Generic.Queue[int]]::new([int[]] @(0..($Parallel - 1)))
+    $running = [Collections.Generic.List[object]]::new()
+    $beat = [Diagnostics.Stopwatch]::StartNew()
+    while ($pending.Count -or $running.Count) {
+        while ($pending.Count -and $free.Count) {
+            $slot = $free.Dequeue()
+            $started = @(Start-TestFile $pending.Dequeue() $slot)
+            $started | Where-Object { $_ -is [string] }
+            $job = $started | Where-Object { $_ -isnot [string] }
+            if ($job) { $running.Add($job) } else { $free.Enqueue($slot) }
+        }
+        $done = @($running | Where-Object { $_.Run.WaitForExit(0) })
+        $doneIds = @($done | ForEach-Object { $_.Run.Id })
+        $still = @($running | Where-Object { $_.Run.Id -notin $doneIds })
+        $running.Clear(); foreach ($job in $still) { $running.Add($job) }
+        foreach ($job in $done) { $free.Enqueue($job.Slot); Complete-TestFile $job }
+        if (!$done -and $running.Count) {
+            [void]$running[0].Run.WaitForExit(2000)
+            if ($beat.Elapsed.TotalSeconds -ge 60) { $beat.Restart(); Write-Output "build.ps1 / parallel / running $(@($running | ForEach-Object { "$($_.Name) $([int]$_.Clock.Elapsed.TotalSeconds) s" }) -join ', ')" }
+        }
+    }
+}
+
+function Complete-TestFile($Job) {
+    $name = $Job.Name; $run = $Job.Run; $clock = $Job.Clock; $started = $Job.Started; $output = $Job.Output; $cellsMetrics = $Job.CellsMetrics; $gateKey = $Job.GateKey
+    $run.WaitForExit()
     $lines = @(Get-Content $output, "$output.err" -ErrorAction Ignore)
     if ($IsWindows -and ($lines | Select-String 'compiler socket failed' -Quiet)) {
         Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Application Error'; StartTime = $started } -ErrorAction Ignore |
@@ -92,6 +162,11 @@ function Invoke-TestFile([IO.FileInfo] $Source) {
         $lines | Select-String -Pattern 'error|failed|assert|panic|timeout|timed out' | Where-Object { $_.Line -notmatch '^spiral-tests ' } |
             Select-Object -First 40 | ForEach-Object { Write-Output "build.ps1 / $name / detail / $($_.Line)" }
     }
+    elseif ($gateKey) {
+        New-Item -ItemType Directory -Force (Split-Path $gateCache) | Out-Null
+        Add-Content -LiteralPath $gateCache -Value $gateKey
+        [void]$gateKeys.Add($gateKey)
+    }
 }
 
 & (Join-Path $PSScriptRoot 'pattern-oracle.ps1') -Write | ForEach-Object { Write-Output "build.ps1 / pattern oracle / $_" }
@@ -106,7 +181,8 @@ if (-not $Files) {
     if ($drift) { $problems.Add("generated: $($drift.Count) files differ from the committed copy; commit the regenerated generated/") }
     else { Write-Output 'build.ps1 / generated / matches the committed copy' }
 }
-foreach ($source in @(Select-TestFiles { $_.BaseName -notin 'generator', 'reports' })) { Invoke-TestFile $source }
+if (-not $NoGateCache) { Set-GateContext }
+Invoke-TestFiles @(Select-TestFiles { $_.BaseName -notin 'generator', 'reports' })
 
 if (!$Files -or $Files -contains 'examples') {
     $validation = @(& (Join-Path $PSScriptRoot 'family-gates.ps1'))

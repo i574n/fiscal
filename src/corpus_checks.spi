@@ -741,6 +741,76 @@ test pint_rules_read_fully =
     ? counts <> (2i32, 70i32, 170i32, 170i32, 0i32) ?>
         failwith ("PINT Billing 1.1.3 rules read fully: " ++# shape)
 
+:= pint_my_examples () : list string =
+    [
+        "CompleteSample_LHDN-CreditNote.xml"
+        "CompleteSample_LHDN.xml"
+        "CreditNote-Sample-HVG_1.3.0.xml"
+        "CreditNote-Sample-LVG_1.3.0.xml"
+        "CreditNote-Sample-SA_1.3.0.xml"
+        "CreditNote-Sample-SE_1.3.0.xml"
+        "CreditNote-Sample-TTX_1.3.0.xml"
+        "Invoice-Sample-HVG_1.3.0.xml"
+        "Invoice-Sample-LVG_1.3.0.xml"
+        "Invoice-Sample-SA_1.3.0.xml"
+        "Invoice-Sample-SE_1.3.0.xml"
+        "Invoice-Sample-TTX_1.3.0.xml"
+        "TaxTotal-DocumentAndLineLevel.xml"
+    ]
+
+:= pint_sg_examples () : list string =
+    [
+        "PINT-SG CN example 01 - Credit Note.xml"
+        "PINT-SG INV example 02 - full valid invoice 1.xml"
+        "PINT-SG INV example 03 - Allowances and Charges.xml"
+        "PINT-SG INV example 04 - none GST registered.xml"
+        "PINT-SG INV example 05 - AGD compliant with II and PO reference.xml"
+        "PINT-SG INV example 06 - Foreign currency.xml"
+        "PINT-SG INV example 07 - Foreign buyer.xml"
+        "PINT-SG INV example 08 - Factored invoice.xml"
+        "PINT-SG INV example 09 - Zero rated GST.xml"
+        "PINT-SG INV example 10 - Prepayment.xml"
+        "PINT-SG INV example 11 - Decimals.xml"
+        "PINT-SG INV example 12 - SG bank transfer.xml"
+        "PINT-SG INV example 13 - SG GIRO.xml"
+        "PINT-SG INV example 14 - PayNow.xml"
+        "PINT-SG INV example 15 - Credit card.xml"
+        "PINT-SG INV example 16 - GST in SGD.xml"
+    ]
+
+:= pint_region_fatal (region : string) (names : list string) : list (string * fatal_check) =
+    := folder = "deps/corpus/" ++# region ++# "/pint-" ++# region ++# "/trn-invoice/"
+    := rules_of (file : string) =
+        file_system::read_all_text (fiscal_paths::under (folder ++# "schematron/" ++# file)) |> schematron::read_schematron
+    := judged (file : string) = examples_fatal_in (folder ++# "example/") (rules_of file) names []
+    listm::append (judged "PINT-UBL-validation-preprocessed.sch") (judged "PINT-jurisdiction-aligned-rules.sch")
+
+:= pint_region_rules (region : string) (file : string) : list schematron::pattern =
+    := folder = "deps/corpus/" ++# region ++# "/pint-" ++# region ++# "/trn-invoice/schematron/"
+    file_system::read_all_text (fiscal_paths::under (folder ++# file)) |> schematron::read_schematron
+
+:= pint_first_failures (region : string) (name : string) : string =
+    := path = "deps/corpus/" ++# region ++# "/pint-" ++# region ++# "/trn-invoice/example/" ++# name
+    := base = first_failures (pint_region_rules region "PINT-UBL-validation-preprocessed.sch") path
+    base ++# " || " ++# first_failures (pint_region_rules region "PINT-jurisdiction-aligned-rules.sch") path
+
+///> rust
+test pint_regional_examples_pass_their_rules =
+    := my = pint_region_fatal "my" (pint_my_examples ())
+    := sg = pint_region_fatal "sg" (pint_sg_examples ())
+    := found = listm::append my sg
+    := report (region : string) (row : string * fatal_check) =
+        := name, fatal = row
+        := first = pint_first_failures region name
+        console::write_line ("pint regional fatal: " ++# region ++# " " ++# name ++# " " ++# fatal_text fatal ++# " :: " ++# first)
+    listm::iter (report "my") my
+    listm::iter (report "sg") sg
+    := judged = (listm::length (pint_my_examples ()) : i32) + (listm::length (pint_sg_examples ()) : i32)
+    console::write_line ("pint regional examples judged: " ++# sm'::obj_to_string judged)
+    ?= found ?|
+    | [] => ()
+    | (name, fatal) :: _ => failwith (name ++# " has PINT fatal findings: " ++# fatal_text fatal)
+
 ///> rust
 test dian_samples_keep_their_compiled_rule_findings =
     := toolkit = "deps/corpus/co/dian/Caja de herramientas FE_V19_(v2026)/"

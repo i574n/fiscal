@@ -734,6 +734,23 @@ if (-not (Test-Path $pintSyntax)) {
     }
     "deps/corpus/eu/peppol-pint/syntax: PINT Billing 1.1.3 syntax trees (IBT/IBG term -> UBL path and cardinality), $($pages.Count) transactions"
 }
+$pintRegions = [ordered]@{
+    'my' = 'BCFA311FFCB082F535C911D12A6B8537115B55E630C71FA1CCF47272271DD3D8'
+    'sg' = '584353B4FED58474D3EC7E32CC99D24EB8F50C812AC7D4A4AE72E6E0566B2670'
+}
+foreach ($region in $pintRegions.Keys) {
+    $to = Join-Path $deps "corpus/$region/pint-$region"
+    if (Test-Path $to) { continue }
+    $filling = $to
+    New-Item -ItemType Directory -Force $to | Out-Null
+    $zip = Join-Path $to 'resources.zip'
+    Invoke-WebRequest -Uri "https://docs.peppol.eu/poac/$region/pint-$region/resources.zip" -OutFile $zip -TimeoutSec 120 -UseBasicParsing
+    $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash
+    if ($hash -ne $pintRegions[$region]) { throw "init.ps1 / PINT-$($region.ToUpper()) resources.zip changed upstream (sha256 $hash); review the new release before re-pinning" }
+    Expand-Archive -LiteralPath $zip -DestinationPath $to -Force
+    Remove-Item -LiteralPath $zip
+    "deps/corpus/$region/pint-${region}: PINT-$($region.ToUpper()) resources ($(@(Get-ChildItem $to -Recurse -Filter *.sch).Count) schematron, $(@(Get-ChildItem $to -Recurse -Filter *.xml).Count) example documents)"
+}
 $ubl = Join-Path $deps 'corpus/eu/ubl21'
 if (-not (Test-Path $ubl)) {
     $filling = $ubl

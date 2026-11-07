@@ -26,7 +26,7 @@ foreach ($file in $sources) {
 }
 function Get-Calls([string] $text, [string] $origin) {
     $calls = [Collections.Generic.HashSet[string]]::new()
-    foreach ($m in [regex]::Matches($text, "\b([a-z][\w']*)\.([a-z_][\w']*)")) { [void]$calls.Add("$($m.Groups[1].Value).$($m.Groups[2].Value)") }
+    foreach ($m in [regex]::Matches($text, "\b([a-z][\w']*)(?:\.|::)([a-z_][\w']*)")) { [void]$calls.Add("$($m.Groups[1].Value).$($m.Groups[2].Value)") }
     if ($origin) {
         $locals = [Collections.Generic.HashSet[string]]::new()
         foreach ($m in [regex]::Matches($text, "(?m)^\s*:=\s+([a-z_][\w']*)\s*[:=]|\(([a-z_][\w']*)\s*:")) { [void]$locals.Add($m.Groups[1].Value + $m.Groups[2].Value) }
@@ -37,15 +37,15 @@ function Get-Calls([string] $text, [string] $origin) {
     }
     $calls
 }
-function Select-DelphiText([string] $body) {
-    $hasDelphi = $body -match '\|\s*Delphi\s*=>|\bDelphi\s*=\s*\\'
+function Select-PascalText([string] $body) {
+    $hasPascal = $body -match '\|\s*Pascal\s*=>|\bPascal\s*=\s*\\'
     $out = [Collections.Generic.List[string]]::new(); $skip = -1
     foreach ($line in $body -split "`n") {
         $indent = $line.Length - $line.TrimStart().Length
         if ($skip -ge 0) { if ($line.Trim() -eq '' -or $indent -gt $skip) { continue } else { $skip = -1 } }
         $arm = $null
         if ($line -match '^\s*\|\s*([A-Za-z_]+)(?:\s+[a-z_]\w*)?\s*=>') { $arm = $Matches[1]; if ($arm -cmatch '^[a-z]') { $arm = '_' } } elseif ($line -match '^\s*([A-Z][A-Za-z]*)\s*=\s*\\') { $arm = $Matches[1] }
-        if ($arm -and -not ($arm -eq 'Delphi' -or ($arm -eq '_' -and -not $hasDelphi))) { $skip = $indent; continue }
+        if ($arm -and -not ($arm -eq 'Pascal' -or ($arm -eq '_' -and -not $hasPascal))) { $skip = $indent; continue }
         $out.Add($line)
     }
     $out -join "`n"
@@ -59,18 +59,18 @@ $rustEmits = [Collections.Generic.List[string]]::new()
 while ($queue.Count) {
     $name = $queue.Dequeue(); $body = $definitions[$name]; $origin = $name.Split('.')[0]
     $switchy = $body -match 'run_target|backend_switch'
-    if ($switchy -and $body -notmatch '\bDelphi\b' -and $body -notmatch '\|\s*_\s*=>') { $gaps.Add([pscustomobject]@{ function = $name; kind = $(if ($body -match 'backend_switch') { 'backend_switch, no Delphi key' } else { 'run_target, no Delphi or _ arm' }) }) }
-    elseif ($switchy -and $body -notmatch '\bDelphi\b' -and $body -match '\|\s*_\s*=>\s*\\\s*\(\)\s*=>\s*failwith') { $gaps.Add([pscustomobject]@{ function = $name; kind = 'run_target, _ arm fails' }) }
-    elseif ($body -match 'Delphi\s*=.*has_no_Delphi_arm') { $gaps.Add([pscustomobject]@{ function = $name; kind = 'placeholder Delphi arm' }) }
-    $delphiText = Select-DelphiText $body
-    if ($delphiText -match '!\\{1,2}\(') { $rustEmits.Add($name) }
-    foreach ($m in [regex]::Matches($delphiText, '!!!!(?!BackendSwitch\b)(\w+)')) { $primitives["$($m.Groups[1].Value)"] = @($primitives["$($m.Groups[1].Value)"]) + $name | Select-Object -Unique }
-    foreach ($c in Get-Calls $delphiText $origin) { if ($c -ne $name -and $definitions.ContainsKey($c) -and $seen.Add($c)) { $parent[$c] = $name; $queue.Enqueue($c) } }
+    if ($switchy -and $body -notmatch '\bPascal\b' -and $body -notmatch '\|\s*_\s*=>') { $gaps.Add([pscustomobject]@{ function = $name; kind = $(if ($body -match 'backend_switch') { 'backend_switch, no Pascal key' } else { 'run_target, no Pascal or _ arm' }) }) }
+    elseif ($switchy -and $body -notmatch '\bPascal\b' -and $body -match '\|\s*_\s*=>\s*\\\s*\(\)\s*=>\s*failwith') { $gaps.Add([pscustomobject]@{ function = $name; kind = 'run_target, _ arm fails' }) }
+    elseif ($body -match 'Pascal\s*=.*has_no_Pascal_arm') { $gaps.Add([pscustomobject]@{ function = $name; kind = 'placeholder Pascal arm' }) }
+    $pascalText = Select-PascalText $body
+    if ($pascalText -match '!\\{1,2}\(') { $rustEmits.Add($name) }
+    foreach ($m in [regex]::Matches($pascalText, '!!!!(?!BackendSwitch\b)(\w+)')) { $primitives["$($m.Groups[1].Value)"] = @($primitives["$($m.Groups[1].Value)"]) + $name | Select-Object -Unique }
+    foreach ($c in Get-Calls $pascalText $origin) { if ($c -ne $name -and $definitions.ContainsKey($c) -and $seen.Add($c)) { $parent[$c] = $name; $queue.Enqueue($c) } }
 }
 "reached lib definitions: $($seen.Count)"
-"Delphi gaps: $($gaps.Count)"
-"primitives on Delphi paths: $($primitives.Count)"
+"Pascal gaps: $($gaps.Count)"
+"primitives on Pascal paths: $($primitives.Count)"
 $primitives.Keys | Sort-Object | ForEach-Object { '  {0,-24} in {1}' -f $_, (($primitives[$_] | Where-Object { $_ }) -join ', ') }
-"Rust emit macros on Delphi paths: $($rustEmits.Count)"
+"Rust emit macros on Pascal paths: $($rustEmits.Count)"
 $rustEmits | Sort-Object | ForEach-Object { $chain = @($_); $p = $_; while ($parent.ContainsKey($p)) { $p = $parent[$p]; $chain += $p }; '  {0,-30} via {1}' -f $_, (($chain | Select-Object -Skip 1) -join ' <- ') }
 $gaps | Sort-Object function | ForEach-Object { $chain = @($_.function); $p = $_.function; while ($parent.ContainsKey($p)) { $p = $parent[$p]; $chain += $p }; '  {0,-30} {1,-30} via {2}' -f $_.function, $_.kind, (($chain | Select-Object -Skip 1) -join ' <- ') }

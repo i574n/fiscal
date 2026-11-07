@@ -75,21 +75,39 @@
 
 :! manual_invoice = string * string * string * string * string * decimal::decimal * decimal::decimal
 
+:= amount_sum (net : decimal::decimal) (tax : decimal::decimal) : term_value amount_data =
+    AmountValue (decimal::add net tax)
+
+:== header_terms =
+    term_value identifier_data * term_value date_data * term_value code_data * term_value text_data
+    * term_value text_data
+
+:= header_values
+    ((number, issued, currency, seller, buyer) : string * string * string * string * string)
+    : header_terms
+    =
+    IdentifierValue number, DateValue issued, CodeValue currency, TextValue seller, TextValue buyer
+
+:= canon_from_values
+    ((n, i, c, s, b) : header_terms) (net : decimal::decimal) (tax : decimal::decimal)
+    : canon_document
+    =
+    {
+        number = n
+        issued = i
+        currency = c
+        seller = s
+        buyer = b
+        without_tax = AmountValue net
+        tax_total = AmountValue tax
+        with_tax = amount_sum net tax
+    }
+
 := canon_record
     (parties : string * string * string * string * string) (net : decimal::decimal) (tax : decimal::decimal)
     : canon_document
     =
-    := number, issued, currency, seller, buyer = parties
-    {
-        number = IdentifierValue number
-        issued = DateValue issued
-        currency = CodeValue currency
-        seller = TextValue seller
-        buyer = TextValue buyer
-        without_tax = AmountValue net
-        tax_total = AmountValue tax
-        with_tax = AmountValue (decimal::add net tax)
-    }
+    canon_from_values (header_values parties) net tax
 
 := manual_canon
     ((manual_invoice (number, issued, currency, seller, buyer, net, tax)) : manual_invoice)
