@@ -5277,6 +5277,30 @@ inl x_t_evento_inf_evento_get forall r. (f : x_t_evento_inf_evento_field r) (x :
     | TEvento_infEvento_field_verEvento => x.ver_evento
     | TEvento_infEvento_field_detEvento => x.det_evento
 
+inl x_t_evento_inf_evento_fields () : list (exists r. x_t_evento_inf_evento_field r) =
+    [
+        exists TEvento_infEvento_field_cOrgao
+        exists TEvento_infEvento_field_tpAmb
+        exists TEvento_infEvento_field_choice_cnpj
+        exists TEvento_infEvento_field_chNFe
+        exists TEvento_infEvento_field_dhEvento
+        exists TEvento_infEvento_field_tpEvento
+        exists TEvento_infEvento_field_nSeqEvento
+        exists TEvento_infEvento_field_verEvento
+        exists TEvento_infEvento_field_detEvento
+    ]
+inl x_t_evento_inf_evento_field_meta forall r. (f : x_t_evento_inf_evento_field r) : xml_codec.field_meta =
+    match f with
+    | TEvento_infEvento_field_cOrgao => { tag = "cOrgao"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_chNFe => { tag = "chNFe"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_dhEvento => { tag = "dhEvento"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_tpEvento => { tag = "tpEvento"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_nSeqEvento => { tag = "nSeqEvento"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_verEvento => { tag = "verEvento"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_field_detEvento => { tag = "detEvento"; min = 1i32; max = Some 1i32 }
+
 union x_t_evento_inf_evento_det_evento_field r =
     | TEvento_infEvento_detEvento_field_descEvento ::
         x_t_evento_inf_evento_det_evento_field (x_t_evento_inf_evento_det_evento_desc_evento)
@@ -5292,6 +5316,21 @@ inl x_t_evento_inf_evento_det_evento_get forall r.
     | TEvento_infEvento_detEvento_field_nProt => x.n_prot
     | TEvento_infEvento_detEvento_field_xJust => x.x_just
 
+inl x_t_evento_inf_evento_det_evento_fields () : list (exists r. x_t_evento_inf_evento_det_evento_field r) =
+    [
+        exists TEvento_infEvento_detEvento_field_descEvento
+        exists TEvento_infEvento_detEvento_field_nProt
+        exists TEvento_infEvento_detEvento_field_xJust
+    ]
+inl x_t_evento_inf_evento_det_evento_field_meta forall r.
+    (f : x_t_evento_inf_evento_det_evento_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TEvento_infEvento_detEvento_field_descEvento => { tag = "descEvento"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_detEvento_field_nProt => { tag = "nProt"; min = 1i32; max = Some 1i32 }
+    | TEvento_infEvento_detEvento_field_xJust => { tag = "xJust"; min = 1i32; max = Some 1i32 }
+
 union x_t_ret_evento_field r =
     | TRetEvento_field_infEvento :: x_t_ret_evento_field (x_t_ret_evento_inf_evento)
     | TRetEvento_field_ds_Signature :: x_t_ret_evento_field (option (x_signature_type))
@@ -5300,6 +5339,13 @@ inl x_t_ret_evento_get forall r. (f : x_t_ret_evento_field r) (x : x_t_ret_event
     match f with
     | TRetEvento_field_infEvento => x.inf_evento
     | TRetEvento_field_ds_Signature => x.signature
+
+inl x_t_ret_evento_fields () : list (exists r. x_t_ret_evento_field r) =
+    [ exists TRetEvento_field_infEvento; exists TRetEvento_field_ds_Signature ]
+inl x_t_ret_evento_field_meta forall r. (f : x_t_ret_evento_field r) : xml_codec.field_meta =
+    match f with
+    | TRetEvento_field_infEvento => { tag = "infEvento"; min = 1i32; max = Some 1i32 }
+    | TRetEvento_field_ds_Signature => { tag = "ds:Signature"; min = 0i32; max = Some 1i32 }
 
 union x_t_ret_evento_inf_evento_field r =
     | TRetEvento_infEvento_field_tpAmb :: x_t_ret_evento_inf_evento_field (x_t_amb)
@@ -5341,6 +5387,38 @@ inl x_t_ret_evento_inf_evento_get forall r.
     | TRetEvento_infEvento_field_dhRegEvento => x.dh_reg_evento
     | TRetEvento_infEvento_field_nProt => x.n_prot
 
+inl x_t_ret_evento_inf_evento_fields () : list (exists r. x_t_ret_evento_inf_evento_field r) =
+    [
+        exists TRetEvento_infEvento_field_tpAmb
+        exists TRetEvento_infEvento_field_verAplic
+        exists TRetEvento_infEvento_field_cOrgao
+        exists TRetEvento_infEvento_field_cStat
+        exists TRetEvento_infEvento_field_xMotivo
+        exists TRetEvento_infEvento_field_chNFe
+        exists TRetEvento_infEvento_field_tpEvento
+        exists TRetEvento_infEvento_field_xEvento
+        exists TRetEvento_infEvento_field_nSeqEvento
+        exists TRetEvento_infEvento_field_choice_cnpj_dest
+        exists TRetEvento_infEvento_field_emailDest
+        exists TRetEvento_infEvento_field_dhRegEvento
+        exists TRetEvento_infEvento_field_nProt
+    ]
+inl x_t_ret_evento_inf_evento_field_meta forall r. (f : x_t_ret_evento_inf_evento_field r) : xml_codec.field_meta =
+    match f with
+    | TRetEvento_infEvento_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_verAplic => { tag = "verAplic"; min = 1i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_cOrgao => { tag = "cOrgao"; min = 1i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_cStat => { tag = "cStat"; min = 1i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_xMotivo => { tag = "xMotivo"; min = 1i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_chNFe => { tag = "chNFe"; min = 0i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_tpEvento => { tag = "tpEvento"; min = 0i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_xEvento => { tag = "xEvento"; min = 0i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_nSeqEvento => { tag = "nSeqEvento"; min = 0i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_choice_cnpj_dest => { tag = "choice_cnpj_dest"; min = 0i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_emailDest => { tag = "emailDest"; min = 0i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_dhRegEvento => { tag = "dhRegEvento"; min = 1i32; max = Some 1i32 }
+    | TRetEvento_infEvento_field_nProt => { tag = "nProt"; min = 0i32; max = Some 1i32 }
+
 union x_t_ret_env_evento_field r =
     | TRetEnvEvento_field_idLote :: x_t_ret_env_evento_field (x_t_ret_env_evento_id_lote)
     | TRetEnvEvento_field_tpAmb :: x_t_ret_env_evento_field (x_t_amb)
@@ -5360,6 +5438,26 @@ inl x_t_ret_env_evento_get forall r. (f : x_t_ret_env_evento_field r) (x : x_t_r
     | TRetEnvEvento_field_xMotivo => x.x_motivo
     | TRetEnvEvento_field_retEvento => x.ret_evento
 
+inl x_t_ret_env_evento_fields () : list (exists r. x_t_ret_env_evento_field r) =
+    [
+        exists TRetEnvEvento_field_idLote
+        exists TRetEnvEvento_field_tpAmb
+        exists TRetEnvEvento_field_verAplic
+        exists TRetEnvEvento_field_cOrgao
+        exists TRetEnvEvento_field_cStat
+        exists TRetEnvEvento_field_xMotivo
+        exists TRetEnvEvento_field_retEvento
+    ]
+inl x_t_ret_env_evento_field_meta forall r. (f : x_t_ret_env_evento_field r) : xml_codec.field_meta =
+    match f with
+    | TRetEnvEvento_field_idLote => { tag = "idLote"; min = 1i32; max = Some 1i32 }
+    | TRetEnvEvento_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TRetEnvEvento_field_verAplic => { tag = "verAplic"; min = 1i32; max = Some 1i32 }
+    | TRetEnvEvento_field_cOrgao => { tag = "cOrgao"; min = 1i32; max = Some 1i32 }
+    | TRetEnvEvento_field_cStat => { tag = "cStat"; min = 1i32; max = Some 1i32 }
+    | TRetEnvEvento_field_xMotivo => { tag = "xMotivo"; min = 1i32; max = Some 1i32 }
+    | TRetEnvEvento_field_retEvento => { tag = "retEvento"; min = 0i32; max = Some 20i32 }
+
 union x_trsa_key_value_type_field r =
     | TRSAKeyValueType_field_Modulus :: x_trsa_key_value_type_field (string)
     | TRSAKeyValueType_field_Exponent :: x_trsa_key_value_type_field (string)
@@ -5368,6 +5466,13 @@ inl x_trsa_key_value_type_get forall r. (f : x_trsa_key_value_type_field r) (x :
     match f with
     | TRSAKeyValueType_field_Modulus => x.modulus
     | TRSAKeyValueType_field_Exponent => x.exponent
+
+inl x_trsa_key_value_type_fields () : list (exists r. x_trsa_key_value_type_field r) =
+    [ exists TRSAKeyValueType_field_Modulus; exists TRSAKeyValueType_field_Exponent ]
+inl x_trsa_key_value_type_field_meta forall r. (f : x_trsa_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | TRSAKeyValueType_field_Modulus => { tag = "Modulus"; min = 1i32; max = Some 1i32 }
+    | TRSAKeyValueType_field_Exponent => { tag = "Exponent"; min = 1i32; max = Some 1i32 }
 
 union x_signature_type_field r =
     | SignatureType_field_SignedInfo :: x_signature_type_field (x_signed_info_type)
@@ -5379,6 +5484,18 @@ inl x_signature_type_get forall r. (f : x_signature_type_field r) (x : x_signatu
     | SignatureType_field_SignedInfo => x.signed_info
     | SignatureType_field_SignatureValue => x.signature_value
     | SignatureType_field_KeyInfo => x.key_info
+
+inl x_signature_type_fields () : list (exists r. x_signature_type_field r) =
+    [
+        exists SignatureType_field_SignedInfo
+        exists SignatureType_field_SignatureValue
+        exists SignatureType_field_KeyInfo
+    ]
+inl x_signature_type_field_meta forall r. (f : x_signature_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignatureType_field_SignedInfo => { tag = "SignedInfo"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_SignatureValue => { tag = "SignatureValue"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_KeyInfo => { tag = "KeyInfo"; min = 1i32; max = Some 1i32 }
 
 union x_signed_info_type_field r =
     | SignedInfoType_field_CanonicalizationMethod ::
@@ -5392,6 +5509,18 @@ inl x_signed_info_type_get forall r. (f : x_signed_info_type_field r) (x : x_sig
     | SignedInfoType_field_SignatureMethod => x.signature_method
     | SignedInfoType_field_Reference => x.reference
 
+inl x_signed_info_type_fields () : list (exists r. x_signed_info_type_field r) =
+    [
+        exists SignedInfoType_field_CanonicalizationMethod
+        exists SignedInfoType_field_SignatureMethod
+        exists SignedInfoType_field_Reference
+    ]
+inl x_signed_info_type_field_meta forall r. (f : x_signed_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignedInfoType_field_CanonicalizationMethod => { tag = "CanonicalizationMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_SignatureMethod => { tag = "SignatureMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_Reference => { tag = "Reference"; min = 1i32; max = Some 1i32 }
+
 union x_reference_type_field r =
     | ReferenceType_field_Transforms :: x_reference_type_field (x_transforms_type)
     | ReferenceType_field_DigestMethod :: x_reference_type_field (x_reference_type_digest_method)
@@ -5403,6 +5532,18 @@ inl x_reference_type_get forall r. (f : x_reference_type_field r) (x : x_referen
     | ReferenceType_field_DigestMethod => x.digest_method
     | ReferenceType_field_DigestValue => x.digest_value
 
+inl x_reference_type_fields () : list (exists r. x_reference_type_field r) =
+    [
+        exists ReferenceType_field_Transforms
+        exists ReferenceType_field_DigestMethod
+        exists ReferenceType_field_DigestValue
+    ]
+inl x_reference_type_field_meta forall r. (f : x_reference_type_field r) : xml_codec.field_meta =
+    match f with
+    | ReferenceType_field_Transforms => { tag = "Transforms"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_DigestMethod => { tag = "DigestMethod"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_DigestValue => { tag = "DigestValue"; min = 1i32; max = Some 1i32 }
+
 union x_transforms_type_field r =
     | TransformsType_field_Transform :: x_transforms_type_field (list (x_transform_type))
 
@@ -5410,12 +5551,22 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     match f with
     | TransformsType_field_Transform => x.transform
 
+inl x_transforms_type_fields () : list (exists r. x_transforms_type_field r) = [ exists TransformsType_field_Transform ]
+inl x_transforms_type_field_meta forall r. (f : x_transforms_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformsType_field_Transform => { tag = "Transform"; min = 2i32; max = Some 2i32 }
+
 union x_transform_type_field r =
     | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
     | TransformType_field_group_x_path => x.group_x_path
+
+inl x_transform_type_fields () : list (exists r. x_transform_type_field r) = [ exists TransformType_field_group_x_path ]
+inl x_transform_type_field_meta forall r. (f : x_transform_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformType_field_group_x_path => { tag = "group_x_path"; min = 0i32; max = None }
 
 union x_transform_type_group_x_path_field r =
     | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
@@ -5427,6 +5578,15 @@ inl x_transform_type_group_x_path_get forall r.
     match f with
     | TransformType_group_XPath_field_XPath => x.x_path
 
+inl x_transform_type_group_x_path_fields () : list (exists r. x_transform_type_group_x_path_field r) =
+    [ exists TransformType_group_XPath_field_XPath ]
+inl x_transform_type_group_x_path_field_meta forall r.
+    (f : x_transform_type_group_x_path_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => { tag = "XPath"; min = 1i32; max = Some 1i32 }
+
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
 
@@ -5434,12 +5594,23 @@ inl x_key_info_type_get forall r. (f : x_key_info_type_field r) (x : x_key_info_
     match f with
     | KeyInfoType_field_X509Data => x.x509_data
 
+inl x_key_info_type_fields () : list (exists r. x_key_info_type_field r) = [ exists KeyInfoType_field_X509Data ]
+inl x_key_info_type_field_meta forall r. (f : x_key_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | KeyInfoType_field_X509Data => { tag = "X509Data"; min = 1i32; max = Some 1i32 }
+
 union x_x509_data_type_field r =
     | X509DataType_field_X509Certificate :: x_x509_data_type_field (string)
 
 inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_data_type) : r =
     match f with
     | X509DataType_field_X509Certificate => x.x509_certificate
+
+inl x_x509_data_type_fields () : list (exists r. x_x509_data_type_field r) =
+    [ exists X509DataType_field_X509Certificate ]
+inl x_x509_data_type_field_meta forall r. (f : x_x509_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | X509DataType_field_X509Certificate => { tag = "X509Certificate"; min = 1i32; max = Some 1i32 }
 
 let rec x_t_evento_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
@@ -6665,3 +6836,19 @@ test generated_nfe_evento_canc_v1_00_writes_its_example =
 ///> rust
 test generated_nfe_evento_canc_v1_00_keeps_raw_strings_out fails "Unification failure" =
     x_t_ver_env_evento_to_string "raw"
+///> rust
+test generated_nfe_evento_canc_v1_00_example_carries_its_lifecycle_event =
+    inl example = x_t_proc_evento_example 0i32
+    inl document =
+        xml.element
+            "procEventoNFe"
+            (("xmlns", "http://www.portalfiscal.inf.br/nfe") :: x_t_proc_evento_attributes example)
+            (x_t_proc_evento_children example)
+    if sm'.contains "<tpEvento>110111</tpEvento>" (xml.write_node document) = false
+    then failwith "the example carries <tpEvento>110111</tpEvento>"
+
+///> rust
+test generated_nfe_evento_canc_v1_00_reports_a_missing_element_with_its_path =
+    inl document = xml_codec.pruned "cOrgao" (x_t_proc_evento_to_xml "procEventoNFe" (x_t_proc_evento_example 0i32))
+    if xml_codec.reports "missing evento/infEvento/cOrgao" (x_t_proc_evento_of_xml Unsigned document) = false then
+        failwith "a document without evento/infEvento/cOrgao is reported as missing, not raised"

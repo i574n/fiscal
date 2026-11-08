@@ -3567,6 +3567,42 @@ inl x_gst_invoice_get forall r. (f : x_gst_invoice_field r) (x : x_gst_invoice) 
     | GstInvoice_field_ExpDtls => x.exp_dtls
     | GstInvoice_field_EwbDtls => x.ewb_dtls
 
+inl x_gst_invoice_fields () : list (exists r. x_gst_invoice_field r) =
+    [
+        exists GstInvoice_field_Version
+        exists GstInvoice_field_Irn
+        exists GstInvoice_field_TranDtls
+        exists GstInvoice_field_DocDtls
+        exists GstInvoice_field_SellerDtls
+        exists GstInvoice_field_BuyerDtls
+        exists GstInvoice_field_DispDtls
+        exists GstInvoice_field_ShipDtls
+        exists GstInvoice_field_ItemList
+        exists GstInvoice_field_ValDtls
+        exists GstInvoice_field_PayDtls
+        exists GstInvoice_field_RefDtls
+        exists GstInvoice_field_AddlDocDtls
+        exists GstInvoice_field_ExpDtls
+        exists GstInvoice_field_EwbDtls
+    ]
+inl x_gst_invoice_field_meta forall r. (f : x_gst_invoice_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_field_Version => { tag = "Version"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_field_Irn => { tag = "Irn"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_field_TranDtls => { tag = "TranDtls"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_field_DocDtls => { tag = "DocDtls"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_field_SellerDtls => { tag = "SellerDtls"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_field_BuyerDtls => { tag = "BuyerDtls"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_field_DispDtls => { tag = "DispDtls"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_field_ShipDtls => { tag = "ShipDtls"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_field_ItemList => { tag = "ItemList"; min = 1i32; max = None }
+    | GstInvoice_field_ValDtls => { tag = "ValDtls"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_field_PayDtls => { tag = "PayDtls"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_field_RefDtls => { tag = "RefDtls"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_field_AddlDocDtls => { tag = "AddlDocDtls"; min = 0i32; max = None }
+    | GstInvoice_field_ExpDtls => { tag = "ExpDtls"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_field_EwbDtls => { tag = "EwbDtls"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_ewb_dtls_field r =
     | GstInvoice_EwbDtls_field_TransId :: x_gst_invoice_ewb_dtls_field (option (x_gst_invoice_ewb_dtls_trans_id))
     | GstInvoice_EwbDtls_field_TransName :: x_gst_invoice_ewb_dtls_field (option (x_gst_invoice_ewb_dtls_trans_name))
@@ -3588,6 +3624,28 @@ inl x_gst_invoice_ewb_dtls_get forall r. (f : x_gst_invoice_ewb_dtls_field r) (x
     | GstInvoice_EwbDtls_field_VehNo => x.veh_no
     | GstInvoice_EwbDtls_field_VehType => x.veh_type
 
+inl x_gst_invoice_ewb_dtls_fields () : list (exists r. x_gst_invoice_ewb_dtls_field r) =
+    [
+        exists GstInvoice_EwbDtls_field_TransId
+        exists GstInvoice_EwbDtls_field_TransName
+        exists GstInvoice_EwbDtls_field_TransMode
+        exists GstInvoice_EwbDtls_field_Distance
+        exists GstInvoice_EwbDtls_field_TransDocNo
+        exists GstInvoice_EwbDtls_field_TransDocDt
+        exists GstInvoice_EwbDtls_field_VehNo
+        exists GstInvoice_EwbDtls_field_VehType
+    ]
+inl x_gst_invoice_ewb_dtls_field_meta forall r. (f : x_gst_invoice_ewb_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_EwbDtls_field_TransId => { tag = "TransId"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_EwbDtls_field_TransName => { tag = "TransName"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_EwbDtls_field_TransMode => { tag = "TransMode"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_EwbDtls_field_Distance => { tag = "Distance"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_EwbDtls_field_TransDocNo => { tag = "TransDocNo"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_EwbDtls_field_TransDocDt => { tag = "TransDocDt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_EwbDtls_field_VehNo => { tag = "VehNo"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_EwbDtls_field_VehType => { tag = "VehType"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_exp_dtls_field r =
     | GstInvoice_ExpDtls_field_ShipBNo :: x_gst_invoice_exp_dtls_field (option (x_gst_invoice_exp_dtls_ship_b_no))
     | GstInvoice_ExpDtls_field_ShipBDt :: x_gst_invoice_exp_dtls_field (option (x_gst_invoice_exp_dtls_ship_b_dt))
@@ -3607,6 +3665,26 @@ inl x_gst_invoice_exp_dtls_get forall r. (f : x_gst_invoice_exp_dtls_field r) (x
     | GstInvoice_ExpDtls_field_CntCode => x.cnt_code
     | GstInvoice_ExpDtls_field_ExpDuty => x.exp_duty
 
+inl x_gst_invoice_exp_dtls_fields () : list (exists r. x_gst_invoice_exp_dtls_field r) =
+    [
+        exists GstInvoice_ExpDtls_field_ShipBNo
+        exists GstInvoice_ExpDtls_field_ShipBDt
+        exists GstInvoice_ExpDtls_field_Port
+        exists GstInvoice_ExpDtls_field_RefClm
+        exists GstInvoice_ExpDtls_field_ForCur
+        exists GstInvoice_ExpDtls_field_CntCode
+        exists GstInvoice_ExpDtls_field_ExpDuty
+    ]
+inl x_gst_invoice_exp_dtls_field_meta forall r. (f : x_gst_invoice_exp_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_ExpDtls_field_ShipBNo => { tag = "ShipBNo"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ExpDtls_field_ShipBDt => { tag = "ShipBDt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ExpDtls_field_Port => { tag = "Port"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ExpDtls_field_RefClm => { tag = "RefClm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ExpDtls_field_ForCur => { tag = "ForCur"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ExpDtls_field_CntCode => { tag = "CntCode"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ExpDtls_field_ExpDuty => { tag = "ExpDuty"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_addl_doc_dtls_field r =
     | GstInvoice_AddlDocDtls_field_Url :: x_gst_invoice_addl_doc_dtls_field (option (x_gst_invoice_addl_doc_dtls_url))
     | GstInvoice_AddlDocDtls_field_Docs :: x_gst_invoice_addl_doc_dtls_field (option (x_gst_invoice_addl_doc_dtls_docs))
@@ -3621,6 +3699,18 @@ inl x_gst_invoice_addl_doc_dtls_get forall r.
     | GstInvoice_AddlDocDtls_field_Docs => x.docs
     | GstInvoice_AddlDocDtls_field_Info => x.info
 
+inl x_gst_invoice_addl_doc_dtls_fields () : list (exists r. x_gst_invoice_addl_doc_dtls_field r) =
+    [
+        exists GstInvoice_AddlDocDtls_field_Url
+        exists GstInvoice_AddlDocDtls_field_Docs
+        exists GstInvoice_AddlDocDtls_field_Info
+    ]
+inl x_gst_invoice_addl_doc_dtls_field_meta forall r. (f : x_gst_invoice_addl_doc_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_AddlDocDtls_field_Url => { tag = "Url"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_AddlDocDtls_field_Docs => { tag = "Docs"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_AddlDocDtls_field_Info => { tag = "Info"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_ref_dtls_field r =
     | GstInvoice_RefDtls_field_InvRm :: x_gst_invoice_ref_dtls_field (option (x_gst_invoice_ref_dtls_inv_rm))
     | GstInvoice_RefDtls_field_DocPerdDtls ::
@@ -3634,6 +3724,20 @@ inl x_gst_invoice_ref_dtls_get forall r. (f : x_gst_invoice_ref_dtls_field r) (x
     | GstInvoice_RefDtls_field_DocPerdDtls => x.doc_perd_dtls
     | GstInvoice_RefDtls_field_PrecDocDtls => x.prec_doc_dtls
     | GstInvoice_RefDtls_field_ContrDtls => x.contr_dtls
+
+inl x_gst_invoice_ref_dtls_fields () : list (exists r. x_gst_invoice_ref_dtls_field r) =
+    [
+        exists GstInvoice_RefDtls_field_InvRm
+        exists GstInvoice_RefDtls_field_DocPerdDtls
+        exists GstInvoice_RefDtls_field_PrecDocDtls
+        exists GstInvoice_RefDtls_field_ContrDtls
+    ]
+inl x_gst_invoice_ref_dtls_field_meta forall r. (f : x_gst_invoice_ref_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_RefDtls_field_InvRm => { tag = "InvRm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_field_DocPerdDtls => { tag = "DocPerdDtls"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_field_PrecDocDtls => { tag = "PrecDocDtls"; min = 0i32; max = None }
+    | GstInvoice_RefDtls_field_ContrDtls => { tag = "ContrDtls"; min = 0i32; max = None }
 
 union x_gst_invoice_ref_dtls_contr_dtls_field r =
     | GstInvoice_RefDtls_ContrDtls_field_RecAdvRefr ::
@@ -3667,6 +3771,31 @@ inl x_gst_invoice_ref_dtls_contr_dtls_get forall r.
     | GstInvoice_RefDtls_ContrDtls_field_PORefr => x.po_refr
     | GstInvoice_RefDtls_ContrDtls_field_PORefDt => x.po_ref_dt
 
+inl x_gst_invoice_ref_dtls_contr_dtls_fields () : list (exists r. x_gst_invoice_ref_dtls_contr_dtls_field r) =
+    [
+        exists GstInvoice_RefDtls_ContrDtls_field_RecAdvRefr
+        exists GstInvoice_RefDtls_ContrDtls_field_RecAdvDt
+        exists GstInvoice_RefDtls_ContrDtls_field_TendRefr
+        exists GstInvoice_RefDtls_ContrDtls_field_ContrRefr
+        exists GstInvoice_RefDtls_ContrDtls_field_ExtRefr
+        exists GstInvoice_RefDtls_ContrDtls_field_ProjRefr
+        exists GstInvoice_RefDtls_ContrDtls_field_PORefr
+        exists GstInvoice_RefDtls_ContrDtls_field_PORefDt
+    ]
+inl x_gst_invoice_ref_dtls_contr_dtls_field_meta forall r.
+    (f : x_gst_invoice_ref_dtls_contr_dtls_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | GstInvoice_RefDtls_ContrDtls_field_RecAdvRefr => { tag = "RecAdvRefr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_ContrDtls_field_RecAdvDt => { tag = "RecAdvDt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_ContrDtls_field_TendRefr => { tag = "TendRefr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_ContrDtls_field_ContrRefr => { tag = "ContrRefr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_ContrDtls_field_ExtRefr => { tag = "ExtRefr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_ContrDtls_field_ProjRefr => { tag = "ProjRefr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_ContrDtls_field_PORefr => { tag = "PORefr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_ContrDtls_field_PORefDt => { tag = "PORefDt"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_ref_dtls_prec_doc_dtls_field r =
     | GstInvoice_RefDtls_PrecDocDtls_field_InvNo ::
         x_gst_invoice_ref_dtls_prec_doc_dtls_field (x_gst_invoice_ref_dtls_prec_doc_dtls_inv_no)
@@ -3684,6 +3813,21 @@ inl x_gst_invoice_ref_dtls_prec_doc_dtls_get forall r.
     | GstInvoice_RefDtls_PrecDocDtls_field_InvDt => x.inv_dt
     | GstInvoice_RefDtls_PrecDocDtls_field_OthRefNo => x.oth_ref_no
 
+inl x_gst_invoice_ref_dtls_prec_doc_dtls_fields () : list (exists r. x_gst_invoice_ref_dtls_prec_doc_dtls_field r) =
+    [
+        exists GstInvoice_RefDtls_PrecDocDtls_field_InvNo
+        exists GstInvoice_RefDtls_PrecDocDtls_field_InvDt
+        exists GstInvoice_RefDtls_PrecDocDtls_field_OthRefNo
+    ]
+inl x_gst_invoice_ref_dtls_prec_doc_dtls_field_meta forall r.
+    (f : x_gst_invoice_ref_dtls_prec_doc_dtls_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | GstInvoice_RefDtls_PrecDocDtls_field_InvNo => { tag = "InvNo"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_PrecDocDtls_field_InvDt => { tag = "InvDt"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_PrecDocDtls_field_OthRefNo => { tag = "OthRefNo"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_ref_dtls_doc_perd_dtls_field r =
     | GstInvoice_RefDtls_DocPerdDtls_field_InvStDt ::
         x_gst_invoice_ref_dtls_doc_perd_dtls_field (x_gst_invoice_ref_dtls_doc_perd_dtls_inv_st_dt)
@@ -3697,6 +3841,16 @@ inl x_gst_invoice_ref_dtls_doc_perd_dtls_get forall r.
     match f with
     | GstInvoice_RefDtls_DocPerdDtls_field_InvStDt => x.inv_st_dt
     | GstInvoice_RefDtls_DocPerdDtls_field_InvEndDt => x.inv_end_dt
+
+inl x_gst_invoice_ref_dtls_doc_perd_dtls_fields () : list (exists r. x_gst_invoice_ref_dtls_doc_perd_dtls_field r) =
+    [ exists GstInvoice_RefDtls_DocPerdDtls_field_InvStDt; exists GstInvoice_RefDtls_DocPerdDtls_field_InvEndDt ]
+inl x_gst_invoice_ref_dtls_doc_perd_dtls_field_meta forall r.
+    (f : x_gst_invoice_ref_dtls_doc_perd_dtls_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | GstInvoice_RefDtls_DocPerdDtls_field_InvStDt => { tag = "InvStDt"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_RefDtls_DocPerdDtls_field_InvEndDt => { tag = "InvEndDt"; min = 1i32; max = Some 1i32 }
 
 union x_gst_invoice_pay_dtls_field r =
     | GstInvoice_PayDtls_field_Nm :: x_gst_invoice_pay_dtls_field (option (x_gst_invoice_pay_dtls_nm))
@@ -3725,6 +3879,34 @@ inl x_gst_invoice_pay_dtls_get forall r. (f : x_gst_invoice_pay_dtls_field r) (x
     | GstInvoice_PayDtls_field_PaidAmt => x.paid_amt
     | GstInvoice_PayDtls_field_PaymtDue => x.paymt_due
 
+inl x_gst_invoice_pay_dtls_fields () : list (exists r. x_gst_invoice_pay_dtls_field r) =
+    [
+        exists GstInvoice_PayDtls_field_Nm
+        exists GstInvoice_PayDtls_field_AccDet
+        exists GstInvoice_PayDtls_field_Mode
+        exists GstInvoice_PayDtls_field_FinInsBr
+        exists GstInvoice_PayDtls_field_PayTerm
+        exists GstInvoice_PayDtls_field_PayInstr
+        exists GstInvoice_PayDtls_field_CrTrn
+        exists GstInvoice_PayDtls_field_DirDr
+        exists GstInvoice_PayDtls_field_CrDay
+        exists GstInvoice_PayDtls_field_PaidAmt
+        exists GstInvoice_PayDtls_field_PaymtDue
+    ]
+inl x_gst_invoice_pay_dtls_field_meta forall r. (f : x_gst_invoice_pay_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_PayDtls_field_Nm => { tag = "Nm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_AccDet => { tag = "AccDet"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_Mode => { tag = "Mode"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_FinInsBr => { tag = "FinInsBr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_PayTerm => { tag = "PayTerm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_PayInstr => { tag = "PayInstr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_CrTrn => { tag = "CrTrn"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_DirDr => { tag = "DirDr"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_CrDay => { tag = "CrDay"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_PaidAmt => { tag = "PaidAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_PayDtls_field_PaymtDue => { tag = "PaymtDue"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_val_dtls_field r =
     | GstInvoice_ValDtls_field_AssVal :: x_gst_invoice_val_dtls_field (x_gst_invoice_val_dtls_ass_val)
     | GstInvoice_ValDtls_field_CgstVal :: x_gst_invoice_val_dtls_field (option (x_gst_invoice_val_dtls_cgst_val))
@@ -3752,6 +3934,34 @@ inl x_gst_invoice_val_dtls_get forall r. (f : x_gst_invoice_val_dtls_field r) (x
     | GstInvoice_ValDtls_field_RndOffAmt => x.rnd_off_amt
     | GstInvoice_ValDtls_field_TotInvVal => x.tot_inv_val
     | GstInvoice_ValDtls_field_TotInvValFc => x.tot_inv_val_fc
+
+inl x_gst_invoice_val_dtls_fields () : list (exists r. x_gst_invoice_val_dtls_field r) =
+    [
+        exists GstInvoice_ValDtls_field_AssVal
+        exists GstInvoice_ValDtls_field_CgstVal
+        exists GstInvoice_ValDtls_field_SgstVal
+        exists GstInvoice_ValDtls_field_IgstVal
+        exists GstInvoice_ValDtls_field_CesVal
+        exists GstInvoice_ValDtls_field_StCesVal
+        exists GstInvoice_ValDtls_field_Discount
+        exists GstInvoice_ValDtls_field_OthChrg
+        exists GstInvoice_ValDtls_field_RndOffAmt
+        exists GstInvoice_ValDtls_field_TotInvVal
+        exists GstInvoice_ValDtls_field_TotInvValFc
+    ]
+inl x_gst_invoice_val_dtls_field_meta forall r. (f : x_gst_invoice_val_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_ValDtls_field_AssVal => { tag = "AssVal"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_CgstVal => { tag = "CgstVal"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_SgstVal => { tag = "SgstVal"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_IgstVal => { tag = "IgstVal"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_CesVal => { tag = "CesVal"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_StCesVal => { tag = "StCesVal"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_Discount => { tag = "Discount"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_OthChrg => { tag = "OthChrg"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_RndOffAmt => { tag = "RndOffAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_TotInvVal => { tag = "TotInvVal"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ValDtls_field_TotInvValFc => { tag = "TotInvValFc"; min = 0i32; max = Some 1i32 }
 
 union x_gst_invoice_item_list_field r =
     | GstInvoice_ItemList_field_SlNo :: x_gst_invoice_item_list_field (x_gst_invoice_item_list_sl_no)
@@ -3824,6 +4034,72 @@ inl x_gst_invoice_item_list_get forall r. (f : x_gst_invoice_item_list_field r) 
     | GstInvoice_ItemList_field_BchDtls => x.bch_dtls
     | GstInvoice_ItemList_field_AttribDtls => x.attrib_dtls
 
+inl x_gst_invoice_item_list_fields () : list (exists r. x_gst_invoice_item_list_field r) =
+    [
+        exists GstInvoice_ItemList_field_SlNo
+        exists GstInvoice_ItemList_field_PrdDesc
+        exists GstInvoice_ItemList_field_IsServc
+        exists GstInvoice_ItemList_field_HsnCd
+        exists GstInvoice_ItemList_field_Barcde
+        exists GstInvoice_ItemList_field_Qty
+        exists GstInvoice_ItemList_field_FreeQty
+        exists GstInvoice_ItemList_field_Unit
+        exists GstInvoice_ItemList_field_UnitPrice
+        exists GstInvoice_ItemList_field_TotAmt
+        exists GstInvoice_ItemList_field_Discount
+        exists GstInvoice_ItemList_field_PreTaxVal
+        exists GstInvoice_ItemList_field_AssAmt
+        exists GstInvoice_ItemList_field_GstRt
+        exists GstInvoice_ItemList_field_IgstAmt
+        exists GstInvoice_ItemList_field_CgstAmt
+        exists GstInvoice_ItemList_field_SgstAmt
+        exists GstInvoice_ItemList_field_CesRt
+        exists GstInvoice_ItemList_field_CesAmt
+        exists GstInvoice_ItemList_field_CesNonAdvlAmt
+        exists GstInvoice_ItemList_field_StateCesRt
+        exists GstInvoice_ItemList_field_StateCesAmt
+        exists GstInvoice_ItemList_field_StateCesNonAdvlAmt
+        exists GstInvoice_ItemList_field_OthChrg
+        exists GstInvoice_ItemList_field_TotItemVal
+        exists GstInvoice_ItemList_field_OrdLineRef
+        exists GstInvoice_ItemList_field_OrgCntry
+        exists GstInvoice_ItemList_field_PrdSlNo
+        exists GstInvoice_ItemList_field_BchDtls
+        exists GstInvoice_ItemList_field_AttribDtls
+    ]
+inl x_gst_invoice_item_list_field_meta forall r. (f : x_gst_invoice_item_list_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_ItemList_field_SlNo => { tag = "SlNo"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_PrdDesc => { tag = "PrdDesc"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_IsServc => { tag = "IsServc"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_HsnCd => { tag = "HsnCd"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_Barcde => { tag = "Barcde"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_Qty => { tag = "Qty"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_FreeQty => { tag = "FreeQty"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_Unit => { tag = "Unit"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_UnitPrice => { tag = "UnitPrice"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_TotAmt => { tag = "TotAmt"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_Discount => { tag = "Discount"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_PreTaxVal => { tag = "PreTaxVal"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_AssAmt => { tag = "AssAmt"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_GstRt => { tag = "GstRt"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_IgstAmt => { tag = "IgstAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_CgstAmt => { tag = "CgstAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_SgstAmt => { tag = "SgstAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_CesRt => { tag = "CesRt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_CesAmt => { tag = "CesAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_CesNonAdvlAmt => { tag = "CesNonAdvlAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_StateCesRt => { tag = "StateCesRt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_StateCesAmt => { tag = "StateCesAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_StateCesNonAdvlAmt => { tag = "StateCesNonAdvlAmt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_OthChrg => { tag = "OthChrg"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_TotItemVal => { tag = "TotItemVal"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_OrdLineRef => { tag = "OrdLineRef"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_OrgCntry => { tag = "OrgCntry"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_PrdSlNo => { tag = "PrdSlNo"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_BchDtls => { tag = "BchDtls"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_field_AttribDtls => { tag = "AttribDtls"; min = 0i32; max = None }
+
 union x_gst_invoice_item_list_attrib_dtls_field r =
     | GstInvoice_ItemList_AttribDtls_field_Nm ::
         x_gst_invoice_item_list_attrib_dtls_field (option (x_gst_invoice_item_list_attrib_dtls_nm))
@@ -3837,6 +4113,16 @@ inl x_gst_invoice_item_list_attrib_dtls_get forall r.
     match f with
     | GstInvoice_ItemList_AttribDtls_field_Nm => x.nm
     | GstInvoice_ItemList_AttribDtls_field_Val => x.val
+
+inl x_gst_invoice_item_list_attrib_dtls_fields () : list (exists r. x_gst_invoice_item_list_attrib_dtls_field r) =
+    [ exists GstInvoice_ItemList_AttribDtls_field_Nm; exists GstInvoice_ItemList_AttribDtls_field_Val ]
+inl x_gst_invoice_item_list_attrib_dtls_field_meta forall r.
+    (f : x_gst_invoice_item_list_attrib_dtls_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | GstInvoice_ItemList_AttribDtls_field_Nm => { tag = "Nm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_AttribDtls_field_Val => { tag = "Val"; min = 0i32; max = Some 1i32 }
 
 union x_gst_invoice_item_list_bch_dtls_field r =
     | GstInvoice_ItemList_BchDtls_field_Nm ::
@@ -3854,6 +4140,21 @@ inl x_gst_invoice_item_list_bch_dtls_get forall r.
     | GstInvoice_ItemList_BchDtls_field_Nm => x.nm
     | GstInvoice_ItemList_BchDtls_field_ExpDt => x.exp_dt
     | GstInvoice_ItemList_BchDtls_field_WrDt => x.wr_dt
+
+inl x_gst_invoice_item_list_bch_dtls_fields () : list (exists r. x_gst_invoice_item_list_bch_dtls_field r) =
+    [
+        exists GstInvoice_ItemList_BchDtls_field_Nm
+        exists GstInvoice_ItemList_BchDtls_field_ExpDt
+        exists GstInvoice_ItemList_BchDtls_field_WrDt
+    ]
+inl x_gst_invoice_item_list_bch_dtls_field_meta forall r.
+    (f : x_gst_invoice_item_list_bch_dtls_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | GstInvoice_ItemList_BchDtls_field_Nm => { tag = "Nm"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ItemList_BchDtls_field_ExpDt => { tag = "ExpDt"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ItemList_BchDtls_field_WrDt => { tag = "WrDt"; min = 0i32; max = Some 1i32 }
 
 union x_gst_invoice_ship_dtls_field r =
     | GstInvoice_ShipDtls_field_Gstin :: x_gst_invoice_ship_dtls_field (option (x_gst_invoice_ship_dtls_gstin))
@@ -3876,6 +4177,28 @@ inl x_gst_invoice_ship_dtls_get forall r. (f : x_gst_invoice_ship_dtls_field r) 
     | GstInvoice_ShipDtls_field_Pin => x.pin
     | GstInvoice_ShipDtls_field_Stcd => x.stcd
 
+inl x_gst_invoice_ship_dtls_fields () : list (exists r. x_gst_invoice_ship_dtls_field r) =
+    [
+        exists GstInvoice_ShipDtls_field_Gstin
+        exists GstInvoice_ShipDtls_field_LglNm
+        exists GstInvoice_ShipDtls_field_TrdNm
+        exists GstInvoice_ShipDtls_field_Addr1
+        exists GstInvoice_ShipDtls_field_Addr2
+        exists GstInvoice_ShipDtls_field_Loc
+        exists GstInvoice_ShipDtls_field_Pin
+        exists GstInvoice_ShipDtls_field_Stcd
+    ]
+inl x_gst_invoice_ship_dtls_field_meta forall r. (f : x_gst_invoice_ship_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_ShipDtls_field_Gstin => { tag = "Gstin"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ShipDtls_field_LglNm => { tag = "LglNm"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ShipDtls_field_TrdNm => { tag = "TrdNm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ShipDtls_field_Addr1 => { tag = "Addr1"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ShipDtls_field_Addr2 => { tag = "Addr2"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_ShipDtls_field_Loc => { tag = "Loc"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ShipDtls_field_Pin => { tag = "Pin"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_ShipDtls_field_Stcd => { tag = "Stcd"; min = 1i32; max = Some 1i32 }
+
 union x_gst_invoice_disp_dtls_field r =
     | GstInvoice_DispDtls_field_Nm :: x_gst_invoice_disp_dtls_field (x_gst_invoice_disp_dtls_nm)
     | GstInvoice_DispDtls_field_Addr1 :: x_gst_invoice_disp_dtls_field (x_gst_invoice_disp_dtls_addr1)
@@ -3892,6 +4215,24 @@ inl x_gst_invoice_disp_dtls_get forall r. (f : x_gst_invoice_disp_dtls_field r) 
     | GstInvoice_DispDtls_field_Loc => x.loc
     | GstInvoice_DispDtls_field_Pin => x.pin
     | GstInvoice_DispDtls_field_Stcd => x.stcd
+
+inl x_gst_invoice_disp_dtls_fields () : list (exists r. x_gst_invoice_disp_dtls_field r) =
+    [
+        exists GstInvoice_DispDtls_field_Nm
+        exists GstInvoice_DispDtls_field_Addr1
+        exists GstInvoice_DispDtls_field_Addr2
+        exists GstInvoice_DispDtls_field_Loc
+        exists GstInvoice_DispDtls_field_Pin
+        exists GstInvoice_DispDtls_field_Stcd
+    ]
+inl x_gst_invoice_disp_dtls_field_meta forall r. (f : x_gst_invoice_disp_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_DispDtls_field_Nm => { tag = "Nm"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_DispDtls_field_Addr1 => { tag = "Addr1"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_DispDtls_field_Addr2 => { tag = "Addr2"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_DispDtls_field_Loc => { tag = "Loc"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_DispDtls_field_Pin => { tag = "Pin"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_DispDtls_field_Stcd => { tag = "Stcd"; min = 1i32; max = Some 1i32 }
 
 union x_gst_invoice_buyer_dtls_field r =
     | GstInvoice_BuyerDtls_field_Gstin :: x_gst_invoice_buyer_dtls_field (x_gst_invoice_buyer_dtls_gstin)
@@ -3919,6 +4260,34 @@ inl x_gst_invoice_buyer_dtls_get forall r. (f : x_gst_invoice_buyer_dtls_field r
     | GstInvoice_BuyerDtls_field_Stcd => x.stcd
     | GstInvoice_BuyerDtls_field_Ph => x.ph
     | GstInvoice_BuyerDtls_field_Em => x.em
+
+inl x_gst_invoice_buyer_dtls_fields () : list (exists r. x_gst_invoice_buyer_dtls_field r) =
+    [
+        exists GstInvoice_BuyerDtls_field_Gstin
+        exists GstInvoice_BuyerDtls_field_LglNm
+        exists GstInvoice_BuyerDtls_field_TrdNm
+        exists GstInvoice_BuyerDtls_field_Pos
+        exists GstInvoice_BuyerDtls_field_Addr1
+        exists GstInvoice_BuyerDtls_field_Addr2
+        exists GstInvoice_BuyerDtls_field_Loc
+        exists GstInvoice_BuyerDtls_field_Pin
+        exists GstInvoice_BuyerDtls_field_Stcd
+        exists GstInvoice_BuyerDtls_field_Ph
+        exists GstInvoice_BuyerDtls_field_Em
+    ]
+inl x_gst_invoice_buyer_dtls_field_meta forall r. (f : x_gst_invoice_buyer_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_BuyerDtls_field_Gstin => { tag = "Gstin"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_LglNm => { tag = "LglNm"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_TrdNm => { tag = "TrdNm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Pos => { tag = "Pos"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Addr1 => { tag = "Addr1"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Addr2 => { tag = "Addr2"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Loc => { tag = "Loc"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Pin => { tag = "Pin"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Stcd => { tag = "Stcd"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Ph => { tag = "Ph"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_BuyerDtls_field_Em => { tag = "Em"; min = 0i32; max = Some 1i32 }
 
 union x_gst_invoice_seller_dtls_field r =
     | GstInvoice_SellerDtls_field_Gstin :: x_gst_invoice_seller_dtls_field (x_gst_invoice_seller_dtls_gstin)
@@ -3948,6 +4317,32 @@ inl x_gst_invoice_seller_dtls_get forall r.
     | GstInvoice_SellerDtls_field_Ph => x.ph
     | GstInvoice_SellerDtls_field_Em => x.em
 
+inl x_gst_invoice_seller_dtls_fields () : list (exists r. x_gst_invoice_seller_dtls_field r) =
+    [
+        exists GstInvoice_SellerDtls_field_Gstin
+        exists GstInvoice_SellerDtls_field_LglNm
+        exists GstInvoice_SellerDtls_field_TrdNm
+        exists GstInvoice_SellerDtls_field_Addr1
+        exists GstInvoice_SellerDtls_field_Addr2
+        exists GstInvoice_SellerDtls_field_Loc
+        exists GstInvoice_SellerDtls_field_Pin
+        exists GstInvoice_SellerDtls_field_Stcd
+        exists GstInvoice_SellerDtls_field_Ph
+        exists GstInvoice_SellerDtls_field_Em
+    ]
+inl x_gst_invoice_seller_dtls_field_meta forall r. (f : x_gst_invoice_seller_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_SellerDtls_field_Gstin => { tag = "Gstin"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_LglNm => { tag = "LglNm"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_TrdNm => { tag = "TrdNm"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_Addr1 => { tag = "Addr1"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_Addr2 => { tag = "Addr2"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_Loc => { tag = "Loc"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_Pin => { tag = "Pin"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_Stcd => { tag = "Stcd"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_Ph => { tag = "Ph"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_SellerDtls_field_Em => { tag = "Em"; min = 0i32; max = Some 1i32 }
+
 union x_gst_invoice_doc_dtls_field r =
     | GstInvoice_DocDtls_field_Typ :: x_gst_invoice_doc_dtls_field (x_gst_invoice_doc_dtls_typ)
     | GstInvoice_DocDtls_field_No :: x_gst_invoice_doc_dtls_field (x_gst_invoice_doc_dtls_no)
@@ -3958,6 +4353,14 @@ inl x_gst_invoice_doc_dtls_get forall r. (f : x_gst_invoice_doc_dtls_field r) (x
     | GstInvoice_DocDtls_field_Typ => x.typ
     | GstInvoice_DocDtls_field_No => x.no
     | GstInvoice_DocDtls_field_Dt => x.dt
+
+inl x_gst_invoice_doc_dtls_fields () : list (exists r. x_gst_invoice_doc_dtls_field r) =
+    [ exists GstInvoice_DocDtls_field_Typ; exists GstInvoice_DocDtls_field_No; exists GstInvoice_DocDtls_field_Dt ]
+inl x_gst_invoice_doc_dtls_field_meta forall r. (f : x_gst_invoice_doc_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_DocDtls_field_Typ => { tag = "Typ"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_DocDtls_field_No => { tag = "No"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_DocDtls_field_Dt => { tag = "Dt"; min = 1i32; max = Some 1i32 }
 
 union x_gst_invoice_tran_dtls_field r =
     | GstInvoice_TranDtls_field_TaxSch :: x_gst_invoice_tran_dtls_field (x_gst_invoice_tran_dtls_tax_sch)
@@ -3974,6 +4377,22 @@ inl x_gst_invoice_tran_dtls_get forall r. (f : x_gst_invoice_tran_dtls_field r) 
     | GstInvoice_TranDtls_field_RegRev => x.reg_rev
     | GstInvoice_TranDtls_field_EcmGstin => x.ecm_gstin
     | GstInvoice_TranDtls_field_IgstOnIntra => x.igst_on_intra
+
+inl x_gst_invoice_tran_dtls_fields () : list (exists r. x_gst_invoice_tran_dtls_field r) =
+    [
+        exists GstInvoice_TranDtls_field_TaxSch
+        exists GstInvoice_TranDtls_field_SupTyp
+        exists GstInvoice_TranDtls_field_RegRev
+        exists GstInvoice_TranDtls_field_EcmGstin
+        exists GstInvoice_TranDtls_field_IgstOnIntra
+    ]
+inl x_gst_invoice_tran_dtls_field_meta forall r. (f : x_gst_invoice_tran_dtls_field r) : xml_codec.field_meta =
+    match f with
+    | GstInvoice_TranDtls_field_TaxSch => { tag = "TaxSch"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_TranDtls_field_SupTyp => { tag = "SupTyp"; min = 1i32; max = Some 1i32 }
+    | GstInvoice_TranDtls_field_RegRev => { tag = "RegRev"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_TranDtls_field_EcmGstin => { tag = "EcmGstin"; min = 0i32; max = Some 1i32 }
+    | GstInvoice_TranDtls_field_IgstOnIntra => { tag = "IgstOnIntra"; min = 0i32; max = Some 1i32 }
 
 let rec x_gst_invoice_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)

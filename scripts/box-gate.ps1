@@ -6,7 +6,7 @@ param(
     [string] $FiscalRoot = (Split-Path $PSScriptRoot),
     [string] $GateRoot = (Join-Path $env:LOCALAPPDATA 'fiscal-gate'),
     [string] $Compiler = (Join-Path $env:LOCALAPPDATA 'fiscal-gate\compiler\net11.0\SpiralCompiler.dll'),
-    [string] $LibGate = 'C:\home\git\spiral\apps\cells\spi\lib_gate.ps1'
+    [string] $LibGate = (Join-Path ($env:SPIRAL_CELLS_ROOT ? $env:SPIRAL_CELLS_ROOT : 'C:\home\git\spiral\apps\cells') 'spi\lib_gate.ps1')
 )
 $env:SPIRAL_COMPILER_DLL = $Compiler
 $env:SPIRAL_CELLS_SERVER = '0'

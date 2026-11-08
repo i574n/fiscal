@@ -25,6 +25,10 @@
     | CfdiComplements
     | ModelChecks : string
     | DocumentDefect : string * string
+    | GatePreload : repo_path
+    | GateResolve
+    | Ungated : string
+    | LifecycleEvent : string
 
 :~ ^ has_extra (extra : family_extra) (extras : list family_extra) : bool =
     ?= extras ?|
@@ -42,6 +46,28 @@
     | (DocumentDefect defect) :: rest => defect :: document_defects rest
     | _ :: rest => document_defects rest
     | [] => []
+
+:~ ^ gate_preloads (extras : list family_extra) : list string =
+    ?= extras ?|
+    | (GatePreload path) :: rest => repo_text path :: gate_preloads rest
+    | _ :: rest => gate_preloads rest
+    | [] => []
+
+:~ ^ lifecycle_events (extras : list family_extra) : list string =
+    ?= extras ?|
+    | (LifecycleEvent code) :: rest => code :: lifecycle_events rest
+    | _ :: rest => lifecycle_events rest
+    | [] => []
+
+:~ ^ ungated_reason (extras : list family_extra) : option string =
+    ?= extras ?|
+    | (Ungated reason) :: _ => Some reason
+    | _ :: rest => ungated_reason rest
+    | [] => None
+
+:= xmldsig_schema () : repo_path = repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd"
+
+:= resolved_gate () : list family_extra = [ GateResolve; GatePreload (xmldsig_schema ()) ]
 
 :! module_id = string
 
@@ -101,7 +127,12 @@
         known_defect = None
         documents = Listed [ "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml" ]
         ubl_json_documents = Listed []
-        extras = [ CfdiComplements ]
+        extras =
+            [
+                CfdiComplements
+                GatePreload (repo_path "deps/corpus/mx/cfdi/catCFDI.xsd")
+                GatePreload (repo_path "deps/corpus/mx/cfdi/tdCFDI.xsd")
+            ]
     }
 
 := cfdi_complement
@@ -118,7 +149,11 @@
         known_defect = None
         documents = Listed []
         ubl_json_documents = Listed []
-        extras = []
+        extras =
+            [
+                GateResolve
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := td_cfdi_import () : string * repo_path =
@@ -220,10 +255,6 @@
     ++# "        | Some _ => ()\n"
     ++# "        | None => failwith \"TEnderEmi optional cPais\"\n"
     ++# "    | _ => failwith \"one enderEmit element\"\n"
-    ++# "\n///> rust\ntest generated_nfe_reports_a_missing_element_with_its_path =\n"
-    ++# "    inl document = xml_codec.pruned \"cUF\" (x_tn_fe_to_xml \"NFe\" (x_tn_fe_example 0i32))\n"
-    ++# "    if xml_codec.reports \"missing infNFe/ide/cUF\" (x_tn_fe_of_xml Unsigned document) = false then\n"
-    ++# "        failwith \"an NF-e without ide/cUF is reported as missing infNFe/ide/cUF, not raised\"\n"
 
 := nfe_v4_base () : family_root =
     bare_family
@@ -237,17 +268,21 @@
     := base = nfe_v4_base ()
     { base with extras = [ Signed; ModelChecks (nfe_model_checks ()) ] }
 
-:= nfe_event_rows () : list (string * string) =
+:= nfe_event_rows () : list (string * string * string) =
     [
-        ("generated_nfe_evento_canc_v1_00", "procEventoCancNFe_v1.00.xsd");
-        ("generated_nfe_evento_cce_v1_00", "procCCeNFe_v1.00.xsd");
-        ("generated_nfe_evento_conf_recebto_v1_00", "procConfRecebtoNFe_v1.00.xsd")
+        ("generated_nfe_evento_canc_v1_00", "procEventoCancNFe_v1.00.xsd", "110111");
+        ("generated_nfe_evento_cce_v1_00", "procCCeNFe_v1.00.xsd", "110110");
+        ("generated_nfe_evento_conf_recebto_v1_00", "procConfRecebtoNFe_v1.00.xsd", "210200")
     ]
 
-:= nfe_event (row : string * string) : family_root =
-    := module_name, schema = row
+:= nfe_event_base (module_name : string) (schema : string) : family_root =
     := path = "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/" ++# schema
     signed_family module_name path "procEventoNFe" "TProcEvento" "http://www.portalfiscal.inf.br/nfe"
+
+:= nfe_event (row : string * string * string) : family_root =
+    := module_name, schema, code = row
+    := base = nfe_event_base module_name schema
+    { base with extras = [ Signed; LifecycleEvent code ] }
 
 := nfe_events () : list family_root = listm::map nfe_event (nfe_event_rows ())
 
@@ -280,7 +315,11 @@
         documents = Manifest (repo_path "deps/corpus/ubl-invoice-documents.txt")
         ubl_json_documents = Manifest (repo_path "deps/corpus/ubl-invoice-json-documents.txt")
         extras =
-            [ DocumentDefect ("deps/corpus/my/samples/1.1-Invoice-ForeignCurrency-Sample.xml", "PayableAmount: abc") ]
+            [
+                DocumentDefect ("deps/corpus/my/samples/1.1-Invoice-ForeignCurrency-Sample.xml", "PayableAmount: abc")
+                GateResolve
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := ubl_creditnote_2_1 () : family_root =
@@ -294,7 +333,11 @@
         known_defect = None
         documents = Manifest (repo_path "deps/corpus/ubl-creditnote-documents.txt")
         ubl_json_documents = Manifest (repo_path "deps/corpus/ubl-creditnote-json-documents.txt")
-        extras = []
+        extras =
+            [
+                GateResolve
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := ubl_manifest (lower : string) (suffix : string) : document_source =
@@ -314,6 +357,7 @@
     { base with
         documents = ubl_manifest lower "-documents.txt"
         ubl_json_documents = ubl_manifest lower "-json-documents.txt"
+        extras = resolved_gate ()
     }
 
 := ubl_business_documents_2_1 () : list family_root =
@@ -339,7 +383,10 @@
         known_defect = None
         documents = Listed []
         ubl_json_documents = Listed []
-        extras = []
+        extras =
+            [
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := ksef_fa_3 () : family_root =
@@ -359,7 +406,12 @@
         known_defect = None
         documents = Listed []
         ubl_json_documents = Listed []
-        extras = []
+        extras =
+            [
+                GatePreload (repo_path "deps/corpus/pl/ksef/ElementarneTypyDanych_v10-0E.xsd")
+                GatePreload (repo_path "deps/corpus/pl/ksef/KodyKrajow_v10-0E.xsd")
+                GatePreload (repo_path "deps/corpus/pl/ksef/StrukturyDanych_v10-0E.xsd")
+            ]
     }
 
 := chile_dte_v10 () : family_root =
@@ -373,7 +425,7 @@
         known_defect = None
         documents = Listed []
         ubl_json_documents = Listed []
-        extras = [ Signed ]
+        extras = [ Signed; GateResolve ]
     }
 
 := chile_envio_dte_v10 () : family_root =
@@ -387,7 +439,7 @@
         known_defect = None
         documents = Listed [ "deps/corpus/cl/examples/F60T33-ejemplo.xml" ]
         ubl_json_documents = Listed []
-        extras = [ Signed ]
+        extras = [ Signed; GateResolve ]
     }
 
 := facturae_3_2_2 () : family_root =
@@ -419,7 +471,11 @@
                 "deps/corpus/es/facturae/samples/invoice-vat.xml"
             ]
         ubl_json_documents = Listed []
-        extras = []
+        extras =
+            [
+                GateResolve
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := cii_d16b () : family_root =
@@ -454,7 +510,7 @@
                 "deps/corpus/eu/en16931-cii/cii/examples/XRechnung-O.xml"
             ]
         ubl_json_documents = Listed []
-        extras = []
+        extras = [ Ungated "its example has no schema gate yet; the CII family item adds one" ]
     }
 
 := verifactu_registro () : family_root =
@@ -478,7 +534,11 @@
         known_defect = None
         documents = Listed []
         ubl_json_documents = Listed []
-        extras = []
+        extras =
+            [
+                GateResolve
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := saft_pt_1_04_01 () : family_root =
@@ -492,7 +552,7 @@
         known_defect = None
         documents = Listed [ "deps/corpus/pt/saft/samples/saft_idemo599999999.xml" ]
         ubl_json_documents = Listed []
-        extras = []
+        extras = [ Ungated "its example has no schema gate yet" ]
     }
 
 := mydata_2_0_2 () : family_root =
@@ -506,7 +566,11 @@
         known_defect = None
         documents = Manifest (repo_path "deps/corpus/gr-mydata-invoicesdoc-documents.txt")
         ubl_json_documents = Listed []
-        extras = []
+        extras =
+            [
+                GateResolve
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := hacienda_factura_4_4 () : family_root =
@@ -527,7 +591,12 @@
         known_defect = None
         documents = Listed []
         ubl_json_documents = Listed []
-        extras = [ Signed ]
+        extras =
+            [
+                Signed
+                GateResolve
+                GatePreload (repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd")
+            ]
     }
 
 := hacienda_namespace (root : string) : namespace_uri =
@@ -548,7 +617,7 @@
 
 := hacienda_document (root : string) (suffix : string) : family_root =
     := base = hacienda_base root suffix
-    { base with source = Xsd [ xmldsig_import () ]; extras = [ Signed ] }
+    { base with source = Xsd [ xmldsig_import () ]; extras = Signed :: resolved_gate () }
 
 := hacienda_rows () : list (string * string) =
     [
@@ -576,7 +645,7 @@
         known_defect = None
         documents = Manifest (repo_path "deps/corpus/hu-nav-invoicedata-documents.txt")
         ubl_json_documents = Listed []
-        extras = []
+        extras = [ Ungated "its example has no schema gate yet" ]
     }
 
 := gst_inv01_1_1 () : family_root =
@@ -592,6 +661,50 @@
         ubl_json_documents = Listed []
         extras = []
     }
+
+:= single_families_americas () : list family_root =
+    [
+        nfe_v4_00 (); cfdi_v4_0 (); cfdi_tfd_1_1 (); cfdi_pagos_2_0 (); chile_dte_v10 (); chile_envio_dte_v10 ()
+        hacienda_factura_4_4 ()
+    ]
+
+:= single_families_elsewhere () : list family_root =
+    [
+        ubl_invoice_2_1 (); ubl_creditnote_2_1 (); fatturapa_1_2_3 (); ksef_fa_3 (); facturae_3_2_2 ()
+        verifactu_registro (); saft_pt_1_04_01 (); cii_d16b (); mydata_2_0_2 (); nav_invoice_data_3_0 ()
+        gst_inv01_1_1 ()
+    ]
+
+:= all_families () : list family_root =
+    listm::concat [
+        family_roots (); nfe_events (); ubl_business_documents_2_1 (); hacienda_documents ()
+        single_families_americas (); single_families_elsewhere ()
+    ]
+
+:= gate_example (family : family_root) : string =
+    ?= family::source ?|
+    | JsonSchema => module_text family::module_name ++# "_example.json"
+    | Xsd _ => module_text family::module_name ++# "_example.xml"
+
+:= gate_kind (family : family_root) : string =
+    ?= family::source ?|
+    | JsonSchema => "json"
+    | Xsd _ => "xsd"
+
+:= gate_flag (family : family_root) : string = ? has_extra GateResolve family::extras ?> "1" |: "0"
+
+:= gate_row (family : family_root) : string =
+    := preloads = join_with ";" (gate_preloads family::extras) ""
+    := fields = [ gate_example family; repo_text family::schema_path; preloads; gate_flag family; gate_kind family ]
+    join_with "\t" fields ""
+
+:~ ^ gate_rows (families : list family_root) : list string =
+    ?= families ?|
+    | family :: rest => ? ungated_reason family::extras = None ?> gate_row family :: gate_rows rest |: gate_rows rest
+    | [] => []
+
+:= gate_table () : string =
+    join_with "\n" ("example\tschema\tpreloads\tresolve\tkind" :: gate_rows (all_families ())) ""
 
 :! brazil = ()
 :! europe_ubl = ()
@@ -633,18 +746,23 @@
 
 ///> rust
 test every_family_has_its_own_module_name =
-    := all =
-        listm::concat [
-            family_roots (); nfe_events (); ubl_business_documents_2_1 (); hacienda_documents ()
-            [ cfdi_v4_0 (); ubl_invoice_2_1 (); ubl_creditnote_2_1 (); fatturapa_1_2_3 (); ksef_fa_3 () ]
-            [
-                chile_dte_v10 (); chile_envio_dte_v10 (); facturae_3_2_2 (); verifactu_registro (); saft_pt_1_04_01 ()
-                cii_d16b ()
-            ]
-            [ mydata_2_0_2 (); hacienda_factura_4_4 (); nav_invoice_data_3_0 (); gst_inv01_1_1 () ]
-        ]
-    := names = listm::map (\ (f : family_root) => module_text f::module_name) all
+    := names = listm::map (\ (f : family_root) => module_text f::module_name) (all_families ())
     ? has_duplicate names ?> failwith "two families would write the same generated unit"
+    ? (listm::length names : i32) <> 45i32 ?> failwith "45 families: 42 gated examples plus CII, SAF-T and NAV"
+
+///> rust
+test the_gate_table_has_one_row_per_gated_family =
+    := table = gate_table ()
+    ? (listm::length (sm'::split_list "\n" table) : i32) <> 43i32 ?> failwith "a header and 42 gated families"
+    := nfe = "generated_nfe_v4_example.xml\tdeps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd\t\t0\txsd"
+    ? sm'::contains nfe table = !- ?> failwith "a DFe family validates against its own schema alone"
+    := dsig = "\tdeps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd\t1\txsd"
+    ? sm'::contains ("generated_cl_dte_v10_example.xml\tdeps/corpus/cl/dte/DTE_v10.xsd\t\t1\txsd") table = !-
+    ?> failwith "Chile DTE resolves its own signature import"
+    ? sm'::contains ("UBL-Invoice-2.1.xsd" ++# dsig) table = !- ?> failwith "UBL preloads the W3C xmldsig schema"
+    ? sm'::contains "generated_in_gst_inv01_1_1_example.json\tdeps/corpus/in/gst/inv01_1.1.json\t\t0\tjson" table = !-
+    ?> failwith "GST is a JSON Schema gate"
+    ? sm'::contains "generated_cii_d16b" table ?> failwith "an Ungated family writes no row"
 
 ///> rust
 test every_regime_lists_its_own_families =

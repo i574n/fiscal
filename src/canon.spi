@@ -417,6 +417,22 @@ test data_types_and_cardinalities_read_back_as_written =
     ?> failwith "every cardinality reads back as written"
 
 ///> rust
+test the_canon_text_codecs_declare_their_round_trip_shapes =
+    := types = listm::map (\ (_, d) => d) (data_type_names ())
+    := names = listm::map (\ (n, _) => n) (data_type_names ())
+    := same_type (a : data_type) (b : data_type) : bool = a = b
+    := same_text (a : string) (b : string) : bool = a = b
+    ? round_trip::laws_hold round_trip::Iso same_type same_text data_type_text data_type_of types names = !-
+    ?> failwith "an EN 16931 data type and its name are an isomorphism"
+    := cards = listm::map cardinality_of [ "0..1"; "1..1"; "0..n"; "1..n"; "0..2"; "1..2" ]
+    := texts = [ "0..1"; "1..n"; "1..01"; "0..002" ]
+    := same_card (a : cardinality) (b : cardinality) : bool = a = b
+    := shape = round_trip::Retraction round_trip::ThereAndBack
+    ? round_trip::laws_hold shape same_card same_text cardinality_text cardinality_of cards texts = !-
+    ?> failwith "a cardinality survives printing and reading back"
+    ? round_trip::tight shape same_card same_text cardinality_text cardinality_of cards texts = !-
+    ?> failwith "the cardinality codec is a tight retraction: 1..01 reads as 1..1, so text does not survive reading"
+///> rust
 test a_cardinality_within_its_ancestors_is_their_product =
     := card = cardinality_of
     := nested = [ ("0..1", "1..1"); ("1..1", "1..1"); ("1..n", "0..1"); ("0..2", "1..1"); ("1..2", "1..n") ]

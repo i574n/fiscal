@@ -250,8 +250,67 @@
     := header = [ "family"; "bound"; "implied"; "derived"; "national code"; "not carried" ]
     section "Canon census (the 24 required EN 16931 terms)" (table header (census_rows ()))
 
+:== ceiling_report_row = { family : string; construct : string; expressible : i32; typed : i32 }
+
+:= ceiling_report_row_of (c : list string) : ceiling_report_row =
+    {
+        family = cell c 0i32
+        construct = cell c 1i32
+        expressible = count_of (cell c 2i32)
+        typed = count_of (cell c 3i32)
+    }
+
+:= ceiling_capped (r : ceiling_report_row) : i32 = ? r::typed < r::expressible ?> r::typed |: r::expressible
+
+:= ceiling_family_name_of (r : ceiling_report_row) (names : list string) : list string =
+    ? listm'::contains r::family names ?> names |: r::family :: names
+
+:~ ^ ceiling_families (rows : list ceiling_report_row) (names : list string) : list string =
+    ?= rows ?|
+    | r :: rest => ceiling_families rest (ceiling_family_name_of r names)
+    | [] => listm::rev names
+
+:= ceiling_sum (measure : ceiling_report_row -> i32) (rows : list ceiling_report_row) : i32 =
+    listm::fold (\ total r => total + measure r) 0i32 rows
+
+:= ceiling_percent (typed : i32) (expressible : i32) : string =
+    ? expressible = 0i32 ?> "-" |: sm'::obj_to_string (typed * 100i32 / expressible)
+
+:= ceiling_untyped (rows : list ceiling_report_row) : string =
+    := missing = listm'::filter (\ (r : ceiling_report_row) => r::expressible > 0i32 && r::typed = 0i32) rows
+    sm'::concat_list ", " (listm::map (\ (r : ceiling_report_row) => r::construct) missing)
+
+:= ceiling_typed_total (rows : list ceiling_report_row) : i32 = ceiling_sum ceiling_capped rows
+
+:= ceiling_expressible_total (rows : list ceiling_report_row) : i32 =
+    ceiling_sum (\ (r : ceiling_report_row) => r::expressible) rows
+
+:= ceiling_count_cells (mine : list ceiling_report_row) : list string =
+    := typed = ceiling_typed_total mine
+    := expressible = ceiling_expressible_total mine
+    [
+        sm'::obj_to_string typed
+        sm'::obj_to_string expressible
+        ceiling_percent typed expressible
+        ceiling_untyped mine
+    ]
+
+:= ceiling_family_cells (rows : list ceiling_report_row) (family : string) : list string =
+    family :: ceiling_count_cells (listm'::filter (\ (r : ceiling_report_row) => r::family = family) rows)
+
+:= ceiling_table (rows : list ceiling_report_row) : list string =
+    := header = [ "family"; "typed"; "expressible"; "ceiling %"; "untyped kinds" ]
+    table header (listm::map (ceiling_family_cells rows) (ceiling_families rows []))
+
+:= ceiling_section (rows : list ceiling_report_row) : list string =
+    := body = ? rows = [] ?> [ "No modeling-ceiling rows in this run." ] |: ceiling_table rows
+    section "Modeling ceiling (typed / schema-expressible, per family)" body
+
+:= coverage_sections (ceiling : list ceiling_report_row) : list string = census_section () ++ ceiling_section ceiling
+
 := rendered
     (tests : list test_row) (files : list file_row) (bench : list bench_row) (examples : list example_row)
+    (ceiling : list ceiling_report_row)
     : string
     =
     := body =
@@ -259,7 +318,7 @@
         ++ files_section files
         ++ bench_section bench
         ++ examples_section examples
-        ++ census_section ()
+        ++ coverage_sections ceiling
     sm'::concat_list "\n" ([ "# fiscal CI reports"; ""; stamp () ] ++ body ++ [ "" ])
 
 := metrics_rows (kind : string) : list (list string) =
@@ -304,6 +363,7 @@ test writes_the_ci_reports =
         rendered
             (listm::map test_row_of (metrics_rows "tests")) (listm::map file_row_of (metrics_rows "files"))
             (listm::map bench_row_of (metrics_rows "bench")) (listm::map example_row_of (metrics_rows "examples"))
+            (listm::map ceiling_report_row_of (metrics_rows "modeling-ceiling"))
     file_system::directory_create_all (fiscal_paths::under "target/ci-metrics") |> ignore
     file_system::write_all_text (fiscal_paths::under "target/ci-metrics/reports.md") text
     ? sm'::starts_with "# fiscal CI reports" text = !- ?> failwith "the report has its title"
@@ -312,3 +372,29 @@ test writes_the_ci_reports =
 test the_canon_census_counts_each_family =
     ? census_rows () <> [ [ "NF-e 4.00"; "11"; "2"; "4"; "4"; "3" ]; [ "CFDI 4.0"; "11"; "1"; "5"; "3"; "4" ] ]
     ?> failwith "each family's 24 required terms split into bound, implied and the three gap kinds"
+
+///> rust
+test the_modeling_ceiling_caps_each_kind_at_its_schema =
+    := row (family : string) (construct : string) (e : i32) (t : i32) : ceiling_report_row =
+        { family = family; construct = construct; expressible = e; typed = t }
+    := rows =
+        [
+            row "a" "record" 3i32 2i32
+            row "a" "occurs" 1i32 5i32
+            row "a" "digits-facet" 2i32 0i32
+            row "b" "choice" 4i32 4i32
+        ]
+    ? ceiling_families rows [] <> [ "a"; "b" ] ?> failwith "families keep their first-seen order"
+    ? ceiling_family_cells rows "a" <> [ "a"; "3"; "6"; "50"; "digits-facet" ]
+    ?> failwith "typed is capped at the schema per kind, and an untyped kind is named"
+    ? ceiling_family_cells rows "b" <> [ "b"; "4"; "4"; "100"; "" ]
+    ?> failwith "a fully typed family reaches its ceiling"
+    ?
+        ceiling_section []
+        <> [
+            ""
+            "## Modeling ceiling (typed / schema-expressible, per family)"
+            ""
+            "No modeling-ceiling rows in this run."
+        ]
+    ?> failwith "a run without the ceiling says so"

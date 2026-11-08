@@ -3388,6 +3388,11 @@ inl x_invoices_doc_get forall r. (f : x_invoices_doc_field r) (x : x_invoices_do
     match f with
     | InvoicesDoc_field_group_invoice => x.group_invoice
 
+inl x_invoices_doc_fields () : list (exists r. x_invoices_doc_field r) = [ exists InvoicesDoc_field_group_invoice ]
+inl x_invoices_doc_field_meta forall r. (f : x_invoices_doc_field r) : xml_codec.field_meta =
+    match f with
+    | InvoicesDoc_field_group_invoice => { tag = "group_invoice"; min = 1i32; max = None }
+
 union x_invoices_doc_group_invoice_field r =
     | InvoicesDoc_group_invoice_field_invoice :: x_invoices_doc_group_invoice_field (x_aade_book_invoice_type)
 
@@ -3397,6 +3402,15 @@ inl x_invoices_doc_group_invoice_get forall r.
     =
     match f with
     | InvoicesDoc_group_invoice_field_invoice => x.invoice
+
+inl x_invoices_doc_group_invoice_fields () : list (exists r. x_invoices_doc_group_invoice_field r) =
+    [ exists InvoicesDoc_group_invoice_field_invoice ]
+inl x_invoices_doc_group_invoice_field_meta forall r.
+    (f : x_invoices_doc_group_invoice_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InvoicesDoc_group_invoice_field_invoice => { tag = "invoice"; min = 1i32; max = Some 1i32 }
 
 union x_expenses_classifications_doc_field r =
     | ExpensesClassificationsDoc_field_group_expenses_invoice_classification ::
@@ -3409,6 +3423,16 @@ inl x_expenses_classifications_doc_get forall r.
     =
     match f with
     | ExpensesClassificationsDoc_field_group_expenses_invoice_classification => x.group_expenses_invoice_classification
+
+inl x_expenses_classifications_doc_fields () : list (exists r. x_expenses_classifications_doc_field r) =
+    [ exists ExpensesClassificationsDoc_field_group_expenses_invoice_classification ]
+inl x_expenses_classifications_doc_field_meta forall r.
+    (f : x_expenses_classifications_doc_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | ExpensesClassificationsDoc_field_group_expenses_invoice_classification =>
+        { tag = "group_expenses_invoice_classification"; min = 1i32; max = None }
 
 union x_expenses_classifications_doc_group_expenses_invoice_classification_field r =
     | ExpensesClassificationsDoc_group_expensesInvoiceClassification_field_expensesInvoiceClassification ::
@@ -3424,6 +3448,19 @@ inl x_expenses_classifications_doc_group_expenses_invoice_classification_get for
     | ExpensesClassificationsDoc_group_expensesInvoiceClassification_field_expensesInvoiceClassification =>
         x.expenses_invoice_classification
 
+inl x_expenses_classifications_doc_group_expenses_invoice_classification_fields
+    ()
+    : list (exists r. x_expenses_classifications_doc_group_expenses_invoice_classification_field r)
+    =
+    [ exists ExpensesClassificationsDoc_group_expensesInvoiceClassification_field_expensesInvoiceClassification ]
+inl x_expenses_classifications_doc_group_expenses_invoice_classification_field_meta forall r.
+    (f : x_expenses_classifications_doc_group_expenses_invoice_classification_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | ExpensesClassificationsDoc_group_expensesInvoiceClassification_field_expensesInvoiceClassification =>
+        { tag = "expensesInvoiceClassification"; min = 1i32; max = Some 1i32 }
+
 union x_income_classifications_doc_field r =
     | IncomeClassificationsDoc_field_group_income_invoice_classification ::
         x_income_classifications_doc_field (list (x_income_classifications_doc_group_income_invoice_classification))
@@ -3434,6 +3471,16 @@ inl x_income_classifications_doc_get forall r.
     =
     match f with
     | IncomeClassificationsDoc_field_group_income_invoice_classification => x.group_income_invoice_classification
+
+inl x_income_classifications_doc_fields () : list (exists r. x_income_classifications_doc_field r) =
+    [ exists IncomeClassificationsDoc_field_group_income_invoice_classification ]
+inl x_income_classifications_doc_field_meta forall r.
+    (f : x_income_classifications_doc_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | IncomeClassificationsDoc_field_group_income_invoice_classification =>
+        { tag = "group_income_invoice_classification"; min = 1i32; max = None }
 
 union x_income_classifications_doc_group_income_invoice_classification_field r =
     | IncomeClassificationsDoc_group_incomeInvoiceClassification_field_incomeInvoiceClassification ::
@@ -3447,6 +3494,19 @@ inl x_income_classifications_doc_group_income_invoice_classification_get forall 
     match f with
     | IncomeClassificationsDoc_group_incomeInvoiceClassification_field_incomeInvoiceClassification =>
         x.income_invoice_classification
+
+inl x_income_classifications_doc_group_income_invoice_classification_fields
+    ()
+    : list (exists r. x_income_classifications_doc_group_income_invoice_classification_field r)
+    =
+    [ exists IncomeClassificationsDoc_group_incomeInvoiceClassification_field_incomeInvoiceClassification ]
+inl x_income_classifications_doc_group_income_invoice_classification_field_meta forall r.
+    (f : x_income_classifications_doc_group_income_invoice_classification_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | IncomeClassificationsDoc_group_incomeInvoiceClassification_field_incomeInvoiceClassification =>
+        { tag = "incomeInvoiceClassification"; min = 1i32; max = Some 1i32 }
 
 union x_aade_book_invoice_type_field r =
     | AadeBookInvoiceType_field_uid :: x_aade_book_invoice_type_field (option (string))
@@ -3492,6 +3552,46 @@ inl x_aade_book_invoice_type_get forall r. (f : x_aade_book_invoice_type_field r
     | AadeBookInvoiceType_field_invoiceDeliveryStatus => x.invoice_delivery_status
     | AadeBookInvoiceType_field_deliveryLifecycle => x.delivery_lifecycle
 
+inl x_aade_book_invoice_type_fields () : list (exists r. x_aade_book_invoice_type_field r) =
+    [
+        exists AadeBookInvoiceType_field_uid
+        exists AadeBookInvoiceType_field_mark
+        exists AadeBookInvoiceType_field_cancelledByMark
+        exists AadeBookInvoiceType_field_authenticationCode
+        exists AadeBookInvoiceType_field_transmissionFailure
+        exists AadeBookInvoiceType_field_issuer
+        exists AadeBookInvoiceType_field_counterpart
+        exists AadeBookInvoiceType_field_invoiceHeader
+        exists AadeBookInvoiceType_field_paymentMethods
+        exists AadeBookInvoiceType_field_invoiceDetails
+        exists AadeBookInvoiceType_field_taxesTotals
+        exists AadeBookInvoiceType_field_invoiceSummary
+        exists AadeBookInvoiceType_field_qrCodeUrl
+        exists AadeBookInvoiceType_field_downloadingInvoiceUrl
+        exists AadeBookInvoiceType_field_packingsDeclarations
+        exists AadeBookInvoiceType_field_invoiceDeliveryStatus
+        exists AadeBookInvoiceType_field_deliveryLifecycle
+    ]
+inl x_aade_book_invoice_type_field_meta forall r. (f : x_aade_book_invoice_type_field r) : xml_codec.field_meta =
+    match f with
+    | AadeBookInvoiceType_field_uid => { tag = "uid"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_mark => { tag = "mark"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_cancelledByMark => { tag = "cancelledByMark"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_authenticationCode => { tag = "authenticationCode"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_transmissionFailure => { tag = "transmissionFailure"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_issuer => { tag = "issuer"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_counterpart => { tag = "counterpart"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_invoiceHeader => { tag = "invoiceHeader"; min = 1i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_paymentMethods => { tag = "paymentMethods"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_invoiceDetails => { tag = "invoiceDetails"; min = 1i32; max = None }
+    | AadeBookInvoiceType_field_taxesTotals => { tag = "taxesTotals"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_invoiceSummary => { tag = "invoiceSummary"; min = 1i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_qrCodeUrl => { tag = "qrCodeUrl"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_downloadingInvoiceUrl => { tag = "downloadingInvoiceUrl"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_packingsDeclarations => { tag = "packingsDeclarations"; min = 0i32; max = None }
+    | AadeBookInvoiceType_field_invoiceDeliveryStatus => { tag = "invoiceDeliveryStatus"; min = 0i32; max = Some 1i32 }
+    | AadeBookInvoiceType_field_deliveryLifecycle => { tag = "deliveryLifecycle"; min = 0i32; max = Some 1i32 }
+
 union x_aade_book_invoice_type_delivery_lifecycle_field r =
     | AadeBookInvoiceType_deliveryLifecycle_field_deliveryEvents ::
         x_aade_book_invoice_type_delivery_lifecycle_field (list (x_delivery_event_type))
@@ -3502,6 +3602,18 @@ inl x_aade_book_invoice_type_delivery_lifecycle_get forall r.
     =
     match f with
     | AadeBookInvoiceType_deliveryLifecycle_field_deliveryEvents => x.delivery_events
+
+inl x_aade_book_invoice_type_delivery_lifecycle_fields
+    ()
+    : list (exists r. x_aade_book_invoice_type_delivery_lifecycle_field r)
+    =
+    [ exists AadeBookInvoiceType_deliveryLifecycle_field_deliveryEvents ]
+inl x_aade_book_invoice_type_delivery_lifecycle_field_meta forall r.
+    (f : x_aade_book_invoice_type_delivery_lifecycle_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | AadeBookInvoiceType_deliveryLifecycle_field_deliveryEvents => { tag = "deliveryEvents"; min = 1i32; max = None }
 
 union x_aade_book_invoice_type_taxes_totals_field r =
     | AadeBookInvoiceType_taxesTotals_field_taxes ::
@@ -3514,6 +3626,15 @@ inl x_aade_book_invoice_type_taxes_totals_get forall r.
     match f with
     | AadeBookInvoiceType_taxesTotals_field_taxes => x.taxes
 
+inl x_aade_book_invoice_type_taxes_totals_fields () : list (exists r. x_aade_book_invoice_type_taxes_totals_field r) =
+    [ exists AadeBookInvoiceType_taxesTotals_field_taxes ]
+inl x_aade_book_invoice_type_taxes_totals_field_meta forall r.
+    (f : x_aade_book_invoice_type_taxes_totals_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | AadeBookInvoiceType_taxesTotals_field_taxes => { tag = "taxes"; min = 1i32; max = None }
+
 union x_aade_book_invoice_type_payment_methods_field r =
     | AadeBookInvoiceType_paymentMethods_field_paymentMethodDetails ::
         x_aade_book_invoice_type_payment_methods_field (list (x_payment_method_detail_type))
@@ -3524,6 +3645,19 @@ inl x_aade_book_invoice_type_payment_methods_get forall r.
     =
     match f with
     | AadeBookInvoiceType_paymentMethods_field_paymentMethodDetails => x.payment_method_details
+
+inl x_aade_book_invoice_type_payment_methods_fields
+    ()
+    : list (exists r. x_aade_book_invoice_type_payment_methods_field r)
+    =
+    [ exists AadeBookInvoiceType_paymentMethods_field_paymentMethodDetails ]
+inl x_aade_book_invoice_type_payment_methods_field_meta forall r.
+    (f : x_aade_book_invoice_type_payment_methods_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | AadeBookInvoiceType_paymentMethods_field_paymentMethodDetails =>
+        { tag = "paymentMethodDetails"; min = 1i32; max = None }
 
 union x_invoice_header_type_field r =
     | InvoiceHeaderType_field_series :: x_invoice_header_type_field (x_invoice_header_type_series)
@@ -3599,6 +3733,79 @@ inl x_invoice_header_type_get forall r. (f : x_invoice_header_type_field r) (x :
     | InvoiceHeaderType_field_nonObligatedRecipient => x.non_obligated_recipient
     | InvoiceHeaderType_field_withoutDigitalTransportTracking => x.without_digital_transport_tracking
 
+inl x_invoice_header_type_fields () : list (exists r. x_invoice_header_type_field r) =
+    [
+        exists InvoiceHeaderType_field_series
+        exists InvoiceHeaderType_field_aa
+        exists InvoiceHeaderType_field_issueDate
+        exists InvoiceHeaderType_field_invoiceType
+        exists InvoiceHeaderType_field_vatPaymentSuspension
+        exists InvoiceHeaderType_field_currency
+        exists InvoiceHeaderType_field_exchangeRate
+        exists InvoiceHeaderType_field_correlatedInvoices
+        exists InvoiceHeaderType_field_selfPricing
+        exists InvoiceHeaderType_field_dispatchDate
+        exists InvoiceHeaderType_field_dispatchTime
+        exists InvoiceHeaderType_field_vehicleNumber
+        exists InvoiceHeaderType_field_movePurpose
+        exists InvoiceHeaderType_field_fuelInvoice
+        exists InvoiceHeaderType_field_specialInvoiceCategory
+        exists InvoiceHeaderType_field_invoiceVariationType
+        exists InvoiceHeaderType_field_otherCorrelatedEntities
+        exists InvoiceHeaderType_field_otherDeliveryNoteHeader
+        exists InvoiceHeaderType_field_isDeliveryNote
+        exists InvoiceHeaderType_field_otherMovePurposeTitle
+        exists InvoiceHeaderType_field_thirdPartyCollection
+        exists InvoiceHeaderType_field_multipleConnectedMarks
+        exists InvoiceHeaderType_field_tableAA
+        exists InvoiceHeaderType_field_totalCancelDeliveryOrders
+        exists InvoiceHeaderType_field_reverseDeliveryNote
+        exists InvoiceHeaderType_field_reverseDeliveryNotePurpose
+        exists InvoiceHeaderType_field_toWeigh
+        exists InvoiceHeaderType_field_receivingNotePurpose
+        exists InvoiceHeaderType_field_otherReceivingNotePurposeTitle
+        exists InvoiceHeaderType_field_nonObligatedRecipient
+        exists InvoiceHeaderType_field_withoutDigitalTransportTracking
+    ]
+inl x_invoice_header_type_field_meta forall r. (f : x_invoice_header_type_field r) : xml_codec.field_meta =
+    match f with
+    | InvoiceHeaderType_field_series => { tag = "series"; min = 1i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_aa => { tag = "aa"; min = 1i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_issueDate => { tag = "issueDate"; min = 1i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_invoiceType => { tag = "invoiceType"; min = 1i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_vatPaymentSuspension => { tag = "vatPaymentSuspension"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_currency => { tag = "currency"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_exchangeRate => { tag = "exchangeRate"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_correlatedInvoices => { tag = "correlatedInvoices"; min = 0i32; max = None }
+    | InvoiceHeaderType_field_selfPricing => { tag = "selfPricing"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_dispatchDate => { tag = "dispatchDate"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_dispatchTime => { tag = "dispatchTime"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_vehicleNumber => { tag = "vehicleNumber"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_movePurpose => { tag = "movePurpose"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_fuelInvoice => { tag = "fuelInvoice"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_specialInvoiceCategory => { tag = "specialInvoiceCategory"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_invoiceVariationType => { tag = "invoiceVariationType"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_otherCorrelatedEntities => { tag = "otherCorrelatedEntities"; min = 0i32; max = None }
+    | InvoiceHeaderType_field_otherDeliveryNoteHeader =>
+        { tag = "otherDeliveryNoteHeader"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_isDeliveryNote => { tag = "isDeliveryNote"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_otherMovePurposeTitle => { tag = "otherMovePurposeTitle"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_thirdPartyCollection => { tag = "thirdPartyCollection"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_multipleConnectedMarks => { tag = "multipleConnectedMarks"; min = 0i32; max = None }
+    | InvoiceHeaderType_field_tableAA => { tag = "tableAA"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_totalCancelDeliveryOrders =>
+        { tag = "totalCancelDeliveryOrders"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_reverseDeliveryNote => { tag = "reverseDeliveryNote"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_reverseDeliveryNotePurpose =>
+        { tag = "reverseDeliveryNotePurpose"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_toWeigh => { tag = "toWeigh"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_receivingNotePurpose => { tag = "receivingNotePurpose"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_otherReceivingNotePurposeTitle =>
+        { tag = "otherReceivingNotePurposeTitle"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_nonObligatedRecipient => { tag = "nonObligatedRecipient"; min = 0i32; max = Some 1i32 }
+    | InvoiceHeaderType_field_withoutDigitalTransportTracking =>
+        { tag = "withoutDigitalTransportTracking"; min = 0i32; max = Some 1i32 }
+
 union x_invoice_row_type_field r =
     | InvoiceRowType_field_lineNumber :: x_invoice_row_type_field (x_invoice_row_type_line_number)
     | InvoiceRowType_field_recType :: x_invoice_row_type_field (option (x_invoice_row_type_rec_type))
@@ -3672,6 +3879,82 @@ inl x_invoice_row_type_get forall r. (f : x_invoice_row_type_field r) (x : x_inv
     | InvoiceRowType_field_movePurposeLine => x.move_purpose_line
     | InvoiceRowType_field_otherMovePurposeLineTitle => x.other_move_purpose_line_title
 
+inl x_invoice_row_type_fields () : list (exists r. x_invoice_row_type_field r) =
+    [
+        exists InvoiceRowType_field_lineNumber
+        exists InvoiceRowType_field_recType
+        exists InvoiceRowType_field_TaricNo
+        exists InvoiceRowType_field_itemCode
+        exists InvoiceRowType_field_itemDescr
+        exists InvoiceRowType_field_fuelCode
+        exists InvoiceRowType_field_quantity
+        exists InvoiceRowType_field_measurementUnit
+        exists InvoiceRowType_field_invoiceDetailType
+        exists InvoiceRowType_field_netValue
+        exists InvoiceRowType_field_vatCategory
+        exists InvoiceRowType_field_vatAmount
+        exists InvoiceRowType_field_vatExemptionCategory
+        exists InvoiceRowType_field_dienergia
+        exists InvoiceRowType_field_discountOption
+        exists InvoiceRowType_field_withheldAmount
+        exists InvoiceRowType_field_withheldPercentCategory
+        exists InvoiceRowType_field_stampDutyAmount
+        exists InvoiceRowType_field_stampDutyPercentCategory
+        exists InvoiceRowType_field_feesAmount
+        exists InvoiceRowType_field_feesPercentCategory
+        exists InvoiceRowType_field_otherTaxesPercentCategory
+        exists InvoiceRowType_field_otherTaxesAmount
+        exists InvoiceRowType_field_deductionsAmount
+        exists InvoiceRowType_field_lineComments
+        exists InvoiceRowType_field_incomeClassification
+        exists InvoiceRowType_field_expensesClassification
+        exists InvoiceRowType_field_quantity15
+        exists InvoiceRowType_field_otherMeasurementUnitQuantity
+        exists InvoiceRowType_field_otherMeasurementUnitTitle
+        exists InvoiceRowType_field_notVAT195
+        exists InvoiceRowType_field_movePurposeLine
+        exists InvoiceRowType_field_otherMovePurposeLineTitle
+    ]
+inl x_invoice_row_type_field_meta forall r. (f : x_invoice_row_type_field r) : xml_codec.field_meta =
+    match f with
+    | InvoiceRowType_field_lineNumber => { tag = "lineNumber"; min = 1i32; max = Some 1i32 }
+    | InvoiceRowType_field_recType => { tag = "recType"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_TaricNo => { tag = "TaricNo"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_itemCode => { tag = "itemCode"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_itemDescr => { tag = "itemDescr"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_fuelCode => { tag = "fuelCode"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_quantity => { tag = "quantity"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_measurementUnit => { tag = "measurementUnit"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_invoiceDetailType => { tag = "invoiceDetailType"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_netValue => { tag = "netValue"; min = 1i32; max = Some 1i32 }
+    | InvoiceRowType_field_vatCategory => { tag = "vatCategory"; min = 1i32; max = Some 1i32 }
+    | InvoiceRowType_field_vatAmount => { tag = "vatAmount"; min = 1i32; max = Some 1i32 }
+    | InvoiceRowType_field_vatExemptionCategory => { tag = "vatExemptionCategory"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_dienergia => { tag = "dienergia"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_discountOption => { tag = "discountOption"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_withheldAmount => { tag = "withheldAmount"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_withheldPercentCategory => { tag = "withheldPercentCategory"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_stampDutyAmount => { tag = "stampDutyAmount"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_stampDutyPercentCategory => { tag = "stampDutyPercentCategory"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_feesAmount => { tag = "feesAmount"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_feesPercentCategory => { tag = "feesPercentCategory"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_otherTaxesPercentCategory =>
+        { tag = "otherTaxesPercentCategory"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_otherTaxesAmount => { tag = "otherTaxesAmount"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_deductionsAmount => { tag = "deductionsAmount"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_lineComments => { tag = "lineComments"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_incomeClassification => { tag = "incomeClassification"; min = 0i32; max = None }
+    | InvoiceRowType_field_expensesClassification => { tag = "expensesClassification"; min = 0i32; max = None }
+    | InvoiceRowType_field_quantity15 => { tag = "quantity15"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_otherMeasurementUnitQuantity =>
+        { tag = "otherMeasurementUnitQuantity"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_otherMeasurementUnitTitle =>
+        { tag = "otherMeasurementUnitTitle"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_notVAT195 => { tag = "notVAT195"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_movePurposeLine => { tag = "movePurposeLine"; min = 0i32; max = Some 1i32 }
+    | InvoiceRowType_field_otherMovePurposeLineTitle =>
+        { tag = "otherMovePurposeLineTitle"; min = 0i32; max = Some 1i32 }
+
 union x_invoice_summary_type_field r =
     | InvoiceSummaryType_field_totalNetValue :: x_invoice_summary_type_field (x_amount_type)
     | InvoiceSummaryType_field_totalVatAmount :: x_invoice_summary_type_field (x_amount_type)
@@ -3699,6 +3982,32 @@ inl x_invoice_summary_type_get forall r. (f : x_invoice_summary_type_field r) (x
     | InvoiceSummaryType_field_incomeClassification => x.income_classification
     | InvoiceSummaryType_field_expensesClassification => x.expenses_classification
 
+inl x_invoice_summary_type_fields () : list (exists r. x_invoice_summary_type_field r) =
+    [
+        exists InvoiceSummaryType_field_totalNetValue
+        exists InvoiceSummaryType_field_totalVatAmount
+        exists InvoiceSummaryType_field_totalWithheldAmount
+        exists InvoiceSummaryType_field_totalFeesAmount
+        exists InvoiceSummaryType_field_totalStampDutyAmount
+        exists InvoiceSummaryType_field_totalOtherTaxesAmount
+        exists InvoiceSummaryType_field_totalDeductionsAmount
+        exists InvoiceSummaryType_field_totalGrossValue
+        exists InvoiceSummaryType_field_incomeClassification
+        exists InvoiceSummaryType_field_expensesClassification
+    ]
+inl x_invoice_summary_type_field_meta forall r. (f : x_invoice_summary_type_field r) : xml_codec.field_meta =
+    match f with
+    | InvoiceSummaryType_field_totalNetValue => { tag = "totalNetValue"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_totalVatAmount => { tag = "totalVatAmount"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_totalWithheldAmount => { tag = "totalWithheldAmount"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_totalFeesAmount => { tag = "totalFeesAmount"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_totalStampDutyAmount => { tag = "totalStampDutyAmount"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_totalOtherTaxesAmount => { tag = "totalOtherTaxesAmount"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_totalDeductionsAmount => { tag = "totalDeductionsAmount"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_totalGrossValue => { tag = "totalGrossValue"; min = 1i32; max = Some 1i32 }
+    | InvoiceSummaryType_field_incomeClassification => { tag = "incomeClassification"; min = 0i32; max = None }
+    | InvoiceSummaryType_field_expensesClassification => { tag = "expensesClassification"; min = 0i32; max = None }
+
 union x_party_type_field r =
     | PartyType_field_vatNumber :: x_party_type_field (x_party_type_vat_number)
     | PartyType_field_country :: x_party_type_field (x_country_type)
@@ -3720,6 +4029,28 @@ inl x_party_type_get forall r. (f : x_party_type_field r) (x : x_party_type) : r
     | PartyType_field_supplyAccountNo => x.supply_account_no
     | PartyType_field_countryDocumentId => x.country_document_id
 
+inl x_party_type_fields () : list (exists r. x_party_type_field r) =
+    [
+        exists PartyType_field_vatNumber
+        exists PartyType_field_country
+        exists PartyType_field_branch
+        exists PartyType_field_name
+        exists PartyType_field_address
+        exists PartyType_field_documentIdNo
+        exists PartyType_field_supplyAccountNo
+        exists PartyType_field_countryDocumentId
+    ]
+inl x_party_type_field_meta forall r. (f : x_party_type_field r) : xml_codec.field_meta =
+    match f with
+    | PartyType_field_vatNumber => { tag = "vatNumber"; min = 1i32; max = Some 1i32 }
+    | PartyType_field_country => { tag = "country"; min = 1i32; max = Some 1i32 }
+    | PartyType_field_branch => { tag = "branch"; min = 1i32; max = Some 1i32 }
+    | PartyType_field_name => { tag = "name"; min = 0i32; max = Some 1i32 }
+    | PartyType_field_address => { tag = "address"; min = 0i32; max = Some 1i32 }
+    | PartyType_field_documentIdNo => { tag = "documentIdNo"; min = 0i32; max = Some 1i32 }
+    | PartyType_field_supplyAccountNo => { tag = "supplyAccountNo"; min = 0i32; max = Some 1i32 }
+    | PartyType_field_countryDocumentId => { tag = "countryDocumentId"; min = 0i32; max = Some 1i32 }
+
 union x_address_type_field r =
     | AddressType_field_street :: x_address_type_field (option (x_address_type_street))
     | AddressType_field_number :: x_address_type_field (option (string))
@@ -3733,6 +4064,20 @@ inl x_address_type_get forall r. (f : x_address_type_field r) (x : x_address_typ
     | AddressType_field_postalCode => x.postal_code
     | AddressType_field_city => x.city
 
+inl x_address_type_fields () : list (exists r. x_address_type_field r) =
+    [
+        exists AddressType_field_street
+        exists AddressType_field_number
+        exists AddressType_field_postalCode
+        exists AddressType_field_city
+    ]
+inl x_address_type_field_meta forall r. (f : x_address_type_field r) : xml_codec.field_meta =
+    match f with
+    | AddressType_field_street => { tag = "street"; min = 0i32; max = Some 1i32 }
+    | AddressType_field_number => { tag = "number"; min = 0i32; max = Some 1i32 }
+    | AddressType_field_postalCode => { tag = "postalCode"; min = 1i32; max = Some 1i32 }
+    | AddressType_field_city => { tag = "city"; min = 1i32; max = Some 1i32 }
+
 union x_ship_type_field r =
     | ShipType_field_applicationId :: x_ship_type_field (string)
     | ShipType_field_applicationDate :: x_ship_type_field (string)
@@ -3745,6 +4090,20 @@ inl x_ship_type_get forall r. (f : x_ship_type_field r) (x : x_ship_type) : r =
     | ShipType_field_applicationDate => x.application_date
     | ShipType_field_doy => x.doy
     | ShipType_field_shipId => x.ship_id
+
+inl x_ship_type_fields () : list (exists r. x_ship_type_field r) =
+    [
+        exists ShipType_field_applicationId
+        exists ShipType_field_applicationDate
+        exists ShipType_field_doy
+        exists ShipType_field_shipId
+    ]
+inl x_ship_type_field_meta forall r. (f : x_ship_type_field r) : xml_codec.field_meta =
+    match f with
+    | ShipType_field_applicationId => { tag = "applicationId"; min = 1i32; max = Some 1i32 }
+    | ShipType_field_applicationDate => { tag = "applicationDate"; min = 1i32; max = Some 1i32 }
+    | ShipType_field_doy => { tag = "doy"; min = 0i32; max = Some 1i32 }
+    | ShipType_field_shipId => { tag = "shipId"; min = 1i32; max = Some 1i32 }
 
 union x_payment_method_detail_type_field r =
     | PaymentMethodDetailType_field_type :: x_payment_method_detail_type_field (x_payment_method_detail_type_type)
@@ -3772,6 +4131,31 @@ inl x_payment_method_detail_type_get forall r.
     | PaymentMethodDetailType_field_ProvidersSignature => x.providers_signature
     | PaymentMethodDetailType_field_ECRToken => x.ecr_token
 
+inl x_payment_method_detail_type_fields () : list (exists r. x_payment_method_detail_type_field r) =
+    [
+        exists PaymentMethodDetailType_field_type
+        exists PaymentMethodDetailType_field_amount
+        exists PaymentMethodDetailType_field_paymentMethodInfo
+        exists PaymentMethodDetailType_field_tipAmount
+        exists PaymentMethodDetailType_field_transactionId
+        exists PaymentMethodDetailType_field_tid
+        exists PaymentMethodDetailType_field_ProvidersSignature
+        exists PaymentMethodDetailType_field_ECRToken
+    ]
+inl x_payment_method_detail_type_field_meta forall r.
+    (f : x_payment_method_detail_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PaymentMethodDetailType_field_type => { tag = "type"; min = 1i32; max = Some 1i32 }
+    | PaymentMethodDetailType_field_amount => { tag = "amount"; min = 1i32; max = Some 1i32 }
+    | PaymentMethodDetailType_field_paymentMethodInfo => { tag = "paymentMethodInfo"; min = 0i32; max = Some 1i32 }
+    | PaymentMethodDetailType_field_tipAmount => { tag = "tipAmount"; min = 0i32; max = Some 1i32 }
+    | PaymentMethodDetailType_field_transactionId => { tag = "transactionId"; min = 0i32; max = Some 1i32 }
+    | PaymentMethodDetailType_field_tid => { tag = "tid"; min = 0i32; max = Some 1i32 }
+    | PaymentMethodDetailType_field_ProvidersSignature => { tag = "ProvidersSignature"; min = 0i32; max = Some 1i32 }
+    | PaymentMethodDetailType_field_ECRToken => { tag = "ECRToken"; min = 0i32; max = Some 1i32 }
+
 union x_tax_totals_type_field r =
     | TaxTotalsType_field_taxType :: x_tax_totals_type_field (x_tax_totals_type_tax_type)
     | TaxTotalsType_field_taxCategory :: x_tax_totals_type_field (option (x_tax_totals_type_tax_category))
@@ -3787,6 +4171,22 @@ inl x_tax_totals_type_get forall r. (f : x_tax_totals_type_field r) (x : x_tax_t
     | TaxTotalsType_field_taxAmount => x.tax_amount
     | TaxTotalsType_field_id => x.id
 
+inl x_tax_totals_type_fields () : list (exists r. x_tax_totals_type_field r) =
+    [
+        exists TaxTotalsType_field_taxType
+        exists TaxTotalsType_field_taxCategory
+        exists TaxTotalsType_field_underlyingValue
+        exists TaxTotalsType_field_taxAmount
+        exists TaxTotalsType_field_id
+    ]
+inl x_tax_totals_type_field_meta forall r. (f : x_tax_totals_type_field r) : xml_codec.field_meta =
+    match f with
+    | TaxTotalsType_field_taxType => { tag = "taxType"; min = 1i32; max = Some 1i32 }
+    | TaxTotalsType_field_taxCategory => { tag = "taxCategory"; min = 0i32; max = Some 1i32 }
+    | TaxTotalsType_field_underlyingValue => { tag = "underlyingValue"; min = 0i32; max = Some 1i32 }
+    | TaxTotalsType_field_taxAmount => { tag = "taxAmount"; min = 1i32; max = Some 1i32 }
+    | TaxTotalsType_field_id => { tag = "id"; min = 0i32; max = Some 1i32 }
+
 union x_entity_type_field r =
     | EntityType_field_type :: x_entity_type_field (x_entity_type_type)
     | EntityType_field_entityData :: x_entity_type_field (x_party_type)
@@ -3795,6 +4195,13 @@ inl x_entity_type_get forall r. (f : x_entity_type_field r) (x : x_entity_type) 
     match f with
     | EntityType_field_type => x.type_value
     | EntityType_field_entityData => x.entity_data
+
+inl x_entity_type_fields () : list (exists r. x_entity_type_field r) =
+    [ exists EntityType_field_type; exists EntityType_field_entityData ]
+inl x_entity_type_field_meta forall r. (f : x_entity_type_field r) : xml_codec.field_meta =
+    match f with
+    | EntityType_field_type => { tag = "type"; min = 1i32; max = Some 1i32 }
+    | EntityType_field_entityData => { tag = "entityData"; min = 1i32; max = Some 1i32 }
 
 union x_other_delivery_note_header_type_field r =
     | OtherDeliveryNoteHeaderType_field_loadingAddress :: x_other_delivery_note_header_type_field (x_address_type)
@@ -3814,6 +4221,25 @@ inl x_other_delivery_note_header_type_get forall r.
     | OtherDeliveryNoteHeaderType_field_startShippingBranch => x.start_shipping_branch
     | OtherDeliveryNoteHeaderType_field_completeShippingBranch => x.complete_shipping_branch
 
+inl x_other_delivery_note_header_type_fields () : list (exists r. x_other_delivery_note_header_type_field r) =
+    [
+        exists OtherDeliveryNoteHeaderType_field_loadingAddress
+        exists OtherDeliveryNoteHeaderType_field_deliveryAddress
+        exists OtherDeliveryNoteHeaderType_field_startShippingBranch
+        exists OtherDeliveryNoteHeaderType_field_completeShippingBranch
+    ]
+inl x_other_delivery_note_header_type_field_meta forall r.
+    (f : x_other_delivery_note_header_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | OtherDeliveryNoteHeaderType_field_loadingAddress => { tag = "loadingAddress"; min = 1i32; max = Some 1i32 }
+    | OtherDeliveryNoteHeaderType_field_deliveryAddress => { tag = "deliveryAddress"; min = 1i32; max = Some 1i32 }
+    | OtherDeliveryNoteHeaderType_field_startShippingBranch =>
+        { tag = "startShippingBranch"; min = 0i32; max = Some 1i32 }
+    | OtherDeliveryNoteHeaderType_field_completeShippingBranch =>
+        { tag = "completeShippingBranch"; min = 0i32; max = Some 1i32 }
+
 union x_provider_signature_type_field r =
     | ProviderSignatureType_field_SigningAuthor ::
         x_provider_signature_type_field (x_provider_signature_type_signing_author)
@@ -3829,6 +4255,18 @@ inl x_provider_signature_type_get forall r.
     | ProviderSignatureType_field_Signature => x.signature
     | ProviderSignatureType_field_EndToEndReferenceID => x.end_to_end_reference_id
 
+inl x_provider_signature_type_fields () : list (exists r. x_provider_signature_type_field r) =
+    [
+        exists ProviderSignatureType_field_SigningAuthor
+        exists ProviderSignatureType_field_Signature
+        exists ProviderSignatureType_field_EndToEndReferenceID
+    ]
+inl x_provider_signature_type_field_meta forall r. (f : x_provider_signature_type_field r) : xml_codec.field_meta =
+    match f with
+    | ProviderSignatureType_field_SigningAuthor => { tag = "SigningAuthor"; min = 1i32; max = Some 1i32 }
+    | ProviderSignatureType_field_Signature => { tag = "Signature"; min = 1i32; max = Some 1i32 }
+    | ProviderSignatureType_field_EndToEndReferenceID => { tag = "EndToEndReferenceID"; min = 0i32; max = Some 1i32 }
+
 union x_ecr_token_type_field r =
     | ECRTokenType_field_SigningAuthor :: x_ecr_token_type_field (x_ecr_token_type_signing_author)
     | ECRTokenType_field_SessionNumber :: x_ecr_token_type_field (x_ecr_token_type_session_number)
@@ -3837,6 +4275,13 @@ inl x_ecr_token_type_get forall r. (f : x_ecr_token_type_field r) (x : x_ecr_tok
     match f with
     | ECRTokenType_field_SigningAuthor => x.signing_author
     | ECRTokenType_field_SessionNumber => x.session_number
+
+inl x_ecr_token_type_fields () : list (exists r. x_ecr_token_type_field r) =
+    [ exists ECRTokenType_field_SigningAuthor; exists ECRTokenType_field_SessionNumber ]
+inl x_ecr_token_type_field_meta forall r. (f : x_ecr_token_type_field r) : xml_codec.field_meta =
+    match f with
+    | ECRTokenType_field_SigningAuthor => { tag = "SigningAuthor"; min = 1i32; max = Some 1i32 }
+    | ECRTokenType_field_SessionNumber => { tag = "SessionNumber"; min = 1i32; max = Some 1i32 }
 
 union x_delivery_event_type_field r =
     | DeliveryEventType_field_eventType :: x_delivery_event_type_field (string)
@@ -3853,6 +4298,23 @@ inl x_delivery_event_type_get forall r. (f : x_delivery_event_type_field r) (x :
     | DeliveryEventType_field_actorVat => x.actor_vat
     | DeliveryEventType_field_mark => x.mark
     | DeliveryEventType_field_choice_transport_details => x.choice_transport_details
+
+inl x_delivery_event_type_fields () : list (exists r. x_delivery_event_type_field r) =
+    [
+        exists DeliveryEventType_field_eventType
+        exists DeliveryEventType_field_eventTimestamp
+        exists DeliveryEventType_field_actorVat
+        exists DeliveryEventType_field_mark
+        exists DeliveryEventType_field_choice_transport_details
+    ]
+inl x_delivery_event_type_field_meta forall r. (f : x_delivery_event_type_field r) : xml_codec.field_meta =
+    match f with
+    | DeliveryEventType_field_eventType => { tag = "eventType"; min = 1i32; max = Some 1i32 }
+    | DeliveryEventType_field_eventTimestamp => { tag = "eventTimestamp"; min = 1i32; max = Some 1i32 }
+    | DeliveryEventType_field_actorVat => { tag = "actorVat"; min = 1i32; max = Some 1i32 }
+    | DeliveryEventType_field_mark => { tag = "mark"; min = 0i32; max = Some 1i32 }
+    | DeliveryEventType_field_choice_transport_details =>
+        { tag = "choice_transport_details"; min = 0i32; max = Some 1i32 }
 
 union x_transport_detail_type_field r =
     | TransportDetailType_field_vehicleNumber :: x_transport_detail_type_field (x_transport_detail_type_vehicle_number)
@@ -3874,6 +4336,26 @@ inl x_transport_detail_type_get forall r. (f : x_transport_detail_type_field r) 
     | TransportDetailType_field_location => x.location
     | TransportDetailType_field_packingsDeclaration => x.packings_declaration
 
+inl x_transport_detail_type_fields () : list (exists r. x_transport_detail_type_field r) =
+    [
+        exists TransportDetailType_field_vehicleNumber
+        exists TransportDetailType_field_transportType
+        exists TransportDetailType_field_timeStamp
+        exists TransportDetailType_field_carrierVatNumber
+        exists TransportDetailType_field_pNumber
+        exists TransportDetailType_field_location
+        exists TransportDetailType_field_packingsDeclaration
+    ]
+inl x_transport_detail_type_field_meta forall r. (f : x_transport_detail_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransportDetailType_field_vehicleNumber => { tag = "vehicleNumber"; min = 1i32; max = Some 1i32 }
+    | TransportDetailType_field_transportType => { tag = "transportType"; min = 1i32; max = Some 1i32 }
+    | TransportDetailType_field_timeStamp => { tag = "timeStamp"; min = 0i32; max = Some 1i32 }
+    | TransportDetailType_field_carrierVatNumber => { tag = "carrierVatNumber"; min = 1i32; max = Some 1i32 }
+    | TransportDetailType_field_pNumber => { tag = "pNumber"; min = 0i32; max = Some 1i32 }
+    | TransportDetailType_field_location => { tag = "location"; min = 0i32; max = Some 1i32 }
+    | TransportDetailType_field_packingsDeclaration => { tag = "packingsDeclaration"; min = 0i32; max = None }
+
 union x_location_type_field r =
     | LocationType_field_longitude :: x_location_type_field (xsd_decimal)
     | LocationType_field_latitude :: x_location_type_field (xsd_decimal)
@@ -3882,6 +4364,13 @@ inl x_location_type_get forall r. (f : x_location_type_field r) (x : x_location_
     match f with
     | LocationType_field_longitude => x.longitude
     | LocationType_field_latitude => x.latitude
+
+inl x_location_type_fields () : list (exists r. x_location_type_field r) =
+    [ exists LocationType_field_longitude; exists LocationType_field_latitude ]
+inl x_location_type_field_meta forall r. (f : x_location_type_field r) : xml_codec.field_meta =
+    match f with
+    | LocationType_field_longitude => { tag = "longitude"; min = 1i32; max = Some 1i32 }
+    | LocationType_field_latitude => { tag = "latitude"; min = 1i32; max = Some 1i32 }
 
 union x_packaging_detail_type_field r =
     | PackagingDetailType_field_packagingType :: x_packaging_detail_type_field (x_packaging_detail_type_packaging_type)
@@ -3895,12 +4384,31 @@ inl x_packaging_detail_type_get forall r. (f : x_packaging_detail_type_field r) 
     | PackagingDetailType_field_quantity => x.quantity
     | PackagingDetailType_field_otherPackagingTypeTitle => x.other_packaging_type_title
 
+inl x_packaging_detail_type_fields () : list (exists r. x_packaging_detail_type_field r) =
+    [
+        exists PackagingDetailType_field_packagingType
+        exists PackagingDetailType_field_quantity
+        exists PackagingDetailType_field_otherPackagingTypeTitle
+    ]
+inl x_packaging_detail_type_field_meta forall r. (f : x_packaging_detail_type_field r) : xml_codec.field_meta =
+    match f with
+    | PackagingDetailType_field_packagingType => { tag = "packagingType"; min = 1i32; max = Some 1i32 }
+    | PackagingDetailType_field_quantity => { tag = "quantity"; min = 1i32; max = Some 1i32 }
+    | PackagingDetailType_field_otherPackagingTypeTitle =>
+        { tag = "otherPackagingTypeTitle"; min = 0i32; max = Some 1i32 }
+
 union x_packings_declaration_field r =
     | PackingsDeclaration_field_Packages :: x_packings_declaration_field (list (x_packaging_detail_type))
 
 inl x_packings_declaration_get forall r. (f : x_packings_declaration_field r) (x : x_packings_declaration) : r =
     match f with
     | PackingsDeclaration_field_Packages => x.packages
+
+inl x_packings_declaration_fields () : list (exists r. x_packings_declaration_field r) =
+    [ exists PackingsDeclaration_field_Packages ]
+inl x_packings_declaration_field_meta forall r. (f : x_packings_declaration_field r) : xml_codec.field_meta =
+    match f with
+    | PackingsDeclaration_field_Packages => { tag = "Packages"; min = 1i32; max = None }
 
 union x_outcome_details_type_field r =
     | OutcomeDetailsType_field_outcome :: x_outcome_details_type_field (x_delivery_outcome_type)
@@ -3913,12 +4421,31 @@ inl x_outcome_details_type_get forall r. (f : x_outcome_details_type_field r) (x
     | OutcomeDetailsType_field_deliveredWithoutRecipient => x.delivered_without_recipient
     | OutcomeDetailsType_field_deliveredPackaging => x.delivered_packaging
 
+inl x_outcome_details_type_fields () : list (exists r. x_outcome_details_type_field r) =
+    [
+        exists OutcomeDetailsType_field_outcome
+        exists OutcomeDetailsType_field_deliveredWithoutRecipient
+        exists OutcomeDetailsType_field_deliveredPackaging
+    ]
+inl x_outcome_details_type_field_meta forall r. (f : x_outcome_details_type_field r) : xml_codec.field_meta =
+    match f with
+    | OutcomeDetailsType_field_outcome => { tag = "outcome"; min = 1i32; max = Some 1i32 }
+    | OutcomeDetailsType_field_deliveredWithoutRecipient =>
+        { tag = "deliveredWithoutRecipient"; min = 0i32; max = Some 1i32 }
+    | OutcomeDetailsType_field_deliveredPackaging => { tag = "deliveredPackaging"; min = 0i32; max = None }
+
 union x_rejection_details_type_field r =
     | RejectionDetailsType_field_reason :: x_rejection_details_type_field (option (string))
 
 inl x_rejection_details_type_get forall r. (f : x_rejection_details_type_field r) (x : x_rejection_details_type) : r =
     match f with
     | RejectionDetailsType_field_reason => x.reason
+
+inl x_rejection_details_type_fields () : list (exists r. x_rejection_details_type_field r) =
+    [ exists RejectionDetailsType_field_reason ]
+inl x_rejection_details_type_field_meta forall r. (f : x_rejection_details_type_field r) : xml_codec.field_meta =
+    match f with
+    | RejectionDetailsType_field_reason => { tag = "reason"; min = 0i32; max = Some 1i32 }
 
 union x_invoice_expenses_classification_type_field r =
     | InvoiceExpensesClassificationType_field_invoiceMark :: x_invoice_expenses_classification_type_field (xsd_integer)
@@ -3943,6 +4470,29 @@ inl x_invoice_expenses_classification_type_get forall r.
     | InvoiceExpensesClassificationType_field_choice_transaction_mode => x.choice_transaction_mode
     | InvoiceExpensesClassificationType_field_classificationPostMode => x.classification_post_mode
 
+inl x_invoice_expenses_classification_type_fields () : list (exists r. x_invoice_expenses_classification_type_field r) =
+    [
+        exists InvoiceExpensesClassificationType_field_invoiceMark
+        exists InvoiceExpensesClassificationType_field_classificationMark
+        exists InvoiceExpensesClassificationType_field_entityVatNumber
+        exists InvoiceExpensesClassificationType_field_choice_transaction_mode
+        exists InvoiceExpensesClassificationType_field_classificationPostMode
+    ]
+inl x_invoice_expenses_classification_type_field_meta forall r.
+    (f : x_invoice_expenses_classification_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InvoiceExpensesClassificationType_field_invoiceMark => { tag = "invoiceMark"; min = 1i32; max = Some 1i32 }
+    | InvoiceExpensesClassificationType_field_classificationMark =>
+        { tag = "classificationMark"; min = 0i32; max = Some 1i32 }
+    | InvoiceExpensesClassificationType_field_entityVatNumber =>
+        { tag = "entityVatNumber"; min = 0i32; max = Some 1i32 }
+    | InvoiceExpensesClassificationType_field_choice_transaction_mode =>
+        { tag = "choice_transaction_mode"; min = 1i32; max = Some 1i32 }
+    | InvoiceExpensesClassificationType_field_classificationPostMode =>
+        { tag = "classificationPostMode"; min = 0i32; max = Some 1i32 }
+
 union x_invoices_expenses_classification_detail_type_field r =
     | InvoicesExpensesClassificationDetailType_field_lineNumber ::
         x_invoices_expenses_classification_detail_type_field (xsd_integer)
@@ -3957,6 +4507,23 @@ inl x_invoices_expenses_classification_detail_type_get forall r.
     | InvoicesExpensesClassificationDetailType_field_lineNumber => x.line_number
     | InvoicesExpensesClassificationDetailType_field_expensesClassificationDetailData =>
         x.expenses_classification_detail_data
+
+inl x_invoices_expenses_classification_detail_type_fields
+    ()
+    : list (exists r. x_invoices_expenses_classification_detail_type_field r)
+    =
+    [
+        exists InvoicesExpensesClassificationDetailType_field_lineNumber
+        exists InvoicesExpensesClassificationDetailType_field_expensesClassificationDetailData
+    ]
+inl x_invoices_expenses_classification_detail_type_field_meta forall r.
+    (f : x_invoices_expenses_classification_detail_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InvoicesExpensesClassificationDetailType_field_lineNumber => { tag = "lineNumber"; min = 1i32; max = Some 1i32 }
+    | InvoicesExpensesClassificationDetailType_field_expensesClassificationDetailData =>
+        { tag = "expensesClassificationDetailData"; min = 1i32; max = None }
 
 union x_expenses_classification_type_field r =
     | ExpensesClassificationType_field_classificationType ::
@@ -3983,6 +4550,31 @@ inl x_expenses_classification_type_get forall r.
     | ExpensesClassificationType_field_vatExemptionCategory => x.vat_exemption_category
     | ExpensesClassificationType_field_id => x.id
 
+inl x_expenses_classification_type_fields () : list (exists r. x_expenses_classification_type_field r) =
+    [
+        exists ExpensesClassificationType_field_classificationType
+        exists ExpensesClassificationType_field_classificationCategory
+        exists ExpensesClassificationType_field_amount
+        exists ExpensesClassificationType_field_vatAmount
+        exists ExpensesClassificationType_field_vatCategory
+        exists ExpensesClassificationType_field_vatExemptionCategory
+        exists ExpensesClassificationType_field_id
+    ]
+inl x_expenses_classification_type_field_meta forall r.
+    (f : x_expenses_classification_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | ExpensesClassificationType_field_classificationType => { tag = "classificationType"; min = 0i32; max = Some 1i32 }
+    | ExpensesClassificationType_field_classificationCategory =>
+        { tag = "classificationCategory"; min = 0i32; max = Some 1i32 }
+    | ExpensesClassificationType_field_amount => { tag = "amount"; min = 1i32; max = Some 1i32 }
+    | ExpensesClassificationType_field_vatAmount => { tag = "vatAmount"; min = 0i32; max = Some 1i32 }
+    | ExpensesClassificationType_field_vatCategory => { tag = "vatCategory"; min = 0i32; max = Some 1i32 }
+    | ExpensesClassificationType_field_vatExemptionCategory =>
+        { tag = "vatExemptionCategory"; min = 0i32; max = Some 1i32 }
+    | ExpensesClassificationType_field_id => { tag = "id"; min = 0i32; max = Some 1i32 }
+
 union x_invoice_income_classification_type_field r =
     | InvoiceIncomeClassificationType_field_invoiceMark :: x_invoice_income_classification_type_field (xsd_integer)
     | InvoiceIncomeClassificationType_field_classificationMark ::
@@ -4002,6 +4594,25 @@ inl x_invoice_income_classification_type_get forall r.
     | InvoiceIncomeClassificationType_field_entityVatNumber => x.entity_vat_number
     | InvoiceIncomeClassificationType_field_choice_transaction_mode => x.choice_transaction_mode
 
+inl x_invoice_income_classification_type_fields () : list (exists r. x_invoice_income_classification_type_field r) =
+    [
+        exists InvoiceIncomeClassificationType_field_invoiceMark
+        exists InvoiceIncomeClassificationType_field_classificationMark
+        exists InvoiceIncomeClassificationType_field_entityVatNumber
+        exists InvoiceIncomeClassificationType_field_choice_transaction_mode
+    ]
+inl x_invoice_income_classification_type_field_meta forall r.
+    (f : x_invoice_income_classification_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InvoiceIncomeClassificationType_field_invoiceMark => { tag = "invoiceMark"; min = 1i32; max = Some 1i32 }
+    | InvoiceIncomeClassificationType_field_classificationMark =>
+        { tag = "classificationMark"; min = 0i32; max = Some 1i32 }
+    | InvoiceIncomeClassificationType_field_entityVatNumber => { tag = "entityVatNumber"; min = 0i32; max = Some 1i32 }
+    | InvoiceIncomeClassificationType_field_choice_transaction_mode =>
+        { tag = "choice_transaction_mode"; min = 1i32; max = Some 1i32 }
+
 union x_invoices_income_classification_detail_type_field r =
     | InvoicesIncomeClassificationDetailType_field_lineNumber ::
         x_invoices_income_classification_detail_type_field (xsd_integer)
@@ -4015,6 +4626,23 @@ inl x_invoices_income_classification_detail_type_get forall r.
     match f with
     | InvoicesIncomeClassificationDetailType_field_lineNumber => x.line_number
     | InvoicesIncomeClassificationDetailType_field_incomeClassificationDetailData => x.income_classification_detail_data
+
+inl x_invoices_income_classification_detail_type_fields
+    ()
+    : list (exists r. x_invoices_income_classification_detail_type_field r)
+    =
+    [
+        exists InvoicesIncomeClassificationDetailType_field_lineNumber
+        exists InvoicesIncomeClassificationDetailType_field_incomeClassificationDetailData
+    ]
+inl x_invoices_income_classification_detail_type_field_meta forall r.
+    (f : x_invoices_income_classification_detail_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InvoicesIncomeClassificationDetailType_field_lineNumber => { tag = "lineNumber"; min = 1i32; max = Some 1i32 }
+    | InvoicesIncomeClassificationDetailType_field_incomeClassificationDetailData =>
+        { tag = "incomeClassificationDetailData"; min = 1i32; max = None }
 
 union x_income_classification_type_field r =
     | IncomeClassificationType_field_classificationType ::
@@ -4033,6 +4661,24 @@ inl x_income_classification_type_get forall r.
     | IncomeClassificationType_field_classificationCategory => x.classification_category
     | IncomeClassificationType_field_amount => x.amount
     | IncomeClassificationType_field_id => x.id
+
+inl x_income_classification_type_fields () : list (exists r. x_income_classification_type_field r) =
+    [
+        exists IncomeClassificationType_field_classificationType
+        exists IncomeClassificationType_field_classificationCategory
+        exists IncomeClassificationType_field_amount
+        exists IncomeClassificationType_field_id
+    ]
+inl x_income_classification_type_field_meta forall r.
+    (f : x_income_classification_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | IncomeClassificationType_field_classificationType => { tag = "classificationType"; min = 0i32; max = Some 1i32 }
+    | IncomeClassificationType_field_classificationCategory =>
+        { tag = "classificationCategory"; min = 1i32; max = Some 1i32 }
+    | IncomeClassificationType_field_amount => { tag = "amount"; min = 1i32; max = Some 1i32 }
+    | IncomeClassificationType_field_id => { tag = "id"; min = 0i32; max = Some 1i32 }
 
 let rec x_invoices_doc_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
@@ -6868,3 +7514,9 @@ test generated_gr_mydata_2_0_2_writes_its_example =
                 (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
         | Error _ => failwith "cannot create target/bench"
     | _ => failwith "one InvoicesDoc element"
+
+///> rust
+test generated_gr_mydata_2_0_2_reports_a_missing_element_with_its_path =
+    inl document = xml_codec.pruned "series" (x_invoices_doc_to_xml "InvoicesDoc" (x_invoices_doc_example 0i32))
+    if xml_codec.reports "missing invoice/invoiceHeader/series" (x_invoices_doc_of_xml document) = false then
+        failwith "a document without invoice/invoiceHeader/series is reported as missing, not raised"

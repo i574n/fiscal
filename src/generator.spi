@@ -4,10 +4,20 @@
 :< xsd_emit
 :< families
 
+:= package_entries (dependencies : list string) : list string =
+    "'|core-'" :: "'spiral-'" :: listm::map (\ unit => "'../" ++# unit ++# "-'") dependencies
+
+:= packages_line (entries : list string) : string = "packages = [" ++# join_with ", " entries "" ++# "]"
+
+:= packages_block (entries : list string) : string =
+    "packages = [\n" ++# join_with "" (listm::map (\ entry => "    " ++# entry ++# ",\n") entries) "" ++# "]"
+
 := module_package (dependencies : list string) : string =
-    "packageDir = '../../deps/spiral/lib'\npackages = ['|core-', 'spiral-'"
-    ++# join_with "" (listm::map (\ unit => ", '../" ++# unit ++# "-'") dependencies) ""
-    ++# "]\n"
+    := entries = package_entries dependencies
+    := line = packages_line entries
+    "packageDir = '../../deps/spiral/lib'\n"
+    ++# (? sm'::length line > 120i32 ?> packages_block entries |: line)
+    ++# "\n"
 
 := ensure_folder (folder : string) : () =
     ?= file_system::create_dir_all folder |> resultm::unbox ?|
@@ -542,7 +552,26 @@ test generates_the_uf_code_union =
 := signatures_of (family : family_root) : list string = ? has_extra Signed family::extras ?> [ "Signature" ] |: []
 
 
-:= unit_checks_of (family : family_root) : string = model_check_texts family::extras
+:= lifecycle_probe (code : string) : string =
+    := tag = "<tpEvento>" ++# code ++# "</tpEvento>"
+    "    if sm'.contains \""
+    ++# tag
+    ++# "\" (xml.write_node document) = false then failwith \"the example carries "
+    ++# tag
+    ++# "\"\n"
+
+:= lifecycle_document (family : family_root) : string =
+    := example = "    inl example = " ++# root_type_name family ++# "_example 0i32\n"
+    example ++# "    inl document = " ++# example_document family "example" ++# "\n"
+
+:= lifecycle_check (family : family_root) (code : string) : string =
+    := head = "///> rust\ntest " ++# module_text family::module_name ++# "_example_carries_its_lifecycle_event =\n"
+    head ++# lifecycle_document family ++# lifecycle_probe code
+
+:= lifecycle_checks (family : family_root) : string =
+    join_with "" (listm::map (lifecycle_check family) (lifecycle_events family::extras)) ""
+
+:= unit_checks_of (family : family_root) : string = model_check_texts family::extras ++# lifecycle_checks family
 
 := staged_witness (root_staged : bool) (witness : string) : string = ? root_staged ?> witness |: ""
 
@@ -550,9 +579,147 @@ test generates_the_uf_code_union =
     := xml_documents = ? is_json_family family ?> "" |: document_checks family (staged_witness root_staged " Signed")
     family_example_check family ++# xml_documents ++# family_bench family (staged_witness root_staged " Unsigned")
 
+:= law_definition_name \* form. (definition : xsd type_def form) : string =
+    ?= definition ?|
+    | Complex c => definition_text c::name
+    | Derived d => definition_text d::name
+    | Simple s => definition_text s::name
+
+:~ ^ law_type_named \* form. (name : string) (types : list (xsd type_def form)) : option (xsd type_def form) =
+    ?= types ?|
+    | t :: rest => ? law_definition_name t = name ?> Some t |: law_type_named name rest
+    | [] => None
+
+:= law_content \* form. (definition : xsd type_def form) : list (xsd particle form) =
+    ?= definition ?|
+    | Complex c => [ c::content ]
+    | Derived d => [ d::content ]
+    | _ => []
+
+:= law_referenced \* form.
+    (schema : xsd_schema form) (ref : option (type_reference form))
+    : option (xsd type_def form)
+    =
+    ?= ref ?|
+    | Some r => law_type_named (xml::local_name (reference_text r)) schema::complex_types
+    | None => None
+
+:= law_element_type \* form.
+    (schema : xsd_schema form) (inline : option (xsd type_def form)) (ref : option (type_reference form))
+    : option (xsd type_def form)
+    =
+    ?= inline ?|
+    | Some inner => Some inner
+    | None => law_referenced schema ref
+
+:= law_below (tag : string) (below : option string) : string =
+    ?= below ?|
+    | Some path => tag ++# "/" ++# path
+    | None => tag
+
+:~ ^ law_first_required \* form.
+    (schema : xsd_schema form) (depth : i32) (items : list (xsd particle form))
+    : option string
+    =
+    ?= items ?|
+    | (Element e) :: rest => law_from_element schema depth e::name e::occurs e::inline e::type_ref rest
+    | (Sequence s) :: rest => law_from_sequence schema depth s::occurs s::items rest
+    | _ :: rest => law_first_required schema depth rest
+    | [] => None
+
+:& :~ law_from_element \* form.
+    (schema : xsd_schema form) (depth : i32) (name : tag_name) (o : occurs) (inline : option (xsd type_def form))
+    (ref : option (type_reference form)) (rest : list (xsd particle form))
+    : option string
+    =
+    ? o::min < 1i32 || xml::local_name (tag_text name) = "Signature" ?> law_first_required schema depth rest
+    |: Some (law_element_path schema depth (tag_text name) (law_element_type schema inline ref))
+
+:& :~ law_from_sequence \* form.
+    (schema : xsd_schema form) (depth : i32) (o : occurs) (inner : list (xsd particle form))
+    (rest : list (xsd particle form))
+    : option string
+    =
+    ? o::min < 1i32 ?> law_first_required schema depth rest
+    |: ?= law_first_required schema depth inner ?| Some path => Some path | None => law_first_required schema depth rest
+
+:& :~ law_element_path \* form.
+    (schema : xsd_schema form) (depth : i32) (tag : string) (ty : option (xsd type_def form))
+    : string
+    =
+    ?= ty ?|
+    | Some definition ?& depth < 8i32 =>
+        law_below tag (law_first_required schema (depth + 1i32) (law_content definition))
+    | _ => tag
+
+:= law_named_root \* form.
+    (schema : xsd_schema form) (tag : string) (particle : xsd particle form)
+    : option (xsd type_def form)
+    =
+    ?= particle ?|
+    | Element e => ? xml::local_name (tag_text e::name) = tag ?> law_element_type schema e::inline e::type_ref |: None
+    | _ => None
+
+:~ ^ law_root_inline \* form.
+    (schema : xsd_schema form) (tag : string) (elements : list (xsd particle form))
+    : option (xsd type_def form)
+    =
+    ?= elements ?|
+    | e :: rest => ?= law_named_root schema tag e ?| Some d => Some d | None => law_root_inline schema tag rest
+    | [] => None
+
+:= law_root_definition \* form. (family : family_root) (schema : xsd_schema form) : option (xsd type_def form) =
+    ?= law_type_named (definition_text family::root_type) schema::complex_types ?|
+    | Some definition => Some definition
+    | None => law_root_inline schema (tag_text family::root_element) schema::elements
+
+:= law_path_in \* form. (schema : xsd_schema form) (root : option (xsd type_def form)) : option string =
+    ?= root ?|
+    | Some definition => law_first_required schema 0i32 (law_content definition)
+    | None => None
+
+:= law_missing_path \* form. (family : family_root) (schema : xsd_schema form) : option string =
+    law_path_in schema (law_root_definition family schema)
+
+:~ ^ law_leaf (segments : list string) : string =
+    ?= segments ?|
+    | last :: [] => last
+    | _ :: rest => law_leaf rest
+    | [] => ""
+
+:= law_example (family : family_root) : string =
+    := t = root_type_name family
+    t ++# "_to_xml \"" ++# tag_text family::root_element ++# "\" (" ++# t ++# "_example 0i32)"
+
+:= law_pruned_line (family : family_root) (path : string) : string =
+    := leaf = xml::local_name (law_leaf (sm'::split_list "/" path))
+    "    inl document = xml_codec.pruned \"" ++# leaf ++# "\" (" ++# law_example family ++# ")\n"
+
+:= law_check_line (family : family_root) (path : string) (witness : string) : string =
+    := decoded = root_type_name family ++# "_of_xml" ++# witness ++# " document"
+    "    if xml_codec.reports \"missing " ++# path ++# "\" (" ++# decoded ++# ") = false then\n"
+
+:= law_fail_line (path : string) : string =
+    "        failwith \"a document without " ++# path ++# " is reported as missing, not raised\"\n"
+
+:= law_test_text (family : family_root) (path : string) (witness : string) : string =
+    := head =
+        "\n///> rust\ntest " ++# module_text family::module_name ++# "_reports_a_missing_element_with_its_path =\n"
+    head ++# law_pruned_line family path ++# law_check_line family path witness ++# law_fail_line path
+
+:= law_for_path (family : family_root) (path : option string) (root_staged : bool) : string =
+    ?= path ?|
+    | Some p => law_test_text family p (staged_witness root_staged " Unsigned")
+    | None => ""
+
+:= missing_law \* form. (family : family_root) (schema : xsd_schema form) (root_staged : bool) : string =
+    ? is_json_family family ?> "" |: law_for_path family (law_missing_path family schema) root_staged
+
 := family_checks \* form. (family : family_root) (schema : xsd_schema form) (root_staged : bool) : string =
     := one_cell = family_document_cells family root_staged
-    one_cell ++# family_nominal_check family schema ++# json_document_checks family ++# unit_checks_of family
+    := checks =
+        one_cell ++# family_nominal_check family schema ++# json_document_checks family ++# unit_checks_of family
+    checks ++# missing_law family schema root_staged
 
 := family_any_content (complements : list (string * family_root)) : string =
     ?= complements ?|
@@ -607,6 +774,10 @@ test generates_the_uf_code_union =
     | [] => count
 
 ///> rust
+test writes_the_family_gate_table =
+    file_system::write_all_text (fiscal_paths::under "generated/family-gates.tsv") (gate_table () ++# "\n")
+
+///> rust
 test generates_every_family_version =
     ? write_family_modules (family_roots ()) 0i32 <> 12i32 ?> failwith "every family root is written"
 
@@ -644,8 +815,8 @@ test generates_cfdi_4_0 =
         = !-
     ?> failwith "CFDI types its complement content"
     := package = file_system::read_all_text (unit ++# "spiral.toml")
-    ? sm'::contains ", '../generated_cfdi_tfd_1_1-', '../generated_cfdi_pagos_2_0-']\n" package = !-
-    ?> failwith "the CFDI unit's spiral.toml lists its complement units"
+    ? sm'::contains "    '../generated_cfdi_tfd_1_1-',\n    '../generated_cfdi_pagos_2_0-',\n]\n" package = !-
+    ?> failwith "the CFDI unit's spiral.toml lists its complement units, wrapped like taplo past 120 columns"
     ? sm'::contains "modules" package ?> failwith "a unit's modules come from its one file, not a list"
     ? file_system::file_exists (unit ++# "package.spiproj") ?> failwith "a unit keeps one manifest"
 
@@ -746,3 +917,28 @@ test unqualified_schemas_prefix_the_example_root =
     ?> failwith "an unqualified root is prefixed so its children stay in no namespace"
     ? sm'::contains "xml.element \"Faktura\" ((\"xmlns\", " (family_example_check (ksef_fa_3 ())) = !-
     ?> failwith "a qualified root keeps the default namespace"
+
+///> rust
+test the_law_path_uses_the_tags_the_reader_reads =
+    := ubl = ubl_creditnote_2_1 ()
+    ? law_missing_path ubl (family_schema ubl) <> Some "cbc:ID"
+    ?> failwith "UBL reads cbc:ID, so a missing ID is reported under its prefixed tag"
+    := verifactu = verifactu_registro ()
+    ? law_missing_path verifactu (family_schema verifactu) <> Some "Cabecera/sf:ObligadoEmision/sf:NombreRazon"
+    ?> failwith "each step of the path is the tag the reader reads, prefix included"
+    ? sm'::contains "xml_codec.pruned \"ID\" " (law_pruned_line ubl "cbc:ID") = !-
+    ?> failwith "pruning matches local names, so the pruned leaf drops its prefix"
+
+///> rust
+test a_long_package_list_wraps_like_taplo =
+    ?
+        module_package [ "generated_fiscal_runtime" ]
+        <> "packageDir = '../../deps/spiral/lib'\npackages = ['|core-', 'spiral-', '../generated_fiscal_runtime-']\n"
+    ?> failwith "a short package list stays on one line"
+    := wrapped = module_package [ "generated_fiscal_runtime"; "generated_cfdi_tfd_1_1"; "generated_cfdi_pagos_2_0" ]
+    ?
+        sm'::starts_with "packageDir = '../../deps/spiral/lib'\npackages = [\n    '|core-',\n    'spiral-',\n" wrapped
+        = !-
+    ?> failwith "past 120 columns each entry takes its own line"
+    ? sm'::ends_with "    '../generated_cfdi_pagos_2_0-',\n]\n" wrapped = !-
+    ?> failwith "the last entry keeps its comma, like taplo"

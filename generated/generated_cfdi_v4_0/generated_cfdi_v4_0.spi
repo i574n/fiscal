@@ -8641,12 +8641,40 @@ inl x_comprobante_get forall r. (f : x_comprobante_field r) (x : x_comprobante) 
     | Comprobante_field_Complemento => x.complemento
     | Comprobante_field_Addenda => x.addenda
 
+inl x_comprobante_fields () : list (exists r. x_comprobante_field r) =
+    [
+        exists Comprobante_field_InformacionGlobal
+        exists Comprobante_field_CfdiRelacionados
+        exists Comprobante_field_Emisor
+        exists Comprobante_field_Receptor
+        exists Comprobante_field_Conceptos
+        exists Comprobante_field_Impuestos
+        exists Comprobante_field_Complemento
+        exists Comprobante_field_Addenda
+    ]
+inl x_comprobante_field_meta forall r. (f : x_comprobante_field r) : xml_codec.field_meta =
+    match f with
+    | Comprobante_field_InformacionGlobal => { tag = "InformacionGlobal"; min = 0i32; max = Some 1i32 }
+    | Comprobante_field_CfdiRelacionados => { tag = "CfdiRelacionados"; min = 0i32; max = None }
+    | Comprobante_field_Emisor => { tag = "Emisor"; min = 1i32; max = Some 1i32 }
+    | Comprobante_field_Receptor => { tag = "Receptor"; min = 1i32; max = Some 1i32 }
+    | Comprobante_field_Conceptos => { tag = "Conceptos"; min = 1i32; max = Some 1i32 }
+    | Comprobante_field_Impuestos => { tag = "Impuestos"; min = 0i32; max = Some 1i32 }
+    | Comprobante_field_Complemento => { tag = "Complemento"; min = 0i32; max = Some 1i32 }
+    | Comprobante_field_Addenda => { tag = "Addenda"; min = 0i32; max = Some 1i32 }
+
 union x_comprobante_addenda_field r =
     | Comprobante_Addenda_field_any :: x_comprobante_addenda_field (any_content)
 
 inl x_comprobante_addenda_get forall r. (f : x_comprobante_addenda_field r) (x : x_comprobante_addenda) : r =
     match f with
     | Comprobante_Addenda_field_any => x.any
+
+inl x_comprobante_addenda_fields () : list (exists r. x_comprobante_addenda_field r) =
+    [ exists Comprobante_Addenda_field_any ]
+inl x_comprobante_addenda_field_meta forall r. (f : x_comprobante_addenda_field r) : xml_codec.field_meta =
+    match f with
+    | Comprobante_Addenda_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_comprobante_complemento_field r =
     | Comprobante_Complemento_field_any :: x_comprobante_complemento_field (any_content)
@@ -8657,6 +8685,12 @@ inl x_comprobante_complemento_get forall r.
     =
     match f with
     | Comprobante_Complemento_field_any => x.any
+
+inl x_comprobante_complemento_fields () : list (exists r. x_comprobante_complemento_field r) =
+    [ exists Comprobante_Complemento_field_any ]
+inl x_comprobante_complemento_field_meta forall r. (f : x_comprobante_complemento_field r) : xml_codec.field_meta =
+    match f with
+    | Comprobante_Complemento_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_comprobante_impuestos_field r =
     | Comprobante_Impuestos_field_Retenciones ::
@@ -8669,6 +8703,13 @@ inl x_comprobante_impuestos_get forall r. (f : x_comprobante_impuestos_field r) 
     | Comprobante_Impuestos_field_Retenciones => x.retenciones
     | Comprobante_Impuestos_field_Traslados => x.traslados
 
+inl x_comprobante_impuestos_fields () : list (exists r. x_comprobante_impuestos_field r) =
+    [ exists Comprobante_Impuestos_field_Retenciones; exists Comprobante_Impuestos_field_Traslados ]
+inl x_comprobante_impuestos_field_meta forall r. (f : x_comprobante_impuestos_field r) : xml_codec.field_meta =
+    match f with
+    | Comprobante_Impuestos_field_Retenciones => { tag = "Retenciones"; min = 0i32; max = Some 1i32 }
+    | Comprobante_Impuestos_field_Traslados => { tag = "Traslados"; min = 0i32; max = Some 1i32 }
+
 union x_comprobante_impuestos_traslados_field r =
     | Comprobante_Impuestos_Traslados_field_Traslado ::
         x_comprobante_impuestos_traslados_field (list (x_comprobante_impuestos_traslados_traslado))
@@ -8679,6 +8720,15 @@ inl x_comprobante_impuestos_traslados_get forall r.
     =
     match f with
     | Comprobante_Impuestos_Traslados_field_Traslado => x.traslado
+
+inl x_comprobante_impuestos_traslados_fields () : list (exists r. x_comprobante_impuestos_traslados_field r) =
+    [ exists Comprobante_Impuestos_Traslados_field_Traslado ]
+inl x_comprobante_impuestos_traslados_field_meta forall r.
+    (f : x_comprobante_impuestos_traslados_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Impuestos_Traslados_field_Traslado => { tag = "Traslado"; min = 1i32; max = None }
 
 union x_comprobante_impuestos_retenciones_field r =
     | Comprobante_Impuestos_Retenciones_field_Retencion ::
@@ -8691,12 +8741,27 @@ inl x_comprobante_impuestos_retenciones_get forall r.
     match f with
     | Comprobante_Impuestos_Retenciones_field_Retencion => x.retencion
 
+inl x_comprobante_impuestos_retenciones_fields () : list (exists r. x_comprobante_impuestos_retenciones_field r) =
+    [ exists Comprobante_Impuestos_Retenciones_field_Retencion ]
+inl x_comprobante_impuestos_retenciones_field_meta forall r.
+    (f : x_comprobante_impuestos_retenciones_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Impuestos_Retenciones_field_Retencion => { tag = "Retencion"; min = 1i32; max = None }
+
 union x_comprobante_conceptos_field r =
     | Comprobante_Conceptos_field_Concepto :: x_comprobante_conceptos_field (list (x_comprobante_conceptos_concepto))
 
 inl x_comprobante_conceptos_get forall r. (f : x_comprobante_conceptos_field r) (x : x_comprobante_conceptos) : r =
     match f with
     | Comprobante_Conceptos_field_Concepto => x.concepto
+
+inl x_comprobante_conceptos_fields () : list (exists r. x_comprobante_conceptos_field r) =
+    [ exists Comprobante_Conceptos_field_Concepto ]
+inl x_comprobante_conceptos_field_meta forall r. (f : x_comprobante_conceptos_field r) : xml_codec.field_meta =
+    match f with
+    | Comprobante_Conceptos_field_Concepto => { tag = "Concepto"; min = 1i32; max = None }
 
 union x_comprobante_conceptos_concepto_field r =
     | Comprobante_Conceptos_Concepto_field_Impuestos ::
@@ -8724,6 +8789,29 @@ inl x_comprobante_conceptos_concepto_get forall r.
     | Comprobante_Conceptos_Concepto_field_ComplementoConcepto => x.complemento_concepto
     | Comprobante_Conceptos_Concepto_field_Parte => x.parte
 
+inl x_comprobante_conceptos_concepto_fields () : list (exists r. x_comprobante_conceptos_concepto_field r) =
+    [
+        exists Comprobante_Conceptos_Concepto_field_Impuestos
+        exists Comprobante_Conceptos_Concepto_field_ACuentaTerceros
+        exists Comprobante_Conceptos_Concepto_field_InformacionAduanera
+        exists Comprobante_Conceptos_Concepto_field_CuentaPredial
+        exists Comprobante_Conceptos_Concepto_field_ComplementoConcepto
+        exists Comprobante_Conceptos_Concepto_field_Parte
+    ]
+inl x_comprobante_conceptos_concepto_field_meta forall r.
+    (f : x_comprobante_conceptos_concepto_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Conceptos_Concepto_field_Impuestos => { tag = "Impuestos"; min = 0i32; max = Some 1i32 }
+    | Comprobante_Conceptos_Concepto_field_ACuentaTerceros => { tag = "ACuentaTerceros"; min = 0i32; max = Some 1i32 }
+    | Comprobante_Conceptos_Concepto_field_InformacionAduanera =>
+        { tag = "InformacionAduanera"; min = 0i32; max = None }
+    | Comprobante_Conceptos_Concepto_field_CuentaPredial => { tag = "CuentaPredial"; min = 0i32; max = None }
+    | Comprobante_Conceptos_Concepto_field_ComplementoConcepto =>
+        { tag = "ComplementoConcepto"; min = 0i32; max = Some 1i32 }
+    | Comprobante_Conceptos_Concepto_field_Parte => { tag = "Parte"; min = 0i32; max = None }
+
 union x_comprobante_conceptos_concepto_parte_field r =
     | Comprobante_Conceptos_Concepto_Parte_field_InformacionAduanera ::
         x_comprobante_conceptos_concepto_parte_field
@@ -8736,6 +8824,16 @@ inl x_comprobante_conceptos_concepto_parte_get forall r.
     match f with
     | Comprobante_Conceptos_Concepto_Parte_field_InformacionAduanera => x.informacion_aduanera
 
+inl x_comprobante_conceptos_concepto_parte_fields () : list (exists r. x_comprobante_conceptos_concepto_parte_field r) =
+    [ exists Comprobante_Conceptos_Concepto_Parte_field_InformacionAduanera ]
+inl x_comprobante_conceptos_concepto_parte_field_meta forall r.
+    (f : x_comprobante_conceptos_concepto_parte_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Conceptos_Concepto_Parte_field_InformacionAduanera =>
+        { tag = "InformacionAduanera"; min = 0i32; max = None }
+
 union x_comprobante_conceptos_concepto_complemento_concepto_field r =
     | Comprobante_Conceptos_Concepto_ComplementoConcepto_field_any ::
         x_comprobante_conceptos_concepto_complemento_concepto_field (any_content)
@@ -8747,6 +8845,18 @@ inl x_comprobante_conceptos_concepto_complemento_concepto_get forall r.
     =
     match f with
     | Comprobante_Conceptos_Concepto_ComplementoConcepto_field_any => x.any
+
+inl x_comprobante_conceptos_concepto_complemento_concepto_fields
+    ()
+    : list (exists r. x_comprobante_conceptos_concepto_complemento_concepto_field r)
+    =
+    [ exists Comprobante_Conceptos_Concepto_ComplementoConcepto_field_any ]
+inl x_comprobante_conceptos_concepto_complemento_concepto_field_meta forall r.
+    (f : x_comprobante_conceptos_concepto_complemento_concepto_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Conceptos_Concepto_ComplementoConcepto_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_comprobante_conceptos_concepto_impuestos_field r =
     | Comprobante_Conceptos_Concepto_Impuestos_field_Traslados ::
@@ -8763,6 +8873,22 @@ inl x_comprobante_conceptos_concepto_impuestos_get forall r.
     | Comprobante_Conceptos_Concepto_Impuestos_field_Traslados => x.traslados
     | Comprobante_Conceptos_Concepto_Impuestos_field_Retenciones => x.retenciones
 
+inl x_comprobante_conceptos_concepto_impuestos_fields
+    ()
+    : list (exists r. x_comprobante_conceptos_concepto_impuestos_field r)
+    =
+    [
+        exists Comprobante_Conceptos_Concepto_Impuestos_field_Traslados
+        exists Comprobante_Conceptos_Concepto_Impuestos_field_Retenciones
+    ]
+inl x_comprobante_conceptos_concepto_impuestos_field_meta forall r.
+    (f : x_comprobante_conceptos_concepto_impuestos_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Conceptos_Concepto_Impuestos_field_Traslados => { tag = "Traslados"; min = 0i32; max = Some 1i32 }
+    | Comprobante_Conceptos_Concepto_Impuestos_field_Retenciones => { tag = "Retenciones"; min = 0i32; max = Some 1i32 }
+
 union x_comprobante_conceptos_concepto_impuestos_retenciones_field r =
     | Comprobante_Conceptos_Concepto_Impuestos_Retenciones_field_Retencion ::
         x_comprobante_conceptos_concepto_impuestos_retenciones_field
@@ -8775,6 +8901,19 @@ inl x_comprobante_conceptos_concepto_impuestos_retenciones_get forall r.
     =
     match f with
     | Comprobante_Conceptos_Concepto_Impuestos_Retenciones_field_Retencion => x.retencion
+
+inl x_comprobante_conceptos_concepto_impuestos_retenciones_fields
+    ()
+    : list (exists r. x_comprobante_conceptos_concepto_impuestos_retenciones_field r)
+    =
+    [ exists Comprobante_Conceptos_Concepto_Impuestos_Retenciones_field_Retencion ]
+inl x_comprobante_conceptos_concepto_impuestos_retenciones_field_meta forall r.
+    (f : x_comprobante_conceptos_concepto_impuestos_retenciones_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Conceptos_Concepto_Impuestos_Retenciones_field_Retencion =>
+        { tag = "Retencion"; min = 1i32; max = None }
 
 union x_comprobante_conceptos_concepto_impuestos_traslados_field r =
     | Comprobante_Conceptos_Concepto_Impuestos_Traslados_field_Traslado ::
@@ -8789,6 +8928,18 @@ inl x_comprobante_conceptos_concepto_impuestos_traslados_get forall r.
     match f with
     | Comprobante_Conceptos_Concepto_Impuestos_Traslados_field_Traslado => x.traslado
 
+inl x_comprobante_conceptos_concepto_impuestos_traslados_fields
+    ()
+    : list (exists r. x_comprobante_conceptos_concepto_impuestos_traslados_field r)
+    =
+    [ exists Comprobante_Conceptos_Concepto_Impuestos_Traslados_field_Traslado ]
+inl x_comprobante_conceptos_concepto_impuestos_traslados_field_meta forall r.
+    (f : x_comprobante_conceptos_concepto_impuestos_traslados_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_Conceptos_Concepto_Impuestos_Traslados_field_Traslado => { tag = "Traslado"; min = 1i32; max = None }
+
 union x_comprobante_cfdi_relacionados_field r =
     | Comprobante_CfdiRelacionados_field_CfdiRelacionado ::
         x_comprobante_cfdi_relacionados_field (list (x_comprobante_cfdi_relacionados_cfdi_relacionado))
@@ -8799,6 +8950,15 @@ inl x_comprobante_cfdi_relacionados_get forall r.
     =
     match f with
     | Comprobante_CfdiRelacionados_field_CfdiRelacionado => x.cfdi_relacionado
+
+inl x_comprobante_cfdi_relacionados_fields () : list (exists r. x_comprobante_cfdi_relacionados_field r) =
+    [ exists Comprobante_CfdiRelacionados_field_CfdiRelacionado ]
+inl x_comprobante_cfdi_relacionados_field_meta forall r.
+    (f : x_comprobante_cfdi_relacionados_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Comprobante_CfdiRelacionados_field_CfdiRelacionado => { tag = "CfdiRelacionado"; min = 1i32; max = None }
 
 let rec x_comprobante_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
@@ -10573,3 +10733,9 @@ test generated_cfdi_v4_0_writes_its_example =
 ///> rust
 test generated_cfdi_v4_0_keeps_raw_strings_out fails "Unification failure" =
     x_t_curp_to_string "raw"
+
+///> rust
+test generated_cfdi_v4_0_reports_a_missing_element_with_its_path =
+    inl document = xml_codec.pruned "Emisor" (x_comprobante_to_xml "Comprobante" (x_comprobante_example 0i32))
+    if xml_codec.reports "missing Emisor" (x_comprobante_of_xml document) = false then
+        failwith "a document without Emisor is reported as missing, not raised"

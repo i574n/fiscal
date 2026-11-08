@@ -7875,6 +7875,12 @@ inl x_pagos_get forall r. (f : x_pagos_field r) (x : x_pagos) : r =
     | Pagos_field_Totales => x.totales
     | Pagos_field_Pago => x.pago
 
+inl x_pagos_fields () : list (exists r. x_pagos_field r) = [ exists Pagos_field_Totales; exists Pagos_field_Pago ]
+inl x_pagos_field_meta forall r. (f : x_pagos_field r) : xml_codec.field_meta =
+    match f with
+    | Pagos_field_Totales => { tag = "Totales"; min = 1i32; max = Some 1i32 }
+    | Pagos_field_Pago => { tag = "Pago"; min = 1i32; max = None }
+
 union x_pagos_pago_field r =
     | Pagos_Pago_field_DoctoRelacionado :: x_pagos_pago_field (list (x_pagos_pago_docto_relacionado))
     | Pagos_Pago_field_ImpuestosP :: x_pagos_pago_field (option (x_pagos_pago_impuestos_p))
@@ -7883,6 +7889,13 @@ inl x_pagos_pago_get forall r. (f : x_pagos_pago_field r) (x : x_pagos_pago) : r
     match f with
     | Pagos_Pago_field_DoctoRelacionado => x.docto_relacionado
     | Pagos_Pago_field_ImpuestosP => x.impuestos_p
+
+inl x_pagos_pago_fields () : list (exists r. x_pagos_pago_field r) =
+    [ exists Pagos_Pago_field_DoctoRelacionado; exists Pagos_Pago_field_ImpuestosP ]
+inl x_pagos_pago_field_meta forall r. (f : x_pagos_pago_field r) : xml_codec.field_meta =
+    match f with
+    | Pagos_Pago_field_DoctoRelacionado => { tag = "DoctoRelacionado"; min = 1i32; max = None }
+    | Pagos_Pago_field_ImpuestosP => { tag = "ImpuestosP"; min = 0i32; max = Some 1i32 }
 
 union x_pagos_pago_impuestos_p_field r =
     | Pagos_Pago_ImpuestosP_field_RetencionesP ::
@@ -7895,6 +7908,13 @@ inl x_pagos_pago_impuestos_p_get forall r. (f : x_pagos_pago_impuestos_p_field r
     | Pagos_Pago_ImpuestosP_field_RetencionesP => x.retenciones_p
     | Pagos_Pago_ImpuestosP_field_TrasladosP => x.traslados_p
 
+inl x_pagos_pago_impuestos_p_fields () : list (exists r. x_pagos_pago_impuestos_p_field r) =
+    [ exists Pagos_Pago_ImpuestosP_field_RetencionesP; exists Pagos_Pago_ImpuestosP_field_TrasladosP ]
+inl x_pagos_pago_impuestos_p_field_meta forall r. (f : x_pagos_pago_impuestos_p_field r) : xml_codec.field_meta =
+    match f with
+    | Pagos_Pago_ImpuestosP_field_RetencionesP => { tag = "RetencionesP"; min = 0i32; max = Some 1i32 }
+    | Pagos_Pago_ImpuestosP_field_TrasladosP => { tag = "TrasladosP"; min = 0i32; max = Some 1i32 }
+
 union x_pagos_pago_impuestos_p_traslados_p_field r =
     | Pagos_Pago_ImpuestosP_TrasladosP_field_TrasladoP ::
         x_pagos_pago_impuestos_p_traslados_p_field (list (x_pagos_pago_impuestos_p_traslados_p_traslado_p))
@@ -7905,6 +7925,15 @@ inl x_pagos_pago_impuestos_p_traslados_p_get forall r.
     =
     match f with
     | Pagos_Pago_ImpuestosP_TrasladosP_field_TrasladoP => x.traslado_p
+
+inl x_pagos_pago_impuestos_p_traslados_p_fields () : list (exists r. x_pagos_pago_impuestos_p_traslados_p_field r) =
+    [ exists Pagos_Pago_ImpuestosP_TrasladosP_field_TrasladoP ]
+inl x_pagos_pago_impuestos_p_traslados_p_field_meta forall r.
+    (f : x_pagos_pago_impuestos_p_traslados_p_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Pagos_Pago_ImpuestosP_TrasladosP_field_TrasladoP => { tag = "TrasladoP"; min = 1i32; max = None }
 
 union x_pagos_pago_impuestos_p_retenciones_p_field r =
     | Pagos_Pago_ImpuestosP_RetencionesP_field_RetencionP ::
@@ -7917,6 +7946,15 @@ inl x_pagos_pago_impuestos_p_retenciones_p_get forall r.
     match f with
     | Pagos_Pago_ImpuestosP_RetencionesP_field_RetencionP => x.retencion_p
 
+inl x_pagos_pago_impuestos_p_retenciones_p_fields () : list (exists r. x_pagos_pago_impuestos_p_retenciones_p_field r) =
+    [ exists Pagos_Pago_ImpuestosP_RetencionesP_field_RetencionP ]
+inl x_pagos_pago_impuestos_p_retenciones_p_field_meta forall r.
+    (f : x_pagos_pago_impuestos_p_retenciones_p_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Pagos_Pago_ImpuestosP_RetencionesP_field_RetencionP => { tag = "RetencionP"; min = 1i32; max = None }
+
 union x_pagos_pago_docto_relacionado_field r =
     | Pagos_Pago_DoctoRelacionado_field_ImpuestosDR ::
         x_pagos_pago_docto_relacionado_field (option (x_pagos_pago_docto_relacionado_impuestos_dr))
@@ -7927,6 +7965,15 @@ inl x_pagos_pago_docto_relacionado_get forall r.
     =
     match f with
     | Pagos_Pago_DoctoRelacionado_field_ImpuestosDR => x.impuestos_dr
+
+inl x_pagos_pago_docto_relacionado_fields () : list (exists r. x_pagos_pago_docto_relacionado_field r) =
+    [ exists Pagos_Pago_DoctoRelacionado_field_ImpuestosDR ]
+inl x_pagos_pago_docto_relacionado_field_meta forall r.
+    (f : x_pagos_pago_docto_relacionado_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Pagos_Pago_DoctoRelacionado_field_ImpuestosDR => { tag = "ImpuestosDR"; min = 0i32; max = Some 1i32 }
 
 union x_pagos_pago_docto_relacionado_impuestos_dr_field r =
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_field_RetencionesDR ::
@@ -7944,6 +7991,23 @@ inl x_pagos_pago_docto_relacionado_impuestos_dr_get forall r.
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_field_RetencionesDR => x.retenciones_dr
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_field_TrasladosDR => x.traslados_dr
 
+inl x_pagos_pago_docto_relacionado_impuestos_dr_fields
+    ()
+    : list (exists r. x_pagos_pago_docto_relacionado_impuestos_dr_field r)
+    =
+    [
+        exists Pagos_Pago_DoctoRelacionado_ImpuestosDR_field_RetencionesDR
+        exists Pagos_Pago_DoctoRelacionado_ImpuestosDR_field_TrasladosDR
+    ]
+inl x_pagos_pago_docto_relacionado_impuestos_dr_field_meta forall r.
+    (f : x_pagos_pago_docto_relacionado_impuestos_dr_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Pagos_Pago_DoctoRelacionado_ImpuestosDR_field_RetencionesDR =>
+        { tag = "RetencionesDR"; min = 0i32; max = Some 1i32 }
+    | Pagos_Pago_DoctoRelacionado_ImpuestosDR_field_TrasladosDR => { tag = "TrasladosDR"; min = 0i32; max = Some 1i32 }
+
 union x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_field r =
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_TrasladosDR_field_TrasladoDR ::
         x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_field
@@ -7957,6 +8021,19 @@ inl x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_get forall r.
     match f with
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_TrasladosDR_field_TrasladoDR => x.traslado_dr
 
+inl x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_fields
+    ()
+    : list (exists r. x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_field r)
+    =
+    [ exists Pagos_Pago_DoctoRelacionado_ImpuestosDR_TrasladosDR_field_TrasladoDR ]
+inl x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_field_meta forall r.
+    (f : x_pagos_pago_docto_relacionado_impuestos_dr_traslados_dr_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Pagos_Pago_DoctoRelacionado_ImpuestosDR_TrasladosDR_field_TrasladoDR =>
+        { tag = "TrasladoDR"; min = 1i32; max = None }
+
 union x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_field r =
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_RetencionesDR_field_RetencionDR ::
         x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_field
@@ -7969,6 +8046,19 @@ inl x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_get forall r.
     =
     match f with
     | Pagos_Pago_DoctoRelacionado_ImpuestosDR_RetencionesDR_field_RetencionDR => x.retencion_dr
+
+inl x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_fields
+    ()
+    : list (exists r. x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_field r)
+    =
+    [ exists Pagos_Pago_DoctoRelacionado_ImpuestosDR_RetencionesDR_field_RetencionDR ]
+inl x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_field_meta forall r.
+    (f : x_pagos_pago_docto_relacionado_impuestos_dr_retenciones_dr_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Pagos_Pago_DoctoRelacionado_ImpuestosDR_RetencionesDR_field_RetencionDR =>
+        { tag = "RetencionDR"; min = 1i32; max = None }
 
 let rec x_pagos_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
@@ -9001,3 +9091,9 @@ test generated_cfdi_pagos_2_0_writes_its_example =
 ///> rust
 test generated_cfdi_pagos_2_0_keeps_raw_strings_out fails "Unification failure" =
     x_t_curp_to_string "raw"
+
+///> rust
+test generated_cfdi_pagos_2_0_reports_a_missing_element_with_its_path =
+    inl document = xml_codec.pruned "Totales" (x_pagos_to_xml "Pagos" (x_pagos_example 0i32))
+    if xml_codec.reports "missing Totales" (x_pagos_of_xml document) = false then
+        failwith "a document without Totales is reported as missing, not raised"

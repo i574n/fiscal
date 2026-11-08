@@ -8088,6 +8088,12 @@ inl x_tmd_fe_inf_md_fe_supl_get forall r. (f : x_tmd_fe_inf_md_fe_supl_field r) 
     match f with
     | TMDFe_infMDFeSupl_field_qrCodMDFe => x.qr_cod_md_fe
 
+inl x_tmd_fe_inf_md_fe_supl_fields () : list (exists r. x_tmd_fe_inf_md_fe_supl_field r) =
+    [ exists TMDFe_infMDFeSupl_field_qrCodMDFe ]
+inl x_tmd_fe_inf_md_fe_supl_field_meta forall r. (f : x_tmd_fe_inf_md_fe_supl_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFeSupl_field_qrCodMDFe => { tag = "qrCodMDFe"; min = 1i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_field r =
     | TMDFe_infMDFe_field_ide :: x_tmd_fe_inf_md_fe_field (x_tmd_fe_inf_md_fe_ide)
     | TMDFe_infMDFe_field_emit :: x_tmd_fe_inf_md_fe_field (x_tmd_fe_inf_md_fe_emit)
@@ -8119,6 +8125,38 @@ inl x_tmd_fe_inf_md_fe_get forall r. (f : x_tmd_fe_inf_md_fe_field r) (x : x_tmd
     | TMDFe_infMDFe_field_infSolicNFF => x.inf_solic_nff
     | TMDFe_infMDFe_field_infPAA => x.inf_paa
 
+inl x_tmd_fe_inf_md_fe_fields () : list (exists r. x_tmd_fe_inf_md_fe_field r) =
+    [
+        exists TMDFe_infMDFe_field_ide
+        exists TMDFe_infMDFe_field_emit
+        exists TMDFe_infMDFe_field_infModal
+        exists TMDFe_infMDFe_field_infDoc
+        exists TMDFe_infMDFe_field_seg
+        exists TMDFe_infMDFe_field_prodPred
+        exists TMDFe_infMDFe_field_tot
+        exists TMDFe_infMDFe_field_lacres
+        exists TMDFe_infMDFe_field_autXML
+        exists TMDFe_infMDFe_field_infAdic
+        exists TMDFe_infMDFe_field_infRespTec
+        exists TMDFe_infMDFe_field_infSolicNFF
+        exists TMDFe_infMDFe_field_infPAA
+    ]
+inl x_tmd_fe_inf_md_fe_field_meta forall r. (f : x_tmd_fe_inf_md_fe_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_field_ide => { tag = "ide"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_emit => { tag = "emit"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_infModal => { tag = "infModal"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_infDoc => { tag = "infDoc"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_seg => { tag = "seg"; min = 0i32; max = None }
+    | TMDFe_infMDFe_field_prodPred => { tag = "prodPred"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_tot => { tag = "tot"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_lacres => { tag = "lacres"; min = 0i32; max = None }
+    | TMDFe_infMDFe_field_autXML => { tag = "autXML"; min = 0i32; max = Some 10i32 }
+    | TMDFe_infMDFe_field_infAdic => { tag = "infAdic"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_infRespTec => { tag = "infRespTec"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_infSolicNFF => { tag = "infSolicNFF"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_field_infPAA => { tag = "infPAA"; min = 0i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_inf_paa_field r =
     | TMDFe_infMDFe_infPAA_field_CNPJPAA :: x_tmd_fe_inf_md_fe_inf_paa_field (x_t_cnpj)
     | TMDFe_infMDFe_infPAA_field_PAASignature ::
@@ -8131,6 +8169,13 @@ inl x_tmd_fe_inf_md_fe_inf_paa_get forall r.
     match f with
     | TMDFe_infMDFe_infPAA_field_CNPJPAA => x.cnpjpaa
     | TMDFe_infMDFe_infPAA_field_PAASignature => x.paa_signature
+
+inl x_tmd_fe_inf_md_fe_inf_paa_fields () : list (exists r. x_tmd_fe_inf_md_fe_inf_paa_field r) =
+    [ exists TMDFe_infMDFe_infPAA_field_CNPJPAA; exists TMDFe_infMDFe_infPAA_field_PAASignature ]
+inl x_tmd_fe_inf_md_fe_inf_paa_field_meta forall r. (f : x_tmd_fe_inf_md_fe_inf_paa_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_infPAA_field_CNPJPAA => { tag = "CNPJPAA"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infPAA_field_PAASignature => { tag = "PAASignature"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_inf_paa_paa_signature_field r =
     | TMDFe_infMDFe_infPAA_PAASignature_field_SignatureValue :: x_tmd_fe_inf_md_fe_inf_paa_paa_signature_field (string)
@@ -8145,6 +8190,22 @@ inl x_tmd_fe_inf_md_fe_inf_paa_paa_signature_get forall r.
     | TMDFe_infMDFe_infPAA_PAASignature_field_SignatureValue => x.signature_value
     | TMDFe_infMDFe_infPAA_PAASignature_field_RSAKeyValue => x.rsa_key_value
 
+inl x_tmd_fe_inf_md_fe_inf_paa_paa_signature_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_paa_paa_signature_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infPAA_PAASignature_field_SignatureValue
+        exists TMDFe_infMDFe_infPAA_PAASignature_field_RSAKeyValue
+    ]
+inl x_tmd_fe_inf_md_fe_inf_paa_paa_signature_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_paa_paa_signature_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infPAA_PAASignature_field_SignatureValue => { tag = "SignatureValue"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infPAA_PAASignature_field_RSAKeyValue => { tag = "RSAKeyValue"; min = 1i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_inf_solic_nff_field r =
     | TMDFe_infMDFe_infSolicNFF_field_xSolic ::
         x_tmd_fe_inf_md_fe_inf_solic_nff_field (x_tmd_fe_inf_md_fe_inf_solic_nff_x_solic)
@@ -8155,6 +8216,15 @@ inl x_tmd_fe_inf_md_fe_inf_solic_nff_get forall r.
     =
     match f with
     | TMDFe_infMDFe_infSolicNFF_field_xSolic => x.x_solic
+
+inl x_tmd_fe_inf_md_fe_inf_solic_nff_fields () : list (exists r. x_tmd_fe_inf_md_fe_inf_solic_nff_field r) =
+    [ exists TMDFe_infMDFe_infSolicNFF_field_xSolic ]
+inl x_tmd_fe_inf_md_fe_inf_solic_nff_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_solic_nff_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infSolicNFF_field_xSolic => { tag = "xSolic"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_inf_adic_field r =
     | TMDFe_infMDFe_infAdic_field_infAdFisco ::
@@ -8170,6 +8240,13 @@ inl x_tmd_fe_inf_md_fe_inf_adic_get forall r.
     | TMDFe_infMDFe_infAdic_field_infAdFisco => x.inf_ad_fisco
     | TMDFe_infMDFe_infAdic_field_infCpl => x.inf_cpl
 
+inl x_tmd_fe_inf_md_fe_inf_adic_fields () : list (exists r. x_tmd_fe_inf_md_fe_inf_adic_field r) =
+    [ exists TMDFe_infMDFe_infAdic_field_infAdFisco; exists TMDFe_infMDFe_infAdic_field_infCpl ]
+inl x_tmd_fe_inf_md_fe_inf_adic_field_meta forall r. (f : x_tmd_fe_inf_md_fe_inf_adic_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_infAdic_field_infAdFisco => { tag = "infAdFisco"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infAdic_field_infCpl => { tag = "infCpl"; min = 0i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_aut_xml_field r =
     | TMDFe_infMDFe_autXML_field_choice_cnpj ::
         x_tmd_fe_inf_md_fe_aut_xml_field (x_tmd_fe_inf_md_fe_aut_xml_choice_cnpj)
@@ -8181,6 +8258,12 @@ inl x_tmd_fe_inf_md_fe_aut_xml_get forall r.
     match f with
     | TMDFe_infMDFe_autXML_field_choice_cnpj => x.choice_cnpj
 
+inl x_tmd_fe_inf_md_fe_aut_xml_fields () : list (exists r. x_tmd_fe_inf_md_fe_aut_xml_field r) =
+    [ exists TMDFe_infMDFe_autXML_field_choice_cnpj ]
+inl x_tmd_fe_inf_md_fe_aut_xml_field_meta forall r. (f : x_tmd_fe_inf_md_fe_aut_xml_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_autXML_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_lacres_field r =
     | TMDFe_infMDFe_lacres_field_nLacre :: x_tmd_fe_inf_md_fe_lacres_field (x_tmd_fe_inf_md_fe_lacres_n_lacre)
 
@@ -8190,6 +8273,12 @@ inl x_tmd_fe_inf_md_fe_lacres_get forall r.
     =
     match f with
     | TMDFe_infMDFe_lacres_field_nLacre => x.n_lacre
+
+inl x_tmd_fe_inf_md_fe_lacres_fields () : list (exists r. x_tmd_fe_inf_md_fe_lacres_field r) =
+    [ exists TMDFe_infMDFe_lacres_field_nLacre ]
+inl x_tmd_fe_inf_md_fe_lacres_field_meta forall r. (f : x_tmd_fe_inf_md_fe_lacres_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_lacres_field_nLacre => { tag = "nLacre"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_tot_field r =
     | TMDFe_infMDFe_tot_field_qCTe :: x_tmd_fe_inf_md_fe_tot_field (option (x_tmd_fe_inf_md_fe_tot_q_c_te))
@@ -8207,6 +8296,24 @@ inl x_tmd_fe_inf_md_fe_tot_get forall r. (f : x_tmd_fe_inf_md_fe_tot_field r) (x
     | TMDFe_infMDFe_tot_field_vCarga => x.v_carga
     | TMDFe_infMDFe_tot_field_cUnid => x.c_unid
     | TMDFe_infMDFe_tot_field_qCarga => x.q_carga
+
+inl x_tmd_fe_inf_md_fe_tot_fields () : list (exists r. x_tmd_fe_inf_md_fe_tot_field r) =
+    [
+        exists TMDFe_infMDFe_tot_field_qCTe
+        exists TMDFe_infMDFe_tot_field_qNFe
+        exists TMDFe_infMDFe_tot_field_qMDFe
+        exists TMDFe_infMDFe_tot_field_vCarga
+        exists TMDFe_infMDFe_tot_field_cUnid
+        exists TMDFe_infMDFe_tot_field_qCarga
+    ]
+inl x_tmd_fe_inf_md_fe_tot_field_meta forall r. (f : x_tmd_fe_inf_md_fe_tot_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_tot_field_qCTe => { tag = "qCTe"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_tot_field_qNFe => { tag = "qNFe"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_tot_field_qMDFe => { tag = "qMDFe"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_tot_field_vCarga => { tag = "vCarga"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_tot_field_cUnid => { tag = "cUnid"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_tot_field_qCarga => { tag = "qCarga"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_prod_pred_field r =
     | TMDFe_infMDFe_prodPred_field_tpCarga :: x_tmd_fe_inf_md_fe_prod_pred_field (x_tmd_fe_inf_md_fe_prod_pred_tp_carga)
@@ -8228,6 +8335,25 @@ inl x_tmd_fe_inf_md_fe_prod_pred_get forall r.
     | TMDFe_infMDFe_prodPred_field_NCM => x.ncm
     | TMDFe_infMDFe_prodPred_field_infLotacao => x.inf_lotacao
 
+inl x_tmd_fe_inf_md_fe_prod_pred_fields () : list (exists r. x_tmd_fe_inf_md_fe_prod_pred_field r) =
+    [
+        exists TMDFe_infMDFe_prodPred_field_tpCarga
+        exists TMDFe_infMDFe_prodPred_field_xProd
+        exists TMDFe_infMDFe_prodPred_field_cEAN
+        exists TMDFe_infMDFe_prodPred_field_NCM
+        exists TMDFe_infMDFe_prodPred_field_infLotacao
+    ]
+inl x_tmd_fe_inf_md_fe_prod_pred_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_prod_pred_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_prodPred_field_tpCarga => { tag = "tpCarga"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_prodPred_field_xProd => { tag = "xProd"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_prodPred_field_cEAN => { tag = "cEAN"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_prodPred_field_NCM => { tag = "NCM"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_prodPred_field_infLotacao => { tag = "infLotacao"; min = 0i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_field r =
     | TMDFe_infMDFe_prodPred_infLotacao_field_infLocalCarrega ::
         x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_field (x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega)
@@ -8242,6 +8368,24 @@ inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_get forall r.
     | TMDFe_infMDFe_prodPred_infLotacao_field_infLocalCarrega => x.inf_local_carrega
     | TMDFe_infMDFe_prodPred_infLotacao_field_infLocalDescarrega => x.inf_local_descarrega
 
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_field r)
+    =
+    [
+        exists TMDFe_infMDFe_prodPred_infLotacao_field_infLocalCarrega
+        exists TMDFe_infMDFe_prodPred_infLotacao_field_infLocalDescarrega
+    ]
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_prodPred_infLotacao_field_infLocalCarrega =>
+        { tag = "infLocalCarrega"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_prodPred_infLotacao_field_infLocalDescarrega =>
+        { tag = "infLocalDescarrega"; min = 1i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_field r =
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_field_choice_cep ::
         x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_field
@@ -8254,6 +8398,19 @@ inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_get forall r.
     =
     match f with
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_field_choice_cep => x.choice_cep
+
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_field r)
+    =
+    [ exists TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_field_choice_cep ]
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_field_choice_cep =>
+        { tag = "choice_cep"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_field r =
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude_field_latitude ::
@@ -8270,6 +8427,24 @@ inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_gro
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude_field_latitude => x.latitude
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude_field_longitude => x.longitude
 
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_field r)
+    =
+    [
+        exists TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude_field_latitude
+        exists TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude_field_longitude
+    ]
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_descarrega_choice_cep_group_latitude_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude_field_latitude =>
+        { tag = "latitude"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_prodPred_infLotacao_infLocalDescarrega_choice_CEP_group_latitude_field_longitude =>
+        { tag = "longitude"; min = 1i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_field r =
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_field_choice_cep ::
         x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_field
@@ -8282,6 +8457,19 @@ inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_get forall r.
     =
     match f with
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_field_choice_cep => x.choice_cep
+
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_field r)
+    =
+    [ exists TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_field_choice_cep ]
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_field_choice_cep =>
+        { tag = "choice_cep"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_field r =
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude_field_latitude ::
@@ -8298,6 +8486,24 @@ inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude_field_latitude => x.latitude
     | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude_field_longitude => x.longitude
 
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_field r)
+    =
+    [
+        exists TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude_field_latitude
+        exists TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude_field_longitude
+    ]
+inl x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_prod_pred_inf_lotacao_inf_local_carrega_choice_cep_group_latitude_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude_field_latitude =>
+        { tag = "latitude"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_prodPred_infLotacao_infLocalCarrega_choice_CEP_group_latitude_field_longitude =>
+        { tag = "longitude"; min = 1i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_seg_field r =
     | TMDFe_infMDFe_seg_field_infResp :: x_tmd_fe_inf_md_fe_seg_field (x_tmd_fe_inf_md_fe_seg_inf_resp)
     | TMDFe_infMDFe_seg_field_infSeg :: x_tmd_fe_inf_md_fe_seg_field (option (x_tmd_fe_inf_md_fe_seg_inf_seg))
@@ -8311,6 +8517,20 @@ inl x_tmd_fe_inf_md_fe_seg_get forall r. (f : x_tmd_fe_inf_md_fe_seg_field r) (x
     | TMDFe_infMDFe_seg_field_nApol => x.n_apol
     | TMDFe_infMDFe_seg_field_nAver => x.n_aver
 
+inl x_tmd_fe_inf_md_fe_seg_fields () : list (exists r. x_tmd_fe_inf_md_fe_seg_field r) =
+    [
+        exists TMDFe_infMDFe_seg_field_infResp
+        exists TMDFe_infMDFe_seg_field_infSeg
+        exists TMDFe_infMDFe_seg_field_nApol
+        exists TMDFe_infMDFe_seg_field_nAver
+    ]
+inl x_tmd_fe_inf_md_fe_seg_field_meta forall r. (f : x_tmd_fe_inf_md_fe_seg_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_seg_field_infResp => { tag = "infResp"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_seg_field_infSeg => { tag = "infSeg"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_seg_field_nApol => { tag = "nApol"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_seg_field_nAver => { tag = "nAver"; min = 0i32; max = None }
+
 union x_tmd_fe_inf_md_fe_seg_inf_seg_field r =
     | TMDFe_infMDFe_seg_infSeg_field_xSeg :: x_tmd_fe_inf_md_fe_seg_inf_seg_field (x_tmd_fe_inf_md_fe_seg_inf_seg_x_seg)
     | TMDFe_infMDFe_seg_infSeg_field_CNPJ :: x_tmd_fe_inf_md_fe_seg_inf_seg_field (x_t_cnpj_opc)
@@ -8322,6 +8542,16 @@ inl x_tmd_fe_inf_md_fe_seg_inf_seg_get forall r.
     match f with
     | TMDFe_infMDFe_seg_infSeg_field_xSeg => x.x_seg
     | TMDFe_infMDFe_seg_infSeg_field_CNPJ => x.cnpj
+
+inl x_tmd_fe_inf_md_fe_seg_inf_seg_fields () : list (exists r. x_tmd_fe_inf_md_fe_seg_inf_seg_field r) =
+    [ exists TMDFe_infMDFe_seg_infSeg_field_xSeg; exists TMDFe_infMDFe_seg_infSeg_field_CNPJ ]
+inl x_tmd_fe_inf_md_fe_seg_inf_seg_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_seg_inf_seg_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_seg_infSeg_field_xSeg => { tag = "xSeg"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_seg_infSeg_field_CNPJ => { tag = "CNPJ"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_seg_inf_resp_field r =
     | TMDFe_infMDFe_seg_infResp_field_respSeg ::
@@ -8337,6 +8567,16 @@ inl x_tmd_fe_inf_md_fe_seg_inf_resp_get forall r.
     | TMDFe_infMDFe_seg_infResp_field_respSeg => x.resp_seg
     | TMDFe_infMDFe_seg_infResp_field_choice_cnpj => x.choice_cnpj
 
+inl x_tmd_fe_inf_md_fe_seg_inf_resp_fields () : list (exists r. x_tmd_fe_inf_md_fe_seg_inf_resp_field r) =
+    [ exists TMDFe_infMDFe_seg_infResp_field_respSeg; exists TMDFe_infMDFe_seg_infResp_field_choice_cnpj ]
+inl x_tmd_fe_inf_md_fe_seg_inf_resp_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_seg_inf_resp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_seg_infResp_field_respSeg => { tag = "respSeg"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_seg_infResp_field_choice_cnpj => { tag = "choice_cnpj"; min = 0i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_inf_doc_field r =
     | TMDFe_infMDFe_infDoc_field_infMunDescarga ::
         x_tmd_fe_inf_md_fe_inf_doc_field (list (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga))
@@ -8347,6 +8587,12 @@ inl x_tmd_fe_inf_md_fe_inf_doc_get forall r.
     =
     match f with
     | TMDFe_infMDFe_infDoc_field_infMunDescarga => x.inf_mun_descarga
+
+inl x_tmd_fe_inf_md_fe_inf_doc_fields () : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_field r) =
+    [ exists TMDFe_infMDFe_infDoc_field_infMunDescarga ]
+inl x_tmd_fe_inf_md_fe_inf_doc_field_meta forall r. (f : x_tmd_fe_inf_md_fe_inf_doc_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_infDoc_field_infMunDescarga => { tag = "infMunDescarga"; min = 1i32; max = Some 1000i32 }
 
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_field_cMunDescarga ::
@@ -8372,6 +8618,29 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_get forall r.
     | TMDFe_infMDFe_infDoc_infMunDescarga_field_infNFe => x.inf_n_fe
     | TMDFe_infMDFe_infDoc_infMunDescarga_field_infMDFeTransp => x.inf_md_fe_transp
 
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_field_cMunDescarga
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_field_xMunDescarga
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_field_infCTe
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_field_infNFe
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_field_infMDFeTransp
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_field_cMunDescarga => { tag = "cMunDescarga"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_field_xMunDescarga => { tag = "xMunDescarga"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_field_infCTe => { tag = "infCTe"; min = 0i32; max = Some 20000i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_field_infNFe => { tag = "infNFe"; min = 0i32; max = Some 20000i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_field_infMDFeTransp =>
+        { tag = "infMDFeTransp"; min = 0i32; max = Some 20000i32 }
+
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_chMDFe ::
         x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_field (x_t_ch_n_fe)
@@ -8394,6 +8663,28 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_get forall r.
     | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_indReentrega => x.ind_reentrega
     | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_infUnidTransp => x.inf_unid_transp
     | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_peri => x.peri
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_chMDFe
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_indReentrega
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_infUnidTransp
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_peri
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_chMDFe => { tag = "chMDFe"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_indReentrega =>
+        { tag = "indReentrega"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_infUnidTransp =>
+        { tag = "infUnidTransp"; min = 0i32; max = None }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_field_peri => { tag = "peri"; min = 0i32; max = None }
 
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_nONU ::
@@ -8428,6 +8719,35 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_get forall
     | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_qTotProd => x.q_tot_prod
     | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_qVolTipo => x.q_vol_tipo
 
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_nONU
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_xNomeAE
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_xClaRisco
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_grEmb
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_qTotProd
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_qVolTipo
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_peri_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_nONU => { tag = "nONU"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_xNomeAE =>
+        { tag = "xNomeAE"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_xClaRisco =>
+        { tag = "xClaRisco"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_grEmb =>
+        { tag = "grEmb"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_qTotProd =>
+        { tag = "qTotProd"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infMDFeTransp_peri_field_qVolTipo =>
+        { tag = "qVolTipo"; min = 0i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_chNFe ::
         x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_field (x_t_ch_n_fe)
@@ -8453,6 +8773,31 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_get forall r.
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_indReentrega => x.ind_reentrega
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_infUnidTransp => x.inf_unid_transp
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_peri => x.peri
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_chNFe
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_SegCodBarra
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_indReentrega
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_infUnidTransp
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_peri
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_chNFe => { tag = "chNFe"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_SegCodBarra =>
+        { tag = "SegCodBarra"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_indReentrega =>
+        { tag = "indReentrega"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_infUnidTransp =>
+        { tag = "infUnidTransp"; min = 0i32; max = None }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_field_peri => { tag = "peri"; min = 0i32; max = None }
 
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_nONU ::
@@ -8486,6 +8831,33 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_get forall r.
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_grEmb => x.gr_emb
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_qTotProd => x.q_tot_prod
     | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_qVolTipo => x.q_vol_tipo
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_nONU
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_xNomeAE
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_xClaRisco
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_grEmb
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_qTotProd
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_qVolTipo
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_peri_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_nONU => { tag = "nONU"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_xNomeAE => { tag = "xNomeAE"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_xClaRisco =>
+        { tag = "xClaRisco"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_grEmb => { tag = "grEmb"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_qTotProd =>
+        { tag = "qTotProd"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infNFe_peri_field_qVolTipo =>
+        { tag = "qVolTipo"; min = 0i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_chCTe ::
@@ -8525,6 +8897,40 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_get forall r.
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_indPrestacaoParcial => x.ind_prestacao_parcial
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_infNFePrestParcial => x.inf_n_fe_prest_parcial
 
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_chCTe
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_SegCodBarra
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_indReentrega
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_infUnidTransp
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_peri
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_infEntregaParcial
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_indPrestacaoParcial
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_infNFePrestParcial
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_chCTe => { tag = "chCTe"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_SegCodBarra =>
+        { tag = "SegCodBarra"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_indReentrega =>
+        { tag = "indReentrega"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_infUnidTransp =>
+        { tag = "infUnidTransp"; min = 0i32; max = None }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_peri => { tag = "peri"; min = 0i32; max = None }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_infEntregaParcial =>
+        { tag = "infEntregaParcial"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_indPrestacaoParcial =>
+        { tag = "indPrestacaoParcial"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_field_infNFePrestParcial =>
+        { tag = "infNFePrestParcial"; min = 1i32; max = None }
+
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infNFePrestParcial_field_chNFe ::
         x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_field (x_t_ch_c_te)
@@ -8536,6 +8942,19 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_
     =
     match f with
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infNFePrestParcial_field_chNFe => x.ch_n_fe
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_field r)
+    =
+    [ exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infNFePrestParcial_field_chNFe ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_n_fe_prest_parcial_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infNFePrestParcial_field_chNFe =>
+        { tag = "chNFe"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infEntregaParcial_field_qtdTotal ::
@@ -8551,6 +8970,24 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_get
     match f with
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infEntregaParcial_field_qtdTotal => x.qtd_total
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infEntregaParcial_field_qtdParcial => x.qtd_parcial
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infEntregaParcial_field_qtdTotal
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infEntregaParcial_field_qtdParcial
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_inf_entrega_parcial_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infEntregaParcial_field_qtdTotal =>
+        { tag = "qtdTotal"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_infEntregaParcial_field_qtdParcial =>
+        { tag = "qtdParcial"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_field r =
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_nONU ::
@@ -8585,6 +9022,33 @@ inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_get forall r.
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_qTotProd => x.q_tot_prod
     | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_qVolTipo => x.q_vol_tipo
 
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_fields
+    ()
+    : list (exists r. x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_field r)
+    =
+    [
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_nONU
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_xNomeAE
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_xClaRisco
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_grEmb
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_qTotProd
+        exists TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_qVolTipo
+    ]
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_peri_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_nONU => { tag = "nONU"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_xNomeAE => { tag = "xNomeAE"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_xClaRisco =>
+        { tag = "xClaRisco"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_grEmb => { tag = "grEmb"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_qTotProd =>
+        { tag = "qTotProd"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_infDoc_infMunDescarga_infCTe_peri_field_qVolTipo =>
+        { tag = "qVolTipo"; min = 0i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_inf_modal_field r =
     | TMDFe_infMDFe_infModal_field_any :: x_tmd_fe_inf_md_fe_inf_modal_field (any_content)
 
@@ -8594,6 +9058,15 @@ inl x_tmd_fe_inf_md_fe_inf_modal_get forall r.
     =
     match f with
     | TMDFe_infMDFe_infModal_field_any => x.any
+
+inl x_tmd_fe_inf_md_fe_inf_modal_fields () : list (exists r. x_tmd_fe_inf_md_fe_inf_modal_field r) =
+    [ exists TMDFe_infMDFe_infModal_field_any ]
+inl x_tmd_fe_inf_md_fe_inf_modal_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_inf_modal_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_infModal_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_tmd_fe_inf_md_fe_emit_field r =
     | TMDFe_infMDFe_emit_field_choice_cnpj :: x_tmd_fe_inf_md_fe_emit_field (x_tmd_fe_inf_md_fe_emit_choice_cnpj)
@@ -8609,6 +9082,22 @@ inl x_tmd_fe_inf_md_fe_emit_get forall r. (f : x_tmd_fe_inf_md_fe_emit_field r) 
     | TMDFe_infMDFe_emit_field_xNome => x.x_nome
     | TMDFe_infMDFe_emit_field_xFant => x.x_fant
     | TMDFe_infMDFe_emit_field_enderEmit => x.ender_emit
+
+inl x_tmd_fe_inf_md_fe_emit_fields () : list (exists r. x_tmd_fe_inf_md_fe_emit_field r) =
+    [
+        exists TMDFe_infMDFe_emit_field_choice_cnpj
+        exists TMDFe_infMDFe_emit_field_IE
+        exists TMDFe_infMDFe_emit_field_xNome
+        exists TMDFe_infMDFe_emit_field_xFant
+        exists TMDFe_infMDFe_emit_field_enderEmit
+    ]
+inl x_tmd_fe_inf_md_fe_emit_field_meta forall r. (f : x_tmd_fe_inf_md_fe_emit_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_emit_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_emit_field_IE => { tag = "IE"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_emit_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_emit_field_xFant => { tag = "xFant"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_emit_field_enderEmit => { tag = "enderEmit"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_ide_field r =
     | TMDFe_infMDFe_ide_field_cUF :: x_tmd_fe_inf_md_fe_ide_field (x_t_cod_uf_ibge)
@@ -8660,6 +9149,54 @@ inl x_tmd_fe_inf_md_fe_ide_get forall r. (f : x_tmd_fe_inf_md_fe_ide_field r) (x
     | TMDFe_infMDFe_ide_field_indCanalVerde => x.ind_canal_verde
     | TMDFe_infMDFe_ide_field_indCarregaPosterior => x.ind_carrega_posterior
 
+inl x_tmd_fe_inf_md_fe_ide_fields () : list (exists r. x_tmd_fe_inf_md_fe_ide_field r) =
+    [
+        exists TMDFe_infMDFe_ide_field_cUF
+        exists TMDFe_infMDFe_ide_field_tpAmb
+        exists TMDFe_infMDFe_ide_field_tpEmit
+        exists TMDFe_infMDFe_ide_field_tpTransp
+        exists TMDFe_infMDFe_ide_field_mod
+        exists TMDFe_infMDFe_ide_field_serie
+        exists TMDFe_infMDFe_ide_field_nMDF
+        exists TMDFe_infMDFe_ide_field_cMDF
+        exists TMDFe_infMDFe_ide_field_cDV
+        exists TMDFe_infMDFe_ide_field_modal
+        exists TMDFe_infMDFe_ide_field_dhEmi
+        exists TMDFe_infMDFe_ide_field_tpEmis
+        exists TMDFe_infMDFe_ide_field_procEmi
+        exists TMDFe_infMDFe_ide_field_verProc
+        exists TMDFe_infMDFe_ide_field_UFIni
+        exists TMDFe_infMDFe_ide_field_UFFim
+        exists TMDFe_infMDFe_ide_field_infMunCarrega
+        exists TMDFe_infMDFe_ide_field_infPercurso
+        exists TMDFe_infMDFe_ide_field_dhIniViagem
+        exists TMDFe_infMDFe_ide_field_indCanalVerde
+        exists TMDFe_infMDFe_ide_field_indCarregaPosterior
+    ]
+inl x_tmd_fe_inf_md_fe_ide_field_meta forall r. (f : x_tmd_fe_inf_md_fe_ide_field r) : xml_codec.field_meta =
+    match f with
+    | TMDFe_infMDFe_ide_field_cUF => { tag = "cUF"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_tpEmit => { tag = "tpEmit"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_tpTransp => { tag = "tpTransp"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_mod => { tag = "mod"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_serie => { tag = "serie"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_nMDF => { tag = "nMDF"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_cMDF => { tag = "cMDF"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_cDV => { tag = "cDV"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_modal => { tag = "modal"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_dhEmi => { tag = "dhEmi"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_tpEmis => { tag = "tpEmis"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_procEmi => { tag = "procEmi"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_verProc => { tag = "verProc"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_UFIni => { tag = "UFIni"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_UFFim => { tag = "UFFim"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_infMunCarrega => { tag = "infMunCarrega"; min = 1i32; max = Some 50i32 }
+    | TMDFe_infMDFe_ide_field_infPercurso => { tag = "infPercurso"; min = 0i32; max = Some 25i32 }
+    | TMDFe_infMDFe_ide_field_dhIniViagem => { tag = "dhIniViagem"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_indCanalVerde => { tag = "indCanalVerde"; min = 0i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_field_indCarregaPosterior => { tag = "indCarregaPosterior"; min = 0i32; max = Some 1i32 }
+
 union x_tmd_fe_inf_md_fe_ide_inf_percurso_field r =
     | TMDFe_infMDFe_ide_infPercurso_field_UFPer :: x_tmd_fe_inf_md_fe_ide_inf_percurso_field (x_t_uf)
 
@@ -8669,6 +9206,15 @@ inl x_tmd_fe_inf_md_fe_ide_inf_percurso_get forall r.
     =
     match f with
     | TMDFe_infMDFe_ide_infPercurso_field_UFPer => x.uf_per
+
+inl x_tmd_fe_inf_md_fe_ide_inf_percurso_fields () : list (exists r. x_tmd_fe_inf_md_fe_ide_inf_percurso_field r) =
+    [ exists TMDFe_infMDFe_ide_infPercurso_field_UFPer ]
+inl x_tmd_fe_inf_md_fe_ide_inf_percurso_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_ide_inf_percurso_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_ide_infPercurso_field_UFPer => { tag = "UFPer"; min = 1i32; max = Some 1i32 }
 
 union x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_field r =
     | TMDFe_infMDFe_ide_infMunCarrega_field_cMunCarrega ::
@@ -8683,6 +9229,19 @@ inl x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_get forall r.
     match f with
     | TMDFe_infMDFe_ide_infMunCarrega_field_cMunCarrega => x.c_mun_carrega
     | TMDFe_infMDFe_ide_infMunCarrega_field_xMunCarrega => x.x_mun_carrega
+
+inl x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_fields () : list (exists r. x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_field r) =
+    [
+        exists TMDFe_infMDFe_ide_infMunCarrega_field_cMunCarrega
+        exists TMDFe_infMDFe_ide_infMunCarrega_field_xMunCarrega
+    ]
+inl x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_field_meta forall r.
+    (f : x_tmd_fe_inf_md_fe_ide_inf_mun_carrega_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TMDFe_infMDFe_ide_infMunCarrega_field_cMunCarrega => { tag = "cMunCarrega"; min = 1i32; max = Some 1i32 }
+    | TMDFe_infMDFe_ide_infMunCarrega_field_xMunCarrega => { tag = "xMunCarrega"; min = 1i32; max = Some 1i32 }
 
 union x_t_ret_md_fe_field r =
     | TRetMDFe_field_tpAmb :: x_t_ret_md_fe_field (string)
@@ -8701,6 +9260,24 @@ inl x_t_ret_md_fe_get forall r. (f : x_t_ret_md_fe_field r) (x : x_t_ret_md_fe) 
     | TRetMDFe_field_xMotivo => x.x_motivo
     | TRetMDFe_field_protMDFe => x.prot_md_fe
 
+inl x_t_ret_md_fe_fields () : list (exists r. x_t_ret_md_fe_field r) =
+    [
+        exists TRetMDFe_field_tpAmb
+        exists TRetMDFe_field_cUF
+        exists TRetMDFe_field_verAplic
+        exists TRetMDFe_field_cStat
+        exists TRetMDFe_field_xMotivo
+        exists TRetMDFe_field_protMDFe
+    ]
+inl x_t_ret_md_fe_field_meta forall r. (f : x_t_ret_md_fe_field r) : xml_codec.field_meta =
+    match f with
+    | TRetMDFe_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TRetMDFe_field_cUF => { tag = "cUF"; min = 1i32; max = Some 1i32 }
+    | TRetMDFe_field_verAplic => { tag = "verAplic"; min = 1i32; max = Some 1i32 }
+    | TRetMDFe_field_cStat => { tag = "cStat"; min = 1i32; max = Some 1i32 }
+    | TRetMDFe_field_xMotivo => { tag = "xMotivo"; min = 1i32; max = Some 1i32 }
+    | TRetMDFe_field_protMDFe => { tag = "protMDFe"; min = 0i32; max = Some 1i32 }
+
 union x_t_ret_envi_md_fe_field r =
     | TRetEnviMDFe_field_tpAmb :: x_t_ret_envi_md_fe_field (string)
     | TRetEnviMDFe_field_cUF :: x_t_ret_envi_md_fe_field (x_t_cod_uf_ibge)
@@ -8718,6 +9295,24 @@ inl x_t_ret_envi_md_fe_get forall r. (f : x_t_ret_envi_md_fe_field r) (x : x_t_r
     | TRetEnviMDFe_field_xMotivo => x.x_motivo
     | TRetEnviMDFe_field_infRec => x.inf_rec
 
+inl x_t_ret_envi_md_fe_fields () : list (exists r. x_t_ret_envi_md_fe_field r) =
+    [
+        exists TRetEnviMDFe_field_tpAmb
+        exists TRetEnviMDFe_field_cUF
+        exists TRetEnviMDFe_field_verAplic
+        exists TRetEnviMDFe_field_cStat
+        exists TRetEnviMDFe_field_xMotivo
+        exists TRetEnviMDFe_field_infRec
+    ]
+inl x_t_ret_envi_md_fe_field_meta forall r. (f : x_t_ret_envi_md_fe_field r) : xml_codec.field_meta =
+    match f with
+    | TRetEnviMDFe_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TRetEnviMDFe_field_cUF => { tag = "cUF"; min = 1i32; max = Some 1i32 }
+    | TRetEnviMDFe_field_verAplic => { tag = "verAplic"; min = 1i32; max = Some 1i32 }
+    | TRetEnviMDFe_field_cStat => { tag = "cStat"; min = 1i32; max = Some 1i32 }
+    | TRetEnviMDFe_field_xMotivo => { tag = "xMotivo"; min = 1i32; max = Some 1i32 }
+    | TRetEnviMDFe_field_infRec => { tag = "infRec"; min = 0i32; max = Some 1i32 }
+
 union x_t_ret_envi_md_fe_inf_rec_field r =
     | TRetEnviMDFe_infRec_field_nRec :: x_t_ret_envi_md_fe_inf_rec_field (x_t_rec)
     | TRetEnviMDFe_infRec_field_dhRecbto :: x_t_ret_envi_md_fe_inf_rec_field (string)
@@ -8731,6 +9326,18 @@ inl x_t_ret_envi_md_fe_inf_rec_get forall r.
     | TRetEnviMDFe_infRec_field_nRec => x.n_rec
     | TRetEnviMDFe_infRec_field_dhRecbto => x.dh_recbto
     | TRetEnviMDFe_infRec_field_tMed => x.t_med
+
+inl x_t_ret_envi_md_fe_inf_rec_fields () : list (exists r. x_t_ret_envi_md_fe_inf_rec_field r) =
+    [
+        exists TRetEnviMDFe_infRec_field_nRec
+        exists TRetEnviMDFe_infRec_field_dhRecbto
+        exists TRetEnviMDFe_infRec_field_tMed
+    ]
+inl x_t_ret_envi_md_fe_inf_rec_field_meta forall r. (f : x_t_ret_envi_md_fe_inf_rec_field r) : xml_codec.field_meta =
+    match f with
+    | TRetEnviMDFe_infRec_field_nRec => { tag = "nRec"; min = 1i32; max = Some 1i32 }
+    | TRetEnviMDFe_infRec_field_dhRecbto => { tag = "dhRecbto"; min = 1i32; max = Some 1i32 }
+    | TRetEnviMDFe_infRec_field_tMed => { tag = "tMed"; min = 1i32; max = Some 1i32 }
 
 union x_t_ende_emi_field r =
     | TEndeEmi_field_xLgr :: x_t_ende_emi_field (x_t_ende_emi_x_lgr)
@@ -8757,6 +9364,32 @@ inl x_t_ende_emi_get forall r. (f : x_t_ende_emi_field r) (x : x_t_ende_emi) : r
     | TEndeEmi_field_fone => x.fone
     | TEndeEmi_field_email => x.email
 
+inl x_t_ende_emi_fields () : list (exists r. x_t_ende_emi_field r) =
+    [
+        exists TEndeEmi_field_xLgr
+        exists TEndeEmi_field_nro
+        exists TEndeEmi_field_xCpl
+        exists TEndeEmi_field_xBairro
+        exists TEndeEmi_field_cMun
+        exists TEndeEmi_field_xMun
+        exists TEndeEmi_field_CEP
+        exists TEndeEmi_field_UF
+        exists TEndeEmi_field_fone
+        exists TEndeEmi_field_email
+    ]
+inl x_t_ende_emi_field_meta forall r. (f : x_t_ende_emi_field r) : xml_codec.field_meta =
+    match f with
+    | TEndeEmi_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndeEmi_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndeEmi_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+    | TEndeEmi_field_email => { tag = "email"; min = 0i32; max = Some 1i32 }
+
 union x_t_endereco_field r =
     | TEndereco_field_xLgr :: x_t_endereco_field (x_t_endereco_x_lgr)
     | TEndereco_field_nro :: x_t_endereco_field (x_t_endereco_nro)
@@ -8782,6 +9415,32 @@ inl x_t_endereco_get forall r. (f : x_t_endereco_field r) (x : x_t_endereco) : r
     | TEndereco_field_cPais => x.c_pais
     | TEndereco_field_xPais => x.x_pais
 
+inl x_t_endereco_fields () : list (exists r. x_t_endereco_field r) =
+    [
+        exists TEndereco_field_xLgr
+        exists TEndereco_field_nro
+        exists TEndereco_field_xCpl
+        exists TEndereco_field_xBairro
+        exists TEndereco_field_cMun
+        exists TEndereco_field_xMun
+        exists TEndereco_field_CEP
+        exists TEndereco_field_UF
+        exists TEndereco_field_cPais
+        exists TEndereco_field_xPais
+    ]
+inl x_t_endereco_field_meta forall r. (f : x_t_endereco_field r) : xml_codec.field_meta =
+    match f with
+    | TEndereco_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndereco_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndereco_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_cPais => { tag = "cPais"; min = 0i32; max = Some 1i32 }
+    | TEndereco_field_xPais => { tag = "xPais"; min = 0i32; max = Some 1i32 }
+
 union x_t_endernac_field r =
     | TEndernac_field_xLgr :: x_t_endernac_field (x_t_endernac_x_lgr)
     | TEndernac_field_nro :: x_t_endernac_field (x_t_endernac_nro)
@@ -8803,6 +9462,28 @@ inl x_t_endernac_get forall r. (f : x_t_endernac_field r) (x : x_t_endernac) : r
     | TEndernac_field_CEP => x.cep
     | TEndernac_field_UF => x.uf
 
+inl x_t_endernac_fields () : list (exists r. x_t_endernac_field r) =
+    [
+        exists TEndernac_field_xLgr
+        exists TEndernac_field_nro
+        exists TEndernac_field_xCpl
+        exists TEndernac_field_xBairro
+        exists TEndernac_field_cMun
+        exists TEndernac_field_xMun
+        exists TEndernac_field_CEP
+        exists TEndernac_field_UF
+    ]
+inl x_t_endernac_field_meta forall r. (f : x_t_endernac_field r) : xml_codec.field_meta =
+    match f with
+    | TEndernac_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndernac_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndernac_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+
 union x_t_ender_fer_field r =
     | TEnderFer_field_xLgr :: x_t_ender_fer_field (x_t_ender_fer_x_lgr)
     | TEnderFer_field_nro :: x_t_ender_fer_field (option (x_t_ender_fer_nro))
@@ -8823,6 +9504,28 @@ inl x_t_ender_fer_get forall r. (f : x_t_ender_fer_field r) (x : x_t_ender_fer) 
     | TEnderFer_field_xMun => x.x_mun
     | TEnderFer_field_CEP => x.cep
     | TEnderFer_field_UF => x.uf
+
+inl x_t_ender_fer_fields () : list (exists r. x_t_ender_fer_field r) =
+    [
+        exists TEnderFer_field_xLgr
+        exists TEnderFer_field_nro
+        exists TEnderFer_field_xCpl
+        exists TEnderFer_field_xBairro
+        exists TEnderFer_field_cMun
+        exists TEnderFer_field_xMun
+        exists TEnderFer_field_CEP
+        exists TEnderFer_field_UF
+    ]
+inl x_t_ender_fer_field_meta forall r. (f : x_t_ender_fer_field r) : xml_codec.field_meta =
+    match f with
+    | TEnderFer_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEnderFer_field_nro => { tag = "nro"; min = 0i32; max = Some 1i32 }
+    | TEnderFer_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEnderFer_field_xBairro => { tag = "xBairro"; min = 0i32; max = Some 1i32 }
+    | TEnderFer_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEnderFer_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEnderFer_field_CEP => { tag = "CEP"; min = 1i32; max = Some 1i32 }
+    | TEnderFer_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
 
 union x_t_end_org_field r =
     | TEndOrg_field_xLgr :: x_t_end_org_field (x_t_end_org_x_lgr)
@@ -8851,6 +9554,34 @@ inl x_t_end_org_get forall r. (f : x_t_end_org_field r) (x : x_t_end_org) : r =
     | TEndOrg_field_xPais => x.x_pais
     | TEndOrg_field_fone => x.fone
 
+inl x_t_end_org_fields () : list (exists r. x_t_end_org_field r) =
+    [
+        exists TEndOrg_field_xLgr
+        exists TEndOrg_field_nro
+        exists TEndOrg_field_xCpl
+        exists TEndOrg_field_xBairro
+        exists TEndOrg_field_cMun
+        exists TEndOrg_field_xMun
+        exists TEndOrg_field_CEP
+        exists TEndOrg_field_UF
+        exists TEndOrg_field_cPais
+        exists TEndOrg_field_xPais
+        exists TEndOrg_field_fone
+    ]
+inl x_t_end_org_field_meta forall r. (f : x_t_end_org_field r) : xml_codec.field_meta =
+    match f with
+    | TEndOrg_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_cPais => { tag = "cPais"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_xPais => { tag = "xPais"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+
 union x_t_local_field r =
     | TLocal_field_cMun :: x_t_local_field (x_t_cod_mun_ibge)
     | TLocal_field_xMun :: x_t_local_field (x_t_local_x_mun)
@@ -8861,6 +9592,14 @@ inl x_t_local_get forall r. (f : x_t_local_field r) (x : x_t_local) : r =
     | TLocal_field_cMun => x.c_mun
     | TLocal_field_xMun => x.x_mun
     | TLocal_field_UF => x.uf
+
+inl x_t_local_fields () : list (exists r. x_t_local_field r) =
+    [ exists TLocal_field_cMun; exists TLocal_field_xMun; exists TLocal_field_UF ]
+inl x_t_local_field_meta forall r. (f : x_t_local_field r) : xml_codec.field_meta =
+    match f with
+    | TLocal_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TLocal_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TLocal_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
 
 union x_t_end_re_ent_field r =
     | TEndReEnt_field_choice_cnpj :: x_t_end_re_ent_field (x_t_end_re_ent_choice_cnpj)
@@ -8885,12 +9624,41 @@ inl x_t_end_re_ent_get forall r. (f : x_t_end_re_ent_field r) (x : x_t_end_re_en
     | TEndReEnt_field_xMun => x.x_mun
     | TEndReEnt_field_UF => x.uf
 
+inl x_t_end_re_ent_fields () : list (exists r. x_t_end_re_ent_field r) =
+    [
+        exists TEndReEnt_field_choice_cnpj
+        exists TEndReEnt_field_xNome
+        exists TEndReEnt_field_xLgr
+        exists TEndReEnt_field_nro
+        exists TEndReEnt_field_xCpl
+        exists TEndReEnt_field_xBairro
+        exists TEndReEnt_field_cMun
+        exists TEndReEnt_field_xMun
+        exists TEndReEnt_field_UF
+    ]
+inl x_t_end_re_ent_field_meta forall r. (f : x_t_end_re_ent_field r) : xml_codec.field_meta =
+    match f with
+    | TEndReEnt_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndReEnt_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+
 union x_tn_fe_nf_field r =
     | TNFeNF_field_choice_inf_n_fe :: x_tn_fe_nf_field (x_tn_fe_nf_choice_inf_n_fe)
 
 inl x_tn_fe_nf_get forall r. (f : x_tn_fe_nf_field r) (x : x_tn_fe_nf) : r =
     match f with
     | TNFeNF_field_choice_inf_n_fe => x.choice_inf_n_fe
+
+inl x_tn_fe_nf_fields () : list (exists r. x_tn_fe_nf_field r) = [ exists TNFeNF_field_choice_inf_n_fe ]
+inl x_tn_fe_nf_field_meta forall r. (f : x_tn_fe_nf_field r) : xml_codec.field_meta =
+    match f with
+    | TNFeNF_field_choice_inf_n_fe => { tag = "choice_inf_n_fe"; min = 1i32; max = Some 1i32 }
 
 union x_tn_fe_nf_choice_inf_n_fe_inf_nf_field r =
     | TNFeNF_choice_infNFe_infNF_field_emi ::
@@ -8918,6 +9686,29 @@ inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_get forall r.
     | TNFeNF_choice_infNFe_infNF_field_vNF => x.v_nf
     | TNFeNF_choice_infNFe_infNF_field_PIN => x.pin
 
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_fields () : list (exists r. x_tn_fe_nf_choice_inf_n_fe_inf_nf_field r) =
+    [
+        exists TNFeNF_choice_infNFe_infNF_field_emi
+        exists TNFeNF_choice_infNFe_infNF_field_dest
+        exists TNFeNF_choice_infNFe_infNF_field_serie
+        exists TNFeNF_choice_infNFe_infNF_field_nNF
+        exists TNFeNF_choice_infNFe_infNF_field_dEmi
+        exists TNFeNF_choice_infNFe_infNF_field_vNF
+        exists TNFeNF_choice_infNFe_infNF_field_PIN
+    ]
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_field_meta forall r.
+    (f : x_tn_fe_nf_choice_inf_n_fe_inf_nf_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TNFeNF_choice_infNFe_infNF_field_emi => { tag = "emi"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_field_dest => { tag = "dest"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_field_serie => { tag = "serie"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_field_nNF => { tag = "nNF"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_field_dEmi => { tag = "dEmi"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_field_vNF => { tag = "vNF"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_field_PIN => { tag = "PIN"; min = 0i32; max = Some 1i32 }
+
 union x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_field r =
     | TNFeNF_choice_infNFe_infNF_dest_field_choice_cnpj ::
         x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_field (x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_choice_cnpj)
@@ -8934,6 +9725,21 @@ inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_get forall r.
     | TNFeNF_choice_infNFe_infNF_dest_field_xNome => x.x_nome
     | TNFeNF_choice_infNFe_infNF_dest_field_UF => x.uf
 
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_fields () : list (exists r. x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_field r) =
+    [
+        exists TNFeNF_choice_infNFe_infNF_dest_field_choice_cnpj
+        exists TNFeNF_choice_infNFe_infNF_dest_field_xNome
+        exists TNFeNF_choice_infNFe_infNF_dest_field_UF
+    ]
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_field_meta forall r.
+    (f : x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TNFeNF_choice_infNFe_infNF_dest_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_dest_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_dest_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+
 union x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_field r =
     | TNFeNF_choice_infNFe_infNF_emi_field_CNPJ :: x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_field (x_t_cnpj)
     | TNFeNF_choice_infNFe_infNF_emi_field_xNome ::
@@ -8949,6 +9755,21 @@ inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_get forall r.
     | TNFeNF_choice_infNFe_infNF_emi_field_xNome => x.x_nome
     | TNFeNF_choice_infNFe_infNF_emi_field_UF => x.uf
 
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_fields () : list (exists r. x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_field r) =
+    [
+        exists TNFeNF_choice_infNFe_infNF_emi_field_CNPJ
+        exists TNFeNF_choice_infNFe_infNF_emi_field_xNome
+        exists TNFeNF_choice_infNFe_infNF_emi_field_UF
+    ]
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_field_meta forall r.
+    (f : x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TNFeNF_choice_infNFe_infNF_emi_field_CNPJ => { tag = "CNPJ"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_emi_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNF_emi_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+
 union x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_field r =
     | TNFeNF_choice_infNFe_infNFe_field_chNFe :: x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_field (x_t_ch_n_fe)
     | TNFeNF_choice_infNFe_infNFe_field_PIN :: x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_field (option (x_tpin))
@@ -8960,6 +9781,16 @@ inl x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_get forall r.
     match f with
     | TNFeNF_choice_infNFe_infNFe_field_chNFe => x.ch_n_fe
     | TNFeNF_choice_infNFe_infNFe_field_PIN => x.pin
+
+inl x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_fields () : list (exists r. x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_field r) =
+    [ exists TNFeNF_choice_infNFe_infNFe_field_chNFe; exists TNFeNF_choice_infNFe_infNFe_field_PIN ]
+inl x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_field_meta forall r.
+    (f : x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TNFeNF_choice_infNFe_infNFe_field_chNFe => { tag = "chNFe"; min = 1i32; max = Some 1i32 }
+    | TNFeNF_choice_infNFe_infNFe_field_PIN => { tag = "PIN"; min = 0i32; max = Some 1i32 }
 
 union x_t_unidade_transp_field r =
     | TUnidadeTransp_field_tpUnidTransp :: x_t_unidade_transp_field (x_ttipo_unid_transp)
@@ -8976,6 +9807,22 @@ inl x_t_unidade_transp_get forall r. (f : x_t_unidade_transp_field r) (x : x_t_u
     | TUnidadeTransp_field_infUnidCarga => x.inf_unid_carga
     | TUnidadeTransp_field_qtdRat => x.qtd_rat
 
+inl x_t_unidade_transp_fields () : list (exists r. x_t_unidade_transp_field r) =
+    [
+        exists TUnidadeTransp_field_tpUnidTransp
+        exists TUnidadeTransp_field_idUnidTransp
+        exists TUnidadeTransp_field_lacUnidTransp
+        exists TUnidadeTransp_field_infUnidCarga
+        exists TUnidadeTransp_field_qtdRat
+    ]
+inl x_t_unidade_transp_field_meta forall r. (f : x_t_unidade_transp_field r) : xml_codec.field_meta =
+    match f with
+    | TUnidadeTransp_field_tpUnidTransp => { tag = "tpUnidTransp"; min = 1i32; max = Some 1i32 }
+    | TUnidadeTransp_field_idUnidTransp => { tag = "idUnidTransp"; min = 1i32; max = Some 1i32 }
+    | TUnidadeTransp_field_lacUnidTransp => { tag = "lacUnidTransp"; min = 0i32; max = None }
+    | TUnidadeTransp_field_infUnidCarga => { tag = "infUnidCarga"; min = 0i32; max = None }
+    | TUnidadeTransp_field_qtdRat => { tag = "qtdRat"; min = 0i32; max = Some 1i32 }
+
 union x_t_unidade_transp_lac_unid_transp_field r =
     | TUnidadeTransp_lacUnidTransp_field_nLacre ::
         x_t_unidade_transp_lac_unid_transp_field (x_t_unidade_transp_lac_unid_transp_n_lacre)
@@ -8986,6 +9833,15 @@ inl x_t_unidade_transp_lac_unid_transp_get forall r.
     =
     match f with
     | TUnidadeTransp_lacUnidTransp_field_nLacre => x.n_lacre
+
+inl x_t_unidade_transp_lac_unid_transp_fields () : list (exists r. x_t_unidade_transp_lac_unid_transp_field r) =
+    [ exists TUnidadeTransp_lacUnidTransp_field_nLacre ]
+inl x_t_unidade_transp_lac_unid_transp_field_meta forall r.
+    (f : x_t_unidade_transp_lac_unid_transp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TUnidadeTransp_lacUnidTransp_field_nLacre => { tag = "nLacre"; min = 1i32; max = Some 1i32 }
 
 union x_t_unid_carga_field r =
     | TUnidCarga_field_tpUnidCarga :: x_t_unid_carga_field (x_ttipo_unid_carga)
@@ -9000,6 +9856,20 @@ inl x_t_unid_carga_get forall r. (f : x_t_unid_carga_field r) (x : x_t_unid_carg
     | TUnidCarga_field_lacUnidCarga => x.lac_unid_carga
     | TUnidCarga_field_qtdRat => x.qtd_rat
 
+inl x_t_unid_carga_fields () : list (exists r. x_t_unid_carga_field r) =
+    [
+        exists TUnidCarga_field_tpUnidCarga
+        exists TUnidCarga_field_idUnidCarga
+        exists TUnidCarga_field_lacUnidCarga
+        exists TUnidCarga_field_qtdRat
+    ]
+inl x_t_unid_carga_field_meta forall r. (f : x_t_unid_carga_field r) : xml_codec.field_meta =
+    match f with
+    | TUnidCarga_field_tpUnidCarga => { tag = "tpUnidCarga"; min = 1i32; max = Some 1i32 }
+    | TUnidCarga_field_idUnidCarga => { tag = "idUnidCarga"; min = 1i32; max = Some 1i32 }
+    | TUnidCarga_field_lacUnidCarga => { tag = "lacUnidCarga"; min = 0i32; max = None }
+    | TUnidCarga_field_qtdRat => { tag = "qtdRat"; min = 0i32; max = Some 1i32 }
+
 union x_t_unid_carga_lac_unid_carga_field r =
     | TUnidCarga_lacUnidCarga_field_nLacre ::
         x_t_unid_carga_lac_unid_carga_field (x_t_unid_carga_lac_unid_carga_n_lacre)
@@ -9010,6 +9880,15 @@ inl x_t_unid_carga_lac_unid_carga_get forall r.
     =
     match f with
     | TUnidCarga_lacUnidCarga_field_nLacre => x.n_lacre
+
+inl x_t_unid_carga_lac_unid_carga_fields () : list (exists r. x_t_unid_carga_lac_unid_carga_field r) =
+    [ exists TUnidCarga_lacUnidCarga_field_nLacre ]
+inl x_t_unid_carga_lac_unid_carga_field_meta forall r.
+    (f : x_t_unid_carga_lac_unid_carga_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TUnidCarga_lacUnidCarga_field_nLacre => { tag = "nLacre"; min = 1i32; max = Some 1i32 }
 
 union x_t_resp_tec_field r =
     | TRespTec_field_CNPJ :: x_t_resp_tec_field (x_t_cnpj)
@@ -9028,6 +9907,24 @@ inl x_t_resp_tec_get forall r. (f : x_t_resp_tec_field r) (x : x_t_resp_tec) : r
     | TRespTec_field_idCSRT => x.id_csrt
     | TRespTec_field_hashCSRT => x.hash_csrt
 
+inl x_t_resp_tec_fields () : list (exists r. x_t_resp_tec_field r) =
+    [
+        exists TRespTec_field_CNPJ
+        exists TRespTec_field_xContato
+        exists TRespTec_field_email
+        exists TRespTec_field_fone
+        exists TRespTec_field_idCSRT
+        exists TRespTec_field_hashCSRT
+    ]
+inl x_t_resp_tec_field_meta forall r. (f : x_t_resp_tec_field r) : xml_codec.field_meta =
+    match f with
+    | TRespTec_field_CNPJ => { tag = "CNPJ"; min = 1i32; max = Some 1i32 }
+    | TRespTec_field_xContato => { tag = "xContato"; min = 1i32; max = Some 1i32 }
+    | TRespTec_field_email => { tag = "email"; min = 1i32; max = Some 1i32 }
+    | TRespTec_field_fone => { tag = "fone"; min = 1i32; max = Some 1i32 }
+    | TRespTec_field_idCSRT => { tag = "idCSRT"; min = 1i32; max = Some 1i32 }
+    | TRespTec_field_hashCSRT => { tag = "hashCSRT"; min = 1i32; max = Some 1i32 }
+
 union x_t_prot_md_fe_field r =
     | TProtMDFe_field_infProt :: x_t_prot_md_fe_field (x_t_prot_md_fe_inf_prot)
     | TProtMDFe_field_infFisco :: x_t_prot_md_fe_field (option (x_t_prot_md_fe_inf_fisco))
@@ -9039,6 +9936,14 @@ inl x_t_prot_md_fe_get forall r. (f : x_t_prot_md_fe_field r) (x : x_t_prot_md_f
     | TProtMDFe_field_infFisco => x.inf_fisco
     | TProtMDFe_field_ds_Signature => x.signature
 
+inl x_t_prot_md_fe_fields () : list (exists r. x_t_prot_md_fe_field r) =
+    [ exists TProtMDFe_field_infProt; exists TProtMDFe_field_infFisco; exists TProtMDFe_field_ds_Signature ]
+inl x_t_prot_md_fe_field_meta forall r. (f : x_t_prot_md_fe_field r) : xml_codec.field_meta =
+    match f with
+    | TProtMDFe_field_infProt => { tag = "infProt"; min = 1i32; max = Some 1i32 }
+    | TProtMDFe_field_infFisco => { tag = "infFisco"; min = 0i32; max = Some 1i32 }
+    | TProtMDFe_field_ds_Signature => { tag = "ds:Signature"; min = 0i32; max = Some 1i32 }
+
 union x_t_prot_md_fe_inf_fisco_field r =
     | TProtMDFe_infFisco_field_cMsg :: x_t_prot_md_fe_inf_fisco_field (x_t_prot_md_fe_inf_fisco_c_msg)
     | TProtMDFe_infFisco_field_xMsg :: x_t_prot_md_fe_inf_fisco_field (x_t_motivo)
@@ -9047,6 +9952,13 @@ inl x_t_prot_md_fe_inf_fisco_get forall r. (f : x_t_prot_md_fe_inf_fisco_field r
     match f with
     | TProtMDFe_infFisco_field_cMsg => x.c_msg
     | TProtMDFe_infFisco_field_xMsg => x.x_msg
+
+inl x_t_prot_md_fe_inf_fisco_fields () : list (exists r. x_t_prot_md_fe_inf_fisco_field r) =
+    [ exists TProtMDFe_infFisco_field_cMsg; exists TProtMDFe_infFisco_field_xMsg ]
+inl x_t_prot_md_fe_inf_fisco_field_meta forall r. (f : x_t_prot_md_fe_inf_fisco_field r) : xml_codec.field_meta =
+    match f with
+    | TProtMDFe_infFisco_field_cMsg => { tag = "cMsg"; min = 1i32; max = Some 1i32 }
+    | TProtMDFe_infFisco_field_xMsg => { tag = "xMsg"; min = 1i32; max = Some 1i32 }
 
 union x_t_prot_md_fe_inf_prot_field r =
     | TProtMDFe_infProt_field_tpAmb :: x_t_prot_md_fe_inf_prot_field (x_t_amb)
@@ -9069,6 +9981,28 @@ inl x_t_prot_md_fe_inf_prot_get forall r. (f : x_t_prot_md_fe_inf_prot_field r) 
     | TProtMDFe_infProt_field_cStat => x.c_stat
     | TProtMDFe_infProt_field_xMotivo => x.x_motivo
 
+inl x_t_prot_md_fe_inf_prot_fields () : list (exists r. x_t_prot_md_fe_inf_prot_field r) =
+    [
+        exists TProtMDFe_infProt_field_tpAmb
+        exists TProtMDFe_infProt_field_verAplic
+        exists TProtMDFe_infProt_field_chMDFe
+        exists TProtMDFe_infProt_field_dhRecbto
+        exists TProtMDFe_infProt_field_nProt
+        exists TProtMDFe_infProt_field_digVal
+        exists TProtMDFe_infProt_field_cStat
+        exists TProtMDFe_infProt_field_xMotivo
+    ]
+inl x_t_prot_md_fe_inf_prot_field_meta forall r. (f : x_t_prot_md_fe_inf_prot_field r) : xml_codec.field_meta =
+    match f with
+    | TProtMDFe_infProt_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TProtMDFe_infProt_field_verAplic => { tag = "verAplic"; min = 1i32; max = Some 1i32 }
+    | TProtMDFe_infProt_field_chMDFe => { tag = "chMDFe"; min = 1i32; max = Some 1i32 }
+    | TProtMDFe_infProt_field_dhRecbto => { tag = "dhRecbto"; min = 1i32; max = Some 1i32 }
+    | TProtMDFe_infProt_field_nProt => { tag = "nProt"; min = 0i32; max = Some 1i32 }
+    | TProtMDFe_infProt_field_digVal => { tag = "digVal"; min = 0i32; max = Some 1i32 }
+    | TProtMDFe_infProt_field_cStat => { tag = "cStat"; min = 1i32; max = Some 1i32 }
+    | TProtMDFe_infProt_field_xMotivo => { tag = "xMotivo"; min = 1i32; max = Some 1i32 }
+
 union x_trsa_key_value_type_field r =
     | TRSAKeyValueType_field_Modulus :: x_trsa_key_value_type_field (string)
     | TRSAKeyValueType_field_Exponent :: x_trsa_key_value_type_field (string)
@@ -9077,6 +10011,13 @@ inl x_trsa_key_value_type_get forall r. (f : x_trsa_key_value_type_field r) (x :
     match f with
     | TRSAKeyValueType_field_Modulus => x.modulus
     | TRSAKeyValueType_field_Exponent => x.exponent
+
+inl x_trsa_key_value_type_fields () : list (exists r. x_trsa_key_value_type_field r) =
+    [ exists TRSAKeyValueType_field_Modulus; exists TRSAKeyValueType_field_Exponent ]
+inl x_trsa_key_value_type_field_meta forall r. (f : x_trsa_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | TRSAKeyValueType_field_Modulus => { tag = "Modulus"; min = 1i32; max = Some 1i32 }
+    | TRSAKeyValueType_field_Exponent => { tag = "Exponent"; min = 1i32; max = Some 1i32 }
 
 union x_signature_type_field r =
     | SignatureType_field_SignedInfo :: x_signature_type_field (x_signed_info_type)
@@ -9088,6 +10029,18 @@ inl x_signature_type_get forall r. (f : x_signature_type_field r) (x : x_signatu
     | SignatureType_field_SignedInfo => x.signed_info
     | SignatureType_field_SignatureValue => x.signature_value
     | SignatureType_field_KeyInfo => x.key_info
+
+inl x_signature_type_fields () : list (exists r. x_signature_type_field r) =
+    [
+        exists SignatureType_field_SignedInfo
+        exists SignatureType_field_SignatureValue
+        exists SignatureType_field_KeyInfo
+    ]
+inl x_signature_type_field_meta forall r. (f : x_signature_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignatureType_field_SignedInfo => { tag = "SignedInfo"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_SignatureValue => { tag = "SignatureValue"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_KeyInfo => { tag = "KeyInfo"; min = 1i32; max = Some 1i32 }
 
 union x_signed_info_type_field r =
     | SignedInfoType_field_CanonicalizationMethod ::
@@ -9101,6 +10054,18 @@ inl x_signed_info_type_get forall r. (f : x_signed_info_type_field r) (x : x_sig
     | SignedInfoType_field_SignatureMethod => x.signature_method
     | SignedInfoType_field_Reference => x.reference
 
+inl x_signed_info_type_fields () : list (exists r. x_signed_info_type_field r) =
+    [
+        exists SignedInfoType_field_CanonicalizationMethod
+        exists SignedInfoType_field_SignatureMethod
+        exists SignedInfoType_field_Reference
+    ]
+inl x_signed_info_type_field_meta forall r. (f : x_signed_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignedInfoType_field_CanonicalizationMethod => { tag = "CanonicalizationMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_SignatureMethod => { tag = "SignatureMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_Reference => { tag = "Reference"; min = 1i32; max = Some 1i32 }
+
 union x_reference_type_field r =
     | ReferenceType_field_Transforms :: x_reference_type_field (x_transforms_type)
     | ReferenceType_field_DigestMethod :: x_reference_type_field (x_reference_type_digest_method)
@@ -9112,6 +10077,18 @@ inl x_reference_type_get forall r. (f : x_reference_type_field r) (x : x_referen
     | ReferenceType_field_DigestMethod => x.digest_method
     | ReferenceType_field_DigestValue => x.digest_value
 
+inl x_reference_type_fields () : list (exists r. x_reference_type_field r) =
+    [
+        exists ReferenceType_field_Transforms
+        exists ReferenceType_field_DigestMethod
+        exists ReferenceType_field_DigestValue
+    ]
+inl x_reference_type_field_meta forall r. (f : x_reference_type_field r) : xml_codec.field_meta =
+    match f with
+    | ReferenceType_field_Transforms => { tag = "Transforms"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_DigestMethod => { tag = "DigestMethod"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_DigestValue => { tag = "DigestValue"; min = 1i32; max = Some 1i32 }
+
 union x_transforms_type_field r =
     | TransformsType_field_Transform :: x_transforms_type_field (list (x_transform_type))
 
@@ -9119,12 +10096,22 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     match f with
     | TransformsType_field_Transform => x.transform
 
+inl x_transforms_type_fields () : list (exists r. x_transforms_type_field r) = [ exists TransformsType_field_Transform ]
+inl x_transforms_type_field_meta forall r. (f : x_transforms_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformsType_field_Transform => { tag = "Transform"; min = 2i32; max = Some 2i32 }
+
 union x_transform_type_field r =
     | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
     | TransformType_field_group_x_path => x.group_x_path
+
+inl x_transform_type_fields () : list (exists r. x_transform_type_field r) = [ exists TransformType_field_group_x_path ]
+inl x_transform_type_field_meta forall r. (f : x_transform_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformType_field_group_x_path => { tag = "group_x_path"; min = 0i32; max = None }
 
 union x_transform_type_group_x_path_field r =
     | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
@@ -9136,6 +10123,15 @@ inl x_transform_type_group_x_path_get forall r.
     match f with
     | TransformType_group_XPath_field_XPath => x.x_path
 
+inl x_transform_type_group_x_path_fields () : list (exists r. x_transform_type_group_x_path_field r) =
+    [ exists TransformType_group_XPath_field_XPath ]
+inl x_transform_type_group_x_path_field_meta forall r.
+    (f : x_transform_type_group_x_path_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => { tag = "XPath"; min = 1i32; max = Some 1i32 }
+
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
 
@@ -9143,12 +10139,23 @@ inl x_key_info_type_get forall r. (f : x_key_info_type_field r) (x : x_key_info_
     match f with
     | KeyInfoType_field_X509Data => x.x509_data
 
+inl x_key_info_type_fields () : list (exists r. x_key_info_type_field r) = [ exists KeyInfoType_field_X509Data ]
+inl x_key_info_type_field_meta forall r. (f : x_key_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | KeyInfoType_field_X509Data => { tag = "X509Data"; min = 1i32; max = Some 1i32 }
+
 union x_x509_data_type_field r =
     | X509DataType_field_X509Certificate :: x_x509_data_type_field (string)
 
 inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_data_type) : r =
     match f with
     | X509DataType_field_X509Certificate => x.x509_certificate
+
+inl x_x509_data_type_fields () : list (exists r. x_x509_data_type_field r) =
+    [ exists X509DataType_field_X509Certificate ]
+inl x_x509_data_type_field_meta forall r. (f : x_x509_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | X509DataType_field_X509Certificate => { tag = "X509Certificate"; min = 1i32; max = Some 1i32 }
 
 let rec x_tmd_fe_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
@@ -14108,3 +15115,9 @@ test generated_mdfe_v3_00_writes_its_example =
 ///> rust
 test generated_mdfe_v3_00_keeps_raw_strings_out fails "Unification failure" =
     x_t_id_lote_to_string "raw"
+
+///> rust
+test generated_mdfe_v3_00_reports_a_missing_element_with_its_path =
+    inl document = xml_codec.pruned "cUF" (x_tmd_fe_to_xml "MDFe" (x_tmd_fe_example 0i32))
+    if xml_codec.reports "missing infMDFe/ide/cUF" (x_tmd_fe_of_xml Unsigned document) = false then
+        failwith "a document without infMDFe/ide/cUF is reported as missing, not raised"

@@ -883,9 +883,12 @@ foreach ($kind in $ublKinds) {
 $filling = $null
 $corpusRoot = Join-Path $deps 'corpus'
 $roots = @{}
+$regionalPint = @($pintRegions.Keys | ForEach-Object { "$_/pint-$_/" })
 foreach ($file in Get-ChildItem $corpusRoot -Recurse -Filter *.xml) {
+    $relative = $file.FullName.Substring($corpusRoot.Length + 1).Replace('\', '/')
+    if (@($regionalPint | Where-Object { $relative.StartsWith($_) }).Count) { continue }
     $root = try { ([xml][IO.File]::ReadAllText($file.FullName)).DocumentElement } catch { $null }
-    if ($root) { $roots[$file.FullName.Substring($corpusRoot.Length + 1).Replace('\', '/')] = "{$($root.NamespaceURI)}$($root.LocalName)" }
+    if ($root) { $roots[$relative] = "{$($root.NamespaceURI)}$($root.LocalName)" }
 }
 $jsonRoots = @{}
 foreach ($file in Get-ChildItem $corpusRoot -Recurse -Filter *.json) {
@@ -911,4 +914,18 @@ foreach ($manifest in $manifests.Keys) {
     $documents = @($roots.Keys | Where-Object { $roots[$_] -eq $manifests[$manifest] } | Sort-Object)
     [IO.File]::WriteAllText((Join-Path $corpusRoot "$manifest-documents.txt"), ($documents -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
 }
+$embedded = [Collections.Generic.HashSet[string]]::new()
+foreach ($unit in Get-ChildItem (Join-Path (Split-Path (Split-Path $corpusRoot)) 'generated') -Recurse -Filter *.spi -ErrorAction SilentlyContinue) {
+    $unitText = [regex]::Replace([IO.File]::ReadAllText($unit.FullName), '"\s*\n\s*\^\^\s*"', '')
+    foreach ($m in [regex]::Matches($unitText, '"deps/corpus/([^"]+)"')) { [void]$embedded.Add($m.Groups[1].Value) }
+}
+$manifestDrift = @(foreach ($listing in Get-ChildItem $corpusRoot -Filter '*-documents.txt' | Sort-Object Name) {
+    $added = @([IO.File]::ReadAllLines($listing.FullName) | Where-Object { $_ -and -not $embedded.Contains($_) })
+    if ($added.Count) { "$($listing.Name): $($added.Count) documents no committed generated unit embeds, first $($added[0])" }
+})
+if ($manifestDrift.Count) {
+    $manifestDrift | ForEach-Object { "init.ps1 / manifest drift / $_" }
+    if ($env:GITHUB_ACTIONS -eq 'true') { throw "init.ps1 / $($manifestDrift.Count) document manifests list documents the committed generated units do not embed: regenerate and commit generated/, or keep the new corpus folder out of the manifest scan" }
+}
+else { "init.ps1 / manifests: every listed document is embedded in a committed generated unit ($($embedded.Count) corpus paths)" }
 $filling = $null

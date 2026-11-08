@@ -167,6 +167,26 @@
     | 210240i32 => Some (NonPerformance justification)
     | _ => None
 
+:= lifecycle_response_text (code : option event_code) : string =
+    ?= code ?|
+    | Some c => event_text c
+    | None => ""
+
+:~ ^ lifecycle_all_produced (codes : list string) (produced : list string) : bool =
+    ?= codes ?|
+    | code :: rest => families::contains_name code produced && lifecycle_all_produced rest produced
+    | [] => !+
+
+:= lifecycle_nfe_codes () : list string =
+    := regime = nfe "4.00"
+    := accepted = lifecycle_response_text (response_event regime Accepted)
+    [ event_text (cancellation_event regime); event_text (correction_event regime); accepted ]
+
+:= lifecycle_declared_codes () : list string =
+    listm::concat (
+        listm::map (\ (f : families::family_root) => families::lifecycle_events f::extras) (families::all_families ())
+    )
+
 ///> rust
 test event_codes_name_their_author =
     ? actor_of_event_code 110111i32 <> Some Issuer ?> failwith "110111 cancellation is the issuer's"
@@ -286,3 +306,10 @@ test a_cfdi_takes_no_correction_letter fails "does not have the prototype correc
 ///> rust
 test a_cfdi_takes_no_buyer_response fails "does not have the prototype response_event" =
     respond (authorize (issue (cfdi "4.0") (access_key "k")) (protocol_id "p")) Accepted |> ignore
+
+///> rust
+test every_family_lifecycle_event_is_one_nfe_produces =
+    := declared = lifecycle_declared_codes ()
+    ? (listm::length declared : i32) <> 3i32 ?> failwith "the three NF-e event families declare their tpEvento"
+    ? lifecycle_all_produced declared (lifecycle_nfe_codes ()) = !-
+    ?> failwith "every declared event code is one the nfe capabilities produce"

@@ -9464,12 +9464,46 @@ inl x_tc_te_inf_cte_get forall r. (f : x_tc_te_inf_cte_field r) (x : x_tc_te_inf
     | TCTe_infCte_field_choice_inf_c_te_norm => x.choice_inf_c_te_norm
     | TCTe_infCte_field_autXML => x.aut_xml
 
+inl x_tc_te_inf_cte_fields () : list (exists r. x_tc_te_inf_cte_field r) =
+    [
+        exists TCTe_infCte_field_ide
+        exists TCTe_infCte_field_compl
+        exists TCTe_infCte_field_emit
+        exists TCTe_infCte_field_rem
+        exists TCTe_infCte_field_exped
+        exists TCTe_infCte_field_receb
+        exists TCTe_infCte_field_dest
+        exists TCTe_infCte_field_vPrest
+        exists TCTe_infCte_field_imp
+        exists TCTe_infCte_field_choice_inf_c_te_norm
+        exists TCTe_infCte_field_autXML
+    ]
+inl x_tc_te_inf_cte_field_meta forall r. (f : x_tc_te_inf_cte_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_field_ide => { tag = "ide"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_field_compl => { tag = "compl"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_field_emit => { tag = "emit"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_field_rem => { tag = "rem"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_field_exped => { tag = "exped"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_field_receb => { tag = "receb"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_field_dest => { tag = "dest"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_field_vPrest => { tag = "vPrest"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_field_imp => { tag = "imp"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_field_choice_inf_c_te_norm => { tag = "choice_inf_c_te_norm"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_field_autXML => { tag = "autXML"; min = 0i32; max = Some 10i32 }
+
 union x_tc_te_inf_cte_aut_xml_field r =
     | TCTe_infCte_autXML_field_choice_cnpj :: x_tc_te_inf_cte_aut_xml_field (x_tc_te_inf_cte_aut_xml_choice_cnpj)
 
 inl x_tc_te_inf_cte_aut_xml_get forall r. (f : x_tc_te_inf_cte_aut_xml_field r) (x : x_tc_te_inf_cte_aut_xml) : r =
     match f with
     | TCTe_infCte_autXML_field_choice_cnpj => x.choice_cnpj
+
+inl x_tc_te_inf_cte_aut_xml_fields () : list (exists r. x_tc_te_inf_cte_aut_xml_field r) =
+    [ exists TCTe_infCte_autXML_field_choice_cnpj ]
+inl x_tc_te_inf_cte_aut_xml_field_meta forall r. (f : x_tc_te_inf_cte_aut_xml_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_autXML_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_field r =
     | TCTe_infCte_choice_infCTeNorm_infCteAnu_field_chCte ::
@@ -9486,6 +9520,22 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCteAnu_field_chCte => x.ch_cte
     | TCTe_infCte_choice_infCTeNorm_infCteAnu_field_dEmi => x.d_emi
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCteAnu_field_chCte
+        exists TCTe_infCte_choice_infCTeNorm_infCteAnu_field_dEmi
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_anu_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCteAnu_field_chCte => { tag = "chCte"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCteAnu_field_dEmi => { tag = "dEmi"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_field r =
     | TCTe_infCte_choice_infCTeNorm_infCteComp_field_chave ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_field (x_t_ch_n_fe)
@@ -9497,6 +9547,18 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_get forall r.
     =
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCteComp_field_chave => x.chave
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_field r)
+    =
+    [ exists TCTe_infCte_choice_infCTeNorm_infCteComp_field_chave ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_cte_comp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCteComp_field_chave => { tag = "chave"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infCarga ::
@@ -9543,6 +9605,36 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_cobr => x.cobr
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infCteSub => x.inf_cte_sub
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infCarga
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infDoc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_docAnt
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_seg
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infModal
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_peri
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_veicNovos
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_cobr
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infCteSub
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infCarga => { tag = "infCarga"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infDoc => { tag = "infDoc"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_docAnt => { tag = "docAnt"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_seg => { tag = "seg"; min = 0i32; max = None }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infModal => { tag = "infModal"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_peri => { tag = "peri"; min = 0i32; max = None }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_veicNovos => { tag = "veicNovos"; min = 0i32; max = None }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_cobr => { tag = "cobr"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_field_infCteSub => { tag = "infCteSub"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_field_chCte ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_field
@@ -9560,6 +9652,23 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_field_chCte => x.ch_cte
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_field_choice_toma_icms => x.choice_toma_icms
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_field_chCte
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_field_choice_toma_icms
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_field_chCte => { tag = "chCte"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_field_choice_toma_icms =>
+        { tag = "choice_toma_icms"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaNaoICMS_field_refCteAnu ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_field
@@ -9572,6 +9681,21 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_i
     =
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaNaoICMS_field_refCteAnu => x.ref_cte_anu
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_fields
+    ()
+    : list (
+        exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_field r
+    )
+    =
+    [ exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaNaoICMS_field_refCteAnu ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_nao_icms_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaNaoICMS_field_refCteAnu =>
+        { tag = "refCteAnu"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_field_choice_ref_n_fe ::
@@ -9586,6 +9710,19 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_i
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_field_choice_ref_n_fe =>
         x.choice_ref_n_fe
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_field r)
+    =
+    [ exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_field_choice_ref_n_fe ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_field_choice_ref_n_fe =>
+        { tag = "choice_ref_n_fe"; min = 1i32; max = Some 1i32 }
 
 union
     x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_field
@@ -9628,6 +9765,45 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_i
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_dEmi =>
         x.d_emi
 
+inl
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_fields
+    ()
+    : list
+        (exists r.
+            x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_choice_cnpj
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_mod
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_serie
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_subserie
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_nro
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_valor
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_dEmi
+    ]
+inl
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_field_meta
+    forall r.
+    (f :
+        x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_cte_sub_choice_toma_icms_toma_icms_choice_ref_n_fe_ref_nf_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_choice_cnpj =>
+        { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_mod =>
+        { tag = "mod"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_serie =>
+        { tag = "serie"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_subserie =>
+        { tag = "subserie"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_nro =>
+        { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_valor =>
+        { tag = "valor"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCteSub_choice_tomaICMS_tomaICMS_choice_refNFe_refNF_field_dEmi =>
+        { tag = "dEmi"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_field_fat ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_field
@@ -9644,6 +9820,22 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_get forall r.
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_field_fat => x.fat
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_field_dup => x.dup
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_field_fat
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_field_dup
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_field_fat => { tag = "fat"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_field_dup => { tag = "dup"; min = 0i32; max = None }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_nDup ::
@@ -9663,6 +9855,24 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_nDup => x.n_dup
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_dVenc => x.d_venc
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_vDup => x.v_dup
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_nDup
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_dVenc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_vDup
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_dup_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_nDup => { tag = "nDup"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_dVenc => { tag = "dVenc"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_dup_field_vDup => { tag = "vDup"; min = 0i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_nFat ::
@@ -9685,6 +9895,26 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vOrig => x.v_orig
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vDesc => x.v_desc
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vLiq => x.v_liq
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_nFat
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vOrig
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vDesc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vLiq
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_cobr_fat_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_nFat => { tag = "nFat"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vOrig => { tag = "vOrig"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vDesc => { tag = "vDesc"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_cobr_fat_field_vLiq => { tag = "vLiq"; min = 0i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_chassi ::
@@ -9716,6 +9946,30 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_cMod => x.c_mod
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_vUnit => x.v_unit
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_vFrete => x.v_frete
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_chassi
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_cCor
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_xCor
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_cMod
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_vUnit
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_vFrete
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_veic_novos_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_chassi => { tag = "chassi"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_cCor => { tag = "cCor"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_xCor => { tag = "xCor"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_cMod => { tag = "cMod"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_vUnit => { tag = "vUnit"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_veicNovos_field_vFrete => { tag = "vFrete"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_nONU ::
@@ -9754,6 +10008,34 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_qVolTipo => x.q_vol_tipo
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_pontoFulgor => x.ponto_fulgor
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_nONU
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_xNomeAE
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_xClaRisco
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_grEmb
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_qTotProd
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_qVolTipo
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_pontoFulgor
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_peri_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_nONU => { tag = "nONU"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_xNomeAE => { tag = "xNomeAE"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_xClaRisco =>
+        { tag = "xClaRisco"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_grEmb => { tag = "grEmb"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_qTotProd => { tag = "qTotProd"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_qVolTipo => { tag = "qVolTipo"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_peri_field_pontoFulgor =>
+        { tag = "pontoFulgor"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infModal_field_any ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_field (any_content)
@@ -9765,6 +10047,18 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_get forall r.
     =
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infModal_field_any => x.any
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_field r)
+    =
+    [ exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infModal_field_any ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_modal_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infModal_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_respSeg ::
@@ -9794,6 +10088,28 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_nAver => x.n_aver
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_vCarga => x.v_carga
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_respSeg
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_xSeg
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_nApol
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_nAver
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_vCarga
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_seg_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_respSeg => { tag = "respSeg"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_xSeg => { tag = "xSeg"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_nApol => { tag = "nApol"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_nAver => { tag = "nAver"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_seg_field_vCarga => { tag = "vCarga"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_field_emiDocAnt ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_field
@@ -9806,6 +10122,18 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_get forall r.
     =
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_field_emiDocAnt => x.emi_doc_ant
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_field r)
+    =
+    [ exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_field_emiDocAnt ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_field_emiDocAnt => { tag = "emiDocAnt"; min = 1i32; max = None }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_choice_cnpj ::
@@ -9834,6 +10162,31 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_get f
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_xNome => x.x_nome
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_idDocAnt => x.id_doc_ant
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_choice_cnpj
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_IE
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_UF
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_xNome
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_idDocAnt
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_choice_cnpj =>
+        { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_IE => { tag = "IE"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_xNome =>
+        { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_field_idDocAnt =>
+        { tag = "idDocAnt"; min = 1i32; max = Some 2i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_field_choice_id_doc_ant_pap ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_field
@@ -9847,6 +10200,19 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_do
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_field_choice_id_doc_ant_pap =>
         x.choice_id_doc_ant_pap
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_field r)
+    =
+    [ exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_field_choice_id_doc_ant_pap ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_field_choice_id_doc_ant_pap =>
+        { tag = "choice_id_doc_ant_pap"; min = 1i32; max = Some 1i32 }
 
 union
     x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele_field
@@ -9866,6 +10232,27 @@ inl
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntEle_field_chave =>
         x.chave
+
+inl
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele_fields
+    ()
+    : list
+        (exists r.
+            x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntEle_field_chave
+    ]
+inl
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele_field_meta
+    forall r.
+    (f :
+        x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_ele_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntEle_field_chave =>
+        { tag = "chave"; min = 1i32; max = Some 1i32 }
 
 union
     x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_field
@@ -9902,6 +10289,39 @@ inl
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_dEmi =>
         x.d_emi
 
+inl
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_fields
+    ()
+    : list
+        (exists r.
+            x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_tpDoc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_serie
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_subser
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_nDoc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_dEmi
+    ]
+inl
+    x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_field_meta
+    forall r.
+    (f :
+        x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_doc_ant_emi_doc_ant_id_doc_ant_choice_id_doc_ant_pap_id_doc_ant_pap_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_tpDoc =>
+        { tag = "tpDoc"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_serie =>
+        { tag = "serie"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_subser =>
+        { tag = "subser"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_nDoc =>
+        { tag = "nDoc"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_docAnt_emiDocAnt_idDocAnt_choice_idDocAntPap_idDocAntPap_field_dEmi =>
+        { tag = "dEmi"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_field_choice_inf_nf ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_field
@@ -9914,6 +10334,19 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_get forall r.
     =
     match f with
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_field_choice_inf_nf => x.choice_inf_nf
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_field r)
+    =
+    [ exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_field_choice_inf_nf ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_field_choice_inf_nf =>
+        { tag = "choice_inf_nf"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_tpDoc ::
@@ -9951,6 +10384,39 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_choice_inf_unid_transp =>
         x.choice_inf_unid_transp
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_tpDoc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_descOutros
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_nDoc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_dEmi
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_vDocFisc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_dPrev
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_choice_inf_unid_transp
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_outros_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_tpDoc =>
+        { tag = "tpDoc"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_descOutros =>
+        { tag = "descOutros"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_nDoc =>
+        { tag = "nDoc"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_dEmi =>
+        { tag = "dEmi"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_vDocFisc =>
+        { tag = "vDocFisc"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_dPrev =>
+        { tag = "dPrev"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infOutros_field_choice_inf_unid_transp =>
+        { tag = "choice_inf_unid_transp"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_chave ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_field (x_t_ch_n_fe)
@@ -9974,6 +10440,30 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_dPrev => x.d_prev
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_choice_inf_unid_transp =>
         x.choice_inf_unid_transp
+
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_chave
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_PIN
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_dPrev
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_choice_inf_unid_transp
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_n_fe_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_chave =>
+        { tag = "chave"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_PIN =>
+        { tag = "PIN"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_dPrev =>
+        { tag = "dPrev"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNFe_field_choice_inf_unid_transp =>
+        { tag = "choice_inf_unid_transp"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nRoma ::
@@ -10043,6 +10533,69 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_choice_inf_unid_transp =>
         x.choice_inf_unid_transp
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nRoma
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nPed
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_mod
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_serie
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nDoc
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_dEmi
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vBC
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vICMS
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vBCST
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vST
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vProd
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vNF
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nCFOP
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nPeso
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_PIN
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_dPrev
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_choice_inf_unid_transp
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_doc_choice_inf_nf_inf_nf_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nRoma =>
+        { tag = "nRoma"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nPed =>
+        { tag = "nPed"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_mod =>
+        { tag = "mod"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_serie =>
+        { tag = "serie"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nDoc =>
+        { tag = "nDoc"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_dEmi =>
+        { tag = "dEmi"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vBC =>
+        { tag = "vBC"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vICMS =>
+        { tag = "vICMS"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vBCST =>
+        { tag = "vBCST"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vST =>
+        { tag = "vST"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vProd =>
+        { tag = "vProd"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_vNF =>
+        { tag = "vNF"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nCFOP =>
+        { tag = "nCFOP"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_nPeso =>
+        { tag = "nPeso"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_PIN =>
+        { tag = "PIN"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_dPrev =>
+        { tag = "dPrev"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infDoc_choice_infNF_infNF_field_choice_inf_unid_transp =>
+        { tag = "choice_inf_unid_transp"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_vCarga ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_field (option (x_t_dec_1302))
@@ -10067,6 +10620,28 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_get forall r.
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_xOutCat => x.x_out_cat
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_infQ => x.inf_q
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_vCarga
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_proPred
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_xOutCat
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_infQ
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_vCarga => { tag = "vCarga"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_proPred =>
+        { tag = "proPred"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_xOutCat =>
+        { tag = "xOutCat"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_field_infQ => { tag = "infQ"; min = 1i32; max = None }
+
 union x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_field r =
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_cUnid ::
         x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_field
@@ -10087,6 +10662,27 @@ inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_get foral
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_tpMed => x.tp_med
     | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_qCarga => x.q_carga
 
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_field r)
+    =
+    [
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_cUnid
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_tpMed
+        exists TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_qCarga
+    ]
+inl x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_field_meta forall r.
+    (f : x_tc_te_inf_cte_choice_inf_c_te_norm_inf_c_te_norm_inf_carga_inf_q_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_cUnid =>
+        { tag = "cUnid"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_tpMed =>
+        { tag = "tpMed"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_choice_infCTeNorm_infCTeNorm_infCarga_infQ_field_qCarga =>
+        { tag = "qCarga"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_imp_field r =
     | TCTe_infCte_imp_field_ICMS :: x_tc_te_inf_cte_imp_field (x_t_imp)
     | TCTe_infCte_imp_field_vTotTrib :: x_tc_te_inf_cte_imp_field (option (x_t_dec_1302))
@@ -10099,6 +10695,20 @@ inl x_tc_te_inf_cte_imp_get forall r. (f : x_tc_te_inf_cte_imp_field r) (x : x_t
     | TCTe_infCte_imp_field_vTotTrib => x.v_tot_trib
     | TCTe_infCte_imp_field_infAdFisco => x.inf_ad_fisco
     | TCTe_infCte_imp_field_ICMSUFFim => x.icmsuf_fim
+
+inl x_tc_te_inf_cte_imp_fields () : list (exists r. x_tc_te_inf_cte_imp_field r) =
+    [
+        exists TCTe_infCte_imp_field_ICMS
+        exists TCTe_infCte_imp_field_vTotTrib
+        exists TCTe_infCte_imp_field_infAdFisco
+        exists TCTe_infCte_imp_field_ICMSUFFim
+    ]
+inl x_tc_te_inf_cte_imp_field_meta forall r. (f : x_tc_te_inf_cte_imp_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_imp_field_ICMS => { tag = "ICMS"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_field_vTotTrib => { tag = "vTotTrib"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_imp_field_infAdFisco => { tag = "infAdFisco"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_imp_field_ICMSUFFim => { tag = "ICMSUFFim"; min = 0i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_imp_icmsuf_fim_field r =
     | TCTe_infCte_imp_ICMSUFFim_field_vBCUFFim :: x_tc_te_inf_cte_imp_icmsuf_fim_field (x_t_dec_1302)
@@ -10124,6 +10734,31 @@ inl x_tc_te_inf_cte_imp_icmsuf_fim_get forall r.
     | TCTe_infCte_imp_ICMSUFFim_field_vICMSUFFim => x.v_icmsuf_fim
     | TCTe_infCte_imp_ICMSUFFim_field_vICMSUFIni => x.v_icmsuf_ini
 
+inl x_tc_te_inf_cte_imp_icmsuf_fim_fields () : list (exists r. x_tc_te_inf_cte_imp_icmsuf_fim_field r) =
+    [
+        exists TCTe_infCte_imp_ICMSUFFim_field_vBCUFFim
+        exists TCTe_infCte_imp_ICMSUFFim_field_pFCPUFFim
+        exists TCTe_infCte_imp_ICMSUFFim_field_pICMSUFFim
+        exists TCTe_infCte_imp_ICMSUFFim_field_pICMSInter
+        exists TCTe_infCte_imp_ICMSUFFim_field_pICMSInterPart
+        exists TCTe_infCte_imp_ICMSUFFim_field_vFCPUFFim
+        exists TCTe_infCte_imp_ICMSUFFim_field_vICMSUFFim
+        exists TCTe_infCte_imp_ICMSUFFim_field_vICMSUFIni
+    ]
+inl x_tc_te_inf_cte_imp_icmsuf_fim_field_meta forall r.
+    (f : x_tc_te_inf_cte_imp_icmsuf_fim_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_imp_ICMSUFFim_field_vBCUFFim => { tag = "vBCUFFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_ICMSUFFim_field_pFCPUFFim => { tag = "pFCPUFFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_ICMSUFFim_field_pICMSUFFim => { tag = "pICMSUFFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_ICMSUFFim_field_pICMSInter => { tag = "pICMSInter"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_ICMSUFFim_field_pICMSInterPart => { tag = "pICMSInterPart"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_ICMSUFFim_field_vFCPUFFim => { tag = "vFCPUFFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_ICMSUFFim_field_vICMSUFFim => { tag = "vICMSUFFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_imp_ICMSUFFim_field_vICMSUFIni => { tag = "vICMSUFIni"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_v_prest_field r =
     | TCTe_infCte_vPrest_field_vTPrest :: x_tc_te_inf_cte_v_prest_field (x_t_dec_1302)
     | TCTe_infCte_vPrest_field_vRec :: x_tc_te_inf_cte_v_prest_field (x_t_dec_1302)
@@ -10134,6 +10769,18 @@ inl x_tc_te_inf_cte_v_prest_get forall r. (f : x_tc_te_inf_cte_v_prest_field r) 
     | TCTe_infCte_vPrest_field_vTPrest => x.v_t_prest
     | TCTe_infCte_vPrest_field_vRec => x.v_rec
     | TCTe_infCte_vPrest_field_Comp => x.comp
+
+inl x_tc_te_inf_cte_v_prest_fields () : list (exists r. x_tc_te_inf_cte_v_prest_field r) =
+    [
+        exists TCTe_infCte_vPrest_field_vTPrest
+        exists TCTe_infCte_vPrest_field_vRec
+        exists TCTe_infCte_vPrest_field_Comp
+    ]
+inl x_tc_te_inf_cte_v_prest_field_meta forall r. (f : x_tc_te_inf_cte_v_prest_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_vPrest_field_vTPrest => { tag = "vTPrest"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_vPrest_field_vRec => { tag = "vRec"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_vPrest_field_Comp => { tag = "Comp"; min = 0i32; max = None }
 
 union x_tc_te_inf_cte_v_prest_comp_field r =
     | TCTe_infCte_vPrest_Comp_field_xNome :: x_tc_te_inf_cte_v_prest_comp_field (x_tc_te_inf_cte_v_prest_comp_x_nome)
@@ -10146,6 +10793,16 @@ inl x_tc_te_inf_cte_v_prest_comp_get forall r.
     match f with
     | TCTe_infCte_vPrest_Comp_field_xNome => x.x_nome
     | TCTe_infCte_vPrest_Comp_field_vComp => x.v_comp
+
+inl x_tc_te_inf_cte_v_prest_comp_fields () : list (exists r. x_tc_te_inf_cte_v_prest_comp_field r) =
+    [ exists TCTe_infCte_vPrest_Comp_field_xNome; exists TCTe_infCte_vPrest_Comp_field_vComp ]
+inl x_tc_te_inf_cte_v_prest_comp_field_meta forall r.
+    (f : x_tc_te_inf_cte_v_prest_comp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_vPrest_Comp_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_vPrest_Comp_field_vComp => { tag = "vComp"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_dest_field r =
     | TCTe_infCte_dest_field_choice_cnpj :: x_tc_te_inf_cte_dest_field (x_tc_te_inf_cte_dest_choice_cnpj)
@@ -10166,6 +10823,26 @@ inl x_tc_te_inf_cte_dest_get forall r. (f : x_tc_te_inf_cte_dest_field r) (x : x
     | TCTe_infCte_dest_field_enderDest => x.ender_dest
     | TCTe_infCte_dest_field_email => x.email
 
+inl x_tc_te_inf_cte_dest_fields () : list (exists r. x_tc_te_inf_cte_dest_field r) =
+    [
+        exists TCTe_infCte_dest_field_choice_cnpj
+        exists TCTe_infCte_dest_field_IE
+        exists TCTe_infCte_dest_field_xNome
+        exists TCTe_infCte_dest_field_fone
+        exists TCTe_infCte_dest_field_ISUF
+        exists TCTe_infCte_dest_field_enderDest
+        exists TCTe_infCte_dest_field_email
+    ]
+inl x_tc_te_inf_cte_dest_field_meta forall r. (f : x_tc_te_inf_cte_dest_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_dest_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_dest_field_IE => { tag = "IE"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_dest_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_dest_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_dest_field_ISUF => { tag = "ISUF"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_dest_field_enderDest => { tag = "enderDest"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_dest_field_email => { tag = "email"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_receb_field r =
     | TCTe_infCte_receb_field_choice_cnpj :: x_tc_te_inf_cte_receb_field (x_tc_te_inf_cte_receb_choice_cnpj)
     | TCTe_infCte_receb_field_IE :: x_tc_te_inf_cte_receb_field (x_t_ie_dest)
@@ -10183,6 +10860,24 @@ inl x_tc_te_inf_cte_receb_get forall r. (f : x_tc_te_inf_cte_receb_field r) (x :
     | TCTe_infCte_receb_field_enderReceb => x.ender_receb
     | TCTe_infCte_receb_field_email => x.email
 
+inl x_tc_te_inf_cte_receb_fields () : list (exists r. x_tc_te_inf_cte_receb_field r) =
+    [
+        exists TCTe_infCte_receb_field_choice_cnpj
+        exists TCTe_infCte_receb_field_IE
+        exists TCTe_infCte_receb_field_xNome
+        exists TCTe_infCte_receb_field_fone
+        exists TCTe_infCte_receb_field_enderReceb
+        exists TCTe_infCte_receb_field_email
+    ]
+inl x_tc_te_inf_cte_receb_field_meta forall r. (f : x_tc_te_inf_cte_receb_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_receb_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_receb_field_IE => { tag = "IE"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_receb_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_receb_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_receb_field_enderReceb => { tag = "enderReceb"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_receb_field_email => { tag = "email"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_exped_field r =
     | TCTe_infCte_exped_field_choice_cnpj :: x_tc_te_inf_cte_exped_field (x_tc_te_inf_cte_exped_choice_cnpj)
     | TCTe_infCte_exped_field_IE :: x_tc_te_inf_cte_exped_field (x_t_ie_dest)
@@ -10199,6 +10894,24 @@ inl x_tc_te_inf_cte_exped_get forall r. (f : x_tc_te_inf_cte_exped_field r) (x :
     | TCTe_infCte_exped_field_fone => x.fone
     | TCTe_infCte_exped_field_enderExped => x.ender_exped
     | TCTe_infCte_exped_field_email => x.email
+
+inl x_tc_te_inf_cte_exped_fields () : list (exists r. x_tc_te_inf_cte_exped_field r) =
+    [
+        exists TCTe_infCte_exped_field_choice_cnpj
+        exists TCTe_infCte_exped_field_IE
+        exists TCTe_infCte_exped_field_xNome
+        exists TCTe_infCte_exped_field_fone
+        exists TCTe_infCte_exped_field_enderExped
+        exists TCTe_infCte_exped_field_email
+    ]
+inl x_tc_te_inf_cte_exped_field_meta forall r. (f : x_tc_te_inf_cte_exped_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_exped_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_exped_field_IE => { tag = "IE"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_exped_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_exped_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_exped_field_enderExped => { tag = "enderExped"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_exped_field_email => { tag = "email"; min = 0i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_rem_field r =
     | TCTe_infCte_rem_field_choice_cnpj :: x_tc_te_inf_cte_rem_field (x_tc_te_inf_cte_rem_choice_cnpj)
@@ -10219,6 +10932,26 @@ inl x_tc_te_inf_cte_rem_get forall r. (f : x_tc_te_inf_cte_rem_field r) (x : x_t
     | TCTe_infCte_rem_field_enderReme => x.ender_reme
     | TCTe_infCte_rem_field_email => x.email
 
+inl x_tc_te_inf_cte_rem_fields () : list (exists r. x_tc_te_inf_cte_rem_field r) =
+    [
+        exists TCTe_infCte_rem_field_choice_cnpj
+        exists TCTe_infCte_rem_field_IE
+        exists TCTe_infCte_rem_field_xNome
+        exists TCTe_infCte_rem_field_xFant
+        exists TCTe_infCte_rem_field_fone
+        exists TCTe_infCte_rem_field_enderReme
+        exists TCTe_infCte_rem_field_email
+    ]
+inl x_tc_te_inf_cte_rem_field_meta forall r. (f : x_tc_te_inf_cte_rem_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_rem_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_rem_field_IE => { tag = "IE"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_rem_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_rem_field_xFant => { tag = "xFant"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_rem_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_rem_field_enderReme => { tag = "enderReme"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_rem_field_email => { tag = "email"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_emit_field r =
     | TCTe_infCte_emit_field_CNPJ :: x_tc_te_inf_cte_emit_field (x_t_cnpj)
     | TCTe_infCte_emit_field_IE :: x_tc_te_inf_cte_emit_field (x_tc_te_inf_cte_emit_ie)
@@ -10233,6 +10966,22 @@ inl x_tc_te_inf_cte_emit_get forall r. (f : x_tc_te_inf_cte_emit_field r) (x : x
     | TCTe_infCte_emit_field_xNome => x.x_nome
     | TCTe_infCte_emit_field_xFant => x.x_fant
     | TCTe_infCte_emit_field_enderEmit => x.ender_emit
+
+inl x_tc_te_inf_cte_emit_fields () : list (exists r. x_tc_te_inf_cte_emit_field r) =
+    [
+        exists TCTe_infCte_emit_field_CNPJ
+        exists TCTe_infCte_emit_field_IE
+        exists TCTe_infCte_emit_field_xNome
+        exists TCTe_infCte_emit_field_xFant
+        exists TCTe_infCte_emit_field_enderEmit
+    ]
+inl x_tc_te_inf_cte_emit_field_meta forall r. (f : x_tc_te_inf_cte_emit_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_emit_field_CNPJ => { tag = "CNPJ"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_emit_field_IE => { tag = "IE"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_emit_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_emit_field_xFant => { tag = "xFant"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_emit_field_enderEmit => { tag = "enderEmit"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_compl_field r =
     | TCTe_infCte_compl_field_xCaracAd :: x_tc_te_inf_cte_compl_field (option (x_tc_te_inf_cte_compl_x_carac_ad))
@@ -10259,6 +11008,32 @@ inl x_tc_te_inf_cte_compl_get forall r. (f : x_tc_te_inf_cte_compl_field r) (x :
     | TCTe_infCte_compl_field_ObsCont => x.obs_cont
     | TCTe_infCte_compl_field_ObsFisco => x.obs_fisco
 
+inl x_tc_te_inf_cte_compl_fields () : list (exists r. x_tc_te_inf_cte_compl_field r) =
+    [
+        exists TCTe_infCte_compl_field_xCaracAd
+        exists TCTe_infCte_compl_field_xCaracSer
+        exists TCTe_infCte_compl_field_xEmi
+        exists TCTe_infCte_compl_field_fluxo
+        exists TCTe_infCte_compl_field_Entrega
+        exists TCTe_infCte_compl_field_origCalc
+        exists TCTe_infCte_compl_field_destCalc
+        exists TCTe_infCte_compl_field_xObs
+        exists TCTe_infCte_compl_field_ObsCont
+        exists TCTe_infCte_compl_field_ObsFisco
+    ]
+inl x_tc_te_inf_cte_compl_field_meta forall r. (f : x_tc_te_inf_cte_compl_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_compl_field_xCaracAd => { tag = "xCaracAd"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_xCaracSer => { tag = "xCaracSer"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_xEmi => { tag = "xEmi"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_fluxo => { tag = "fluxo"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_Entrega => { tag = "Entrega"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_origCalc => { tag = "origCalc"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_destCalc => { tag = "destCalc"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_xObs => { tag = "xObs"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_field_ObsCont => { tag = "ObsCont"; min = 0i32; max = Some 10i32 }
+    | TCTe_infCte_compl_field_ObsFisco => { tag = "ObsFisco"; min = 0i32; max = Some 10i32 }
+
 union x_tc_te_inf_cte_compl_obs_fisco_field r =
     | TCTe_infCte_compl_ObsFisco_field_xTexto ::
         x_tc_te_inf_cte_compl_obs_fisco_field (x_tc_te_inf_cte_compl_obs_fisco_x_texto)
@@ -10270,6 +11045,15 @@ inl x_tc_te_inf_cte_compl_obs_fisco_get forall r.
     match f with
     | TCTe_infCte_compl_ObsFisco_field_xTexto => x.x_texto
 
+inl x_tc_te_inf_cte_compl_obs_fisco_fields () : list (exists r. x_tc_te_inf_cte_compl_obs_fisco_field r) =
+    [ exists TCTe_infCte_compl_ObsFisco_field_xTexto ]
+inl x_tc_te_inf_cte_compl_obs_fisco_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_obs_fisco_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_ObsFisco_field_xTexto => { tag = "xTexto"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_compl_obs_cont_field r =
     | TCTe_infCte_compl_ObsCont_field_xTexto ::
         x_tc_te_inf_cte_compl_obs_cont_field (x_tc_te_inf_cte_compl_obs_cont_x_texto)
@@ -10280,6 +11064,15 @@ inl x_tc_te_inf_cte_compl_obs_cont_get forall r.
     =
     match f with
     | TCTe_infCte_compl_ObsCont_field_xTexto => x.x_texto
+
+inl x_tc_te_inf_cte_compl_obs_cont_fields () : list (exists r. x_tc_te_inf_cte_compl_obs_cont_field r) =
+    [ exists TCTe_infCte_compl_ObsCont_field_xTexto ]
+inl x_tc_te_inf_cte_compl_obs_cont_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_obs_cont_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_ObsCont_field_xTexto => { tag = "xTexto"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_compl_entrega_field r =
     | TCTe_infCte_compl_Entrega_field_choice_sem_data ::
@@ -10294,6 +11087,16 @@ inl x_tc_te_inf_cte_compl_entrega_get forall r.
     match f with
     | TCTe_infCte_compl_Entrega_field_choice_sem_data => x.choice_sem_data
     | TCTe_infCte_compl_Entrega_field_choice_sem_hora => x.choice_sem_hora
+
+inl x_tc_te_inf_cte_compl_entrega_fields () : list (exists r. x_tc_te_inf_cte_compl_entrega_field r) =
+    [ exists TCTe_infCte_compl_Entrega_field_choice_sem_data; exists TCTe_infCte_compl_Entrega_field_choice_sem_hora ]
+inl x_tc_te_inf_cte_compl_entrega_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_entrega_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_Entrega_field_choice_sem_data => { tag = "choice_sem_data"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_compl_Entrega_field_choice_sem_hora => { tag = "choice_sem_hora"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_field r =
     | TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_tpHor ::
@@ -10314,6 +11117,24 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_get forall r.
     | TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_hIni => x.h_ini
     | TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_hFim => x.h_fim
 
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_field r)
+    =
+    [
+        exists TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_tpHor
+        exists TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_hIni
+        exists TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_hFim
+    ]
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_no_inter_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_tpHor => { tag = "tpHor"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_hIni => { tag = "hIni"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_compl_Entrega_choice_semHora_noInter_field_hFim => { tag = "hFim"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_field r =
     | TCTe_infCte_compl_Entrega_choice_semHora_comHora_field_tpHor ::
         x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_field
@@ -10330,6 +11151,22 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_get forall r.
     | TCTe_infCte_compl_Entrega_choice_semHora_comHora_field_tpHor => x.tp_hor
     | TCTe_infCte_compl_Entrega_choice_semHora_comHora_field_hProg => x.h_prog
 
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_field r)
+    =
+    [
+        exists TCTe_infCte_compl_Entrega_choice_semHora_comHora_field_tpHor
+        exists TCTe_infCte_compl_Entrega_choice_semHora_comHora_field_hProg
+    ]
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_com_hora_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_Entrega_choice_semHora_comHora_field_tpHor => { tag = "tpHor"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_compl_Entrega_choice_semHora_comHora_field_hProg => { tag = "hProg"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_field r =
     | TCTe_infCte_compl_Entrega_choice_semHora_semHora_field_tpHor ::
         x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_field
@@ -10342,6 +11179,18 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_get forall r.
     =
     match f with
     | TCTe_infCte_compl_Entrega_choice_semHora_semHora_field_tpHor => x.tp_hor
+
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_field r)
+    =
+    [ exists TCTe_infCte_compl_Entrega_choice_semHora_semHora_field_tpHor ]
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_entrega_choice_sem_hora_sem_hora_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_Entrega_choice_semHora_semHora_field_tpHor => { tag = "tpHor"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_field r =
     | TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_tpPer ::
@@ -10362,6 +11211,24 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_get forall r.
     | TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_dIni => x.d_ini
     | TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_dFim => x.d_fim
 
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_field r)
+    =
+    [
+        exists TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_tpPer
+        exists TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_dIni
+        exists TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_dFim
+    ]
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_entrega_choice_sem_data_no_periodo_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_tpPer => { tag = "tpPer"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_dIni => { tag = "dIni"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_compl_Entrega_choice_semData_noPeriodo_field_dFim => { tag = "dFim"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_field r =
     | TCTe_infCte_compl_Entrega_choice_semData_comData_field_tpPer ::
         x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_field
@@ -10378,6 +11245,22 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_get forall r.
     | TCTe_infCte_compl_Entrega_choice_semData_comData_field_tpPer => x.tp_per
     | TCTe_infCte_compl_Entrega_choice_semData_comData_field_dProg => x.d_prog
 
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_field r)
+    =
+    [
+        exists TCTe_infCte_compl_Entrega_choice_semData_comData_field_tpPer
+        exists TCTe_infCte_compl_Entrega_choice_semData_comData_field_dProg
+    ]
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_entrega_choice_sem_data_com_data_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_Entrega_choice_semData_comData_field_tpPer => { tag = "tpPer"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_compl_Entrega_choice_semData_comData_field_dProg => { tag = "dProg"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_field r =
     | TCTe_infCte_compl_Entrega_choice_semData_semData_field_tpPer ::
         x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_field
@@ -10390,6 +11273,18 @@ inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_get forall r.
     =
     match f with
     | TCTe_infCte_compl_Entrega_choice_semData_semData_field_tpPer => x.tp_per
+
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_field r)
+    =
+    [ exists TCTe_infCte_compl_Entrega_choice_semData_semData_field_tpPer ]
+inl x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_entrega_choice_sem_data_sem_data_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_Entrega_choice_semData_semData_field_tpPer => { tag = "tpPer"; min = 1i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_compl_fluxo_field r =
     | TCTe_infCte_compl_fluxo_field_xOrig ::
@@ -10410,6 +11305,20 @@ inl x_tc_te_inf_cte_compl_fluxo_get forall r.
     | TCTe_infCte_compl_fluxo_field_xDest => x.x_dest
     | TCTe_infCte_compl_fluxo_field_xRota => x.x_rota
 
+inl x_tc_te_inf_cte_compl_fluxo_fields () : list (exists r. x_tc_te_inf_cte_compl_fluxo_field r) =
+    [
+        exists TCTe_infCte_compl_fluxo_field_xOrig
+        exists TCTe_infCte_compl_fluxo_field_pass
+        exists TCTe_infCte_compl_fluxo_field_xDest
+        exists TCTe_infCte_compl_fluxo_field_xRota
+    ]
+inl x_tc_te_inf_cte_compl_fluxo_field_meta forall r. (f : x_tc_te_inf_cte_compl_fluxo_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_compl_fluxo_field_xOrig => { tag = "xOrig"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_fluxo_field_pass => { tag = "pass"; min = 0i32; max = None }
+    | TCTe_infCte_compl_fluxo_field_xDest => { tag = "xDest"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_compl_fluxo_field_xRota => { tag = "xRota"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_compl_fluxo_pass_field r =
     | TCTe_infCte_compl_fluxo_pass_field_xPass ::
         x_tc_te_inf_cte_compl_fluxo_pass_field (option (x_tc_te_inf_cte_compl_fluxo_pass_x_pass))
@@ -10420,6 +11329,15 @@ inl x_tc_te_inf_cte_compl_fluxo_pass_get forall r.
     =
     match f with
     | TCTe_infCte_compl_fluxo_pass_field_xPass => x.x_pass
+
+inl x_tc_te_inf_cte_compl_fluxo_pass_fields () : list (exists r. x_tc_te_inf_cte_compl_fluxo_pass_field r) =
+    [ exists TCTe_infCte_compl_fluxo_pass_field_xPass ]
+inl x_tc_te_inf_cte_compl_fluxo_pass_field_meta forall r.
+    (f : x_tc_te_inf_cte_compl_fluxo_pass_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_compl_fluxo_pass_field_xPass => { tag = "xPass"; min = 0i32; max = Some 1i32 }
 
 union x_tc_te_inf_cte_ide_field r =
     | TCTe_infCte_ide_field_cUF :: x_tc_te_inf_cte_ide_field (x_t_cod_uf_ibge)
@@ -10492,6 +11410,78 @@ inl x_tc_te_inf_cte_ide_get forall r. (f : x_tc_te_inf_cte_ide_field r) (x : x_t
     | TCTe_infCte_ide_field_dhCont => x.dh_cont
     | TCTe_infCte_ide_field_xJust => x.x_just
 
+inl x_tc_te_inf_cte_ide_fields () : list (exists r. x_tc_te_inf_cte_ide_field r) =
+    [
+        exists TCTe_infCte_ide_field_cUF
+        exists TCTe_infCte_ide_field_cCT
+        exists TCTe_infCte_ide_field_CFOP
+        exists TCTe_infCte_ide_field_natOp
+        exists TCTe_infCte_ide_field_forPag
+        exists TCTe_infCte_ide_field_mod
+        exists TCTe_infCte_ide_field_serie
+        exists TCTe_infCte_ide_field_nCT
+        exists TCTe_infCte_ide_field_dhEmi
+        exists TCTe_infCte_ide_field_tpImp
+        exists TCTe_infCte_ide_field_tpEmis
+        exists TCTe_infCte_ide_field_cDV
+        exists TCTe_infCte_ide_field_tpAmb
+        exists TCTe_infCte_ide_field_tpCTe
+        exists TCTe_infCte_ide_field_procEmi
+        exists TCTe_infCte_ide_field_verProc
+        exists TCTe_infCte_ide_field_refCTE
+        exists TCTe_infCte_ide_field_cMunEnv
+        exists TCTe_infCte_ide_field_xMunEnv
+        exists TCTe_infCte_ide_field_UFEnv
+        exists TCTe_infCte_ide_field_modal
+        exists TCTe_infCte_ide_field_tpServ
+        exists TCTe_infCte_ide_field_cMunIni
+        exists TCTe_infCte_ide_field_xMunIni
+        exists TCTe_infCte_ide_field_UFIni
+        exists TCTe_infCte_ide_field_cMunFim
+        exists TCTe_infCte_ide_field_xMunFim
+        exists TCTe_infCte_ide_field_UFFim
+        exists TCTe_infCte_ide_field_retira
+        exists TCTe_infCte_ide_field_xDetRetira
+        exists TCTe_infCte_ide_field_choice_toma03
+        exists TCTe_infCte_ide_field_dhCont
+        exists TCTe_infCte_ide_field_xJust
+    ]
+inl x_tc_te_inf_cte_ide_field_meta forall r. (f : x_tc_te_inf_cte_ide_field r) : xml_codec.field_meta =
+    match f with
+    | TCTe_infCte_ide_field_cUF => { tag = "cUF"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_cCT => { tag = "cCT"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_CFOP => { tag = "CFOP"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_natOp => { tag = "natOp"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_forPag => { tag = "forPag"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_mod => { tag = "mod"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_serie => { tag = "serie"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_nCT => { tag = "nCT"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_dhEmi => { tag = "dhEmi"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_tpImp => { tag = "tpImp"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_tpEmis => { tag = "tpEmis"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_cDV => { tag = "cDV"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_tpCTe => { tag = "tpCTe"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_procEmi => { tag = "procEmi"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_verProc => { tag = "verProc"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_refCTE => { tag = "refCTE"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_cMunEnv => { tag = "cMunEnv"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_xMunEnv => { tag = "xMunEnv"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_UFEnv => { tag = "UFEnv"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_modal => { tag = "modal"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_tpServ => { tag = "tpServ"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_cMunIni => { tag = "cMunIni"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_xMunIni => { tag = "xMunIni"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_UFIni => { tag = "UFIni"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_cMunFim => { tag = "cMunFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_xMunFim => { tag = "xMunFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_UFFim => { tag = "UFFim"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_retira => { tag = "retira"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_xDetRetira => { tag = "xDetRetira"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_choice_toma03 => { tag = "choice_toma03"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_dhCont => { tag = "dhCont"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_field_xJust => { tag = "xJust"; min = 1i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_ide_choice_toma03_toma4_field r =
     | TCTe_infCte_ide_choice_toma03_toma4_field_toma ::
         x_tc_te_inf_cte_ide_choice_toma03_toma4_field (x_tc_te_inf_cte_ide_choice_toma03_toma4_toma)
@@ -10524,6 +11514,34 @@ inl x_tc_te_inf_cte_ide_choice_toma03_toma4_get forall r.
     | TCTe_infCte_ide_choice_toma03_toma4_field_enderToma => x.ender_toma
     | TCTe_infCte_ide_choice_toma03_toma4_field_email => x.email
 
+inl x_tc_te_inf_cte_ide_choice_toma03_toma4_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_ide_choice_toma03_toma4_field r)
+    =
+    [
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_toma
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_choice_cnpj
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_IE
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_xNome
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_xFant
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_fone
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_enderToma
+        exists TCTe_infCte_ide_choice_toma03_toma4_field_email
+    ]
+inl x_tc_te_inf_cte_ide_choice_toma03_toma4_field_meta forall r.
+    (f : x_tc_te_inf_cte_ide_choice_toma03_toma4_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_ide_choice_toma03_toma4_field_toma => { tag = "toma"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_choice_toma03_toma4_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_choice_toma03_toma4_field_IE => { tag = "IE"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_ide_choice_toma03_toma4_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_choice_toma03_toma4_field_xFant => { tag = "xFant"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_ide_choice_toma03_toma4_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+    | TCTe_infCte_ide_choice_toma03_toma4_field_enderToma => { tag = "enderToma"; min = 1i32; max = Some 1i32 }
+    | TCTe_infCte_ide_choice_toma03_toma4_field_email => { tag = "email"; min = 0i32; max = Some 1i32 }
+
 union x_tc_te_inf_cte_ide_choice_toma03_toma03_field r =
     | TCTe_infCte_ide_choice_toma03_toma03_field_toma ::
         x_tc_te_inf_cte_ide_choice_toma03_toma03_field (x_tc_te_inf_cte_ide_choice_toma03_toma03_toma)
@@ -10534,6 +11552,18 @@ inl x_tc_te_inf_cte_ide_choice_toma03_toma03_get forall r.
     =
     match f with
     | TCTe_infCte_ide_choice_toma03_toma03_field_toma => x.toma
+
+inl x_tc_te_inf_cte_ide_choice_toma03_toma03_fields
+    ()
+    : list (exists r. x_tc_te_inf_cte_ide_choice_toma03_toma03_field r)
+    =
+    [ exists TCTe_infCte_ide_choice_toma03_toma03_field_toma ]
+inl x_tc_te_inf_cte_ide_choice_toma03_toma03_field_meta forall r.
+    (f : x_tc_te_inf_cte_ide_choice_toma03_toma03_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TCTe_infCte_ide_choice_toma03_toma03_field_toma => { tag = "toma"; min = 1i32; max = Some 1i32 }
 
 union x_t_ret_envi_c_te_field r =
     | TRetEnviCTe_field_tpAmb :: x_t_ret_envi_c_te_field (x_t_amb)
@@ -10552,6 +11582,24 @@ inl x_t_ret_envi_c_te_get forall r. (f : x_t_ret_envi_c_te_field r) (x : x_t_ret
     | TRetEnviCTe_field_xMotivo => x.x_motivo
     | TRetEnviCTe_field_infRec => x.inf_rec
 
+inl x_t_ret_envi_c_te_fields () : list (exists r. x_t_ret_envi_c_te_field r) =
+    [
+        exists TRetEnviCTe_field_tpAmb
+        exists TRetEnviCTe_field_cUF
+        exists TRetEnviCTe_field_verAplic
+        exists TRetEnviCTe_field_cStat
+        exists TRetEnviCTe_field_xMotivo
+        exists TRetEnviCTe_field_infRec
+    ]
+inl x_t_ret_envi_c_te_field_meta forall r. (f : x_t_ret_envi_c_te_field r) : xml_codec.field_meta =
+    match f with
+    | TRetEnviCTe_field_tpAmb => { tag = "tpAmb"; min = 1i32; max = Some 1i32 }
+    | TRetEnviCTe_field_cUF => { tag = "cUF"; min = 1i32; max = Some 1i32 }
+    | TRetEnviCTe_field_verAplic => { tag = "verAplic"; min = 1i32; max = Some 1i32 }
+    | TRetEnviCTe_field_cStat => { tag = "cStat"; min = 1i32; max = Some 1i32 }
+    | TRetEnviCTe_field_xMotivo => { tag = "xMotivo"; min = 1i32; max = Some 1i32 }
+    | TRetEnviCTe_field_infRec => { tag = "infRec"; min = 0i32; max = Some 1i32 }
+
 union x_t_ret_envi_c_te_inf_rec_field r =
     | TRetEnviCTe_infRec_field_nRec :: x_t_ret_envi_c_te_inf_rec_field (x_t_rec)
     | TRetEnviCTe_infRec_field_dhRecbto :: x_t_ret_envi_c_te_inf_rec_field (string)
@@ -10565,6 +11613,18 @@ inl x_t_ret_envi_c_te_inf_rec_get forall r.
     | TRetEnviCTe_infRec_field_nRec => x.n_rec
     | TRetEnviCTe_infRec_field_dhRecbto => x.dh_recbto
     | TRetEnviCTe_infRec_field_tMed => x.t_med
+
+inl x_t_ret_envi_c_te_inf_rec_fields () : list (exists r. x_t_ret_envi_c_te_inf_rec_field r) =
+    [
+        exists TRetEnviCTe_infRec_field_nRec
+        exists TRetEnviCTe_infRec_field_dhRecbto
+        exists TRetEnviCTe_infRec_field_tMed
+    ]
+inl x_t_ret_envi_c_te_inf_rec_field_meta forall r. (f : x_t_ret_envi_c_te_inf_rec_field r) : xml_codec.field_meta =
+    match f with
+    | TRetEnviCTe_infRec_field_nRec => { tag = "nRec"; min = 1i32; max = Some 1i32 }
+    | TRetEnviCTe_infRec_field_dhRecbto => { tag = "dhRecbto"; min = 1i32; max = Some 1i32 }
+    | TRetEnviCTe_infRec_field_tMed => { tag = "tMed"; min = 1i32; max = Some 1i32 }
 
 union x_t_ende_emi_field r =
     | TEndeEmi_field_xLgr :: x_t_ende_emi_field (x_t_ende_emi_x_lgr)
@@ -10588,6 +11648,30 @@ inl x_t_ende_emi_get forall r. (f : x_t_ende_emi_field r) (x : x_t_ende_emi) : r
     | TEndeEmi_field_CEP => x.cep
     | TEndeEmi_field_UF => x.uf
     | TEndeEmi_field_fone => x.fone
+
+inl x_t_ende_emi_fields () : list (exists r. x_t_ende_emi_field r) =
+    [
+        exists TEndeEmi_field_xLgr
+        exists TEndeEmi_field_nro
+        exists TEndeEmi_field_xCpl
+        exists TEndeEmi_field_xBairro
+        exists TEndeEmi_field_cMun
+        exists TEndeEmi_field_xMun
+        exists TEndeEmi_field_CEP
+        exists TEndeEmi_field_UF
+        exists TEndeEmi_field_fone
+    ]
+inl x_t_ende_emi_field_meta forall r. (f : x_t_ende_emi_field r) : xml_codec.field_meta =
+    match f with
+    | TEndeEmi_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndeEmi_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndeEmi_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+    | TEndeEmi_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
 
 union x_t_endereco_field r =
     | TEndereco_field_xLgr :: x_t_endereco_field (x_t_endereco_x_lgr)
@@ -10614,6 +11698,32 @@ inl x_t_endereco_get forall r. (f : x_t_endereco_field r) (x : x_t_endereco) : r
     | TEndereco_field_cPais => x.c_pais
     | TEndereco_field_xPais => x.x_pais
 
+inl x_t_endereco_fields () : list (exists r. x_t_endereco_field r) =
+    [
+        exists TEndereco_field_xLgr
+        exists TEndereco_field_nro
+        exists TEndereco_field_xCpl
+        exists TEndereco_field_xBairro
+        exists TEndereco_field_cMun
+        exists TEndereco_field_xMun
+        exists TEndereco_field_CEP
+        exists TEndereco_field_UF
+        exists TEndereco_field_cPais
+        exists TEndereco_field_xPais
+    ]
+inl x_t_endereco_field_meta forall r. (f : x_t_endereco_field r) : xml_codec.field_meta =
+    match f with
+    | TEndereco_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndereco_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndereco_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+    | TEndereco_field_cPais => { tag = "cPais"; min = 0i32; max = Some 1i32 }
+    | TEndereco_field_xPais => { tag = "xPais"; min = 0i32; max = Some 1i32 }
+
 union x_t_endernac_field r =
     | TEndernac_field_xLgr :: x_t_endernac_field (x_t_endernac_x_lgr)
     | TEndernac_field_nro :: x_t_endernac_field (x_t_endernac_nro)
@@ -10634,6 +11744,28 @@ inl x_t_endernac_get forall r. (f : x_t_endernac_field r) (x : x_t_endernac) : r
     | TEndernac_field_xMun => x.x_mun
     | TEndernac_field_CEP => x.cep
     | TEndernac_field_UF => x.uf
+
+inl x_t_endernac_fields () : list (exists r. x_t_endernac_field r) =
+    [
+        exists TEndernac_field_xLgr
+        exists TEndernac_field_nro
+        exists TEndernac_field_xCpl
+        exists TEndernac_field_xBairro
+        exists TEndernac_field_cMun
+        exists TEndernac_field_xMun
+        exists TEndernac_field_CEP
+        exists TEndernac_field_UF
+    ]
+inl x_t_endernac_field_meta forall r. (f : x_t_endernac_field r) : xml_codec.field_meta =
+    match f with
+    | TEndernac_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndernac_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndernac_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndernac_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
 
 union x_t_end_org_field r =
     | TEndOrg_field_xLgr :: x_t_end_org_field (x_t_end_org_x_lgr)
@@ -10662,6 +11794,34 @@ inl x_t_end_org_get forall r. (f : x_t_end_org_field r) (x : x_t_end_org) : r =
     | TEndOrg_field_xPais => x.x_pais
     | TEndOrg_field_fone => x.fone
 
+inl x_t_end_org_fields () : list (exists r. x_t_end_org_field r) =
+    [
+        exists TEndOrg_field_xLgr
+        exists TEndOrg_field_nro
+        exists TEndOrg_field_xCpl
+        exists TEndOrg_field_xBairro
+        exists TEndOrg_field_cMun
+        exists TEndOrg_field_xMun
+        exists TEndOrg_field_CEP
+        exists TEndOrg_field_UF
+        exists TEndOrg_field_cPais
+        exists TEndOrg_field_xPais
+        exists TEndOrg_field_fone
+    ]
+inl x_t_end_org_field_meta forall r. (f : x_t_end_org_field r) : xml_codec.field_meta =
+    match f with
+    | TEndOrg_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_CEP => { tag = "CEP"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+    | TEndOrg_field_cPais => { tag = "cPais"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_xPais => { tag = "xPais"; min = 0i32; max = Some 1i32 }
+    | TEndOrg_field_fone => { tag = "fone"; min = 0i32; max = Some 1i32 }
+
 union x_t_local_field r =
     | TLocal_field_cMun :: x_t_local_field (x_t_cod_mun_ibge)
     | TLocal_field_xMun :: x_t_local_field (x_t_local_x_mun)
@@ -10672,6 +11832,14 @@ inl x_t_local_get forall r. (f : x_t_local_field r) (x : x_t_local) : r =
     | TLocal_field_cMun => x.c_mun
     | TLocal_field_xMun => x.x_mun
     | TLocal_field_UF => x.uf
+
+inl x_t_local_fields () : list (exists r. x_t_local_field r) =
+    [ exists TLocal_field_cMun; exists TLocal_field_xMun; exists TLocal_field_UF ]
+inl x_t_local_field_meta forall r. (f : x_t_local_field r) : xml_codec.field_meta =
+    match f with
+    | TLocal_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TLocal_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TLocal_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
 
 union x_t_end_re_ent_field r =
     | TEndReEnt_field_choice_cnpj :: x_t_end_re_ent_field (x_t_end_re_ent_choice_cnpj)
@@ -10696,12 +11864,41 @@ inl x_t_end_re_ent_get forall r. (f : x_t_end_re_ent_field r) (x : x_t_end_re_en
     | TEndReEnt_field_xMun => x.x_mun
     | TEndReEnt_field_UF => x.uf
 
+inl x_t_end_re_ent_fields () : list (exists r. x_t_end_re_ent_field r) =
+    [
+        exists TEndReEnt_field_choice_cnpj
+        exists TEndReEnt_field_xNome
+        exists TEndReEnt_field_xLgr
+        exists TEndReEnt_field_nro
+        exists TEndReEnt_field_xCpl
+        exists TEndReEnt_field_xBairro
+        exists TEndReEnt_field_cMun
+        exists TEndReEnt_field_xMun
+        exists TEndReEnt_field_UF
+    ]
+inl x_t_end_re_ent_field_meta forall r. (f : x_t_end_re_ent_field r) : xml_codec.field_meta =
+    match f with
+    | TEndReEnt_field_choice_cnpj => { tag = "choice_cnpj"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xNome => { tag = "xNome"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xLgr => { tag = "xLgr"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_nro => { tag = "nro"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xCpl => { tag = "xCpl"; min = 0i32; max = Some 1i32 }
+    | TEndReEnt_field_xBairro => { tag = "xBairro"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_cMun => { tag = "cMun"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_xMun => { tag = "xMun"; min = 1i32; max = Some 1i32 }
+    | TEndReEnt_field_UF => { tag = "UF"; min = 1i32; max = Some 1i32 }
+
 union x_t_imp_field r =
     | TImp_field_choice_icms00 :: x_t_imp_field (x_t_imp_choice_icms00)
 
 inl x_t_imp_get forall r. (f : x_t_imp_field r) (x : x_t_imp) : r =
     match f with
     | TImp_field_choice_icms00 => x.choice_icms00
+
+inl x_t_imp_fields () : list (exists r. x_t_imp_field r) = [ exists TImp_field_choice_icms00 ]
+inl x_t_imp_field_meta forall r. (f : x_t_imp_field r) : xml_codec.field_meta =
+    match f with
+    | TImp_field_choice_icms00 => { tag = "choice_icms00"; min = 1i32; max = Some 1i32 }
 
 union x_t_imp_choice_icms00_icmssn_field r =
     | TImp_choice_ICMS00_ICMSSN_field_indSN :: x_t_imp_choice_icms00_icmssn_field (x_t_imp_choice_icms00_icmssn_ind_sn)
@@ -10712,6 +11909,15 @@ inl x_t_imp_choice_icms00_icmssn_get forall r.
     =
     match f with
     | TImp_choice_ICMS00_ICMSSN_field_indSN => x.ind_sn
+
+inl x_t_imp_choice_icms00_icmssn_fields () : list (exists r. x_t_imp_choice_icms00_icmssn_field r) =
+    [ exists TImp_choice_ICMS00_ICMSSN_field_indSN ]
+inl x_t_imp_choice_icms00_icmssn_field_meta forall r.
+    (f : x_t_imp_choice_icms00_icmssn_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TImp_choice_ICMS00_ICMSSN_field_indSN => { tag = "indSN"; min = 1i32; max = Some 1i32 }
 
 union x_t_imp_choice_icms00_icms_outra_uf_field r =
     | TImp_choice_ICMS00_ICMSOutraUF_field_CST ::
@@ -10733,6 +11939,25 @@ inl x_t_imp_choice_icms00_icms_outra_uf_get forall r.
     | TImp_choice_ICMS00_ICMSOutraUF_field_pICMSOutraUF => x.p_icms_outra_uf
     | TImp_choice_ICMS00_ICMSOutraUF_field_vICMSOutraUF => x.v_icms_outra_uf
 
+inl x_t_imp_choice_icms00_icms_outra_uf_fields () : list (exists r. x_t_imp_choice_icms00_icms_outra_uf_field r) =
+    [
+        exists TImp_choice_ICMS00_ICMSOutraUF_field_CST
+        exists TImp_choice_ICMS00_ICMSOutraUF_field_pRedBCOutraUF
+        exists TImp_choice_ICMS00_ICMSOutraUF_field_vBCOutraUF
+        exists TImp_choice_ICMS00_ICMSOutraUF_field_pICMSOutraUF
+        exists TImp_choice_ICMS00_ICMSOutraUF_field_vICMSOutraUF
+    ]
+inl x_t_imp_choice_icms00_icms_outra_uf_field_meta forall r.
+    (f : x_t_imp_choice_icms00_icms_outra_uf_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TImp_choice_ICMS00_ICMSOutraUF_field_CST => { tag = "CST"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMSOutraUF_field_pRedBCOutraUF => { tag = "pRedBCOutraUF"; min = 0i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMSOutraUF_field_vBCOutraUF => { tag = "vBCOutraUF"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMSOutraUF_field_pICMSOutraUF => { tag = "pICMSOutraUF"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMSOutraUF_field_vICMSOutraUF => { tag = "vICMSOutraUF"; min = 1i32; max = Some 1i32 }
+
 union x_t_imp_choice_icms00_icms90_field r =
     | TImp_choice_ICMS00_ICMS90_field_CST :: x_t_imp_choice_icms00_icms90_field (x_t_imp_choice_icms00_icms90_cst)
     | TImp_choice_ICMS00_ICMS90_field_pRedBC :: x_t_imp_choice_icms00_icms90_field (option (x_t_dec_0302_opc))
@@ -10753,6 +11978,27 @@ inl x_t_imp_choice_icms00_icms90_get forall r.
     | TImp_choice_ICMS00_ICMS90_field_vICMS => x.v_icms
     | TImp_choice_ICMS00_ICMS90_field_vCred => x.v_cred
 
+inl x_t_imp_choice_icms00_icms90_fields () : list (exists r. x_t_imp_choice_icms00_icms90_field r) =
+    [
+        exists TImp_choice_ICMS00_ICMS90_field_CST
+        exists TImp_choice_ICMS00_ICMS90_field_pRedBC
+        exists TImp_choice_ICMS00_ICMS90_field_vBC
+        exists TImp_choice_ICMS00_ICMS90_field_pICMS
+        exists TImp_choice_ICMS00_ICMS90_field_vICMS
+        exists TImp_choice_ICMS00_ICMS90_field_vCred
+    ]
+inl x_t_imp_choice_icms00_icms90_field_meta forall r.
+    (f : x_t_imp_choice_icms00_icms90_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TImp_choice_ICMS00_ICMS90_field_CST => { tag = "CST"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS90_field_pRedBC => { tag = "pRedBC"; min = 0i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS90_field_vBC => { tag = "vBC"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS90_field_pICMS => { tag = "pICMS"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS90_field_vICMS => { tag = "vICMS"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS90_field_vCred => { tag = "vCred"; min = 0i32; max = Some 1i32 }
+
 union x_t_imp_choice_icms00_icms60_field r =
     | TImp_choice_ICMS00_ICMS60_field_CST :: x_t_imp_choice_icms00_icms60_field (x_t_imp_choice_icms00_icms60_cst)
     | TImp_choice_ICMS00_ICMS60_field_vBCSTRet :: x_t_imp_choice_icms00_icms60_field (x_t_dec_1302)
@@ -10771,6 +12017,25 @@ inl x_t_imp_choice_icms00_icms60_get forall r.
     | TImp_choice_ICMS00_ICMS60_field_pICMSSTRet => x.p_icmsst_ret
     | TImp_choice_ICMS00_ICMS60_field_vCred => x.v_cred
 
+inl x_t_imp_choice_icms00_icms60_fields () : list (exists r. x_t_imp_choice_icms00_icms60_field r) =
+    [
+        exists TImp_choice_ICMS00_ICMS60_field_CST
+        exists TImp_choice_ICMS00_ICMS60_field_vBCSTRet
+        exists TImp_choice_ICMS00_ICMS60_field_vICMSSTRet
+        exists TImp_choice_ICMS00_ICMS60_field_pICMSSTRet
+        exists TImp_choice_ICMS00_ICMS60_field_vCred
+    ]
+inl x_t_imp_choice_icms00_icms60_field_meta forall r.
+    (f : x_t_imp_choice_icms00_icms60_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TImp_choice_ICMS00_ICMS60_field_CST => { tag = "CST"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS60_field_vBCSTRet => { tag = "vBCSTRet"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS60_field_vICMSSTRet => { tag = "vICMSSTRet"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS60_field_pICMSSTRet => { tag = "pICMSSTRet"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS60_field_vCred => { tag = "vCred"; min = 0i32; max = Some 1i32 }
+
 union x_t_imp_choice_icms00_icms45_field r =
     | TImp_choice_ICMS00_ICMS45_field_CST :: x_t_imp_choice_icms00_icms45_field (x_t_imp_choice_icms00_icms45_cst)
 
@@ -10780,6 +12045,15 @@ inl x_t_imp_choice_icms00_icms45_get forall r.
     =
     match f with
     | TImp_choice_ICMS00_ICMS45_field_CST => x.cst
+
+inl x_t_imp_choice_icms00_icms45_fields () : list (exists r. x_t_imp_choice_icms00_icms45_field r) =
+    [ exists TImp_choice_ICMS00_ICMS45_field_CST ]
+inl x_t_imp_choice_icms00_icms45_field_meta forall r.
+    (f : x_t_imp_choice_icms00_icms45_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TImp_choice_ICMS00_ICMS45_field_CST => { tag = "CST"; min = 1i32; max = Some 1i32 }
 
 union x_t_imp_choice_icms00_icms20_field r =
     | TImp_choice_ICMS00_ICMS20_field_CST :: x_t_imp_choice_icms00_icms20_field (x_t_imp_choice_icms00_icms20_cst)
@@ -10799,6 +12073,25 @@ inl x_t_imp_choice_icms00_icms20_get forall r.
     | TImp_choice_ICMS00_ICMS20_field_pICMS => x.p_icms
     | TImp_choice_ICMS00_ICMS20_field_vICMS => x.v_icms
 
+inl x_t_imp_choice_icms00_icms20_fields () : list (exists r. x_t_imp_choice_icms00_icms20_field r) =
+    [
+        exists TImp_choice_ICMS00_ICMS20_field_CST
+        exists TImp_choice_ICMS00_ICMS20_field_pRedBC
+        exists TImp_choice_ICMS00_ICMS20_field_vBC
+        exists TImp_choice_ICMS00_ICMS20_field_pICMS
+        exists TImp_choice_ICMS00_ICMS20_field_vICMS
+    ]
+inl x_t_imp_choice_icms00_icms20_field_meta forall r.
+    (f : x_t_imp_choice_icms00_icms20_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TImp_choice_ICMS00_ICMS20_field_CST => { tag = "CST"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS20_field_pRedBC => { tag = "pRedBC"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS20_field_vBC => { tag = "vBC"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS20_field_pICMS => { tag = "pICMS"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS20_field_vICMS => { tag = "vICMS"; min = 1i32; max = Some 1i32 }
+
 union x_t_imp_choice_icms00_icms00_field r =
     | TImp_choice_ICMS00_ICMS00_field_CST :: x_t_imp_choice_icms00_icms00_field (x_t_imp_choice_icms00_icms00_cst)
     | TImp_choice_ICMS00_ICMS00_field_vBC :: x_t_imp_choice_icms00_icms00_field (x_t_dec_1302)
@@ -10815,6 +12108,23 @@ inl x_t_imp_choice_icms00_icms00_get forall r.
     | TImp_choice_ICMS00_ICMS00_field_pICMS => x.p_icms
     | TImp_choice_ICMS00_ICMS00_field_vICMS => x.v_icms
 
+inl x_t_imp_choice_icms00_icms00_fields () : list (exists r. x_t_imp_choice_icms00_icms00_field r) =
+    [
+        exists TImp_choice_ICMS00_ICMS00_field_CST
+        exists TImp_choice_ICMS00_ICMS00_field_vBC
+        exists TImp_choice_ICMS00_ICMS00_field_pICMS
+        exists TImp_choice_ICMS00_ICMS00_field_vICMS
+    ]
+inl x_t_imp_choice_icms00_icms00_field_meta forall r.
+    (f : x_t_imp_choice_icms00_icms00_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TImp_choice_ICMS00_ICMS00_field_CST => { tag = "CST"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS00_field_vBC => { tag = "vBC"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS00_field_pICMS => { tag = "pICMS"; min = 1i32; max = Some 1i32 }
+    | TImp_choice_ICMS00_ICMS00_field_vICMS => { tag = "vICMS"; min = 1i32; max = Some 1i32 }
+
 union x_t_unidade_transp_field r =
     | TUnidadeTransp_field_tpUnidTransp :: x_t_unidade_transp_field (x_ttipo_unid_transp)
     | TUnidadeTransp_field_idUnidTransp :: x_t_unidade_transp_field (x_t_container)
@@ -10830,6 +12140,22 @@ inl x_t_unidade_transp_get forall r. (f : x_t_unidade_transp_field r) (x : x_t_u
     | TUnidadeTransp_field_infUnidCarga => x.inf_unid_carga
     | TUnidadeTransp_field_qtdRat => x.qtd_rat
 
+inl x_t_unidade_transp_fields () : list (exists r. x_t_unidade_transp_field r) =
+    [
+        exists TUnidadeTransp_field_tpUnidTransp
+        exists TUnidadeTransp_field_idUnidTransp
+        exists TUnidadeTransp_field_lacUnidTransp
+        exists TUnidadeTransp_field_infUnidCarga
+        exists TUnidadeTransp_field_qtdRat
+    ]
+inl x_t_unidade_transp_field_meta forall r. (f : x_t_unidade_transp_field r) : xml_codec.field_meta =
+    match f with
+    | TUnidadeTransp_field_tpUnidTransp => { tag = "tpUnidTransp"; min = 1i32; max = Some 1i32 }
+    | TUnidadeTransp_field_idUnidTransp => { tag = "idUnidTransp"; min = 1i32; max = Some 1i32 }
+    | TUnidadeTransp_field_lacUnidTransp => { tag = "lacUnidTransp"; min = 0i32; max = None }
+    | TUnidadeTransp_field_infUnidCarga => { tag = "infUnidCarga"; min = 0i32; max = None }
+    | TUnidadeTransp_field_qtdRat => { tag = "qtdRat"; min = 0i32; max = Some 1i32 }
+
 union x_t_unidade_transp_lac_unid_transp_field r =
     | TUnidadeTransp_lacUnidTransp_field_nLacre ::
         x_t_unidade_transp_lac_unid_transp_field (x_t_unidade_transp_lac_unid_transp_n_lacre)
@@ -10840,6 +12166,15 @@ inl x_t_unidade_transp_lac_unid_transp_get forall r.
     =
     match f with
     | TUnidadeTransp_lacUnidTransp_field_nLacre => x.n_lacre
+
+inl x_t_unidade_transp_lac_unid_transp_fields () : list (exists r. x_t_unidade_transp_lac_unid_transp_field r) =
+    [ exists TUnidadeTransp_lacUnidTransp_field_nLacre ]
+inl x_t_unidade_transp_lac_unid_transp_field_meta forall r.
+    (f : x_t_unidade_transp_lac_unid_transp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TUnidadeTransp_lacUnidTransp_field_nLacre => { tag = "nLacre"; min = 1i32; max = Some 1i32 }
 
 union x_t_unid_carga_field r =
     | TUnidCarga_field_tpUnidCarga :: x_t_unid_carga_field (x_ttipo_unid_carga)
@@ -10854,6 +12189,20 @@ inl x_t_unid_carga_get forall r. (f : x_t_unid_carga_field r) (x : x_t_unid_carg
     | TUnidCarga_field_lacUnidCarga => x.lac_unid_carga
     | TUnidCarga_field_qtdRat => x.qtd_rat
 
+inl x_t_unid_carga_fields () : list (exists r. x_t_unid_carga_field r) =
+    [
+        exists TUnidCarga_field_tpUnidCarga
+        exists TUnidCarga_field_idUnidCarga
+        exists TUnidCarga_field_lacUnidCarga
+        exists TUnidCarga_field_qtdRat
+    ]
+inl x_t_unid_carga_field_meta forall r. (f : x_t_unid_carga_field r) : xml_codec.field_meta =
+    match f with
+    | TUnidCarga_field_tpUnidCarga => { tag = "tpUnidCarga"; min = 1i32; max = Some 1i32 }
+    | TUnidCarga_field_idUnidCarga => { tag = "idUnidCarga"; min = 1i32; max = Some 1i32 }
+    | TUnidCarga_field_lacUnidCarga => { tag = "lacUnidCarga"; min = 0i32; max = None }
+    | TUnidCarga_field_qtdRat => { tag = "qtdRat"; min = 0i32; max = Some 1i32 }
+
 union x_t_unid_carga_lac_unid_carga_field r =
     | TUnidCarga_lacUnidCarga_field_nLacre ::
         x_t_unid_carga_lac_unid_carga_field (x_t_unid_carga_lac_unid_carga_n_lacre)
@@ -10865,6 +12214,15 @@ inl x_t_unid_carga_lac_unid_carga_get forall r.
     match f with
     | TUnidCarga_lacUnidCarga_field_nLacre => x.n_lacre
 
+inl x_t_unid_carga_lac_unid_carga_fields () : list (exists r. x_t_unid_carga_lac_unid_carga_field r) =
+    [ exists TUnidCarga_lacUnidCarga_field_nLacre ]
+inl x_t_unid_carga_lac_unid_carga_field_meta forall r.
+    (f : x_t_unid_carga_lac_unid_carga_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TUnidCarga_lacUnidCarga_field_nLacre => { tag = "nLacre"; min = 1i32; max = Some 1i32 }
+
 union x_signature_type_field r =
     | SignatureType_field_SignedInfo :: x_signature_type_field (x_signed_info_type)
     | SignatureType_field_SignatureValue :: x_signature_type_field (x_signature_value_type)
@@ -10875,6 +12233,18 @@ inl x_signature_type_get forall r. (f : x_signature_type_field r) (x : x_signatu
     | SignatureType_field_SignedInfo => x.signed_info
     | SignatureType_field_SignatureValue => x.signature_value
     | SignatureType_field_KeyInfo => x.key_info
+
+inl x_signature_type_fields () : list (exists r. x_signature_type_field r) =
+    [
+        exists SignatureType_field_SignedInfo
+        exists SignatureType_field_SignatureValue
+        exists SignatureType_field_KeyInfo
+    ]
+inl x_signature_type_field_meta forall r. (f : x_signature_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignatureType_field_SignedInfo => { tag = "SignedInfo"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_SignatureValue => { tag = "SignatureValue"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_KeyInfo => { tag = "KeyInfo"; min = 1i32; max = Some 1i32 }
 
 union x_signed_info_type_field r =
     | SignedInfoType_field_CanonicalizationMethod ::
@@ -10888,6 +12258,18 @@ inl x_signed_info_type_get forall r. (f : x_signed_info_type_field r) (x : x_sig
     | SignedInfoType_field_SignatureMethod => x.signature_method
     | SignedInfoType_field_Reference => x.reference
 
+inl x_signed_info_type_fields () : list (exists r. x_signed_info_type_field r) =
+    [
+        exists SignedInfoType_field_CanonicalizationMethod
+        exists SignedInfoType_field_SignatureMethod
+        exists SignedInfoType_field_Reference
+    ]
+inl x_signed_info_type_field_meta forall r. (f : x_signed_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignedInfoType_field_CanonicalizationMethod => { tag = "CanonicalizationMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_SignatureMethod => { tag = "SignatureMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_Reference => { tag = "Reference"; min = 1i32; max = Some 1i32 }
+
 union x_reference_type_field r =
     | ReferenceType_field_Transforms :: x_reference_type_field (x_transforms_type)
     | ReferenceType_field_DigestMethod :: x_reference_type_field (x_reference_type_digest_method)
@@ -10899,6 +12281,18 @@ inl x_reference_type_get forall r. (f : x_reference_type_field r) (x : x_referen
     | ReferenceType_field_DigestMethod => x.digest_method
     | ReferenceType_field_DigestValue => x.digest_value
 
+inl x_reference_type_fields () : list (exists r. x_reference_type_field r) =
+    [
+        exists ReferenceType_field_Transforms
+        exists ReferenceType_field_DigestMethod
+        exists ReferenceType_field_DigestValue
+    ]
+inl x_reference_type_field_meta forall r. (f : x_reference_type_field r) : xml_codec.field_meta =
+    match f with
+    | ReferenceType_field_Transforms => { tag = "Transforms"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_DigestMethod => { tag = "DigestMethod"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_DigestValue => { tag = "DigestValue"; min = 1i32; max = Some 1i32 }
+
 union x_transforms_type_field r =
     | TransformsType_field_Transform :: x_transforms_type_field (list (x_transform_type))
 
@@ -10906,12 +12300,22 @@ inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_trans
     match f with
     | TransformsType_field_Transform => x.transform
 
+inl x_transforms_type_fields () : list (exists r. x_transforms_type_field r) = [ exists TransformsType_field_Transform ]
+inl x_transforms_type_field_meta forall r. (f : x_transforms_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformsType_field_Transform => { tag = "Transform"; min = 2i32; max = Some 2i32 }
+
 union x_transform_type_field r =
     | TransformType_field_group_x_path :: x_transform_type_field (list (x_transform_type_group_x_path))
 
 inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
     match f with
     | TransformType_field_group_x_path => x.group_x_path
+
+inl x_transform_type_fields () : list (exists r. x_transform_type_field r) = [ exists TransformType_field_group_x_path ]
+inl x_transform_type_field_meta forall r. (f : x_transform_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformType_field_group_x_path => { tag = "group_x_path"; min = 0i32; max = None }
 
 union x_transform_type_group_x_path_field r =
     | TransformType_group_XPath_field_XPath :: x_transform_type_group_x_path_field (string)
@@ -10923,6 +12327,15 @@ inl x_transform_type_group_x_path_get forall r.
     match f with
     | TransformType_group_XPath_field_XPath => x.x_path
 
+inl x_transform_type_group_x_path_fields () : list (exists r. x_transform_type_group_x_path_field r) =
+    [ exists TransformType_group_XPath_field_XPath ]
+inl x_transform_type_group_x_path_field_meta forall r.
+    (f : x_transform_type_group_x_path_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TransformType_group_XPath_field_XPath => { tag = "XPath"; min = 1i32; max = Some 1i32 }
+
 union x_key_info_type_field r =
     | KeyInfoType_field_X509Data :: x_key_info_type_field (x_x509_data_type)
 
@@ -10930,12 +12343,23 @@ inl x_key_info_type_get forall r. (f : x_key_info_type_field r) (x : x_key_info_
     match f with
     | KeyInfoType_field_X509Data => x.x509_data
 
+inl x_key_info_type_fields () : list (exists r. x_key_info_type_field r) = [ exists KeyInfoType_field_X509Data ]
+inl x_key_info_type_field_meta forall r. (f : x_key_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | KeyInfoType_field_X509Data => { tag = "X509Data"; min = 1i32; max = Some 1i32 }
+
 union x_x509_data_type_field r =
     | X509DataType_field_X509Certificate :: x_x509_data_type_field (string)
 
 inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_data_type) : r =
     match f with
     | X509DataType_field_X509Certificate => x.x509_certificate
+
+inl x_x509_data_type_fields () : list (exists r. x_x509_data_type_field r) =
+    [ exists X509DataType_field_X509Certificate ]
+inl x_x509_data_type_field_meta forall r. (f : x_x509_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | X509DataType_field_X509Certificate => { tag = "X509Certificate"; min = 1i32; max = Some 1i32 }
 
 let rec x_tc_te_of_children forall s.
     (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
@@ -18114,3 +19538,9 @@ test generated_cte_v2_00_writes_its_example =
 ///> rust
 test generated_cte_v2_00_keeps_raw_strings_out fails "Unification failure" =
     x_t_cfop_to_string "raw"
+
+///> rust
+test generated_cte_v2_00_reports_a_missing_element_with_its_path =
+    inl document = xml_codec.pruned "cUF" (x_tc_te_to_xml "CTe" (x_tc_te_example 0i32))
+    if xml_codec.reports "missing infCte/ide/cUF" (x_tc_te_of_xml Unsigned document) = false then
+        failwith "a document without infCte/ide/cUF is reported as missing, not raised"

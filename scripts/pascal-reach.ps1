@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory)] [string] $Module,
     [string] $Lib = (Join-Path $PSScriptRoot '..\deps\spiral\lib\spiral'),
-    [string] $Mounts = (Join-Path $PSScriptRoot '..\deps\spiral\apps\cells\lib\spiral\cells')
+    [string] $Mounts = (Join-Path ($env:SPIRAL_CELLS_ROOT ? $env:SPIRAL_CELLS_ROOT : (Join-Path $PSScriptRoot '..\deps\spiral\apps\cells')) 'lib\spiral\cells')
 )
 $sources = @(Get-ChildItem $Lib -Filter *.spi -File) + @(if ($Mounts -and (Test-Path $Mounts)) { Get-ChildItem $Mounts -Filter *.spi -File })
 $definitions = @{}

@@ -1,2 +1,8 @@
 packageDir = '../../deps/spiral/lib'
-packages = ['|core-', 'spiral-', '../generated_fiscal_runtime-', '../generated_cfdi_tfd_1_1-', '../generated_cfdi_pagos_2_0-']
+packages = [
+    '|core-',
+    'spiral-',
+    '../generated_fiscal_runtime-',
+    '../generated_cfdi_tfd_1_1-',
+    '../generated_cfdi_pagos_2_0-',
+]

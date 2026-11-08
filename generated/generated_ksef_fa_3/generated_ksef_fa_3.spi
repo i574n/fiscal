@@ -6402,12 +6402,40 @@ inl x_faktura_get forall r. (f : x_faktura_field r) (x : x_faktura) : r =
     | Faktura_field_Stopka => x.stopka
     | Faktura_field_Zalacznik => x.zalacznik
 
+inl x_faktura_fields () : list (exists r. x_faktura_field r) =
+    [
+        exists Faktura_field_Naglowek
+        exists Faktura_field_Podmiot1
+        exists Faktura_field_Podmiot2
+        exists Faktura_field_Podmiot3
+        exists Faktura_field_PodmiotUpowazniony
+        exists Faktura_field_Fa
+        exists Faktura_field_Stopka
+        exists Faktura_field_Zalacznik
+    ]
+inl x_faktura_field_meta forall r. (f : x_faktura_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_field_Naglowek => { tag = "Naglowek"; min = 1i32; max = Some 1i32 }
+    | Faktura_field_Podmiot1 => { tag = "Podmiot1"; min = 1i32; max = Some 1i32 }
+    | Faktura_field_Podmiot2 => { tag = "Podmiot2"; min = 1i32; max = Some 1i32 }
+    | Faktura_field_Podmiot3 => { tag = "Podmiot3"; min = 0i32; max = Some 100i32 }
+    | Faktura_field_PodmiotUpowazniony => { tag = "PodmiotUpowazniony"; min = 0i32; max = Some 1i32 }
+    | Faktura_field_Fa => { tag = "Fa"; min = 1i32; max = Some 1i32 }
+    | Faktura_field_Stopka => { tag = "Stopka"; min = 0i32; max = Some 1i32 }
+    | Faktura_field_Zalacznik => { tag = "Zalacznik"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_zalacznik_field r =
     | Faktura_Zalacznik_field_BlokDanych :: x_faktura_zalacznik_field (list (x_faktura_zalacznik_blok_danych))
 
 inl x_faktura_zalacznik_get forall r. (f : x_faktura_zalacznik_field r) (x : x_faktura_zalacznik) : r =
     match f with
     | Faktura_Zalacznik_field_BlokDanych => x.blok_danych
+
+inl x_faktura_zalacznik_fields () : list (exists r. x_faktura_zalacznik_field r) =
+    [ exists Faktura_Zalacznik_field_BlokDanych ]
+inl x_faktura_zalacznik_field_meta forall r. (f : x_faktura_zalacznik_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Zalacznik_field_BlokDanych => { tag = "BlokDanych"; min = 1i32; max = Some 1000i32 }
 
 union x_faktura_zalacznik_blok_danych_field r =
     | Faktura_Zalacznik_BlokDanych_field_ZNaglowek :: x_faktura_zalacznik_blok_danych_field (option (x_t_znakowy512))
@@ -6427,6 +6455,23 @@ inl x_faktura_zalacznik_blok_danych_get forall r.
     | Faktura_Zalacznik_BlokDanych_field_MetaDane => x.meta_dane
     | Faktura_Zalacznik_BlokDanych_field_Tekst => x.tekst
     | Faktura_Zalacznik_BlokDanych_field_Tabela => x.tabela
+
+inl x_faktura_zalacznik_blok_danych_fields () : list (exists r. x_faktura_zalacznik_blok_danych_field r) =
+    [
+        exists Faktura_Zalacznik_BlokDanych_field_ZNaglowek
+        exists Faktura_Zalacznik_BlokDanych_field_MetaDane
+        exists Faktura_Zalacznik_BlokDanych_field_Tekst
+        exists Faktura_Zalacznik_BlokDanych_field_Tabela
+    ]
+inl x_faktura_zalacznik_blok_danych_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_field_ZNaglowek => { tag = "ZNaglowek"; min = 0i32; max = Some 1i32 }
+    | Faktura_Zalacznik_BlokDanych_field_MetaDane => { tag = "MetaDane"; min = 1i32; max = Some 1000i32 }
+    | Faktura_Zalacznik_BlokDanych_field_Tekst => { tag = "Tekst"; min = 0i32; max = Some 1i32 }
+    | Faktura_Zalacznik_BlokDanych_field_Tabela => { tag = "Tabela"; min = 0i32; max = Some 1000i32 }
 
 union x_faktura_zalacznik_blok_danych_tabela_field r =
     | Faktura_Zalacznik_BlokDanych_Tabela_field_TMetaDane ::
@@ -6451,6 +6496,25 @@ inl x_faktura_zalacznik_blok_danych_tabela_get forall r.
     | Faktura_Zalacznik_BlokDanych_Tabela_field_Wiersz => x.wiersz
     | Faktura_Zalacznik_BlokDanych_Tabela_field_Suma => x.suma
 
+inl x_faktura_zalacznik_blok_danych_tabela_fields () : list (exists r. x_faktura_zalacznik_blok_danych_tabela_field r) =
+    [
+        exists Faktura_Zalacznik_BlokDanych_Tabela_field_TMetaDane
+        exists Faktura_Zalacznik_BlokDanych_Tabela_field_Opis
+        exists Faktura_Zalacznik_BlokDanych_Tabela_field_TNaglowek
+        exists Faktura_Zalacznik_BlokDanych_Tabela_field_Wiersz
+        exists Faktura_Zalacznik_BlokDanych_Tabela_field_Suma
+    ]
+inl x_faktura_zalacznik_blok_danych_tabela_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_tabela_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_Tabela_field_TMetaDane => { tag = "TMetaDane"; min = 0i32; max = Some 1000i32 }
+    | Faktura_Zalacznik_BlokDanych_Tabela_field_Opis => { tag = "Opis"; min = 0i32; max = Some 1i32 }
+    | Faktura_Zalacznik_BlokDanych_Tabela_field_TNaglowek => { tag = "TNaglowek"; min = 1i32; max = Some 1i32 }
+    | Faktura_Zalacznik_BlokDanych_Tabela_field_Wiersz => { tag = "Wiersz"; min = 1i32; max = Some 1000i32 }
+    | Faktura_Zalacznik_BlokDanych_Tabela_field_Suma => { tag = "Suma"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_zalacznik_blok_danych_tabela_suma_field r =
     | Faktura_Zalacznik_BlokDanych_Tabela_Suma_field_SKom ::
         x_faktura_zalacznik_blok_danych_tabela_suma_field (list (x_t_znakowy2))
@@ -6462,6 +6526,18 @@ inl x_faktura_zalacznik_blok_danych_tabela_suma_get forall r.
     match f with
     | Faktura_Zalacznik_BlokDanych_Tabela_Suma_field_SKom => x.s_kom
 
+inl x_faktura_zalacznik_blok_danych_tabela_suma_fields
+    ()
+    : list (exists r. x_faktura_zalacznik_blok_danych_tabela_suma_field r)
+    =
+    [ exists Faktura_Zalacznik_BlokDanych_Tabela_Suma_field_SKom ]
+inl x_faktura_zalacznik_blok_danych_tabela_suma_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_tabela_suma_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_Tabela_Suma_field_SKom => { tag = "SKom"; min = 1i32; max = Some 20i32 }
+
 union x_faktura_zalacznik_blok_danych_tabela_wiersz_field r =
     | Faktura_Zalacznik_BlokDanych_Tabela_Wiersz_field_WKom ::
         x_faktura_zalacznik_blok_danych_tabela_wiersz_field (list (x_t_znakowy2))
@@ -6472,6 +6548,18 @@ inl x_faktura_zalacznik_blok_danych_tabela_wiersz_get forall r.
     =
     match f with
     | Faktura_Zalacznik_BlokDanych_Tabela_Wiersz_field_WKom => x.w_kom
+
+inl x_faktura_zalacznik_blok_danych_tabela_wiersz_fields
+    ()
+    : list (exists r. x_faktura_zalacznik_blok_danych_tabela_wiersz_field r)
+    =
+    [ exists Faktura_Zalacznik_BlokDanych_Tabela_Wiersz_field_WKom ]
+inl x_faktura_zalacznik_blok_danych_tabela_wiersz_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_tabela_wiersz_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_Tabela_Wiersz_field_WKom => { tag = "WKom"; min = 1i32; max = Some 20i32 }
 
 union x_faktura_zalacznik_blok_danych_tabela_t_naglowek_field r =
     | Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_field_Kol ::
@@ -6486,6 +6574,18 @@ inl x_faktura_zalacznik_blok_danych_tabela_t_naglowek_get forall r.
     match f with
     | Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_field_Kol => x.kol
 
+inl x_faktura_zalacznik_blok_danych_tabela_t_naglowek_fields
+    ()
+    : list (exists r. x_faktura_zalacznik_blok_danych_tabela_t_naglowek_field r)
+    =
+    [ exists Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_field_Kol ]
+inl x_faktura_zalacznik_blok_danych_tabela_t_naglowek_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_field_Kol => { tag = "Kol"; min = 1i32; max = Some 20i32 }
+
 union x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_field r =
     | Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_Kol_field_NKom ::
         x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_field
@@ -6498,6 +6598,18 @@ inl x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_get forall r.
     =
     match f with
     | Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_Kol_field_NKom => x.n_kom
+
+inl x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_fields
+    ()
+    : list (exists r. x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_field r)
+    =
+    [ exists Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_Kol_field_NKom ]
+inl x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_tabela_t_naglowek_kol_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_Tabela_TNaglowek_Kol_field_NKom => { tag = "NKom"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_field r =
     | Faktura_Zalacznik_BlokDanych_Tabela_TMetaDane_field_TKlucz ::
@@ -6514,6 +6626,22 @@ inl x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_get forall r.
     | Faktura_Zalacznik_BlokDanych_Tabela_TMetaDane_field_TKlucz => x.t_klucz
     | Faktura_Zalacznik_BlokDanych_Tabela_TMetaDane_field_TWartosc => x.t_wartosc
 
+inl x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_fields
+    ()
+    : list (exists r. x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_field r)
+    =
+    [
+        exists Faktura_Zalacznik_BlokDanych_Tabela_TMetaDane_field_TKlucz
+        exists Faktura_Zalacznik_BlokDanych_Tabela_TMetaDane_field_TWartosc
+    ]
+inl x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_tabela_t_meta_dane_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_Tabela_TMetaDane_field_TKlucz => { tag = "TKlucz"; min = 1i32; max = Some 1i32 }
+    | Faktura_Zalacznik_BlokDanych_Tabela_TMetaDane_field_TWartosc => { tag = "TWartosc"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_zalacznik_blok_danych_tekst_field r =
     | Faktura_Zalacznik_BlokDanych_Tekst_field_Akapit ::
         x_faktura_zalacznik_blok_danych_tekst_field (list (x_t_znakowy512))
@@ -6524,6 +6652,15 @@ inl x_faktura_zalacznik_blok_danych_tekst_get forall r.
     =
     match f with
     | Faktura_Zalacznik_BlokDanych_Tekst_field_Akapit => x.akapit
+
+inl x_faktura_zalacznik_blok_danych_tekst_fields () : list (exists r. x_faktura_zalacznik_blok_danych_tekst_field r) =
+    [ exists Faktura_Zalacznik_BlokDanych_Tekst_field_Akapit ]
+inl x_faktura_zalacznik_blok_danych_tekst_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_tekst_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_Tekst_field_Akapit => { tag = "Akapit"; min = 1i32; max = Some 10i32 }
 
 union x_faktura_zalacznik_blok_danych_meta_dane_field r =
     | Faktura_Zalacznik_BlokDanych_MetaDane_field_ZKlucz ::
@@ -6539,6 +6676,22 @@ inl x_faktura_zalacznik_blok_danych_meta_dane_get forall r.
     | Faktura_Zalacznik_BlokDanych_MetaDane_field_ZKlucz => x.z_klucz
     | Faktura_Zalacznik_BlokDanych_MetaDane_field_ZWartosc => x.z_wartosc
 
+inl x_faktura_zalacznik_blok_danych_meta_dane_fields
+    ()
+    : list (exists r. x_faktura_zalacznik_blok_danych_meta_dane_field r)
+    =
+    [
+        exists Faktura_Zalacznik_BlokDanych_MetaDane_field_ZKlucz
+        exists Faktura_Zalacznik_BlokDanych_MetaDane_field_ZWartosc
+    ]
+inl x_faktura_zalacznik_blok_danych_meta_dane_field_meta forall r.
+    (f : x_faktura_zalacznik_blok_danych_meta_dane_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Zalacznik_BlokDanych_MetaDane_field_ZKlucz => { tag = "ZKlucz"; min = 1i32; max = Some 1i32 }
+    | Faktura_Zalacznik_BlokDanych_MetaDane_field_ZWartosc => { tag = "ZWartosc"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_stopka_field r =
     | Faktura_Stopka_field_Informacje :: x_faktura_stopka_field (list (x_faktura_stopka_informacje))
     | Faktura_Stopka_field_Rejestry :: x_faktura_stopka_field (list (x_faktura_stopka_rejestry))
@@ -6547,6 +6700,13 @@ inl x_faktura_stopka_get forall r. (f : x_faktura_stopka_field r) (x : x_faktura
     match f with
     | Faktura_Stopka_field_Informacje => x.informacje
     | Faktura_Stopka_field_Rejestry => x.rejestry
+
+inl x_faktura_stopka_fields () : list (exists r. x_faktura_stopka_field r) =
+    [ exists Faktura_Stopka_field_Informacje; exists Faktura_Stopka_field_Rejestry ]
+inl x_faktura_stopka_field_meta forall r. (f : x_faktura_stopka_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Stopka_field_Informacje => { tag = "Informacje"; min = 0i32; max = Some 3i32 }
+    | Faktura_Stopka_field_Rejestry => { tag = "Rejestry"; min = 0i32; max = Some 100i32 }
 
 union x_faktura_stopka_rejestry_field r =
     | Faktura_Stopka_Rejestry_field_PelnaNazwa :: x_faktura_stopka_rejestry_field (option (x_t_znakowy))
@@ -6564,6 +6724,20 @@ inl x_faktura_stopka_rejestry_get forall r.
     | Faktura_Stopka_Rejestry_field_REGON => x.regon
     | Faktura_Stopka_Rejestry_field_BDO => x.bdo
 
+inl x_faktura_stopka_rejestry_fields () : list (exists r. x_faktura_stopka_rejestry_field r) =
+    [
+        exists Faktura_Stopka_Rejestry_field_PelnaNazwa
+        exists Faktura_Stopka_Rejestry_field_KRS
+        exists Faktura_Stopka_Rejestry_field_REGON
+        exists Faktura_Stopka_Rejestry_field_BDO
+    ]
+inl x_faktura_stopka_rejestry_field_meta forall r. (f : x_faktura_stopka_rejestry_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Stopka_Rejestry_field_PelnaNazwa => { tag = "PelnaNazwa"; min = 0i32; max = Some 1i32 }
+    | Faktura_Stopka_Rejestry_field_KRS => { tag = "KRS"; min = 0i32; max = Some 1i32 }
+    | Faktura_Stopka_Rejestry_field_REGON => { tag = "REGON"; min = 0i32; max = Some 1i32 }
+    | Faktura_Stopka_Rejestry_field_BDO => { tag = "BDO"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_stopka_informacje_field r =
     | Faktura_Stopka_Informacje_field_StopkaFaktury :: x_faktura_stopka_informacje_field (option (x_t_tekstowy))
 
@@ -6573,6 +6747,12 @@ inl x_faktura_stopka_informacje_get forall r.
     =
     match f with
     | Faktura_Stopka_Informacje_field_StopkaFaktury => x.stopka_faktury
+
+inl x_faktura_stopka_informacje_fields () : list (exists r. x_faktura_stopka_informacje_field r) =
+    [ exists Faktura_Stopka_Informacje_field_StopkaFaktury ]
+inl x_faktura_stopka_informacje_field_meta forall r. (f : x_faktura_stopka_informacje_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Stopka_Informacje_field_StopkaFaktury => { tag = "StopkaFaktury"; min = 0i32; max = Some 1i32 }
 
 union x_faktura_fa_field r =
     | Faktura_Fa_field_KodWaluty :: x_faktura_fa_field (x_t_kod_waluty)
@@ -6683,6 +6863,116 @@ inl x_faktura_fa_get forall r. (f : x_faktura_fa_field r) (x : x_faktura_fa) : r
     | Faktura_Fa_field_WarunkiTransakcji => x.warunki_transakcji
     | Faktura_Fa_field_Zamowienie => x.zamowienie
 
+inl x_faktura_fa_fields () : list (exists r. x_faktura_fa_field r) =
+    [
+        exists Faktura_Fa_field_KodWaluty
+        exists Faktura_Fa_field_P_1
+        exists Faktura_Fa_field_P_1M
+        exists Faktura_Fa_field_P_2
+        exists Faktura_Fa_field_WZ
+        exists Faktura_Fa_field_choice_p_6
+        exists Faktura_Fa_field_P_13_1
+        exists Faktura_Fa_field_P_14_1
+        exists Faktura_Fa_field_P_14_1W
+        exists Faktura_Fa_field_P_13_2
+        exists Faktura_Fa_field_P_14_2
+        exists Faktura_Fa_field_P_14_2W
+        exists Faktura_Fa_field_P_13_3
+        exists Faktura_Fa_field_P_14_3
+        exists Faktura_Fa_field_P_14_3W
+        exists Faktura_Fa_field_P_13_4
+        exists Faktura_Fa_field_P_14_4
+        exists Faktura_Fa_field_P_14_4W
+        exists Faktura_Fa_field_P_13_5
+        exists Faktura_Fa_field_P_14_5
+        exists Faktura_Fa_field_P_13_6_1
+        exists Faktura_Fa_field_P_13_6_2
+        exists Faktura_Fa_field_P_13_6_3
+        exists Faktura_Fa_field_P_13_7
+        exists Faktura_Fa_field_P_13_8
+        exists Faktura_Fa_field_P_13_9
+        exists Faktura_Fa_field_P_13_10
+        exists Faktura_Fa_field_P_13_11
+        exists Faktura_Fa_field_P_15
+        exists Faktura_Fa_field_KursWalutyZ
+        exists Faktura_Fa_field_Adnotacje
+        exists Faktura_Fa_field_RodzajFaktury
+        exists Faktura_Fa_field_PrzyczynaKorekty
+        exists Faktura_Fa_field_TypKorekty
+        exists Faktura_Fa_field_DaneFaKorygowanej
+        exists Faktura_Fa_field_OkresFaKorygowanej
+        exists Faktura_Fa_field_NrFaKorygowany
+        exists Faktura_Fa_field_Podmiot1K
+        exists Faktura_Fa_field_Podmiot2K
+        exists Faktura_Fa_field_P_15ZK
+        exists Faktura_Fa_field_KursWalutyZK
+        exists Faktura_Fa_field_ZaliczkaCzesciowa
+        exists Faktura_Fa_field_FP
+        exists Faktura_Fa_field_TP
+        exists Faktura_Fa_field_DodatkowyOpis
+        exists Faktura_Fa_field_FakturaZaliczkowa
+        exists Faktura_Fa_field_ZwrotAkcyzy
+        exists Faktura_Fa_field_FaWiersz
+        exists Faktura_Fa_field_Rozliczenie
+        exists Faktura_Fa_field_Platnosc
+        exists Faktura_Fa_field_WarunkiTransakcji
+        exists Faktura_Fa_field_Zamowienie
+    ]
+inl x_faktura_fa_field_meta forall r. (f : x_faktura_fa_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_field_KodWaluty => { tag = "KodWaluty"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_1 => { tag = "P_1"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_1M => { tag = "P_1M"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_2 => { tag = "P_2"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_WZ => { tag = "WZ"; min = 0i32; max = Some 1000i32 }
+    | Faktura_Fa_field_choice_p_6 => { tag = "choice_p_6"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_1 => { tag = "P_13_1"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_1 => { tag = "P_14_1"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_1W => { tag = "P_14_1W"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_2 => { tag = "P_13_2"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_2 => { tag = "P_14_2"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_2W => { tag = "P_14_2W"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_3 => { tag = "P_13_3"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_3 => { tag = "P_14_3"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_3W => { tag = "P_14_3W"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_4 => { tag = "P_13_4"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_4 => { tag = "P_14_4"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_4W => { tag = "P_14_4W"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_5 => { tag = "P_13_5"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_14_5 => { tag = "P_14_5"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_6_1 => { tag = "P_13_6_1"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_6_2 => { tag = "P_13_6_2"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_6_3 => { tag = "P_13_6_3"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_7 => { tag = "P_13_7"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_8 => { tag = "P_13_8"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_9 => { tag = "P_13_9"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_10 => { tag = "P_13_10"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_13_11 => { tag = "P_13_11"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_P_15 => { tag = "P_15"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_KursWalutyZ => { tag = "KursWalutyZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_Adnotacje => { tag = "Adnotacje"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_RodzajFaktury => { tag = "RodzajFaktury"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_PrzyczynaKorekty => { tag = "PrzyczynaKorekty"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_TypKorekty => { tag = "TypKorekty"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_DaneFaKorygowanej => { tag = "DaneFaKorygowanej"; min = 1i32; max = Some 50000i32 }
+    | Faktura_Fa_field_OkresFaKorygowanej => { tag = "OkresFaKorygowanej"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_NrFaKorygowany => { tag = "NrFaKorygowany"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_Podmiot1K => { tag = "Podmiot1K"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_Podmiot2K => { tag = "Podmiot2K"; min = 0i32; max = Some 101i32 }
+    | Faktura_Fa_field_P_15ZK => { tag = "P_15ZK"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_field_KursWalutyZK => { tag = "KursWalutyZK"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_ZaliczkaCzesciowa => { tag = "ZaliczkaCzesciowa"; min = 0i32; max = Some 31i32 }
+    | Faktura_Fa_field_FP => { tag = "FP"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_TP => { tag = "TP"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_DodatkowyOpis => { tag = "DodatkowyOpis"; min = 0i32; max = Some 10000i32 }
+    | Faktura_Fa_field_FakturaZaliczkowa => { tag = "FakturaZaliczkowa"; min = 0i32; max = Some 100i32 }
+    | Faktura_Fa_field_ZwrotAkcyzy => { tag = "ZwrotAkcyzy"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_FaWiersz => { tag = "FaWiersz"; min = 0i32; max = Some 10000i32 }
+    | Faktura_Fa_field_Rozliczenie => { tag = "Rozliczenie"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_Platnosc => { tag = "Platnosc"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_WarunkiTransakcji => { tag = "WarunkiTransakcji"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_field_Zamowienie => { tag = "Zamowienie"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_zamowienie_field r =
     | Faktura_Fa_Zamowienie_field_WartoscZamowienia :: x_faktura_fa_zamowienie_field (x_t_kwotowy)
     | Faktura_Fa_Zamowienie_field_ZamowienieWiersz ::
@@ -6692,6 +6982,13 @@ inl x_faktura_fa_zamowienie_get forall r. (f : x_faktura_fa_zamowienie_field r) 
     match f with
     | Faktura_Fa_Zamowienie_field_WartoscZamowienia => x.wartosc_zamowienia
     | Faktura_Fa_Zamowienie_field_ZamowienieWiersz => x.zamowienie_wiersz
+
+inl x_faktura_fa_zamowienie_fields () : list (exists r. x_faktura_fa_zamowienie_field r) =
+    [ exists Faktura_Fa_Zamowienie_field_WartoscZamowienia; exists Faktura_Fa_Zamowienie_field_ZamowienieWiersz ]
+inl x_faktura_fa_zamowienie_field_meta forall r. (f : x_faktura_fa_zamowienie_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_Zamowienie_field_WartoscZamowienia => { tag = "WartoscZamowienia"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_field_ZamowienieWiersz => { tag = "ZamowienieWiersz"; min = 1i32; max = Some 10000i32 }
 
 union x_faktura_fa_zamowienie_zamowienie_wiersz_field r =
     | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_NrWierszaZam ::
@@ -6761,6 +7058,58 @@ inl x_faktura_fa_zamowienie_zamowienie_wiersz_get forall r.
     | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_KwotaAkcyzyZ => x.kwota_akcyzy_z
     | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_StanPrzedZ => x.stan_przed_z
 
+inl x_faktura_fa_zamowienie_zamowienie_wiersz_fields
+    ()
+    : list (exists r. x_faktura_fa_zamowienie_zamowienie_wiersz_field r)
+    =
+    [
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_NrWierszaZam
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_UU_IDZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_7Z
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_IndeksZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_GTINZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_PKWiUZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_CNZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_PKOBZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_8AZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_8BZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_9AZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_11NettoZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_11VatZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_12Z
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_12Z_XII
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_12Z_Zal_15
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_GTUZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_ProceduraZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_KwotaAkcyzyZ
+        exists Faktura_Fa_Zamowienie_ZamowienieWiersz_field_StanPrzedZ
+    ]
+inl x_faktura_fa_zamowienie_zamowienie_wiersz_field_meta forall r.
+    (f : x_faktura_fa_zamowienie_zamowienie_wiersz_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_NrWierszaZam => { tag = "NrWierszaZam"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_UU_IDZ => { tag = "UU_IDZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_7Z => { tag = "P_7Z"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_IndeksZ => { tag = "IndeksZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_GTINZ => { tag = "GTINZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_PKWiUZ => { tag = "PKWiUZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_CNZ => { tag = "CNZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_PKOBZ => { tag = "PKOBZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_8AZ => { tag = "P_8AZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_8BZ => { tag = "P_8BZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_9AZ => { tag = "P_9AZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_11NettoZ => { tag = "P_11NettoZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_11VatZ => { tag = "P_11VatZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_12Z => { tag = "P_12Z"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_12Z_XII => { tag = "P_12Z_XII"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_P_12Z_Zal_15 => { tag = "P_12Z_Zal_15"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_GTUZ => { tag = "GTUZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_ProceduraZ => { tag = "ProceduraZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_KwotaAkcyzyZ => { tag = "KwotaAkcyzyZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Zamowienie_ZamowienieWiersz_field_StanPrzedZ => { tag = "StanPrzedZ"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_warunki_transakcji_field r =
     | Faktura_Fa_WarunkiTransakcji_field_Umowy ::
         x_faktura_fa_warunki_transakcji_field (list (x_faktura_fa_warunki_transakcji_umowy))
@@ -6788,6 +7137,32 @@ inl x_faktura_fa_warunki_transakcji_get forall r.
     | Faktura_Fa_WarunkiTransakcji_field_WalutaUmowna => x.waluta_umowna
     | Faktura_Fa_WarunkiTransakcji_field_Transport => x.transport
     | Faktura_Fa_WarunkiTransakcji_field_PodmiotPosredniczacy => x.podmiot_posredniczacy
+
+inl x_faktura_fa_warunki_transakcji_fields () : list (exists r. x_faktura_fa_warunki_transakcji_field r) =
+    [
+        exists Faktura_Fa_WarunkiTransakcji_field_Umowy
+        exists Faktura_Fa_WarunkiTransakcji_field_Zamowienia
+        exists Faktura_Fa_WarunkiTransakcji_field_NrPartiiTowaru
+        exists Faktura_Fa_WarunkiTransakcji_field_WarunkiDostawy
+        exists Faktura_Fa_WarunkiTransakcji_field_KursUmowny
+        exists Faktura_Fa_WarunkiTransakcji_field_WalutaUmowna
+        exists Faktura_Fa_WarunkiTransakcji_field_Transport
+        exists Faktura_Fa_WarunkiTransakcji_field_PodmiotPosredniczacy
+    ]
+inl x_faktura_fa_warunki_transakcji_field_meta forall r.
+    (f : x_faktura_fa_warunki_transakcji_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_WarunkiTransakcji_field_Umowy => { tag = "Umowy"; min = 0i32; max = Some 100i32 }
+    | Faktura_Fa_WarunkiTransakcji_field_Zamowienia => { tag = "Zamowienia"; min = 0i32; max = Some 100i32 }
+    | Faktura_Fa_WarunkiTransakcji_field_NrPartiiTowaru => { tag = "NrPartiiTowaru"; min = 0i32; max = Some 1000i32 }
+    | Faktura_Fa_WarunkiTransakcji_field_WarunkiDostawy => { tag = "WarunkiDostawy"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_field_KursUmowny => { tag = "KursUmowny"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_field_WalutaUmowna => { tag = "WalutaUmowna"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_field_Transport => { tag = "Transport"; min = 0i32; max = Some 20i32 }
+    | Faktura_Fa_WarunkiTransakcji_field_PodmiotPosredniczacy =>
+        { tag = "PodmiotPosredniczacy"; min = 0i32; max = Some 1i32 }
 
 union x_faktura_fa_warunki_transakcji_transport_field r =
     | Faktura_Fa_WarunkiTransakcji_Transport_field_choice_rodzaj_transportu ::
@@ -6828,6 +7203,45 @@ inl x_faktura_fa_warunki_transakcji_transport_get forall r.
     | Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaPrzez => x.wysylka_przez
     | Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaDo => x.wysylka_do
 
+inl x_faktura_fa_warunki_transakcji_transport_fields
+    ()
+    : list (exists r. x_faktura_fa_warunki_transakcji_transport_field r)
+    =
+    [
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_choice_rodzaj_transportu
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_Przewoznik
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_NrZleceniaTransportu
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_choice_opis_ladunku
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_JednostkaOpakowania
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_DataGodzRozpTransportu
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_DataGodzZakTransportu
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaZ
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaPrzez
+        exists Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaDo
+    ]
+inl x_faktura_fa_warunki_transakcji_transport_field_meta forall r.
+    (f : x_faktura_fa_warunki_transakcji_transport_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_choice_rodzaj_transportu =>
+        { tag = "choice_rodzaj_transportu"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_Przewoznik => { tag = "Przewoznik"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_NrZleceniaTransportu =>
+        { tag = "NrZleceniaTransportu"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_choice_opis_ladunku =>
+        { tag = "choice_opis_ladunku"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_JednostkaOpakowania =>
+        { tag = "JednostkaOpakowania"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_DataGodzRozpTransportu =>
+        { tag = "DataGodzRozpTransportu"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_DataGodzZakTransportu =>
+        { tag = "DataGodzZakTransportu"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaZ => { tag = "WysylkaZ"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaPrzez =>
+        { tag = "WysylkaPrzez"; min = 0i32; max = Some 20i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_field_WysylkaDo => { tag = "WysylkaDo"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_field r =
     | Faktura_Fa_WarunkiTransakcji_Transport_choice_OpisLadunku_group_LadunekInny_field_LadunekInny ::
         x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_field (x_t_wybor1)
@@ -6844,6 +7258,24 @@ inl x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_
     | Faktura_Fa_WarunkiTransakcji_Transport_choice_OpisLadunku_group_LadunekInny_field_OpisInnegoLadunku =>
         x.opis_innego_ladunku
 
+inl x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_fields
+    ()
+    : list (exists r. x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_field r)
+    =
+    [
+        exists Faktura_Fa_WarunkiTransakcji_Transport_choice_OpisLadunku_group_LadunekInny_field_LadunekInny
+        exists Faktura_Fa_WarunkiTransakcji_Transport_choice_OpisLadunku_group_LadunekInny_field_OpisInnegoLadunku
+    ]
+inl x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_field_meta forall r.
+    (f : x_faktura_fa_warunki_transakcji_transport_choice_opis_ladunku_group_ladunek_inny_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_WarunkiTransakcji_Transport_choice_OpisLadunku_group_LadunekInny_field_LadunekInny =>
+        { tag = "LadunekInny"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_choice_OpisLadunku_group_LadunekInny_field_OpisInnegoLadunku =>
+        { tag = "OpisInnegoLadunku"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_warunki_transakcji_transport_przewoznik_field r =
     | Faktura_Fa_WarunkiTransakcji_Transport_Przewoznik_field_DaneIdentyfikacyjne ::
         x_faktura_fa_warunki_transakcji_transport_przewoznik_field (x_t_podmiot2)
@@ -6858,6 +7290,24 @@ inl x_faktura_fa_warunki_transakcji_transport_przewoznik_get forall r.
     match f with
     | Faktura_Fa_WarunkiTransakcji_Transport_Przewoznik_field_DaneIdentyfikacyjne => x.dane_identyfikacyjne
     | Faktura_Fa_WarunkiTransakcji_Transport_Przewoznik_field_AdresPrzewoznika => x.adres_przewoznika
+
+inl x_faktura_fa_warunki_transakcji_transport_przewoznik_fields
+    ()
+    : list (exists r. x_faktura_fa_warunki_transakcji_transport_przewoznik_field r)
+    =
+    [
+        exists Faktura_Fa_WarunkiTransakcji_Transport_Przewoznik_field_DaneIdentyfikacyjne
+        exists Faktura_Fa_WarunkiTransakcji_Transport_Przewoznik_field_AdresPrzewoznika
+    ]
+inl x_faktura_fa_warunki_transakcji_transport_przewoznik_field_meta forall r.
+    (f : x_faktura_fa_warunki_transakcji_transport_przewoznik_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_WarunkiTransakcji_Transport_Przewoznik_field_DaneIdentyfikacyjne =>
+        { tag = "DaneIdentyfikacyjne"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_Przewoznik_field_AdresPrzewoznika =>
+        { tag = "AdresPrzewoznika"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny_field r =
     | Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_group_TransportInny_field_TransportInny ::
@@ -6876,6 +7326,24 @@ inl x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_tra
     | Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_group_TransportInny_field_OpisInnegoTransportu =>
         x.opis_innego_transportu
 
+inl x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny_fields
+    ()
+    : list (exists r. x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny_field r)
+    =
+    [
+        exists Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_group_TransportInny_field_TransportInny
+        exists Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_group_TransportInny_field_OpisInnegoTransportu
+    ]
+inl x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny_field_meta forall r.
+    (f : x_faktura_fa_warunki_transakcji_transport_choice_rodzaj_transportu_group_transport_inny_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_group_TransportInny_field_TransportInny =>
+        { tag = "TransportInny"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Transport_choice_RodzajTransportu_group_TransportInny_field_OpisInnegoTransportu =>
+        { tag = "OpisInnegoTransportu"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_warunki_transakcji_zamowienia_field r =
     | Faktura_Fa_WarunkiTransakcji_Zamowienia_field_DataZamowienia ::
         x_faktura_fa_warunki_transakcji_zamowienia_field (option (x_t_data_u))
@@ -6890,6 +7358,24 @@ inl x_faktura_fa_warunki_transakcji_zamowienia_get forall r.
     | Faktura_Fa_WarunkiTransakcji_Zamowienia_field_DataZamowienia => x.data_zamowienia
     | Faktura_Fa_WarunkiTransakcji_Zamowienia_field_NrZamowienia => x.nr_zamowienia
 
+inl x_faktura_fa_warunki_transakcji_zamowienia_fields
+    ()
+    : list (exists r. x_faktura_fa_warunki_transakcji_zamowienia_field r)
+    =
+    [
+        exists Faktura_Fa_WarunkiTransakcji_Zamowienia_field_DataZamowienia
+        exists Faktura_Fa_WarunkiTransakcji_Zamowienia_field_NrZamowienia
+    ]
+inl x_faktura_fa_warunki_transakcji_zamowienia_field_meta forall r.
+    (f : x_faktura_fa_warunki_transakcji_zamowienia_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_WarunkiTransakcji_Zamowienia_field_DataZamowienia =>
+        { tag = "DataZamowienia"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Zamowienia_field_NrZamowienia =>
+        { tag = "NrZamowienia"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_warunki_transakcji_umowy_field r =
     | Faktura_Fa_WarunkiTransakcji_Umowy_field_DataUmowy ::
         x_faktura_fa_warunki_transakcji_umowy_field (option (x_t_data_u))
@@ -6903,6 +7389,19 @@ inl x_faktura_fa_warunki_transakcji_umowy_get forall r.
     match f with
     | Faktura_Fa_WarunkiTransakcji_Umowy_field_DataUmowy => x.data_umowy
     | Faktura_Fa_WarunkiTransakcji_Umowy_field_NrUmowy => x.nr_umowy
+
+inl x_faktura_fa_warunki_transakcji_umowy_fields () : list (exists r. x_faktura_fa_warunki_transakcji_umowy_field r) =
+    [
+        exists Faktura_Fa_WarunkiTransakcji_Umowy_field_DataUmowy
+        exists Faktura_Fa_WarunkiTransakcji_Umowy_field_NrUmowy
+    ]
+inl x_faktura_fa_warunki_transakcji_umowy_field_meta forall r.
+    (f : x_faktura_fa_warunki_transakcji_umowy_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_WarunkiTransakcji_Umowy_field_DataUmowy => { tag = "DataUmowy"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_WarunkiTransakcji_Umowy_field_NrUmowy => { tag = "NrUmowy"; min = 0i32; max = Some 1i32 }
 
 union x_faktura_fa_platnosc_field r =
     | Faktura_Fa_Platnosc_field_choice_zaplacono ::
@@ -6929,6 +7428,30 @@ inl x_faktura_fa_platnosc_get forall r. (f : x_faktura_fa_platnosc_field r) (x :
     | Faktura_Fa_Platnosc_field_LinkDoPlatnosci => x.link_do_platnosci
     | Faktura_Fa_Platnosc_field_IPKSeF => x.ipk_se_f
 
+inl x_faktura_fa_platnosc_fields () : list (exists r. x_faktura_fa_platnosc_field r) =
+    [
+        exists Faktura_Fa_Platnosc_field_choice_zaplacono
+        exists Faktura_Fa_Platnosc_field_TerminPlatnosci
+        exists Faktura_Fa_Platnosc_field_choice_forma_platnosci
+        exists Faktura_Fa_Platnosc_field_RachunekBankowy
+        exists Faktura_Fa_Platnosc_field_RachunekBankowyFaktora
+        exists Faktura_Fa_Platnosc_field_Skonto
+        exists Faktura_Fa_Platnosc_field_LinkDoPlatnosci
+        exists Faktura_Fa_Platnosc_field_IPKSeF
+    ]
+inl x_faktura_fa_platnosc_field_meta forall r. (f : x_faktura_fa_platnosc_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_Platnosc_field_choice_zaplacono => { tag = "choice_zaplacono"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_field_TerminPlatnosci => { tag = "TerminPlatnosci"; min = 0i32; max = Some 100i32 }
+    | Faktura_Fa_Platnosc_field_choice_forma_platnosci =>
+        { tag = "choice_forma_platnosci"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_field_RachunekBankowy => { tag = "RachunekBankowy"; min = 0i32; max = Some 100i32 }
+    | Faktura_Fa_Platnosc_field_RachunekBankowyFaktora =>
+        { tag = "RachunekBankowyFaktora"; min = 0i32; max = Some 20i32 }
+    | Faktura_Fa_Platnosc_field_Skonto => { tag = "Skonto"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_field_LinkDoPlatnosci => { tag = "LinkDoPlatnosci"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_field_IPKSeF => { tag = "IPKSeF"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_platnosc_skonto_field r =
     | Faktura_Fa_Platnosc_Skonto_field_WarunkiSkonta :: x_faktura_fa_platnosc_skonto_field (x_t_znakowy)
     | Faktura_Fa_Platnosc_Skonto_field_WysokoscSkonta :: x_faktura_fa_platnosc_skonto_field (x_t_znakowy)
@@ -6940,6 +7463,16 @@ inl x_faktura_fa_platnosc_skonto_get forall r.
     match f with
     | Faktura_Fa_Platnosc_Skonto_field_WarunkiSkonta => x.warunki_skonta
     | Faktura_Fa_Platnosc_Skonto_field_WysokoscSkonta => x.wysokosc_skonta
+
+inl x_faktura_fa_platnosc_skonto_fields () : list (exists r. x_faktura_fa_platnosc_skonto_field r) =
+    [ exists Faktura_Fa_Platnosc_Skonto_field_WarunkiSkonta; exists Faktura_Fa_Platnosc_Skonto_field_WysokoscSkonta ]
+inl x_faktura_fa_platnosc_skonto_field_meta forall r.
+    (f : x_faktura_fa_platnosc_skonto_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_Skonto_field_WarunkiSkonta => { tag = "WarunkiSkonta"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_Skonto_field_WysokoscSkonta => { tag = "WysokoscSkonta"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_field r =
     | Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna_field_PlatnoscInna ::
@@ -6956,6 +7489,24 @@ inl x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_get forall 
     | Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna_field_PlatnoscInna => x.platnosc_inna
     | Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna_field_OpisPlatnosci => x.opis_platnosci
 
+inl x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_fields
+    ()
+    : list (exists r. x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_field r)
+    =
+    [
+        exists Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna_field_PlatnoscInna
+        exists Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna_field_OpisPlatnosci
+    ]
+inl x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_field_meta forall r.
+    (f : x_faktura_fa_platnosc_choice_forma_platnosci_group_platnosc_inna_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna_field_PlatnoscInna =>
+        { tag = "PlatnoscInna"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_choice_FormaPlatnosci_group_PlatnoscInna_field_OpisPlatnosci =>
+        { tag = "OpisPlatnosci"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_platnosc_termin_platnosci_field r =
     | Faktura_Fa_Platnosc_TerminPlatnosci_field_Termin ::
         x_faktura_fa_platnosc_termin_platnosci_field (option (x_t_data))
@@ -6969,6 +7520,19 @@ inl x_faktura_fa_platnosc_termin_platnosci_get forall r.
     match f with
     | Faktura_Fa_Platnosc_TerminPlatnosci_field_Termin => x.termin
     | Faktura_Fa_Platnosc_TerminPlatnosci_field_TerminOpis => x.termin_opis
+
+inl x_faktura_fa_platnosc_termin_platnosci_fields () : list (exists r. x_faktura_fa_platnosc_termin_platnosci_field r) =
+    [
+        exists Faktura_Fa_Platnosc_TerminPlatnosci_field_Termin
+        exists Faktura_Fa_Platnosc_TerminPlatnosci_field_TerminOpis
+    ]
+inl x_faktura_fa_platnosc_termin_platnosci_field_meta forall r.
+    (f : x_faktura_fa_platnosc_termin_platnosci_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_TerminPlatnosci_field_Termin => { tag = "Termin"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_TerminPlatnosci_field_TerminOpis => { tag = "TerminOpis"; min = 0i32; max = Some 1i32 }
 
 union x_faktura_fa_platnosc_termin_platnosci_termin_opis_field r =
     | Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_Ilosc ::
@@ -6988,6 +7552,26 @@ inl x_faktura_fa_platnosc_termin_platnosci_termin_opis_get forall r.
     | Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_Jednostka => x.jednostka
     | Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_ZdarzeniePoczatkowe => x.zdarzenie_poczatkowe
 
+inl x_faktura_fa_platnosc_termin_platnosci_termin_opis_fields
+    ()
+    : list (exists r. x_faktura_fa_platnosc_termin_platnosci_termin_opis_field r)
+    =
+    [
+        exists Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_Ilosc
+        exists Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_Jednostka
+        exists Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_ZdarzeniePoczatkowe
+    ]
+inl x_faktura_fa_platnosc_termin_platnosci_termin_opis_field_meta forall r.
+    (f : x_faktura_fa_platnosc_termin_platnosci_termin_opis_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_Ilosc => { tag = "Ilosc"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_Jednostka =>
+        { tag = "Jednostka"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_TerminPlatnosci_TerminOpis_field_ZdarzeniePoczatkowe =>
+        { tag = "ZdarzeniePoczatkowe"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_field r =
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_field_ZnacznikZaplatyCzesciowej ::
         x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_field (x_t_wybor1_2)
@@ -7004,6 +7588,24 @@ inl x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_get
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_field_ZnacznikZaplatyCzesciowej =>
         x.znacznik_zaplaty_czesciowej
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_field_ZaplataCzesciowa => x.zaplata_czesciowa
+
+inl x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_fields
+    ()
+    : list (exists r. x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_field r)
+    =
+    [
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_field_ZnacznikZaplatyCzesciowej
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_field_ZaplataCzesciowa
+    ]
+inl x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_field_meta forall r.
+    (f : x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_field_ZnacznikZaplatyCzesciowej =>
+        { tag = "ZnacznikZaplatyCzesciowej"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_field_ZaplataCzesciowa =>
+        { tag = "ZaplataCzesciowa"; min = 1i32; max = Some 100i32 }
 
 union x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_field r =
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_KwotaZaplatyCzesciowej
@@ -7035,6 +7637,28 @@ inl x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zap
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_choice_forma_platnosci =>
         x.choice_forma_platnosci
 
+inl x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_fields
+    ()
+    : list
+        (exists r. x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_field r)
+    =
+    [
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_KwotaZaplatyCzesciowej
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_DataZaplatyCzesciowej
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_choice_forma_platnosci
+    ]
+inl x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_field_meta forall r.
+    (f : x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_KwotaZaplatyCzesciowej =>
+        { tag = "KwotaZaplatyCzesciowej"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_DataZaplatyCzesciowej =>
+        { tag = "DataZaplatyCzesciowej"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_field_choice_forma_platnosci =>
+        { tag = "choice_forma_platnosci"; min = 0i32; max = Some 1i32 }
+
 union
     x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna_field
     r =
@@ -7060,6 +7684,30 @@ inl
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_choice_FormaPlatnosci_group_PlatnoscInna_field_OpisPlatnosci =>
         x.opis_platnosci
 
+inl
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna_fields
+    ()
+    : list
+        (exists r.
+            x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna_field r)
+    =
+    [
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_choice_FormaPlatnosci_group_PlatnoscInna_field_PlatnoscInna
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_choice_FormaPlatnosci_group_PlatnoscInna_field_OpisPlatnosci
+    ]
+inl
+    x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna_field_meta
+    forall r.
+    (f :
+        x_faktura_fa_platnosc_choice_zaplacono_group_znacznik_zaplaty_czesciowej_zaplata_czesciowa_choice_forma_platnosci_group_platnosc_inna_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_choice_FormaPlatnosci_group_PlatnoscInna_field_PlatnoscInna =>
+        { tag = "PlatnoscInna"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_ZnacznikZaplatyCzesciowej_ZaplataCzesciowa_choice_FormaPlatnosci_group_PlatnoscInna_field_OpisPlatnosci =>
+        { tag = "OpisPlatnosci"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_field r =
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_Zaplacono_field_Zaplacono ::
         x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_field (x_t_wybor1)
@@ -7074,6 +7722,24 @@ inl x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_get forall r.
     match f with
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_Zaplacono_field_Zaplacono => x.zaplacono
     | Faktura_Fa_Platnosc_choice_Zaplacono_group_Zaplacono_field_DataZaplaty => x.data_zaplaty
+
+inl x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_fields
+    ()
+    : list (exists r. x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_field r)
+    =
+    [
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_Zaplacono_field_Zaplacono
+        exists Faktura_Fa_Platnosc_choice_Zaplacono_group_Zaplacono_field_DataZaplaty
+    ]
+inl x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_field_meta forall r.
+    (f : x_faktura_fa_platnosc_choice_zaplacono_group_zaplacono_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_Zaplacono_field_Zaplacono =>
+        { tag = "Zaplacono"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Platnosc_choice_Zaplacono_group_Zaplacono_field_DataZaplaty =>
+        { tag = "DataZaplaty"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_rozliczenie_field r =
     | Faktura_Fa_Rozliczenie_field_Obciazenia ::
@@ -7093,6 +7759,22 @@ inl x_faktura_fa_rozliczenie_get forall r. (f : x_faktura_fa_rozliczenie_field r
     | Faktura_Fa_Rozliczenie_field_SumaOdliczen => x.suma_odliczen
     | Faktura_Fa_Rozliczenie_field_choice_do_zaplaty => x.choice_do_zaplaty
 
+inl x_faktura_fa_rozliczenie_fields () : list (exists r. x_faktura_fa_rozliczenie_field r) =
+    [
+        exists Faktura_Fa_Rozliczenie_field_Obciazenia
+        exists Faktura_Fa_Rozliczenie_field_SumaObciazen
+        exists Faktura_Fa_Rozliczenie_field_Odliczenia
+        exists Faktura_Fa_Rozliczenie_field_SumaOdliczen
+        exists Faktura_Fa_Rozliczenie_field_choice_do_zaplaty
+    ]
+inl x_faktura_fa_rozliczenie_field_meta forall r. (f : x_faktura_fa_rozliczenie_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_Rozliczenie_field_Obciazenia => { tag = "Obciazenia"; min = 0i32; max = Some 100i32 }
+    | Faktura_Fa_Rozliczenie_field_SumaObciazen => { tag = "SumaObciazen"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Rozliczenie_field_Odliczenia => { tag = "Odliczenia"; min = 0i32; max = Some 100i32 }
+    | Faktura_Fa_Rozliczenie_field_SumaOdliczen => { tag = "SumaOdliczen"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Rozliczenie_field_choice_do_zaplaty => { tag = "choice_do_zaplaty"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_rozliczenie_odliczenia_field r =
     | Faktura_Fa_Rozliczenie_Odliczenia_field_Kwota :: x_faktura_fa_rozliczenie_odliczenia_field (x_t_kwotowy)
     | Faktura_Fa_Rozliczenie_Odliczenia_field_Powod :: x_faktura_fa_rozliczenie_odliczenia_field (x_t_znakowy)
@@ -7105,6 +7787,16 @@ inl x_faktura_fa_rozliczenie_odliczenia_get forall r.
     | Faktura_Fa_Rozliczenie_Odliczenia_field_Kwota => x.kwota
     | Faktura_Fa_Rozliczenie_Odliczenia_field_Powod => x.powod
 
+inl x_faktura_fa_rozliczenie_odliczenia_fields () : list (exists r. x_faktura_fa_rozliczenie_odliczenia_field r) =
+    [ exists Faktura_Fa_Rozliczenie_Odliczenia_field_Kwota; exists Faktura_Fa_Rozliczenie_Odliczenia_field_Powod ]
+inl x_faktura_fa_rozliczenie_odliczenia_field_meta forall r.
+    (f : x_faktura_fa_rozliczenie_odliczenia_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Rozliczenie_Odliczenia_field_Kwota => { tag = "Kwota"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Rozliczenie_Odliczenia_field_Powod => { tag = "Powod"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_rozliczenie_obciazenia_field r =
     | Faktura_Fa_Rozliczenie_Obciazenia_field_Kwota :: x_faktura_fa_rozliczenie_obciazenia_field (x_t_kwotowy)
     | Faktura_Fa_Rozliczenie_Obciazenia_field_Powod :: x_faktura_fa_rozliczenie_obciazenia_field (x_t_znakowy)
@@ -7116,6 +7808,16 @@ inl x_faktura_fa_rozliczenie_obciazenia_get forall r.
     match f with
     | Faktura_Fa_Rozliczenie_Obciazenia_field_Kwota => x.kwota
     | Faktura_Fa_Rozliczenie_Obciazenia_field_Powod => x.powod
+
+inl x_faktura_fa_rozliczenie_obciazenia_fields () : list (exists r. x_faktura_fa_rozliczenie_obciazenia_field r) =
+    [ exists Faktura_Fa_Rozliczenie_Obciazenia_field_Kwota; exists Faktura_Fa_Rozliczenie_Obciazenia_field_Powod ]
+inl x_faktura_fa_rozliczenie_obciazenia_field_meta forall r.
+    (f : x_faktura_fa_rozliczenie_obciazenia_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Rozliczenie_Obciazenia_field_Kwota => { tag = "Kwota"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Rozliczenie_Obciazenia_field_Powod => { tag = "Powod"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_fa_wiersz_field r =
     | Faktura_Fa_FaWiersz_field_NrWierszaFa :: x_faktura_fa_fa_wiersz_field (x_t_naturalny)
@@ -7172,6 +7874,62 @@ inl x_faktura_fa_fa_wiersz_get forall r. (f : x_faktura_fa_fa_wiersz_field r) (x
     | Faktura_Fa_FaWiersz_field_KursWaluty => x.kurs_waluty
     | Faktura_Fa_FaWiersz_field_StanPrzed => x.stan_przed
 
+inl x_faktura_fa_fa_wiersz_fields () : list (exists r. x_faktura_fa_fa_wiersz_field r) =
+    [
+        exists Faktura_Fa_FaWiersz_field_NrWierszaFa
+        exists Faktura_Fa_FaWiersz_field_UU_ID
+        exists Faktura_Fa_FaWiersz_field_P_6A
+        exists Faktura_Fa_FaWiersz_field_P_7
+        exists Faktura_Fa_FaWiersz_field_Indeks
+        exists Faktura_Fa_FaWiersz_field_GTIN
+        exists Faktura_Fa_FaWiersz_field_PKWiU
+        exists Faktura_Fa_FaWiersz_field_CN
+        exists Faktura_Fa_FaWiersz_field_PKOB
+        exists Faktura_Fa_FaWiersz_field_P_8A
+        exists Faktura_Fa_FaWiersz_field_P_8B
+        exists Faktura_Fa_FaWiersz_field_P_9A
+        exists Faktura_Fa_FaWiersz_field_P_9B
+        exists Faktura_Fa_FaWiersz_field_P_10
+        exists Faktura_Fa_FaWiersz_field_P_11
+        exists Faktura_Fa_FaWiersz_field_P_11A
+        exists Faktura_Fa_FaWiersz_field_P_11Vat
+        exists Faktura_Fa_FaWiersz_field_P_12
+        exists Faktura_Fa_FaWiersz_field_P_12_XII
+        exists Faktura_Fa_FaWiersz_field_P_12_Zal_15
+        exists Faktura_Fa_FaWiersz_field_KwotaAkcyzy
+        exists Faktura_Fa_FaWiersz_field_GTU
+        exists Faktura_Fa_FaWiersz_field_Procedura
+        exists Faktura_Fa_FaWiersz_field_KursWaluty
+        exists Faktura_Fa_FaWiersz_field_StanPrzed
+    ]
+inl x_faktura_fa_fa_wiersz_field_meta forall r. (f : x_faktura_fa_fa_wiersz_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_FaWiersz_field_NrWierszaFa => { tag = "NrWierszaFa"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_UU_ID => { tag = "UU_ID"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_6A => { tag = "P_6A"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_7 => { tag = "P_7"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_Indeks => { tag = "Indeks"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_GTIN => { tag = "GTIN"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_PKWiU => { tag = "PKWiU"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_CN => { tag = "CN"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_PKOB => { tag = "PKOB"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_8A => { tag = "P_8A"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_8B => { tag = "P_8B"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_9A => { tag = "P_9A"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_9B => { tag = "P_9B"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_10 => { tag = "P_10"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_11 => { tag = "P_11"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_11A => { tag = "P_11A"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_11Vat => { tag = "P_11Vat"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_12 => { tag = "P_12"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_12_XII => { tag = "P_12_XII"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_P_12_Zal_15 => { tag = "P_12_Zal_15"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_KwotaAkcyzy => { tag = "KwotaAkcyzy"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_GTU => { tag = "GTU"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_Procedura => { tag = "Procedura"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_KursWaluty => { tag = "KursWaluty"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_FaWiersz_field_StanPrzed => { tag = "StanPrzed"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_faktura_zaliczkowa_field r =
     | Faktura_Fa_FakturaZaliczkowa_field_choice_nr_k_se_fzn ::
         x_faktura_fa_faktura_zaliczkowa_field (x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn)
@@ -7182,6 +7940,16 @@ inl x_faktura_fa_faktura_zaliczkowa_get forall r.
     =
     match f with
     | Faktura_Fa_FakturaZaliczkowa_field_choice_nr_k_se_fzn => x.choice_nr_k_se_fzn
+
+inl x_faktura_fa_faktura_zaliczkowa_fields () : list (exists r. x_faktura_fa_faktura_zaliczkowa_field r) =
+    [ exists Faktura_Fa_FakturaZaliczkowa_field_choice_nr_k_se_fzn ]
+inl x_faktura_fa_faktura_zaliczkowa_field_meta forall r.
+    (f : x_faktura_fa_faktura_zaliczkowa_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_FakturaZaliczkowa_field_choice_nr_k_se_fzn =>
+        { tag = "choice_nr_k_se_fzn"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_field r =
     | Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_group_NrKSeFZN_field_NrKSeFZN ::
@@ -7198,6 +7966,24 @@ inl x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_get for
     | Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_group_NrKSeFZN_field_NrKSeFZN => x.nr_k_se_fzn
     | Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_group_NrKSeFZN_field_NrFaZaliczkowej => x.nr_fa_zaliczkowej
 
+inl x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_fields
+    ()
+    : list (exists r. x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_field r)
+    =
+    [
+        exists Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_group_NrKSeFZN_field_NrKSeFZN
+        exists Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_group_NrKSeFZN_field_NrFaZaliczkowej
+    ]
+inl x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_field_meta forall r.
+    (f : x_faktura_fa_faktura_zaliczkowa_choice_nr_k_se_fzn_group_nr_k_se_fzn_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_group_NrKSeFZN_field_NrKSeFZN =>
+        { tag = "NrKSeFZN"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_FakturaZaliczkowa_choice_NrKSeFZN_group_NrKSeFZN_field_NrFaZaliczkowej =>
+        { tag = "NrFaZaliczkowej"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_zaliczka_czesciowa_field r =
     | Faktura_Fa_ZaliczkaCzesciowa_field_P_6Z :: x_faktura_fa_zaliczka_czesciowa_field (x_t_data_t)
     | Faktura_Fa_ZaliczkaCzesciowa_field_P_15Z :: x_faktura_fa_zaliczka_czesciowa_field (x_t_kwotowy)
@@ -7212,6 +7998,21 @@ inl x_faktura_fa_zaliczka_czesciowa_get forall r.
     | Faktura_Fa_ZaliczkaCzesciowa_field_P_15Z => x.p_15_z
     | Faktura_Fa_ZaliczkaCzesciowa_field_KursWalutyZW => x.kurs_waluty_zw
 
+inl x_faktura_fa_zaliczka_czesciowa_fields () : list (exists r. x_faktura_fa_zaliczka_czesciowa_field r) =
+    [
+        exists Faktura_Fa_ZaliczkaCzesciowa_field_P_6Z
+        exists Faktura_Fa_ZaliczkaCzesciowa_field_P_15Z
+        exists Faktura_Fa_ZaliczkaCzesciowa_field_KursWalutyZW
+    ]
+inl x_faktura_fa_zaliczka_czesciowa_field_meta forall r.
+    (f : x_faktura_fa_zaliczka_czesciowa_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_ZaliczkaCzesciowa_field_P_6Z => { tag = "P_6Z"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_ZaliczkaCzesciowa_field_P_15Z => { tag = "P_15Z"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_ZaliczkaCzesciowa_field_KursWalutyZW => { tag = "KursWalutyZW"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_podmiot2_k_field r =
     | Faktura_Fa_Podmiot2K_field_DaneIdentyfikacyjne :: x_faktura_fa_podmiot2_k_field (x_t_podmiot2)
     | Faktura_Fa_Podmiot2K_field_Adres :: x_faktura_fa_podmiot2_k_field (option (x_t_adres))
@@ -7224,6 +8025,18 @@ inl x_faktura_fa_podmiot2_k_get forall r. (f : x_faktura_fa_podmiot2_k_field r) 
     | Faktura_Fa_Podmiot2K_field_Adres => x.adres
     | Faktura_Fa_Podmiot2K_field_IDNabywcy => x.id_nabywcy
 
+inl x_faktura_fa_podmiot2_k_fields () : list (exists r. x_faktura_fa_podmiot2_k_field r) =
+    [
+        exists Faktura_Fa_Podmiot2K_field_DaneIdentyfikacyjne
+        exists Faktura_Fa_Podmiot2K_field_Adres
+        exists Faktura_Fa_Podmiot2K_field_IDNabywcy
+    ]
+inl x_faktura_fa_podmiot2_k_field_meta forall r. (f : x_faktura_fa_podmiot2_k_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_Podmiot2K_field_DaneIdentyfikacyjne => { tag = "DaneIdentyfikacyjne"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Podmiot2K_field_Adres => { tag = "Adres"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Podmiot2K_field_IDNabywcy => { tag = "IDNabywcy"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_podmiot1_k_field r =
     | Faktura_Fa_Podmiot1K_field_PrefiksPodatnika :: x_faktura_fa_podmiot1_k_field (option (x_t_kody_krajow_ue))
     | Faktura_Fa_Podmiot1K_field_DaneIdentyfikacyjne :: x_faktura_fa_podmiot1_k_field (x_t_podmiot1)
@@ -7234,6 +8047,18 @@ inl x_faktura_fa_podmiot1_k_get forall r. (f : x_faktura_fa_podmiot1_k_field r) 
     | Faktura_Fa_Podmiot1K_field_PrefiksPodatnika => x.prefiks_podatnika
     | Faktura_Fa_Podmiot1K_field_DaneIdentyfikacyjne => x.dane_identyfikacyjne
     | Faktura_Fa_Podmiot1K_field_Adres => x.adres
+
+inl x_faktura_fa_podmiot1_k_fields () : list (exists r. x_faktura_fa_podmiot1_k_field r) =
+    [
+        exists Faktura_Fa_Podmiot1K_field_PrefiksPodatnika
+        exists Faktura_Fa_Podmiot1K_field_DaneIdentyfikacyjne
+        exists Faktura_Fa_Podmiot1K_field_Adres
+    ]
+inl x_faktura_fa_podmiot1_k_field_meta forall r. (f : x_faktura_fa_podmiot1_k_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_Podmiot1K_field_PrefiksPodatnika => { tag = "PrefiksPodatnika"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Podmiot1K_field_DaneIdentyfikacyjne => { tag = "DaneIdentyfikacyjne"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Podmiot1K_field_Adres => { tag = "Adres"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_dane_fa_korygowanej_field r =
     | Faktura_Fa_DaneFaKorygowanej_field_DataWystFaKorygowanej :: x_faktura_fa_dane_fa_korygowanej_field (x_t_data_t)
@@ -7250,6 +8075,22 @@ inl x_faktura_fa_dane_fa_korygowanej_get forall r.
     | Faktura_Fa_DaneFaKorygowanej_field_NrFaKorygowanej => x.nr_fa_korygowanej
     | Faktura_Fa_DaneFaKorygowanej_field_choice_nr_k_se_f => x.choice_nr_k_se_f
 
+inl x_faktura_fa_dane_fa_korygowanej_fields () : list (exists r. x_faktura_fa_dane_fa_korygowanej_field r) =
+    [
+        exists Faktura_Fa_DaneFaKorygowanej_field_DataWystFaKorygowanej
+        exists Faktura_Fa_DaneFaKorygowanej_field_NrFaKorygowanej
+        exists Faktura_Fa_DaneFaKorygowanej_field_choice_nr_k_se_f
+    ]
+inl x_faktura_fa_dane_fa_korygowanej_field_meta forall r.
+    (f : x_faktura_fa_dane_fa_korygowanej_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_DaneFaKorygowanej_field_DataWystFaKorygowanej =>
+        { tag = "DataWystFaKorygowanej"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_DaneFaKorygowanej_field_NrFaKorygowanej => { tag = "NrFaKorygowanej"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_DaneFaKorygowanej_field_choice_nr_k_se_f => { tag = "choice_nr_k_se_f"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_field r =
     | Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_group_NrKSeF_field_NrKSeF ::
         x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_field (x_t_wybor1)
@@ -7264,6 +8105,24 @@ inl x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_get forall
     match f with
     | Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_group_NrKSeF_field_NrKSeF => x.nr_k_se_f
     | Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_group_NrKSeF_field_NrKSeFFaKorygowanej => x.nr_k_se_f_fa_korygowanej
+
+inl x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_fields
+    ()
+    : list (exists r. x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_field r)
+    =
+    [
+        exists Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_group_NrKSeF_field_NrKSeF
+        exists Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_group_NrKSeF_field_NrKSeFFaKorygowanej
+    ]
+inl x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_field_meta forall r.
+    (f : x_faktura_fa_dane_fa_korygowanej_choice_nr_k_se_f_group_nr_k_se_f_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_group_NrKSeF_field_NrKSeF =>
+        { tag = "NrKSeF"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_DaneFaKorygowanej_choice_NrKSeF_group_NrKSeF_field_NrKSeFFaKorygowanej =>
+        { tag = "NrKSeFFaKorygowanej"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_adnotacje_field r =
     | Faktura_Fa_Adnotacje_field_P_16 :: x_faktura_fa_adnotacje_field (x_t_wybor1_2)
@@ -7287,6 +8146,28 @@ inl x_faktura_fa_adnotacje_get forall r. (f : x_faktura_fa_adnotacje_field r) (x
     | Faktura_Fa_Adnotacje_field_P_23 => x.p_23
     | Faktura_Fa_Adnotacje_field_PMarzy => x.p_marzy
 
+inl x_faktura_fa_adnotacje_fields () : list (exists r. x_faktura_fa_adnotacje_field r) =
+    [
+        exists Faktura_Fa_Adnotacje_field_P_16
+        exists Faktura_Fa_Adnotacje_field_P_17
+        exists Faktura_Fa_Adnotacje_field_P_18
+        exists Faktura_Fa_Adnotacje_field_P_18A
+        exists Faktura_Fa_Adnotacje_field_Zwolnienie
+        exists Faktura_Fa_Adnotacje_field_NoweSrodkiTransportu
+        exists Faktura_Fa_Adnotacje_field_P_23
+        exists Faktura_Fa_Adnotacje_field_PMarzy
+    ]
+inl x_faktura_fa_adnotacje_field_meta forall r. (f : x_faktura_fa_adnotacje_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Fa_Adnotacje_field_P_16 => { tag = "P_16"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_field_P_17 => { tag = "P_17"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_field_P_18 => { tag = "P_18"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_field_P_18A => { tag = "P_18A"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_field_Zwolnienie => { tag = "Zwolnienie"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_field_NoweSrodkiTransportu => { tag = "NoweSrodkiTransportu"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_field_P_23 => { tag = "P_23"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_field_PMarzy => { tag = "PMarzy"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_adnotacje_p_marzy_field r =
     | Faktura_Fa_Adnotacje_PMarzy_field_choice_p_p_marzy ::
         x_faktura_fa_adnotacje_p_marzy_field (x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy)
@@ -7297,6 +8178,15 @@ inl x_faktura_fa_adnotacje_p_marzy_get forall r.
     =
     match f with
     | Faktura_Fa_Adnotacje_PMarzy_field_choice_p_p_marzy => x.choice_p_p_marzy
+
+inl x_faktura_fa_adnotacje_p_marzy_fields () : list (exists r. x_faktura_fa_adnotacje_p_marzy_field r) =
+    [ exists Faktura_Fa_Adnotacje_PMarzy_field_choice_p_p_marzy ]
+inl x_faktura_fa_adnotacje_p_marzy_field_meta forall r.
+    (f : x_faktura_fa_adnotacje_p_marzy_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_PMarzy_field_choice_p_p_marzy => { tag = "choice_p_p_marzy"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_field r =
     | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_field_P_PMarzy ::
@@ -7314,6 +8204,24 @@ inl x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_get forall r
     | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_field_P_PMarzy => x.p_p_marzy
     | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_field_choice_p_p_marzy_2 => x.choice_p_p_marzy_2
 
+inl x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_fields
+    ()
+    : list (exists r. x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_field r)
+    =
+    [
+        exists Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_field_P_PMarzy
+        exists Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_field_choice_p_p_marzy_2
+    ]
+inl x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_field_meta forall r.
+    (f : x_faktura_fa_adnotacje_p_marzy_choice_p_p_marzy_group_p_p_marzy_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_field_P_PMarzy =>
+        { tag = "P_PMarzy"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_PMarzy_choice_P_PMarzy_group_P_PMarzy_field_choice_p_p_marzy_2 =>
+        { tag = "choice_p_p_marzy_2"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_adnotacje_nowe_srodki_transportu_field r =
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_field_choice_p_22 ::
         x_faktura_fa_adnotacje_nowe_srodki_transportu_field (x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22)
@@ -7324,6 +8232,19 @@ inl x_faktura_fa_adnotacje_nowe_srodki_transportu_get forall r.
     =
     match f with
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_field_choice_p_22 => x.choice_p_22
+
+inl x_faktura_fa_adnotacje_nowe_srodki_transportu_fields
+    ()
+    : list (exists r. x_faktura_fa_adnotacje_nowe_srodki_transportu_field r)
+    =
+    [ exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_field_choice_p_22 ]
+inl x_faktura_fa_adnotacje_nowe_srodki_transportu_field_meta forall r.
+    (f : x_faktura_fa_adnotacje_nowe_srodki_transportu_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_field_choice_p_22 =>
+        { tag = "choice_p_22"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_field r =
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_P_22 ::
@@ -7344,6 +8265,27 @@ inl x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_get for
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_P_42_5 => x.p_42_5
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_NowySrodekTransportu =>
         x.nowy_srodek_transportu
+
+inl x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_fields
+    ()
+    : list (exists r. x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_field r)
+    =
+    [
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_P_22
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_P_42_5
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_NowySrodekTransportu
+    ]
+inl x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_field_meta forall r.
+    (f : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_P_22 =>
+        { tag = "P_22"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_P_42_5 =>
+        { tag = "P_42_5"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_field_NowySrodekTransportu =>
+        { tag = "NowySrodekTransportu"; min = 1i32; max = Some 10000i32 }
 
 union x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_field r =
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22A ::
@@ -7387,6 +8329,43 @@ inl x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_sr
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_choice_p_22_b =>
         x.choice_p_22_b
 
+inl x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_fields
+    ()
+    : list
+        (exists r. x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_field r)
+    =
+    [
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22A
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_NrWierszaNST
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BMK
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BMD
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BK
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BNR
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BRP
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_choice_p_22_b
+    ]
+inl x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_field_meta forall r.
+    (f : x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22A =>
+        { tag = "P_22A"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_NrWierszaNST =>
+        { tag = "P_NrWierszaNST"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BMK =>
+        { tag = "P_22BMK"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BMD =>
+        { tag = "P_22BMD"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BK =>
+        { tag = "P_22BK"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BNR =>
+        { tag = "P_22BNR"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_P_22BRP =>
+        { tag = "P_22BRP"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_field_choice_p_22_b =>
+        { tag = "choice_p_22_b"; min = 1i32; max = Some 1i32 }
+
 union
     x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d_field
     r =
@@ -7412,6 +8391,30 @@ inl
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22D_field_P_22D1 =>
         x.p_22_d1
 
+inl
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d_fields
+    ()
+    : list
+        (exists r.
+            x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d_field r)
+    =
+    [
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22D_field_P_22D
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22D_field_P_22D1
+    ]
+inl
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d_field_meta
+    forall r.
+    (f :
+        x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_d_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22D_field_P_22D =>
+        { tag = "P_22D"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22D_field_P_22D1 =>
+        { tag = "P_22D1"; min = 0i32; max = Some 1i32 }
+
 union
     x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c_field
     r =
@@ -7436,6 +8439,30 @@ inl
         x.p_22_c
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22C_field_P_22C1 =>
         x.p_22_c1
+
+inl
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c_fields
+    ()
+    : list
+        (exists r.
+            x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c_field r)
+    =
+    [
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22C_field_P_22C
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22C_field_P_22C1
+    ]
+inl
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c_field_meta
+    forall r.
+    (f :
+        x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_c_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22C_field_P_22C =>
+        { tag = "P_22C"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22C_field_P_22C1 =>
+        { tag = "P_22C1"; min = 0i32; max = Some 1i32 }
 
 union
     x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_field
@@ -7467,6 +8494,33 @@ inl
     | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22B_field_P_22BT =>
         x.p_22_bt
 
+inl
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_fields
+    ()
+    : list
+        (exists r.
+            x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_field r)
+    =
+    [
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22B_field_P_22B
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22B_field_choice_p_22_b1
+        exists Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22B_field_P_22BT
+    ]
+inl
+    x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_field_meta
+    forall r.
+    (f :
+        x_faktura_fa_adnotacje_nowe_srodki_transportu_choice_p_22_group_p_22_nowy_srodek_transportu_choice_p_22_b_group_p_22_b_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22B_field_P_22B =>
+        { tag = "P_22B"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22B_field_choice_p_22_b1 =>
+        { tag = "choice_p_22_b1"; min = 0i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_NoweSrodkiTransportu_choice_P_22_group_P_22_NowySrodekTransportu_choice_P_22B_group_P_22B_field_P_22BT =>
+        { tag = "P_22BT"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_fa_adnotacje_zwolnienie_field r =
     | Faktura_Fa_Adnotacje_Zwolnienie_field_choice_p_19 ::
         x_faktura_fa_adnotacje_zwolnienie_field (x_faktura_fa_adnotacje_zwolnienie_choice_p_19)
@@ -7477,6 +8531,15 @@ inl x_faktura_fa_adnotacje_zwolnienie_get forall r.
     =
     match f with
     | Faktura_Fa_Adnotacje_Zwolnienie_field_choice_p_19 => x.choice_p_19
+
+inl x_faktura_fa_adnotacje_zwolnienie_fields () : list (exists r. x_faktura_fa_adnotacje_zwolnienie_field r) =
+    [ exists Faktura_Fa_Adnotacje_Zwolnienie_field_choice_p_19 ]
+inl x_faktura_fa_adnotacje_zwolnienie_field_meta forall r.
+    (f : x_faktura_fa_adnotacje_zwolnienie_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_Zwolnienie_field_choice_p_19 => { tag = "choice_p_19"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_field r =
     | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_field_P_19 ::
@@ -7494,6 +8557,23 @@ inl x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_get forall r.
     | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_field_P_19 => x.p_19
     | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_field_choice_p_19_a => x.choice_p_19_a
 
+inl x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_fields
+    ()
+    : list (exists r. x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_field r)
+    =
+    [
+        exists Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_field_P_19
+        exists Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_field_choice_p_19_a
+    ]
+inl x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_field_meta forall r.
+    (f : x_faktura_fa_adnotacje_zwolnienie_choice_p_19_group_p_19_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_field_P_19 => { tag = "P_19"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_Adnotacje_Zwolnienie_choice_P_19_group_P_19_field_choice_p_19_a =>
+        { tag = "choice_p_19_a"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_fa_choice_p_6_okres_fa_field r =
     | Faktura_Fa_choice_P_6_OkresFa_field_P_6_Od :: x_faktura_fa_choice_p_6_okres_fa_field (x_t_data_t)
     | Faktura_Fa_choice_P_6_OkresFa_field_P_6_Do :: x_faktura_fa_choice_p_6_okres_fa_field (x_t_data_t)
@@ -7505,6 +8585,16 @@ inl x_faktura_fa_choice_p_6_okres_fa_get forall r.
     match f with
     | Faktura_Fa_choice_P_6_OkresFa_field_P_6_Od => x.p_6_od
     | Faktura_Fa_choice_P_6_OkresFa_field_P_6_Do => x.p_6_do
+
+inl x_faktura_fa_choice_p_6_okres_fa_fields () : list (exists r. x_faktura_fa_choice_p_6_okres_fa_field r) =
+    [ exists Faktura_Fa_choice_P_6_OkresFa_field_P_6_Od; exists Faktura_Fa_choice_P_6_OkresFa_field_P_6_Do ]
+inl x_faktura_fa_choice_p_6_okres_fa_field_meta forall r.
+    (f : x_faktura_fa_choice_p_6_okres_fa_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Fa_choice_P_6_OkresFa_field_P_6_Od => { tag = "P_6_Od"; min = 1i32; max = Some 1i32 }
+    | Faktura_Fa_choice_P_6_OkresFa_field_P_6_Do => { tag = "P_6_Do"; min = 1i32; max = Some 1i32 }
 
 union x_faktura_podmiot_upowazniony_field r =
     | Faktura_PodmiotUpowazniony_field_NrEORI :: x_faktura_podmiot_upowazniony_field (option (x_t_znakowy))
@@ -7527,6 +8617,28 @@ inl x_faktura_podmiot_upowazniony_get forall r.
     | Faktura_PodmiotUpowazniony_field_DaneKontaktowe => x.dane_kontaktowe
     | Faktura_PodmiotUpowazniony_field_RolaPU => x.rola_pu
 
+inl x_faktura_podmiot_upowazniony_fields () : list (exists r. x_faktura_podmiot_upowazniony_field r) =
+    [
+        exists Faktura_PodmiotUpowazniony_field_NrEORI
+        exists Faktura_PodmiotUpowazniony_field_DaneIdentyfikacyjne
+        exists Faktura_PodmiotUpowazniony_field_Adres
+        exists Faktura_PodmiotUpowazniony_field_AdresKoresp
+        exists Faktura_PodmiotUpowazniony_field_DaneKontaktowe
+        exists Faktura_PodmiotUpowazniony_field_RolaPU
+    ]
+inl x_faktura_podmiot_upowazniony_field_meta forall r.
+    (f : x_faktura_podmiot_upowazniony_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_PodmiotUpowazniony_field_NrEORI => { tag = "NrEORI"; min = 0i32; max = Some 1i32 }
+    | Faktura_PodmiotUpowazniony_field_DaneIdentyfikacyjne =>
+        { tag = "DaneIdentyfikacyjne"; min = 1i32; max = Some 1i32 }
+    | Faktura_PodmiotUpowazniony_field_Adres => { tag = "Adres"; min = 1i32; max = Some 1i32 }
+    | Faktura_PodmiotUpowazniony_field_AdresKoresp => { tag = "AdresKoresp"; min = 0i32; max = Some 1i32 }
+    | Faktura_PodmiotUpowazniony_field_DaneKontaktowe => { tag = "DaneKontaktowe"; min = 0i32; max = Some 3i32 }
+    | Faktura_PodmiotUpowazniony_field_RolaPU => { tag = "RolaPU"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_podmiot_upowazniony_dane_kontaktowe_field r =
     | Faktura_PodmiotUpowazniony_DaneKontaktowe_field_EmailPU ::
         x_faktura_podmiot_upowazniony_dane_kontaktowe_field (option (x_t_adres_email))
@@ -7540,6 +8652,22 @@ inl x_faktura_podmiot_upowazniony_dane_kontaktowe_get forall r.
     match f with
     | Faktura_PodmiotUpowazniony_DaneKontaktowe_field_EmailPU => x.email_pu
     | Faktura_PodmiotUpowazniony_DaneKontaktowe_field_TelefonPU => x.telefon_pu
+
+inl x_faktura_podmiot_upowazniony_dane_kontaktowe_fields
+    ()
+    : list (exists r. x_faktura_podmiot_upowazniony_dane_kontaktowe_field r)
+    =
+    [
+        exists Faktura_PodmiotUpowazniony_DaneKontaktowe_field_EmailPU
+        exists Faktura_PodmiotUpowazniony_DaneKontaktowe_field_TelefonPU
+    ]
+inl x_faktura_podmiot_upowazniony_dane_kontaktowe_field_meta forall r.
+    (f : x_faktura_podmiot_upowazniony_dane_kontaktowe_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_PodmiotUpowazniony_DaneKontaktowe_field_EmailPU => { tag = "EmailPU"; min = 0i32; max = Some 1i32 }
+    | Faktura_PodmiotUpowazniony_DaneKontaktowe_field_TelefonPU => { tag = "TelefonPU"; min = 0i32; max = Some 1i32 }
 
 union x_faktura_podmiot3_field r =
     | Faktura_Podmiot3_field_IDNabywcy :: x_faktura_podmiot3_field (option (x_faktura_podmiot3_id_nabywcy))
@@ -7564,6 +8692,30 @@ inl x_faktura_podmiot3_get forall r. (f : x_faktura_podmiot3_field r) (x : x_fak
     | Faktura_Podmiot3_field_Udzial => x.udzial
     | Faktura_Podmiot3_field_NrKlienta => x.nr_klienta
 
+inl x_faktura_podmiot3_fields () : list (exists r. x_faktura_podmiot3_field r) =
+    [
+        exists Faktura_Podmiot3_field_IDNabywcy
+        exists Faktura_Podmiot3_field_NrEORI
+        exists Faktura_Podmiot3_field_DaneIdentyfikacyjne
+        exists Faktura_Podmiot3_field_Adres
+        exists Faktura_Podmiot3_field_AdresKoresp
+        exists Faktura_Podmiot3_field_DaneKontaktowe
+        exists Faktura_Podmiot3_field_choice_rola
+        exists Faktura_Podmiot3_field_Udzial
+        exists Faktura_Podmiot3_field_NrKlienta
+    ]
+inl x_faktura_podmiot3_field_meta forall r. (f : x_faktura_podmiot3_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Podmiot3_field_IDNabywcy => { tag = "IDNabywcy"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot3_field_NrEORI => { tag = "NrEORI"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot3_field_DaneIdentyfikacyjne => { tag = "DaneIdentyfikacyjne"; min = 1i32; max = Some 1i32 }
+    | Faktura_Podmiot3_field_Adres => { tag = "Adres"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot3_field_AdresKoresp => { tag = "AdresKoresp"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot3_field_DaneKontaktowe => { tag = "DaneKontaktowe"; min = 0i32; max = Some 3i32 }
+    | Faktura_Podmiot3_field_choice_rola => { tag = "choice_rola"; min = 1i32; max = Some 1i32 }
+    | Faktura_Podmiot3_field_Udzial => { tag = "Udzial"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot3_field_NrKlienta => { tag = "NrKlienta"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_podmiot3_choice_rola_group_rola_inna_field r =
     | Faktura_Podmiot3_choice_Rola_group_RolaInna_field_RolaInna ::
         x_faktura_podmiot3_choice_rola_group_rola_inna_field (x_t_wybor1)
@@ -7578,6 +8730,22 @@ inl x_faktura_podmiot3_choice_rola_group_rola_inna_get forall r.
     | Faktura_Podmiot3_choice_Rola_group_RolaInna_field_RolaInna => x.rola_inna
     | Faktura_Podmiot3_choice_Rola_group_RolaInna_field_OpisRoli => x.opis_roli
 
+inl x_faktura_podmiot3_choice_rola_group_rola_inna_fields
+    ()
+    : list (exists r. x_faktura_podmiot3_choice_rola_group_rola_inna_field r)
+    =
+    [
+        exists Faktura_Podmiot3_choice_Rola_group_RolaInna_field_RolaInna
+        exists Faktura_Podmiot3_choice_Rola_group_RolaInna_field_OpisRoli
+    ]
+inl x_faktura_podmiot3_choice_rola_group_rola_inna_field_meta forall r.
+    (f : x_faktura_podmiot3_choice_rola_group_rola_inna_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Podmiot3_choice_Rola_group_RolaInna_field_RolaInna => { tag = "RolaInna"; min = 1i32; max = Some 1i32 }
+    | Faktura_Podmiot3_choice_Rola_group_RolaInna_field_OpisRoli => { tag = "OpisRoli"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_podmiot3_dane_kontaktowe_field r =
     | Faktura_Podmiot3_DaneKontaktowe_field_Email :: x_faktura_podmiot3_dane_kontaktowe_field (option (x_t_adres_email))
     | Faktura_Podmiot3_DaneKontaktowe_field_Telefon ::
@@ -7590,6 +8758,16 @@ inl x_faktura_podmiot3_dane_kontaktowe_get forall r.
     match f with
     | Faktura_Podmiot3_DaneKontaktowe_field_Email => x.email
     | Faktura_Podmiot3_DaneKontaktowe_field_Telefon => x.telefon
+
+inl x_faktura_podmiot3_dane_kontaktowe_fields () : list (exists r. x_faktura_podmiot3_dane_kontaktowe_field r) =
+    [ exists Faktura_Podmiot3_DaneKontaktowe_field_Email; exists Faktura_Podmiot3_DaneKontaktowe_field_Telefon ]
+inl x_faktura_podmiot3_dane_kontaktowe_field_meta forall r.
+    (f : x_faktura_podmiot3_dane_kontaktowe_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Podmiot3_DaneKontaktowe_field_Email => { tag = "Email"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot3_DaneKontaktowe_field_Telefon => { tag = "Telefon"; min = 0i32; max = Some 1i32 }
 
 union x_faktura_podmiot2_field r =
     | Faktura_Podmiot2_field_NrEORI :: x_faktura_podmiot2_field (option (x_t_znakowy))
@@ -7614,6 +8792,30 @@ inl x_faktura_podmiot2_get forall r. (f : x_faktura_podmiot2_field r) (x : x_fak
     | Faktura_Podmiot2_field_JST => x.jst
     | Faktura_Podmiot2_field_GV => x.gv
 
+inl x_faktura_podmiot2_fields () : list (exists r. x_faktura_podmiot2_field r) =
+    [
+        exists Faktura_Podmiot2_field_NrEORI
+        exists Faktura_Podmiot2_field_DaneIdentyfikacyjne
+        exists Faktura_Podmiot2_field_Adres
+        exists Faktura_Podmiot2_field_AdresKoresp
+        exists Faktura_Podmiot2_field_DaneKontaktowe
+        exists Faktura_Podmiot2_field_NrKlienta
+        exists Faktura_Podmiot2_field_IDNabywcy
+        exists Faktura_Podmiot2_field_JST
+        exists Faktura_Podmiot2_field_GV
+    ]
+inl x_faktura_podmiot2_field_meta forall r. (f : x_faktura_podmiot2_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Podmiot2_field_NrEORI => { tag = "NrEORI"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot2_field_DaneIdentyfikacyjne => { tag = "DaneIdentyfikacyjne"; min = 1i32; max = Some 1i32 }
+    | Faktura_Podmiot2_field_Adres => { tag = "Adres"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot2_field_AdresKoresp => { tag = "AdresKoresp"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot2_field_DaneKontaktowe => { tag = "DaneKontaktowe"; min = 0i32; max = Some 3i32 }
+    | Faktura_Podmiot2_field_NrKlienta => { tag = "NrKlienta"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot2_field_IDNabywcy => { tag = "IDNabywcy"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot2_field_JST => { tag = "JST"; min = 1i32; max = Some 1i32 }
+    | Faktura_Podmiot2_field_GV => { tag = "GV"; min = 1i32; max = Some 1i32 }
+
 union x_faktura_podmiot2_dane_kontaktowe_field r =
     | Faktura_Podmiot2_DaneKontaktowe_field_Email :: x_faktura_podmiot2_dane_kontaktowe_field (option (x_t_adres_email))
     | Faktura_Podmiot2_DaneKontaktowe_field_Telefon ::
@@ -7626,6 +8828,16 @@ inl x_faktura_podmiot2_dane_kontaktowe_get forall r.
     match f with
     | Faktura_Podmiot2_DaneKontaktowe_field_Email => x.email
     | Faktura_Podmiot2_DaneKontaktowe_field_Telefon => x.telefon
+
+inl x_faktura_podmiot2_dane_kontaktowe_fields () : list (exists r. x_faktura_podmiot2_dane_kontaktowe_field r) =
+    [ exists Faktura_Podmiot2_DaneKontaktowe_field_Email; exists Faktura_Podmiot2_DaneKontaktowe_field_Telefon ]
+inl x_faktura_podmiot2_dane_kontaktowe_field_meta forall r.
+    (f : x_faktura_podmiot2_dane_kontaktowe_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Podmiot2_DaneKontaktowe_field_Email => { tag = "Email"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot2_DaneKontaktowe_field_Telefon => { tag = "Telefon"; min = 0i32; max = Some 1i32 }
 
 union x_faktura_podmiot1_field r =
     | Faktura_Podmiot1_field_PrefiksPodatnika :: x_faktura_podmiot1_field (option (x_t_kody_krajow_ue))
@@ -7646,6 +8858,26 @@ inl x_faktura_podmiot1_get forall r. (f : x_faktura_podmiot1_field r) (x : x_fak
     | Faktura_Podmiot1_field_DaneKontaktowe => x.dane_kontaktowe
     | Faktura_Podmiot1_field_StatusInfoPodatnika => x.status_info_podatnika
 
+inl x_faktura_podmiot1_fields () : list (exists r. x_faktura_podmiot1_field r) =
+    [
+        exists Faktura_Podmiot1_field_PrefiksPodatnika
+        exists Faktura_Podmiot1_field_NrEORI
+        exists Faktura_Podmiot1_field_DaneIdentyfikacyjne
+        exists Faktura_Podmiot1_field_Adres
+        exists Faktura_Podmiot1_field_AdresKoresp
+        exists Faktura_Podmiot1_field_DaneKontaktowe
+        exists Faktura_Podmiot1_field_StatusInfoPodatnika
+    ]
+inl x_faktura_podmiot1_field_meta forall r. (f : x_faktura_podmiot1_field r) : xml_codec.field_meta =
+    match f with
+    | Faktura_Podmiot1_field_PrefiksPodatnika => { tag = "PrefiksPodatnika"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot1_field_NrEORI => { tag = "NrEORI"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot1_field_DaneIdentyfikacyjne => { tag = "DaneIdentyfikacyjne"; min = 1i32; max = Some 1i32 }
+    | Faktura_Podmiot1_field_Adres => { tag = "Adres"; min = 1i32; max = Some 1i32 }
+    | Faktura_Podmiot1_field_AdresKoresp => { tag = "AdresKoresp"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot1_field_DaneKontaktowe => { tag = "DaneKontaktowe"; min = 0i32; max = Some 3i32 }
+    | Faktura_Podmiot1_field_StatusInfoPodatnika => { tag = "StatusInfoPodatnika"; min = 0i32; max = Some 1i32 }
+
 union x_faktura_podmiot1_dane_kontaktowe_field r =
     | Faktura_Podmiot1_DaneKontaktowe_field_Email :: x_faktura_podmiot1_dane_kontaktowe_field (option (x_t_adres_email))
     | Faktura_Podmiot1_DaneKontaktowe_field_Telefon ::
@@ -7658,6 +8890,16 @@ inl x_faktura_podmiot1_dane_kontaktowe_get forall r.
     match f with
     | Faktura_Podmiot1_DaneKontaktowe_field_Email => x.email
     | Faktura_Podmiot1_DaneKontaktowe_field_Telefon => x.telefon
+
+inl x_faktura_podmiot1_dane_kontaktowe_fields () : list (exists r. x_faktura_podmiot1_dane_kontaktowe_field r) =
+    [ exists Faktura_Podmiot1_DaneKontaktowe_field_Email; exists Faktura_Podmiot1_DaneKontaktowe_field_Telefon ]
+inl x_faktura_podmiot1_dane_kontaktowe_field_meta forall r.
+    (f : x_faktura_podmiot1_dane_kontaktowe_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | Faktura_Podmiot1_DaneKontaktowe_field_Email => { tag = "Email"; min = 0i32; max = Some 1i32 }
+    | Faktura_Podmiot1_DaneKontaktowe_field_Telefon => { tag = "Telefon"; min = 0i32; max = Some 1i32 }
 
 union x_t_naglowek_field r =
     | TNaglowek_field_KodFormularza :: x_t_naglowek_field (x_t_naglowek_kod_formularza)
@@ -7672,6 +8914,20 @@ inl x_t_naglowek_get forall r. (f : x_t_naglowek_field r) (x : x_t_naglowek) : r
     | TNaglowek_field_DataWytworzeniaFa => x.data_wytworzenia_fa
     | TNaglowek_field_SystemInfo => x.system_info
 
+inl x_t_naglowek_fields () : list (exists r. x_t_naglowek_field r) =
+    [
+        exists TNaglowek_field_KodFormularza
+        exists TNaglowek_field_WariantFormularza
+        exists TNaglowek_field_DataWytworzeniaFa
+        exists TNaglowek_field_SystemInfo
+    ]
+inl x_t_naglowek_field_meta forall r. (f : x_t_naglowek_field r) : xml_codec.field_meta =
+    match f with
+    | TNaglowek_field_KodFormularza => { tag = "KodFormularza"; min = 1i32; max = Some 1i32 }
+    | TNaglowek_field_WariantFormularza => { tag = "WariantFormularza"; min = 1i32; max = Some 1i32 }
+    | TNaglowek_field_DataWytworzeniaFa => { tag = "DataWytworzeniaFa"; min = 1i32; max = Some 1i32 }
+    | TNaglowek_field_SystemInfo => { tag = "SystemInfo"; min = 0i32; max = Some 1i32 }
+
 union x_t_adres_field r =
     | TAdres_field_KodKraju :: x_t_adres_field (x_t_kod_kraju)
     | TAdres_field_AdresL1 :: x_t_adres_field (x_t_znakowy512)
@@ -7685,6 +8941,15 @@ inl x_t_adres_get forall r. (f : x_t_adres_field r) (x : x_t_adres) : r =
     | TAdres_field_AdresL2 => x.adres_l2
     | TAdres_field_GLN => x.gln
 
+inl x_t_adres_fields () : list (exists r. x_t_adres_field r) =
+    [ exists TAdres_field_KodKraju; exists TAdres_field_AdresL1; exists TAdres_field_AdresL2; exists TAdres_field_GLN ]
+inl x_t_adres_field_meta forall r. (f : x_t_adres_field r) : xml_codec.field_meta =
+    match f with
+    | TAdres_field_KodKraju => { tag = "KodKraju"; min = 1i32; max = Some 1i32 }
+    | TAdres_field_AdresL1 => { tag = "AdresL1"; min = 1i32; max = Some 1i32 }
+    | TAdres_field_AdresL2 => { tag = "AdresL2"; min = 0i32; max = Some 1i32 }
+    | TAdres_field_GLN => { tag = "GLN"; min = 0i32; max = Some 1i32 }
+
 union x_t_klucz_wartosc_field r =
     | TKluczWartosc_field_NrWiersza :: x_t_klucz_wartosc_field (option (x_t_naturalny))
     | TKluczWartosc_field_Klucz :: x_t_klucz_wartosc_field (x_t_znakowy)
@@ -7695,6 +8960,14 @@ inl x_t_klucz_wartosc_get forall r. (f : x_t_klucz_wartosc_field r) (x : x_t_klu
     | TKluczWartosc_field_NrWiersza => x.nr_wiersza
     | TKluczWartosc_field_Klucz => x.klucz
     | TKluczWartosc_field_Wartosc => x.wartosc
+
+inl x_t_klucz_wartosc_fields () : list (exists r. x_t_klucz_wartosc_field r) =
+    [ exists TKluczWartosc_field_NrWiersza; exists TKluczWartosc_field_Klucz; exists TKluczWartosc_field_Wartosc ]
+inl x_t_klucz_wartosc_field_meta forall r. (f : x_t_klucz_wartosc_field r) : xml_codec.field_meta =
+    match f with
+    | TKluczWartosc_field_NrWiersza => { tag = "NrWiersza"; min = 0i32; max = Some 1i32 }
+    | TKluczWartosc_field_Klucz => { tag = "Klucz"; min = 1i32; max = Some 1i32 }
+    | TKluczWartosc_field_Wartosc => { tag = "Wartosc"; min = 1i32; max = Some 1i32 }
 
 union x_t_rachunek_bankowy_field r =
     | TRachunekBankowy_field_NrRB :: x_t_rachunek_bankowy_field (x_t_nr_rb)
@@ -7711,6 +8984,22 @@ inl x_t_rachunek_bankowy_get forall r. (f : x_t_rachunek_bankowy_field r) (x : x
     | TRachunekBankowy_field_NazwaBanku => x.nazwa_banku
     | TRachunekBankowy_field_OpisRachunku => x.opis_rachunku
 
+inl x_t_rachunek_bankowy_fields () : list (exists r. x_t_rachunek_bankowy_field r) =
+    [
+        exists TRachunekBankowy_field_NrRB
+        exists TRachunekBankowy_field_SWIFT
+        exists TRachunekBankowy_field_RachunekWlasnyBanku
+        exists TRachunekBankowy_field_NazwaBanku
+        exists TRachunekBankowy_field_OpisRachunku
+    ]
+inl x_t_rachunek_bankowy_field_meta forall r. (f : x_t_rachunek_bankowy_field r) : xml_codec.field_meta =
+    match f with
+    | TRachunekBankowy_field_NrRB => { tag = "NrRB"; min = 1i32; max = Some 1i32 }
+    | TRachunekBankowy_field_SWIFT => { tag = "SWIFT"; min = 0i32; max = Some 1i32 }
+    | TRachunekBankowy_field_RachunekWlasnyBanku => { tag = "RachunekWlasnyBanku"; min = 0i32; max = Some 1i32 }
+    | TRachunekBankowy_field_NazwaBanku => { tag = "NazwaBanku"; min = 0i32; max = Some 1i32 }
+    | TRachunekBankowy_field_OpisRachunku => { tag = "OpisRachunku"; min = 0i32; max = Some 1i32 }
+
 union x_t_podmiot1_field r =
     | TPodmiot1_field_NIP :: x_t_podmiot1_field (x_t_nr_nip)
     | TPodmiot1_field_Nazwa :: x_t_podmiot1_field (x_t_znakowy512)
@@ -7720,6 +9009,13 @@ inl x_t_podmiot1_get forall r. (f : x_t_podmiot1_field r) (x : x_t_podmiot1) : r
     | TPodmiot1_field_NIP => x.nip
     | TPodmiot1_field_Nazwa => x.nazwa
 
+inl x_t_podmiot1_fields () : list (exists r. x_t_podmiot1_field r) =
+    [ exists TPodmiot1_field_NIP; exists TPodmiot1_field_Nazwa ]
+inl x_t_podmiot1_field_meta forall r. (f : x_t_podmiot1_field r) : xml_codec.field_meta =
+    match f with
+    | TPodmiot1_field_NIP => { tag = "NIP"; min = 1i32; max = Some 1i32 }
+    | TPodmiot1_field_Nazwa => { tag = "Nazwa"; min = 1i32; max = Some 1i32 }
+
 union x_t_podmiot2_field r =
     | TPodmiot2_field_choice_nip :: x_t_podmiot2_field (x_t_podmiot2_choice_nip)
     | TPodmiot2_field_Nazwa :: x_t_podmiot2_field (x_t_znakowy512)
@@ -7728,6 +9024,13 @@ inl x_t_podmiot2_get forall r. (f : x_t_podmiot2_field r) (x : x_t_podmiot2) : r
     match f with
     | TPodmiot2_field_choice_nip => x.choice_nip
     | TPodmiot2_field_Nazwa => x.nazwa
+
+inl x_t_podmiot2_fields () : list (exists r. x_t_podmiot2_field r) =
+    [ exists TPodmiot2_field_choice_nip; exists TPodmiot2_field_Nazwa ]
+inl x_t_podmiot2_field_meta forall r. (f : x_t_podmiot2_field r) : xml_codec.field_meta =
+    match f with
+    | TPodmiot2_field_choice_nip => { tag = "choice_nip"; min = 1i32; max = Some 1i32 }
+    | TPodmiot2_field_Nazwa => { tag = "Nazwa"; min = 1i32; max = Some 1i32 }
 
 union x_t_podmiot2_choice_nip_group_kod_kraju_field r =
     | TPodmiot2_choice_NIP_group_KodKraju_field_KodKraju ::
@@ -7743,6 +9046,19 @@ inl x_t_podmiot2_choice_nip_group_kod_kraju_get forall r.
     | TPodmiot2_choice_NIP_group_KodKraju_field_KodKraju => x.kod_kraju
     | TPodmiot2_choice_NIP_group_KodKraju_field_NrID => x.nr_id
 
+inl x_t_podmiot2_choice_nip_group_kod_kraju_fields
+    ()
+    : list (exists r. x_t_podmiot2_choice_nip_group_kod_kraju_field r)
+    =
+    [ exists TPodmiot2_choice_NIP_group_KodKraju_field_KodKraju; exists TPodmiot2_choice_NIP_group_KodKraju_field_NrID ]
+inl x_t_podmiot2_choice_nip_group_kod_kraju_field_meta forall r.
+    (f : x_t_podmiot2_choice_nip_group_kod_kraju_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiot2_choice_NIP_group_KodKraju_field_KodKraju => { tag = "KodKraju"; min = 0i32; max = Some 1i32 }
+    | TPodmiot2_choice_NIP_group_KodKraju_field_NrID => { tag = "NrID"; min = 1i32; max = Some 1i32 }
+
 union x_t_podmiot2_choice_nip_group_kod_ue_field r =
     | TPodmiot2_choice_NIP_group_KodUE_field_KodUE :: x_t_podmiot2_choice_nip_group_kod_ue_field (x_t_kody_krajow_ue)
     | TPodmiot2_choice_NIP_group_KodUE_field_NrVatUE :: x_t_podmiot2_choice_nip_group_kod_ue_field (x_t_nr_vat_ue)
@@ -7755,6 +9071,16 @@ inl x_t_podmiot2_choice_nip_group_kod_ue_get forall r.
     | TPodmiot2_choice_NIP_group_KodUE_field_KodUE => x.kod_ue
     | TPodmiot2_choice_NIP_group_KodUE_field_NrVatUE => x.nr_vat_ue
 
+inl x_t_podmiot2_choice_nip_group_kod_ue_fields () : list (exists r. x_t_podmiot2_choice_nip_group_kod_ue_field r) =
+    [ exists TPodmiot2_choice_NIP_group_KodUE_field_KodUE; exists TPodmiot2_choice_NIP_group_KodUE_field_NrVatUE ]
+inl x_t_podmiot2_choice_nip_group_kod_ue_field_meta forall r.
+    (f : x_t_podmiot2_choice_nip_group_kod_ue_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiot2_choice_NIP_group_KodUE_field_KodUE => { tag = "KodUE"; min = 1i32; max = Some 1i32 }
+    | TPodmiot2_choice_NIP_group_KodUE_field_NrVatUE => { tag = "NrVatUE"; min = 1i32; max = Some 1i32 }
+
 union x_t_podmiot3_field r =
     | TPodmiot3_field_choice_nip :: x_t_podmiot3_field (x_t_podmiot3_choice_nip)
     | TPodmiot3_field_Nazwa :: x_t_podmiot3_field (x_t_znakowy512)
@@ -7763,6 +9089,13 @@ inl x_t_podmiot3_get forall r. (f : x_t_podmiot3_field r) (x : x_t_podmiot3) : r
     match f with
     | TPodmiot3_field_choice_nip => x.choice_nip
     | TPodmiot3_field_Nazwa => x.nazwa
+
+inl x_t_podmiot3_fields () : list (exists r. x_t_podmiot3_field r) =
+    [ exists TPodmiot3_field_choice_nip; exists TPodmiot3_field_Nazwa ]
+inl x_t_podmiot3_field_meta forall r. (f : x_t_podmiot3_field r) : xml_codec.field_meta =
+    match f with
+    | TPodmiot3_field_choice_nip => { tag = "choice_nip"; min = 1i32; max = Some 1i32 }
+    | TPodmiot3_field_Nazwa => { tag = "Nazwa"; min = 1i32; max = Some 1i32 }
 
 union x_t_podmiot3_choice_nip_group_kod_kraju_field r =
     | TPodmiot3_choice_NIP_group_KodKraju_field_KodKraju ::
@@ -7778,6 +9111,19 @@ inl x_t_podmiot3_choice_nip_group_kod_kraju_get forall r.
     | TPodmiot3_choice_NIP_group_KodKraju_field_KodKraju => x.kod_kraju
     | TPodmiot3_choice_NIP_group_KodKraju_field_NrID => x.nr_id
 
+inl x_t_podmiot3_choice_nip_group_kod_kraju_fields
+    ()
+    : list (exists r. x_t_podmiot3_choice_nip_group_kod_kraju_field r)
+    =
+    [ exists TPodmiot3_choice_NIP_group_KodKraju_field_KodKraju; exists TPodmiot3_choice_NIP_group_KodKraju_field_NrID ]
+inl x_t_podmiot3_choice_nip_group_kod_kraju_field_meta forall r.
+    (f : x_t_podmiot3_choice_nip_group_kod_kraju_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiot3_choice_NIP_group_KodKraju_field_KodKraju => { tag = "KodKraju"; min = 0i32; max = Some 1i32 }
+    | TPodmiot3_choice_NIP_group_KodKraju_field_NrID => { tag = "NrID"; min = 1i32; max = Some 1i32 }
+
 union x_t_podmiot3_choice_nip_group_kod_ue_field r =
     | TPodmiot3_choice_NIP_group_KodUE_field_KodUE :: x_t_podmiot3_choice_nip_group_kod_ue_field (x_t_kody_krajow_ue)
     | TPodmiot3_choice_NIP_group_KodUE_field_NrVatUE :: x_t_podmiot3_choice_nip_group_kod_ue_field (x_t_nr_vat_ue)
@@ -7790,6 +9136,16 @@ inl x_t_podmiot3_choice_nip_group_kod_ue_get forall r.
     | TPodmiot3_choice_NIP_group_KodUE_field_KodUE => x.kod_ue
     | TPodmiot3_choice_NIP_group_KodUE_field_NrVatUE => x.nr_vat_ue
 
+inl x_t_podmiot3_choice_nip_group_kod_ue_fields () : list (exists r. x_t_podmiot3_choice_nip_group_kod_ue_field r) =
+    [ exists TPodmiot3_choice_NIP_group_KodUE_field_KodUE; exists TPodmiot3_choice_NIP_group_KodUE_field_NrVatUE ]
+inl x_t_podmiot3_choice_nip_group_kod_ue_field_meta forall r.
+    (f : x_t_podmiot3_choice_nip_group_kod_ue_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiot3_choice_NIP_group_KodUE_field_KodUE => { tag = "KodUE"; min = 1i32; max = Some 1i32 }
+    | TPodmiot3_choice_NIP_group_KodUE_field_NrVatUE => { tag = "NrVatUE"; min = 1i32; max = Some 1i32 }
+
 union x_definicje_typy_t_adres_field r =
     | DefinicjeTypy_TAdres_field_choice_adres_pol ::
         x_definicje_typy_t_adres_field (x_definicje_typy_t_adres_choice_adres_pol)
@@ -7797,6 +9153,12 @@ union x_definicje_typy_t_adres_field r =
 inl x_definicje_typy_t_adres_get forall r. (f : x_definicje_typy_t_adres_field r) (x : x_definicje_typy_t_adres) : r =
     match f with
     | DefinicjeTypy_TAdres_field_choice_adres_pol => x.choice_adres_pol
+
+inl x_definicje_typy_t_adres_fields () : list (exists r. x_definicje_typy_t_adres_field r) =
+    [ exists DefinicjeTypy_TAdres_field_choice_adres_pol ]
+inl x_definicje_typy_t_adres_field_meta forall r. (f : x_definicje_typy_t_adres_field r) : xml_codec.field_meta =
+    match f with
+    | DefinicjeTypy_TAdres_field_choice_adres_pol => { tag = "choice_adres_pol"; min = 1i32; max = Some 1i32 }
 
 union x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_field r =
     | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresZagr_field_AdresZagr ::
@@ -7810,6 +9172,19 @@ inl x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_get forall r.
     match f with
     | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresZagr_field_AdresZagr => x.adres_zagr
 
+inl x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_fields
+    ()
+    : list (exists r. x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_field r)
+    =
+    [ exists DefinicjeTypy_TAdres_choice_AdresPol_group_AdresZagr_field_AdresZagr ]
+inl x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_field_meta forall r.
+    (f : x_definicje_typy_t_adres_choice_adres_pol_group_adres_zagr_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresZagr_field_AdresZagr =>
+        { tag = "AdresZagr"; min = 1i32; max = Some 1i32 }
+
 union x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_field r =
     | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresPol_field_AdresPol ::
         x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_field (x_t_adres_polski)
@@ -7822,12 +9197,30 @@ inl x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_get forall r.
     match f with
     | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresPol_field_AdresPol => x.adres_pol
 
+inl x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_fields
+    ()
+    : list (exists r. x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_field r)
+    =
+    [ exists DefinicjeTypy_TAdres_choice_AdresPol_group_AdresPol_field_AdresPol ]
+inl x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_field_meta forall r.
+    (f : x_definicje_typy_t_adres_choice_adres_pol_group_adres_pol_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | DefinicjeTypy_TAdres_choice_AdresPol_group_AdresPol_field_AdresPol =>
+        { tag = "AdresPol"; min = 1i32; max = Some 1i32 }
+
 union x_t_adres1_field r =
     | TAdres1_field_choice_adres_pol :: x_t_adres1_field (x_t_adres1_choice_adres_pol)
 
 inl x_t_adres1_get forall r. (f : x_t_adres1_field r) (x : x_t_adres1) : r =
     match f with
     | TAdres1_field_choice_adres_pol => x.choice_adres_pol
+
+inl x_t_adres1_fields () : list (exists r. x_t_adres1_field r) = [ exists TAdres1_field_choice_adres_pol ]
+inl x_t_adres1_field_meta forall r. (f : x_t_adres1_field r) : xml_codec.field_meta =
+    match f with
+    | TAdres1_field_choice_adres_pol => { tag = "choice_adres_pol"; min = 1i32; max = Some 1i32 }
 
 union x_t_adres1_choice_adres_pol_group_adres_zagr_field r =
     | TAdres1_choice_AdresPol_group_AdresZagr_field_AdresZagr ::
@@ -7840,6 +9233,18 @@ inl x_t_adres1_choice_adres_pol_group_adres_zagr_get forall r.
     match f with
     | TAdres1_choice_AdresPol_group_AdresZagr_field_AdresZagr => x.adres_zagr
 
+inl x_t_adres1_choice_adres_pol_group_adres_zagr_fields
+    ()
+    : list (exists r. x_t_adres1_choice_adres_pol_group_adres_zagr_field r)
+    =
+    [ exists TAdres1_choice_AdresPol_group_AdresZagr_field_AdresZagr ]
+inl x_t_adres1_choice_adres_pol_group_adres_zagr_field_meta forall r.
+    (f : x_t_adres1_choice_adres_pol_group_adres_zagr_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TAdres1_choice_AdresPol_group_AdresZagr_field_AdresZagr => { tag = "AdresZagr"; min = 1i32; max = Some 1i32 }
+
 union x_t_adres1_choice_adres_pol_group_adres_pol_field r =
     | TAdres1_choice_AdresPol_group_AdresPol_field_AdresPol ::
         x_t_adres1_choice_adres_pol_group_adres_pol_field (x_t_adres_polski1)
@@ -7850,6 +9255,18 @@ inl x_t_adres1_choice_adres_pol_group_adres_pol_get forall r.
     =
     match f with
     | TAdres1_choice_AdresPol_group_AdresPol_field_AdresPol => x.adres_pol
+
+inl x_t_adres1_choice_adres_pol_group_adres_pol_fields
+    ()
+    : list (exists r. x_t_adres1_choice_adres_pol_group_adres_pol_field r)
+    =
+    [ exists TAdres1_choice_AdresPol_group_AdresPol_field_AdresPol ]
+inl x_t_adres1_choice_adres_pol_group_adres_pol_field_meta forall r.
+    (f : x_t_adres1_choice_adres_pol_group_adres_pol_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TAdres1_choice_AdresPol_group_AdresPol_field_AdresPol => { tag = "AdresPol"; min = 1i32; max = Some 1i32 }
 
 union x_t_adres_polski_field r =
     | TAdresPolski_field_KodKraju :: x_t_adres_polski_field (x_t_kod_kraju)
@@ -7876,6 +9293,32 @@ inl x_t_adres_polski_get forall r. (f : x_t_adres_polski_field r) (x : x_t_adres
     | TAdresPolski_field_KodPocztowy => x.kod_pocztowy
     | TAdresPolski_field_Poczta => x.poczta
 
+inl x_t_adres_polski_fields () : list (exists r. x_t_adres_polski_field r) =
+    [
+        exists TAdresPolski_field_KodKraju
+        exists TAdresPolski_field_Wojewodztwo
+        exists TAdresPolski_field_Powiat
+        exists TAdresPolski_field_Gmina
+        exists TAdresPolski_field_Ulica
+        exists TAdresPolski_field_NrDomu
+        exists TAdresPolski_field_NrLokalu
+        exists TAdresPolski_field_Miejscowosc
+        exists TAdresPolski_field_KodPocztowy
+        exists TAdresPolski_field_Poczta
+    ]
+inl x_t_adres_polski_field_meta forall r. (f : x_t_adres_polski_field r) : xml_codec.field_meta =
+    match f with
+    | TAdresPolski_field_KodKraju => { tag = "KodKraju"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski_field_Wojewodztwo => { tag = "Wojewodztwo"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski_field_Powiat => { tag = "Powiat"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski_field_Gmina => { tag = "Gmina"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski_field_Ulica => { tag = "Ulica"; min = 0i32; max = Some 1i32 }
+    | TAdresPolski_field_NrDomu => { tag = "NrDomu"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski_field_NrLokalu => { tag = "NrLokalu"; min = 0i32; max = Some 1i32 }
+    | TAdresPolski_field_Miejscowosc => { tag = "Miejscowosc"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski_field_KodPocztowy => { tag = "KodPocztowy"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski_field_Poczta => { tag = "Poczta"; min = 1i32; max = Some 1i32 }
+
 union x_t_adres_polski1_field r =
     | TAdresPolski1_field_KodKraju :: x_t_adres_polski1_field (x_t_kod_kraju)
     | TAdresPolski1_field_Wojewodztwo :: x_t_adres_polski1_field (x_t_jedn_admin)
@@ -7899,6 +9342,30 @@ inl x_t_adres_polski1_get forall r. (f : x_t_adres_polski1_field r) (x : x_t_adr
     | TAdresPolski1_field_Miejscowosc => x.miejscowosc
     | TAdresPolski1_field_KodPocztowy => x.kod_pocztowy
 
+inl x_t_adres_polski1_fields () : list (exists r. x_t_adres_polski1_field r) =
+    [
+        exists TAdresPolski1_field_KodKraju
+        exists TAdresPolski1_field_Wojewodztwo
+        exists TAdresPolski1_field_Powiat
+        exists TAdresPolski1_field_Gmina
+        exists TAdresPolski1_field_Ulica
+        exists TAdresPolski1_field_NrDomu
+        exists TAdresPolski1_field_NrLokalu
+        exists TAdresPolski1_field_Miejscowosc
+        exists TAdresPolski1_field_KodPocztowy
+    ]
+inl x_t_adres_polski1_field_meta forall r. (f : x_t_adres_polski1_field r) : xml_codec.field_meta =
+    match f with
+    | TAdresPolski1_field_KodKraju => { tag = "KodKraju"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski1_field_Wojewodztwo => { tag = "Wojewodztwo"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski1_field_Powiat => { tag = "Powiat"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski1_field_Gmina => { tag = "Gmina"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski1_field_Ulica => { tag = "Ulica"; min = 0i32; max = Some 1i32 }
+    | TAdresPolski1_field_NrDomu => { tag = "NrDomu"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski1_field_NrLokalu => { tag = "NrLokalu"; min = 0i32; max = Some 1i32 }
+    | TAdresPolski1_field_Miejscowosc => { tag = "Miejscowosc"; min = 1i32; max = Some 1i32 }
+    | TAdresPolski1_field_KodPocztowy => { tag = "KodPocztowy"; min = 1i32; max = Some 1i32 }
+
 union x_t_adres_zagraniczny_field r =
     | TAdresZagraniczny_field_KodKraju :: x_t_adres_zagraniczny_field (x_t_adres_zagraniczny_kod_kraju)
     | TAdresZagraniczny_field_KodPocztowy :: x_t_adres_zagraniczny_field (option (x_t_kod_pocztowy))
@@ -7915,6 +9382,24 @@ inl x_t_adres_zagraniczny_get forall r. (f : x_t_adres_zagraniczny_field r) (x :
     | TAdresZagraniczny_field_Ulica => x.ulica
     | TAdresZagraniczny_field_NrDomu => x.nr_domu
     | TAdresZagraniczny_field_NrLokalu => x.nr_lokalu
+
+inl x_t_adres_zagraniczny_fields () : list (exists r. x_t_adres_zagraniczny_field r) =
+    [
+        exists TAdresZagraniczny_field_KodKraju
+        exists TAdresZagraniczny_field_KodPocztowy
+        exists TAdresZagraniczny_field_Miejscowosc
+        exists TAdresZagraniczny_field_Ulica
+        exists TAdresZagraniczny_field_NrDomu
+        exists TAdresZagraniczny_field_NrLokalu
+    ]
+inl x_t_adres_zagraniczny_field_meta forall r. (f : x_t_adres_zagraniczny_field r) : xml_codec.field_meta =
+    match f with
+    | TAdresZagraniczny_field_KodKraju => { tag = "KodKraju"; min = 1i32; max = Some 1i32 }
+    | TAdresZagraniczny_field_KodPocztowy => { tag = "KodPocztowy"; min = 0i32; max = Some 1i32 }
+    | TAdresZagraniczny_field_Miejscowosc => { tag = "Miejscowosc"; min = 1i32; max = Some 1i32 }
+    | TAdresZagraniczny_field_Ulica => { tag = "Ulica"; min = 0i32; max = Some 1i32 }
+    | TAdresZagraniczny_field_NrDomu => { tag = "NrDomu"; min = 0i32; max = Some 1i32 }
+    | TAdresZagraniczny_field_NrLokalu => { tag = "NrLokalu"; min = 0i32; max = Some 1i32 }
 
 union x_t_identyfikator_osoby_fizycznej_field r =
     | TIdentyfikatorOsobyFizycznej_field_NIP :: x_t_identyfikator_osoby_fizycznej_field (x_t_nr_nip)
@@ -7935,6 +9420,25 @@ inl x_t_identyfikator_osoby_fizycznej_get forall r.
     | TIdentyfikatorOsobyFizycznej_field_DataUrodzenia => x.data_urodzenia
     | TIdentyfikatorOsobyFizycznej_field_PESEL => x.pesel
 
+inl x_t_identyfikator_osoby_fizycznej_fields () : list (exists r. x_t_identyfikator_osoby_fizycznej_field r) =
+    [
+        exists TIdentyfikatorOsobyFizycznej_field_NIP
+        exists TIdentyfikatorOsobyFizycznej_field_ImiePierwsze
+        exists TIdentyfikatorOsobyFizycznej_field_Nazwisko
+        exists TIdentyfikatorOsobyFizycznej_field_DataUrodzenia
+        exists TIdentyfikatorOsobyFizycznej_field_PESEL
+    ]
+inl x_t_identyfikator_osoby_fizycznej_field_meta forall r.
+    (f : x_t_identyfikator_osoby_fizycznej_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyFizycznej_field_NIP => { tag = "NIP"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej_field_ImiePierwsze => { tag = "ImiePierwsze"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej_field_Nazwisko => { tag = "Nazwisko"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej_field_DataUrodzenia => { tag = "DataUrodzenia"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej_field_PESEL => { tag = "PESEL"; min = 0i32; max = Some 1i32 }
+
 union x_t_identyfikator_osoby_fizycznej1_field r =
     | TIdentyfikatorOsobyFizycznej1_field_choice_nip ::
         x_t_identyfikator_osoby_fizycznej1_field (x_t_identyfikator_osoby_fizycznej1_choice_nip)
@@ -7953,6 +9457,23 @@ inl x_t_identyfikator_osoby_fizycznej1_get forall r.
     | TIdentyfikatorOsobyFizycznej1_field_Nazwisko => x.nazwisko
     | TIdentyfikatorOsobyFizycznej1_field_DataUrodzenia => x.data_urodzenia
 
+inl x_t_identyfikator_osoby_fizycznej1_fields () : list (exists r. x_t_identyfikator_osoby_fizycznej1_field r) =
+    [
+        exists TIdentyfikatorOsobyFizycznej1_field_choice_nip
+        exists TIdentyfikatorOsobyFizycznej1_field_ImiePierwsze
+        exists TIdentyfikatorOsobyFizycznej1_field_Nazwisko
+        exists TIdentyfikatorOsobyFizycznej1_field_DataUrodzenia
+    ]
+inl x_t_identyfikator_osoby_fizycznej1_field_meta forall r.
+    (f : x_t_identyfikator_osoby_fizycznej1_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyFizycznej1_field_choice_nip => { tag = "choice_nip"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej1_field_ImiePierwsze => { tag = "ImiePierwsze"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej1_field_Nazwisko => { tag = "Nazwisko"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej1_field_DataUrodzenia => { tag = "DataUrodzenia"; min = 1i32; max = Some 1i32 }
+
 union x_t_identyfikator_osoby_fizycznej2_field r =
     | TIdentyfikatorOsobyFizycznej2_field_NIP :: x_t_identyfikator_osoby_fizycznej2_field (x_t_nr_nip)
     | TIdentyfikatorOsobyFizycznej2_field_ImiePierwsze :: x_t_identyfikator_osoby_fizycznej2_field (x_t_imie)
@@ -7969,6 +9490,23 @@ inl x_t_identyfikator_osoby_fizycznej2_get forall r.
     | TIdentyfikatorOsobyFizycznej2_field_ImiePierwsze => x.imie_pierwsze
     | TIdentyfikatorOsobyFizycznej2_field_Nazwisko => x.nazwisko
     | TIdentyfikatorOsobyFizycznej2_field_DataUrodzenia => x.data_urodzenia
+
+inl x_t_identyfikator_osoby_fizycznej2_fields () : list (exists r. x_t_identyfikator_osoby_fizycznej2_field r) =
+    [
+        exists TIdentyfikatorOsobyFizycznej2_field_NIP
+        exists TIdentyfikatorOsobyFizycznej2_field_ImiePierwsze
+        exists TIdentyfikatorOsobyFizycznej2_field_Nazwisko
+        exists TIdentyfikatorOsobyFizycznej2_field_DataUrodzenia
+    ]
+inl x_t_identyfikator_osoby_fizycznej2_field_meta forall r.
+    (f : x_t_identyfikator_osoby_fizycznej2_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyFizycznej2_field_NIP => { tag = "NIP"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej2_field_ImiePierwsze => { tag = "ImiePierwsze"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej2_field_Nazwisko => { tag = "Nazwisko"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznej2_field_DataUrodzenia => { tag = "DataUrodzenia"; min = 1i32; max = Some 1i32 }
 
 union x_t_identyfikator_osoby_fizycznej_pelny_field r =
     | TIdentyfikatorOsobyFizycznejPelny_field_NIP :: x_t_identyfikator_osoby_fizycznej_pelny_field (option (x_t_nr_nip))
@@ -7992,6 +9530,32 @@ inl x_t_identyfikator_osoby_fizycznej_pelny_get forall r.
     | TIdentyfikatorOsobyFizycznejPelny_field_ImieOjca => x.imie_ojca
     | TIdentyfikatorOsobyFizycznejPelny_field_ImieMatki => x.imie_matki
     | TIdentyfikatorOsobyFizycznejPelny_field_PESEL => x.pesel
+
+inl x_t_identyfikator_osoby_fizycznej_pelny_fields
+    ()
+    : list (exists r. x_t_identyfikator_osoby_fizycznej_pelny_field r)
+    =
+    [
+        exists TIdentyfikatorOsobyFizycznejPelny_field_NIP
+        exists TIdentyfikatorOsobyFizycznejPelny_field_ImiePierwsze
+        exists TIdentyfikatorOsobyFizycznejPelny_field_Nazwisko
+        exists TIdentyfikatorOsobyFizycznejPelny_field_DataUrodzenia
+        exists TIdentyfikatorOsobyFizycznejPelny_field_ImieOjca
+        exists TIdentyfikatorOsobyFizycznejPelny_field_ImieMatki
+        exists TIdentyfikatorOsobyFizycznejPelny_field_PESEL
+    ]
+inl x_t_identyfikator_osoby_fizycznej_pelny_field_meta forall r.
+    (f : x_t_identyfikator_osoby_fizycznej_pelny_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyFizycznejPelny_field_NIP => { tag = "NIP"; min = 0i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejPelny_field_ImiePierwsze => { tag = "ImiePierwsze"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejPelny_field_Nazwisko => { tag = "Nazwisko"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejPelny_field_DataUrodzenia => { tag = "DataUrodzenia"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejPelny_field_ImieOjca => { tag = "ImieOjca"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejPelny_field_ImieMatki => { tag = "ImieMatki"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejPelny_field_PESEL => { tag = "PESEL"; min = 1i32; max = Some 1i32 }
 
 union x_t_identyfikator_osoby_fizycznej_zagranicznej_field r =
     | TIdentyfikatorOsobyFizycznejZagranicznej_field_ImiePierwsze ::
@@ -8022,6 +9586,35 @@ inl x_t_identyfikator_osoby_fizycznej_zagranicznej_get forall r.
     | TIdentyfikatorOsobyFizycznejZagranicznej_field_ImieMatki => x.imie_matki
     | TIdentyfikatorOsobyFizycznejZagranicznej_field_NIP => x.nip
 
+inl x_t_identyfikator_osoby_fizycznej_zagranicznej_fields
+    ()
+    : list (exists r. x_t_identyfikator_osoby_fizycznej_zagranicznej_field r)
+    =
+    [
+        exists TIdentyfikatorOsobyFizycznejZagranicznej_field_ImiePierwsze
+        exists TIdentyfikatorOsobyFizycznejZagranicznej_field_Nazwisko
+        exists TIdentyfikatorOsobyFizycznejZagranicznej_field_DataUrodzenia
+        exists TIdentyfikatorOsobyFizycznejZagranicznej_field_MiejsceUrodzenia
+        exists TIdentyfikatorOsobyFizycznejZagranicznej_field_ImieOjca
+        exists TIdentyfikatorOsobyFizycznejZagranicznej_field_ImieMatki
+        exists TIdentyfikatorOsobyFizycznejZagranicznej_field_NIP
+    ]
+inl x_t_identyfikator_osoby_fizycznej_zagranicznej_field_meta forall r.
+    (f : x_t_identyfikator_osoby_fizycznej_zagranicznej_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyFizycznejZagranicznej_field_ImiePierwsze =>
+        { tag = "ImiePierwsze"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejZagranicznej_field_Nazwisko => { tag = "Nazwisko"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejZagranicznej_field_DataUrodzenia =>
+        { tag = "DataUrodzenia"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejZagranicznej_field_MiejsceUrodzenia =>
+        { tag = "MiejsceUrodzenia"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejZagranicznej_field_ImieOjca => { tag = "ImieOjca"; min = 0i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejZagranicznej_field_ImieMatki => { tag = "ImieMatki"; min = 0i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyFizycznejZagranicznej_field_NIP => { tag = "NIP"; min = 0i32; max = Some 1i32 }
+
 union x_t_identyfikator_osoby_niefizycznej_field r =
     | TIdentyfikatorOsobyNiefizycznej_field_NIP :: x_t_identyfikator_osoby_niefizycznej_field (x_t_nr_nip)
     | TIdentyfikatorOsobyNiefizycznej_field_PelnaNazwa ::
@@ -8037,6 +9630,21 @@ inl x_t_identyfikator_osoby_niefizycznej_get forall r.
     | TIdentyfikatorOsobyNiefizycznej_field_PelnaNazwa => x.pelna_nazwa
     | TIdentyfikatorOsobyNiefizycznej_field_REGON => x.regon
 
+inl x_t_identyfikator_osoby_niefizycznej_fields () : list (exists r. x_t_identyfikator_osoby_niefizycznej_field r) =
+    [
+        exists TIdentyfikatorOsobyNiefizycznej_field_NIP
+        exists TIdentyfikatorOsobyNiefizycznej_field_PelnaNazwa
+        exists TIdentyfikatorOsobyNiefizycznej_field_REGON
+    ]
+inl x_t_identyfikator_osoby_niefizycznej_field_meta forall r.
+    (f : x_t_identyfikator_osoby_niefizycznej_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyNiefizycznej_field_NIP => { tag = "NIP"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznej_field_PelnaNazwa => { tag = "PelnaNazwa"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznej_field_REGON => { tag = "REGON"; min = 0i32; max = Some 1i32 }
+
 union x_t_identyfikator_osoby_niefizycznej1_field r =
     | TIdentyfikatorOsobyNiefizycznej1_field_NIP :: x_t_identyfikator_osoby_niefizycznej1_field (x_t_nr_nip)
     | TIdentyfikatorOsobyNiefizycznej1_field_PelnaNazwa ::
@@ -8049,6 +9657,16 @@ inl x_t_identyfikator_osoby_niefizycznej1_get forall r.
     match f with
     | TIdentyfikatorOsobyNiefizycznej1_field_NIP => x.nip
     | TIdentyfikatorOsobyNiefizycznej1_field_PelnaNazwa => x.pelna_nazwa
+
+inl x_t_identyfikator_osoby_niefizycznej1_fields () : list (exists r. x_t_identyfikator_osoby_niefizycznej1_field r) =
+    [ exists TIdentyfikatorOsobyNiefizycznej1_field_NIP; exists TIdentyfikatorOsobyNiefizycznej1_field_PelnaNazwa ]
+inl x_t_identyfikator_osoby_niefizycznej1_field_meta forall r.
+    (f : x_t_identyfikator_osoby_niefizycznej1_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyNiefizycznej1_field_NIP => { tag = "NIP"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznej1_field_PelnaNazwa => { tag = "PelnaNazwa"; min = 1i32; max = Some 1i32 }
 
 union x_t_identyfikator_osoby_niefizycznej_pelny_field r =
     | TIdentyfikatorOsobyNiefizycznejPelny_field_NIP ::
@@ -8070,6 +9688,26 @@ inl x_t_identyfikator_osoby_niefizycznej_pelny_get forall r.
     | TIdentyfikatorOsobyNiefizycznejPelny_field_SkroconaNazwa => x.skrocona_nazwa
     | TIdentyfikatorOsobyNiefizycznejPelny_field_REGON => x.regon
 
+inl x_t_identyfikator_osoby_niefizycznej_pelny_fields
+    ()
+    : list (exists r. x_t_identyfikator_osoby_niefizycznej_pelny_field r)
+    =
+    [
+        exists TIdentyfikatorOsobyNiefizycznejPelny_field_NIP
+        exists TIdentyfikatorOsobyNiefizycznejPelny_field_PelnaNazwa
+        exists TIdentyfikatorOsobyNiefizycznejPelny_field_SkroconaNazwa
+        exists TIdentyfikatorOsobyNiefizycznejPelny_field_REGON
+    ]
+inl x_t_identyfikator_osoby_niefizycznej_pelny_field_meta forall r.
+    (f : x_t_identyfikator_osoby_niefizycznej_pelny_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyNiefizycznejPelny_field_NIP => { tag = "NIP"; min = 0i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznejPelny_field_PelnaNazwa => { tag = "PelnaNazwa"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznejPelny_field_SkroconaNazwa => { tag = "SkroconaNazwa"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznejPelny_field_REGON => { tag = "REGON"; min = 1i32; max = Some 1i32 }
+
 union x_t_identyfikator_osoby_niefizycznej_zagranicznej_field r =
     | TIdentyfikatorOsobyNiefizycznejZagranicznej_field_PelnaNazwa ::
         x_t_identyfikator_osoby_niefizycznej_zagranicznej_field
@@ -8090,6 +9728,26 @@ inl x_t_identyfikator_osoby_niefizycznej_zagranicznej_get forall r.
     | TIdentyfikatorOsobyNiefizycznejZagranicznej_field_SkroconaNazwa => x.skrocona_nazwa
     | TIdentyfikatorOsobyNiefizycznejZagranicznej_field_NIP => x.nip
 
+inl x_t_identyfikator_osoby_niefizycznej_zagranicznej_fields
+    ()
+    : list (exists r. x_t_identyfikator_osoby_niefizycznej_zagranicznej_field r)
+    =
+    [
+        exists TIdentyfikatorOsobyNiefizycznejZagranicznej_field_PelnaNazwa
+        exists TIdentyfikatorOsobyNiefizycznejZagranicznej_field_SkroconaNazwa
+        exists TIdentyfikatorOsobyNiefizycznejZagranicznej_field_NIP
+    ]
+inl x_t_identyfikator_osoby_niefizycznej_zagranicznej_field_meta forall r.
+    (f : x_t_identyfikator_osoby_niefizycznej_zagranicznej_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TIdentyfikatorOsobyNiefizycznejZagranicznej_field_PelnaNazwa =>
+        { tag = "PelnaNazwa"; min = 1i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznejZagranicznej_field_SkroconaNazwa =>
+        { tag = "SkroconaNazwa"; min = 0i32; max = Some 1i32 }
+    | TIdentyfikatorOsobyNiefizycznejZagranicznej_field_NIP => { tag = "NIP"; min = 0i32; max = Some 1i32 }
+
 union x_t_podmiot_dowolny_bez_adresu_field r =
     | TPodmiotDowolnyBezAdresu_field_choice_osoba_fizyczna ::
         x_t_podmiot_dowolny_bez_adresu_field (x_t_podmiot_dowolny_bez_adresu_choice_osoba_fizyczna)
@@ -8100,6 +9758,16 @@ inl x_t_podmiot_dowolny_bez_adresu_get forall r.
     =
     match f with
     | TPodmiotDowolnyBezAdresu_field_choice_osoba_fizyczna => x.choice_osoba_fizyczna
+
+inl x_t_podmiot_dowolny_bez_adresu_fields () : list (exists r. x_t_podmiot_dowolny_bez_adresu_field r) =
+    [ exists TPodmiotDowolnyBezAdresu_field_choice_osoba_fizyczna ]
+inl x_t_podmiot_dowolny_bez_adresu_field_meta forall r.
+    (f : x_t_podmiot_dowolny_bez_adresu_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiotDowolnyBezAdresu_field_choice_osoba_fizyczna =>
+        { tag = "choice_osoba_fizyczna"; min = 1i32; max = Some 1i32 }
 
 union x_t_podmiot_dowolny_bez_adresu1_field r =
     | TPodmiotDowolnyBezAdresu1_field_choice_osoba_fizyczna ::
@@ -8112,6 +9780,16 @@ inl x_t_podmiot_dowolny_bez_adresu1_get forall r.
     match f with
     | TPodmiotDowolnyBezAdresu1_field_choice_osoba_fizyczna => x.choice_osoba_fizyczna
 
+inl x_t_podmiot_dowolny_bez_adresu1_fields () : list (exists r. x_t_podmiot_dowolny_bez_adresu1_field r) =
+    [ exists TPodmiotDowolnyBezAdresu1_field_choice_osoba_fizyczna ]
+inl x_t_podmiot_dowolny_bez_adresu1_field_meta forall r.
+    (f : x_t_podmiot_dowolny_bez_adresu1_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiotDowolnyBezAdresu1_field_choice_osoba_fizyczna =>
+        { tag = "choice_osoba_fizyczna"; min = 1i32; max = Some 1i32 }
+
 union x_t_podmiot_dowolny_bez_adresu2_field r =
     | TPodmiotDowolnyBezAdresu2_field_choice_osoba_fizyczna ::
         x_t_podmiot_dowolny_bez_adresu2_field (x_t_podmiot_dowolny_bez_adresu2_choice_osoba_fizyczna)
@@ -8122,6 +9800,16 @@ inl x_t_podmiot_dowolny_bez_adresu2_get forall r.
     =
     match f with
     | TPodmiotDowolnyBezAdresu2_field_choice_osoba_fizyczna => x.choice_osoba_fizyczna
+
+inl x_t_podmiot_dowolny_bez_adresu2_fields () : list (exists r. x_t_podmiot_dowolny_bez_adresu2_field r) =
+    [ exists TPodmiotDowolnyBezAdresu2_field_choice_osoba_fizyczna ]
+inl x_t_podmiot_dowolny_bez_adresu2_field_meta forall r.
+    (f : x_t_podmiot_dowolny_bez_adresu2_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiotDowolnyBezAdresu2_field_choice_osoba_fizyczna =>
+        { tag = "choice_osoba_fizyczna"; min = 1i32; max = Some 1i32 }
 
 union x_t_podmiot_dowolny_bez_adresu3_field r =
     | TPodmiotDowolnyBezAdresu3_field_choice_osoba_fizyczna ::
@@ -8134,6 +9822,16 @@ inl x_t_podmiot_dowolny_bez_adresu3_get forall r.
     match f with
     | TPodmiotDowolnyBezAdresu3_field_choice_osoba_fizyczna => x.choice_osoba_fizyczna
 
+inl x_t_podmiot_dowolny_bez_adresu3_fields () : list (exists r. x_t_podmiot_dowolny_bez_adresu3_field r) =
+    [ exists TPodmiotDowolnyBezAdresu3_field_choice_osoba_fizyczna ]
+inl x_t_podmiot_dowolny_bez_adresu3_field_meta forall r.
+    (f : x_t_podmiot_dowolny_bez_adresu3_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TPodmiotDowolnyBezAdresu3_field_choice_osoba_fizyczna =>
+        { tag = "choice_osoba_fizyczna"; min = 1i32; max = Some 1i32 }
+
 union x_t_osoba_fizyczna_field r =
     | TOsobaFizyczna_field_OsobaFizyczna :: x_t_osoba_fizyczna_field (x_t_identyfikator_osoby_fizycznej)
     | TOsobaFizyczna_field_AdresZamieszkania :: x_t_osoba_fizyczna_field (x_t_osoba_fizyczna_adres_zamieszkania)
@@ -8142,6 +9840,13 @@ inl x_t_osoba_fizyczna_get forall r. (f : x_t_osoba_fizyczna_field r) (x : x_t_o
     match f with
     | TOsobaFizyczna_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizyczna_field_AdresZamieszkania => x.adres_zamieszkania
+
+inl x_t_osoba_fizyczna_fields () : list (exists r. x_t_osoba_fizyczna_field r) =
+    [ exists TOsobaFizyczna_field_OsobaFizyczna; exists TOsobaFizyczna_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna_field_meta forall r. (f : x_t_osoba_fizyczna_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizyczna_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizyczna_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
 
 union x_t_osoba_fizyczna1_field r =
     | TOsobaFizyczna1_field_OsobaFizyczna :: x_t_osoba_fizyczna1_field (x_t_identyfikator_osoby_fizycznej1)
@@ -8152,6 +9857,13 @@ inl x_t_osoba_fizyczna1_get forall r. (f : x_t_osoba_fizyczna1_field r) (x : x_t
     | TOsobaFizyczna1_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizyczna1_field_AdresZamieszkania => x.adres_zamieszkania
 
+inl x_t_osoba_fizyczna1_fields () : list (exists r. x_t_osoba_fizyczna1_field r) =
+    [ exists TOsobaFizyczna1_field_OsobaFizyczna; exists TOsobaFizyczna1_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna1_field_meta forall r. (f : x_t_osoba_fizyczna1_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizyczna1_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizyczna1_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
+
 union x_t_osoba_fizyczna5_field r =
     | TOsobaFizyczna5_field_OsobaFizyczna :: x_t_osoba_fizyczna5_field (x_t_identyfikator_osoby_fizycznej)
     | TOsobaFizyczna5_field_AdresZamieszkania :: x_t_osoba_fizyczna5_field (x_t_osoba_fizyczna5_adres_zamieszkania)
@@ -8160,6 +9872,13 @@ inl x_t_osoba_fizyczna5_get forall r. (f : x_t_osoba_fizyczna5_field r) (x : x_t
     match f with
     | TOsobaFizyczna5_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizyczna5_field_AdresZamieszkania => x.adres_zamieszkania
+
+inl x_t_osoba_fizyczna5_fields () : list (exists r. x_t_osoba_fizyczna5_field r) =
+    [ exists TOsobaFizyczna5_field_OsobaFizyczna; exists TOsobaFizyczna5_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna5_field_meta forall r. (f : x_t_osoba_fizyczna5_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizyczna5_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizyczna5_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
 
 union x_t_osoba_fizyczna3_field r =
     | TOsobaFizyczna3_field_OsobaFizyczna :: x_t_osoba_fizyczna3_field (x_t_identyfikator_osoby_fizycznej1)
@@ -8170,6 +9889,13 @@ inl x_t_osoba_fizyczna3_get forall r. (f : x_t_osoba_fizyczna3_field r) (x : x_t
     | TOsobaFizyczna3_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizyczna3_field_AdresZamieszkania => x.adres_zamieszkania
 
+inl x_t_osoba_fizyczna3_fields () : list (exists r. x_t_osoba_fizyczna3_field r) =
+    [ exists TOsobaFizyczna3_field_OsobaFizyczna; exists TOsobaFizyczna3_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna3_field_meta forall r. (f : x_t_osoba_fizyczna3_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizyczna3_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizyczna3_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
+
 union x_t_osoba_fizyczna2_field r =
     | TOsobaFizyczna2_field_OsobaFizyczna :: x_t_osoba_fizyczna2_field (x_t_identyfikator_osoby_fizycznej2)
     | TOsobaFizyczna2_field_AdresZamieszkania :: x_t_osoba_fizyczna2_field (x_t_osoba_fizyczna2_adres_zamieszkania)
@@ -8178,6 +9904,13 @@ inl x_t_osoba_fizyczna2_get forall r. (f : x_t_osoba_fizyczna2_field r) (x : x_t
     match f with
     | TOsobaFizyczna2_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizyczna2_field_AdresZamieszkania => x.adres_zamieszkania
+
+inl x_t_osoba_fizyczna2_fields () : list (exists r. x_t_osoba_fizyczna2_field r) =
+    [ exists TOsobaFizyczna2_field_OsobaFizyczna; exists TOsobaFizyczna2_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna2_field_meta forall r. (f : x_t_osoba_fizyczna2_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizyczna2_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizyczna2_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
 
 union x_t_osoba_niefizyczna_field r =
     | TOsobaNiefizyczna_field_OsobaNiefizyczna :: x_t_osoba_niefizyczna_field (x_t_identyfikator_osoby_niefizycznej)
@@ -8188,6 +9921,13 @@ inl x_t_osoba_niefizyczna_get forall r. (f : x_t_osoba_niefizyczna_field r) (x :
     | TOsobaNiefizyczna_field_OsobaNiefizyczna => x.osoba_niefizyczna
     | TOsobaNiefizyczna_field_AdresSiedziby => x.adres_siedziby
 
+inl x_t_osoba_niefizyczna_fields () : list (exists r. x_t_osoba_niefizyczna_field r) =
+    [ exists TOsobaNiefizyczna_field_OsobaNiefizyczna; exists TOsobaNiefizyczna_field_AdresSiedziby ]
+inl x_t_osoba_niefizyczna_field_meta forall r. (f : x_t_osoba_niefizyczna_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaNiefizyczna_field_OsobaNiefizyczna => { tag = "OsobaNiefizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaNiefizyczna_field_AdresSiedziby => { tag = "AdresSiedziby"; min = 1i32; max = Some 1i32 }
+
 union x_t_osoba_niefizyczna1_field r =
     | TOsobaNiefizyczna1_field_OsobaNiefizyczna :: x_t_osoba_niefizyczna1_field (x_t_identyfikator_osoby_niefizycznej)
     | TOsobaNiefizyczna1_field_AdresSiedziby :: x_t_osoba_niefizyczna1_field (x_t_osoba_niefizyczna1_adres_siedziby)
@@ -8196,6 +9936,13 @@ inl x_t_osoba_niefizyczna1_get forall r. (f : x_t_osoba_niefizyczna1_field r) (x
     match f with
     | TOsobaNiefizyczna1_field_OsobaNiefizyczna => x.osoba_niefizyczna
     | TOsobaNiefizyczna1_field_AdresSiedziby => x.adres_siedziby
+
+inl x_t_osoba_niefizyczna1_fields () : list (exists r. x_t_osoba_niefizyczna1_field r) =
+    [ exists TOsobaNiefizyczna1_field_OsobaNiefizyczna; exists TOsobaNiefizyczna1_field_AdresSiedziby ]
+inl x_t_osoba_niefizyczna1_field_meta forall r. (f : x_t_osoba_niefizyczna1_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaNiefizyczna1_field_OsobaNiefizyczna => { tag = "OsobaNiefizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaNiefizyczna1_field_AdresSiedziby => { tag = "AdresSiedziby"; min = 1i32; max = Some 1i32 }
 
 union x_t_osoba_niefizyczna2_field r =
     | TOsobaNiefizyczna2_field_OsobaNiefizyczna :: x_t_osoba_niefizyczna2_field (x_t_identyfikator_osoby_niefizycznej1)
@@ -8206,6 +9953,13 @@ inl x_t_osoba_niefizyczna2_get forall r. (f : x_t_osoba_niefizyczna2_field r) (x
     | TOsobaNiefizyczna2_field_OsobaNiefizyczna => x.osoba_niefizyczna
     | TOsobaNiefizyczna2_field_AdresSiedziby => x.adres_siedziby
 
+inl x_t_osoba_niefizyczna2_fields () : list (exists r. x_t_osoba_niefizyczna2_field r) =
+    [ exists TOsobaNiefizyczna2_field_OsobaNiefizyczna; exists TOsobaNiefizyczna2_field_AdresSiedziby ]
+inl x_t_osoba_niefizyczna2_field_meta forall r. (f : x_t_osoba_niefizyczna2_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaNiefizyczna2_field_OsobaNiefizyczna => { tag = "OsobaNiefizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaNiefizyczna2_field_AdresSiedziby => { tag = "AdresSiedziby"; min = 1i32; max = Some 1i32 }
+
 union x_t_osoba_fizyczna4_field r =
     | TOsobaFizyczna4_field_OsobaFizyczna :: x_t_osoba_fizyczna4_field (x_t_identyfikator_osoby_fizycznej2)
     | TOsobaFizyczna4_field_AdresZamieszkania :: x_t_osoba_fizyczna4_field (x_t_osoba_fizyczna4_adres_zamieszkania)
@@ -8214,6 +9968,13 @@ inl x_t_osoba_fizyczna4_get forall r. (f : x_t_osoba_fizyczna4_field r) (x : x_t
     match f with
     | TOsobaFizyczna4_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizyczna4_field_AdresZamieszkania => x.adres_zamieszkania
+
+inl x_t_osoba_fizyczna4_fields () : list (exists r. x_t_osoba_fizyczna4_field r) =
+    [ exists TOsobaFizyczna4_field_OsobaFizyczna; exists TOsobaFizyczna4_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna4_field_meta forall r. (f : x_t_osoba_fizyczna4_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizyczna4_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizyczna4_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
 
 union x_t_osoba_fizyczna_pelna_field r =
     | TOsobaFizycznaPelna_field_OsobaFizyczna ::
@@ -8225,6 +9986,13 @@ inl x_t_osoba_fizyczna_pelna_get forall r. (f : x_t_osoba_fizyczna_pelna_field r
     match f with
     | TOsobaFizycznaPelna_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizycznaPelna_field_AdresZamieszkania => x.adres_zamieszkania
+
+inl x_t_osoba_fizyczna_pelna_fields () : list (exists r. x_t_osoba_fizyczna_pelna_field r) =
+    [ exists TOsobaFizycznaPelna_field_OsobaFizyczna; exists TOsobaFizycznaPelna_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna_pelna_field_meta forall r. (f : x_t_osoba_fizyczna_pelna_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizycznaPelna_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizycznaPelna_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
 
 union x_t_osoba_fizyczna_pelna1_field r =
     | TOsobaFizycznaPelna1_field_OsobaFizyczna ::
@@ -8240,6 +10008,13 @@ inl x_t_osoba_fizyczna_pelna1_get forall r.
     | TOsobaFizycznaPelna1_field_OsobaFizyczna => x.osoba_fizyczna
     | TOsobaFizycznaPelna1_field_AdresZamieszkania => x.adres_zamieszkania
 
+inl x_t_osoba_fizyczna_pelna1_fields () : list (exists r. x_t_osoba_fizyczna_pelna1_field r) =
+    [ exists TOsobaFizycznaPelna1_field_OsobaFizyczna; exists TOsobaFizycznaPelna1_field_AdresZamieszkania ]
+inl x_t_osoba_fizyczna_pelna1_field_meta forall r. (f : x_t_osoba_fizyczna_pelna1_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaFizycznaPelna1_field_OsobaFizyczna => { tag = "OsobaFizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaFizycznaPelna1_field_AdresZamieszkania => { tag = "AdresZamieszkania"; min = 1i32; max = Some 1i32 }
+
 union x_t_osoba_niefizyczna_pelna_field r =
     | TOsobaNiefizycznaPelna_field_OsobaNiefizyczna ::
         x_t_osoba_niefizyczna_pelna_field (x_t_identyfikator_osoby_niefizycznej_pelny)
@@ -8253,6 +10028,13 @@ inl x_t_osoba_niefizyczna_pelna_get forall r.
     match f with
     | TOsobaNiefizycznaPelna_field_OsobaNiefizyczna => x.osoba_niefizyczna
     | TOsobaNiefizycznaPelna_field_AdresSiedziby => x.adres_siedziby
+
+inl x_t_osoba_niefizyczna_pelna_fields () : list (exists r. x_t_osoba_niefizyczna_pelna_field r) =
+    [ exists TOsobaNiefizycznaPelna_field_OsobaNiefizyczna; exists TOsobaNiefizycznaPelna_field_AdresSiedziby ]
+inl x_t_osoba_niefizyczna_pelna_field_meta forall r. (f : x_t_osoba_niefizyczna_pelna_field r) : xml_codec.field_meta =
+    match f with
+    | TOsobaNiefizycznaPelna_field_OsobaNiefizyczna => { tag = "OsobaNiefizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaNiefizycznaPelna_field_AdresSiedziby => { tag = "AdresSiedziby"; min = 1i32; max = Some 1i32 }
 
 union x_t_podmiot_dowolny_pelny_field r =
     | TPodmiotDowolnyPelny_field_choice_osoba_fizyczna ::
@@ -8268,6 +10050,17 @@ inl x_t_podmiot_dowolny_pelny_get forall r.
     | TPodmiotDowolnyPelny_field_choice_osoba_fizyczna => x.choice_osoba_fizyczna
     | TPodmiotDowolnyPelny_field_AdresZamieszkaniaSiedziby => x.adres_zamieszkania_siedziby
 
+inl x_t_podmiot_dowolny_pelny_fields () : list (exists r. x_t_podmiot_dowolny_pelny_field r) =
+    [
+        exists TPodmiotDowolnyPelny_field_choice_osoba_fizyczna
+        exists TPodmiotDowolnyPelny_field_AdresZamieszkaniaSiedziby
+    ]
+inl x_t_podmiot_dowolny_pelny_field_meta forall r. (f : x_t_podmiot_dowolny_pelny_field r) : xml_codec.field_meta =
+    match f with
+    | TPodmiotDowolnyPelny_field_choice_osoba_fizyczna => { tag = "choice_osoba_fizyczna"; min = 1i32; max = Some 1i32 }
+    | TPodmiotDowolnyPelny_field_AdresZamieszkaniaSiedziby =>
+        { tag = "AdresZamieszkaniaSiedziby"; min = 1i32; max = Some 1i32 }
+
 union x_t_podmiot_dowolny_pelny1_field r =
     | TPodmiotDowolnyPelny1_field_choice_osoba_fizyczna ::
         x_t_podmiot_dowolny_pelny1_field (x_t_podmiot_dowolny_pelny1_choice_osoba_fizyczna)
@@ -8282,6 +10075,18 @@ inl x_t_podmiot_dowolny_pelny1_get forall r.
     | TPodmiotDowolnyPelny1_field_choice_osoba_fizyczna => x.choice_osoba_fizyczna
     | TPodmiotDowolnyPelny1_field_AdresZamieszkaniaSiedziby => x.adres_zamieszkania_siedziby
 
+inl x_t_podmiot_dowolny_pelny1_fields () : list (exists r. x_t_podmiot_dowolny_pelny1_field r) =
+    [
+        exists TPodmiotDowolnyPelny1_field_choice_osoba_fizyczna
+        exists TPodmiotDowolnyPelny1_field_AdresZamieszkaniaSiedziby
+    ]
+inl x_t_podmiot_dowolny_pelny1_field_meta forall r. (f : x_t_podmiot_dowolny_pelny1_field r) : xml_codec.field_meta =
+    match f with
+    | TPodmiotDowolnyPelny1_field_choice_osoba_fizyczna =>
+        { tag = "choice_osoba_fizyczna"; min = 1i32; max = Some 1i32 }
+    | TPodmiotDowolnyPelny1_field_AdresZamieszkaniaSiedziby =>
+        { tag = "AdresZamieszkaniaSiedziby"; min = 1i32; max = Some 1i32 }
+
 union x_t_osoba_niefizyczna_pelna1_field r =
     | TOsobaNiefizycznaPelna1_field_OsobaNiefizyczna ::
         x_t_osoba_niefizyczna_pelna1_field (x_t_identyfikator_osoby_niefizycznej_pelny)
@@ -8295,6 +10100,16 @@ inl x_t_osoba_niefizyczna_pelna1_get forall r.
     match f with
     | TOsobaNiefizycznaPelna1_field_OsobaNiefizyczna => x.osoba_niefizyczna
     | TOsobaNiefizycznaPelna1_field_AdresSiedziby => x.adres_siedziby
+
+inl x_t_osoba_niefizyczna_pelna1_fields () : list (exists r. x_t_osoba_niefizyczna_pelna1_field r) =
+    [ exists TOsobaNiefizycznaPelna1_field_OsobaNiefizyczna; exists TOsobaNiefizycznaPelna1_field_AdresSiedziby ]
+inl x_t_osoba_niefizyczna_pelna1_field_meta forall r.
+    (f : x_t_osoba_niefizyczna_pelna1_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | TOsobaNiefizycznaPelna1_field_OsobaNiefizyczna => { tag = "OsobaNiefizyczna"; min = 1i32; max = Some 1i32 }
+    | TOsobaNiefizycznaPelna1_field_AdresSiedziby => { tag = "AdresSiedziby"; min = 1i32; max = Some 1i32 }
 
 let rec x_faktura_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
@@ -18230,3 +20045,9 @@ test generated_ksef_fa_3_writes_its_example =
 ///> rust
 test generated_ksef_fa_3_keeps_raw_strings_out fails "Unification failure" =
     x_t_kwotowy_to_string "raw"
+
+///> rust
+test generated_ksef_fa_3_reports_a_missing_element_with_its_path =
+    inl document = xml_codec.pruned "KodFormularza" (x_faktura_to_xml "Faktura" (x_faktura_example 0i32))
+    if xml_codec.reports "missing Naglowek/KodFormularza" (x_faktura_of_xml document) = false then
+        failwith "a document without Naglowek/KodFormularza is reported as missing, not raised"

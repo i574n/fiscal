@@ -3033,6 +3033,16 @@ inl x_reg_factu_sistema_facturacion_get forall r.
     | RegFactuSistemaFacturacion_field_Cabecera => x.cabecera
     | RegFactuSistemaFacturacion_field_RegistroFactura => x.registro_factura
 
+inl x_reg_factu_sistema_facturacion_fields () : list (exists r. x_reg_factu_sistema_facturacion_field r) =
+    [ exists RegFactuSistemaFacturacion_field_Cabecera; exists RegFactuSistemaFacturacion_field_RegistroFactura ]
+inl x_reg_factu_sistema_facturacion_field_meta forall r.
+    (f : x_reg_factu_sistema_facturacion_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegFactuSistemaFacturacion_field_Cabecera => { tag = "Cabecera"; min = 1i32; max = Some 1i32 }
+    | RegFactuSistemaFacturacion_field_RegistroFactura => { tag = "RegistroFactura"; min = 1i32; max = Some 1000i32 }
+
 union x_registro_factura_type_field r =
     | RegistroFacturaType_field_choice_registro_alta ::
         x_registro_factura_type_field (x_registro_factura_type_choice_sf_registro_alta)
@@ -3040,6 +3050,12 @@ union x_registro_factura_type_field r =
 inl x_registro_factura_type_get forall r. (f : x_registro_factura_type_field r) (x : x_registro_factura_type) : r =
     match f with
     | RegistroFacturaType_field_choice_registro_alta => x.choice_registro_alta
+
+inl x_registro_factura_type_fields () : list (exists r. x_registro_factura_type_field r) =
+    [ exists RegistroFacturaType_field_choice_registro_alta ]
+inl x_registro_factura_type_field_meta forall r. (f : x_registro_factura_type_field r) : xml_codec.field_meta =
+    match f with
+    | RegistroFacturaType_field_choice_registro_alta => { tag = "choice_registro_alta"; min = 1i32; max = Some 1i32 }
 
 union x_cabecera_type_field r =
     | CabeceraType_field_sf_ObligadoEmision :: x_cabecera_type_field (x_persona_fisica_juridica_es_type)
@@ -3056,6 +3072,20 @@ inl x_cabecera_type_get forall r. (f : x_cabecera_type_field r) (x : x_cabecera_
     | CabeceraType_field_sf_RemisionVoluntaria => x.remision_voluntaria
     | CabeceraType_field_sf_RemisionRequerimiento => x.remision_requerimiento
 
+inl x_cabecera_type_fields () : list (exists r. x_cabecera_type_field r) =
+    [
+        exists CabeceraType_field_sf_ObligadoEmision
+        exists CabeceraType_field_sf_Representante
+        exists CabeceraType_field_sf_RemisionVoluntaria
+        exists CabeceraType_field_sf_RemisionRequerimiento
+    ]
+inl x_cabecera_type_field_meta forall r. (f : x_cabecera_type_field r) : xml_codec.field_meta =
+    match f with
+    | CabeceraType_field_sf_ObligadoEmision => { tag = "sf:ObligadoEmision"; min = 1i32; max = Some 1i32 }
+    | CabeceraType_field_sf_Representante => { tag = "sf:Representante"; min = 0i32; max = Some 1i32 }
+    | CabeceraType_field_sf_RemisionVoluntaria => { tag = "sf:RemisionVoluntaria"; min = 0i32; max = Some 1i32 }
+    | CabeceraType_field_sf_RemisionRequerimiento => { tag = "sf:RemisionRequerimiento"; min = 0i32; max = Some 1i32 }
+
 union x_cabecera_type_sf_remision_requerimiento_field r =
     | CabeceraType_sf_RemisionRequerimiento_field_sf_RefRequerimiento ::
         x_cabecera_type_sf_remision_requerimiento_field (x_text_max18_type)
@@ -3069,6 +3099,24 @@ inl x_cabecera_type_sf_remision_requerimiento_get forall r.
     match f with
     | CabeceraType_sf_RemisionRequerimiento_field_sf_RefRequerimiento => x.ref_requerimiento
     | CabeceraType_sf_RemisionRequerimiento_field_sf_FinRequerimiento => x.fin_requerimiento
+
+inl x_cabecera_type_sf_remision_requerimiento_fields
+    ()
+    : list (exists r. x_cabecera_type_sf_remision_requerimiento_field r)
+    =
+    [
+        exists CabeceraType_sf_RemisionRequerimiento_field_sf_RefRequerimiento
+        exists CabeceraType_sf_RemisionRequerimiento_field_sf_FinRequerimiento
+    ]
+inl x_cabecera_type_sf_remision_requerimiento_field_meta forall r.
+    (f : x_cabecera_type_sf_remision_requerimiento_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CabeceraType_sf_RemisionRequerimiento_field_sf_RefRequerimiento =>
+        { tag = "sf:RefRequerimiento"; min = 1i32; max = Some 1i32 }
+    | CabeceraType_sf_RemisionRequerimiento_field_sf_FinRequerimiento =>
+        { tag = "sf:FinRequerimiento"; min = 0i32; max = Some 1i32 }
 
 union x_cabecera_type_sf_remision_voluntaria_field r =
     | CabeceraType_sf_RemisionVoluntaria_field_sf_FechaFinVeriFactu ::
@@ -3084,6 +3132,20 @@ inl x_cabecera_type_sf_remision_voluntaria_get forall r.
     | CabeceraType_sf_RemisionVoluntaria_field_sf_FechaFinVeriFactu => x.fecha_fin_veri_factu
     | CabeceraType_sf_RemisionVoluntaria_field_sf_Incidencia => x.incidencia
 
+inl x_cabecera_type_sf_remision_voluntaria_fields () : list (exists r. x_cabecera_type_sf_remision_voluntaria_field r) =
+    [
+        exists CabeceraType_sf_RemisionVoluntaria_field_sf_FechaFinVeriFactu
+        exists CabeceraType_sf_RemisionVoluntaria_field_sf_Incidencia
+    ]
+inl x_cabecera_type_sf_remision_voluntaria_field_meta forall r.
+    (f : x_cabecera_type_sf_remision_voluntaria_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CabeceraType_sf_RemisionVoluntaria_field_sf_FechaFinVeriFactu =>
+        { tag = "sf:FechaFinVeriFactu"; min = 0i32; max = Some 1i32 }
+    | CabeceraType_sf_RemisionVoluntaria_field_sf_Incidencia => { tag = "sf:Incidencia"; min = 0i32; max = Some 1i32 }
+
 union x_datos_presentacion_type_field r =
     | DatosPresentacionType_field_sf_NIFPresentador :: x_datos_presentacion_type_field (x_nif_type)
     | DatosPresentacionType_field_sf_TimestampPresentacion :: x_datos_presentacion_type_field (string)
@@ -3095,6 +3157,17 @@ inl x_datos_presentacion_type_get forall r.
     match f with
     | DatosPresentacionType_field_sf_NIFPresentador => x.nif_presentador
     | DatosPresentacionType_field_sf_TimestampPresentacion => x.timestamp_presentacion
+
+inl x_datos_presentacion_type_fields () : list (exists r. x_datos_presentacion_type_field r) =
+    [
+        exists DatosPresentacionType_field_sf_NIFPresentador
+        exists DatosPresentacionType_field_sf_TimestampPresentacion
+    ]
+inl x_datos_presentacion_type_field_meta forall r. (f : x_datos_presentacion_type_field r) : xml_codec.field_meta =
+    match f with
+    | DatosPresentacionType_field_sf_NIFPresentador => { tag = "sf:NIFPresentador"; min = 1i32; max = Some 1i32 }
+    | DatosPresentacionType_field_sf_TimestampPresentacion =>
+        { tag = "sf:TimestampPresentacion"; min = 1i32; max = Some 1i32 }
 
 union x_datos_presentacion2_type_field r =
     | DatosPresentacion2Type_field_sf_NIFPresentador :: x_datos_presentacion2_type_field (x_nif_type)
@@ -3110,6 +3183,19 @@ inl x_datos_presentacion2_type_get forall r.
     | DatosPresentacion2Type_field_sf_TimestampPresentacion => x.timestamp_presentacion
     | DatosPresentacion2Type_field_sf_IdPeticion => x.id_peticion
 
+inl x_datos_presentacion2_type_fields () : list (exists r. x_datos_presentacion2_type_field r) =
+    [
+        exists DatosPresentacion2Type_field_sf_NIFPresentador
+        exists DatosPresentacion2Type_field_sf_TimestampPresentacion
+        exists DatosPresentacion2Type_field_sf_IdPeticion
+    ]
+inl x_datos_presentacion2_type_field_meta forall r. (f : x_datos_presentacion2_type_field r) : xml_codec.field_meta =
+    match f with
+    | DatosPresentacion2Type_field_sf_NIFPresentador => { tag = "sf:NIFPresentador"; min = 1i32; max = Some 1i32 }
+    | DatosPresentacion2Type_field_sf_TimestampPresentacion =>
+        { tag = "sf:TimestampPresentacion"; min = 1i32; max = Some 1i32 }
+    | DatosPresentacion2Type_field_sf_IdPeticion => { tag = "sf:IdPeticion"; min = 1i32; max = Some 1i32 }
+
 union x_periodo_imputacion_type_field r =
     | PeriodoImputacionType_field_sf_Ejercicio :: x_periodo_imputacion_type_field (x_year_type)
     | PeriodoImputacionType_field_sf_Periodo :: x_periodo_imputacion_type_field (x_tipo_periodo_type)
@@ -3121,6 +3207,13 @@ inl x_periodo_imputacion_type_get forall r.
     match f with
     | PeriodoImputacionType_field_sf_Ejercicio => x.ejercicio
     | PeriodoImputacionType_field_sf_Periodo => x.periodo
+
+inl x_periodo_imputacion_type_fields () : list (exists r. x_periodo_imputacion_type_field r) =
+    [ exists PeriodoImputacionType_field_sf_Ejercicio; exists PeriodoImputacionType_field_sf_Periodo ]
+inl x_periodo_imputacion_type_field_meta forall r. (f : x_periodo_imputacion_type_field r) : xml_codec.field_meta =
+    match f with
+    | PeriodoImputacionType_field_sf_Ejercicio => { tag = "sf:Ejercicio"; min = 1i32; max = Some 1i32 }
+    | PeriodoImputacionType_field_sf_Periodo => { tag = "sf:Periodo"; min = 1i32; max = Some 1i32 }
 
 union x_id_factura_expedida_bc_type_field r =
     | IDFacturaExpedidaBCType_field_sf_IDEmisorFactura :: x_id_factura_expedida_bc_type_field (x_nif_type)
@@ -3135,6 +3228,22 @@ inl x_id_factura_expedida_bc_type_get forall r.
     | IDFacturaExpedidaBCType_field_sf_IDEmisorFactura => x.id_emisor_factura
     | IDFacturaExpedidaBCType_field_sf_NumSerieFactura => x.num_serie_factura
     | IDFacturaExpedidaBCType_field_sf_FechaExpedicionFactura => x.fecha_expedicion_factura
+
+inl x_id_factura_expedida_bc_type_fields () : list (exists r. x_id_factura_expedida_bc_type_field r) =
+    [
+        exists IDFacturaExpedidaBCType_field_sf_IDEmisorFactura
+        exists IDFacturaExpedidaBCType_field_sf_NumSerieFactura
+        exists IDFacturaExpedidaBCType_field_sf_FechaExpedicionFactura
+    ]
+inl x_id_factura_expedida_bc_type_field_meta forall r.
+    (f : x_id_factura_expedida_bc_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | IDFacturaExpedidaBCType_field_sf_IDEmisorFactura => { tag = "sf:IDEmisorFactura"; min = 1i32; max = Some 1i32 }
+    | IDFacturaExpedidaBCType_field_sf_NumSerieFactura => { tag = "sf:NumSerieFactura"; min = 1i32; max = Some 1i32 }
+    | IDFacturaExpedidaBCType_field_sf_FechaExpedicionFactura =>
+        { tag = "sf:FechaExpedicionFactura"; min = 1i32; max = Some 1i32 }
 
 union x_id_factura_expedida_baja_type_field r =
     | IDFacturaExpedidaBajaType_field_sf_IDEmisorFacturaAnulada :: x_id_factura_expedida_baja_type_field (x_nif_type)
@@ -3151,6 +3260,24 @@ inl x_id_factura_expedida_baja_type_get forall r.
     | IDFacturaExpedidaBajaType_field_sf_IDEmisorFacturaAnulada => x.id_emisor_factura_anulada
     | IDFacturaExpedidaBajaType_field_sf_NumSerieFacturaAnulada => x.num_serie_factura_anulada
     | IDFacturaExpedidaBajaType_field_sf_FechaExpedicionFacturaAnulada => x.fecha_expedicion_factura_anulada
+
+inl x_id_factura_expedida_baja_type_fields () : list (exists r. x_id_factura_expedida_baja_type_field r) =
+    [
+        exists IDFacturaExpedidaBajaType_field_sf_IDEmisorFacturaAnulada
+        exists IDFacturaExpedidaBajaType_field_sf_NumSerieFacturaAnulada
+        exists IDFacturaExpedidaBajaType_field_sf_FechaExpedicionFacturaAnulada
+    ]
+inl x_id_factura_expedida_baja_type_field_meta forall r.
+    (f : x_id_factura_expedida_baja_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | IDFacturaExpedidaBajaType_field_sf_IDEmisorFacturaAnulada =>
+        { tag = "sf:IDEmisorFacturaAnulada"; min = 1i32; max = Some 1i32 }
+    | IDFacturaExpedidaBajaType_field_sf_NumSerieFacturaAnulada =>
+        { tag = "sf:NumSerieFacturaAnulada"; min = 1i32; max = Some 1i32 }
+    | IDFacturaExpedidaBajaType_field_sf_FechaExpedicionFacturaAnulada =>
+        { tag = "sf:FechaExpedicionFacturaAnulada"; min = 1i32; max = Some 1i32 }
 
 union x_registro_facturacion_alta_type_field r =
     | RegistroFacturacionAltaType_field_sf_IDVersion :: x_registro_facturacion_alta_type_field (x_version_type)
@@ -3246,6 +3373,90 @@ inl x_registro_facturacion_alta_type_get forall r.
     | RegistroFacturacionAltaType_field_sf_Huella => x.huella
     | RegistroFacturacionAltaType_field_ds_Signature => x.signature
 
+inl x_registro_facturacion_alta_type_fields () : list (exists r. x_registro_facturacion_alta_type_field r) =
+    [
+        exists RegistroFacturacionAltaType_field_sf_IDVersion
+        exists RegistroFacturacionAltaType_field_sf_IDFactura
+        exists RegistroFacturacionAltaType_field_sf_RefExterna
+        exists RegistroFacturacionAltaType_field_sf_NombreRazonEmisor
+        exists RegistroFacturacionAltaType_field_sf_Subsanacion
+        exists RegistroFacturacionAltaType_field_sf_RechazoPrevio
+        exists RegistroFacturacionAltaType_field_sf_TipoFactura
+        exists RegistroFacturacionAltaType_field_sf_TipoRectificativa
+        exists RegistroFacturacionAltaType_field_sf_FacturasRectificadas
+        exists RegistroFacturacionAltaType_field_sf_FacturasSustituidas
+        exists RegistroFacturacionAltaType_field_sf_ImporteRectificacion
+        exists RegistroFacturacionAltaType_field_sf_FechaOperacion
+        exists RegistroFacturacionAltaType_field_sf_DescripcionOperacion
+        exists RegistroFacturacionAltaType_field_sf_FacturaSimplificadaArt7273
+        exists RegistroFacturacionAltaType_field_sf_FacturaSinIdentifDestinatarioArt61d
+        exists RegistroFacturacionAltaType_field_sf_Macrodato
+        exists RegistroFacturacionAltaType_field_sf_EmitidaPorTerceroODestinatario
+        exists RegistroFacturacionAltaType_field_sf_Tercero
+        exists RegistroFacturacionAltaType_field_sf_Destinatarios
+        exists RegistroFacturacionAltaType_field_sf_Cupon
+        exists RegistroFacturacionAltaType_field_sf_Desglose
+        exists RegistroFacturacionAltaType_field_sf_CuotaTotal
+        exists RegistroFacturacionAltaType_field_sf_ImporteTotal
+        exists RegistroFacturacionAltaType_field_sf_Encadenamiento
+        exists RegistroFacturacionAltaType_field_sf_SistemaInformatico
+        exists RegistroFacturacionAltaType_field_sf_FechaHoraHusoGenRegistro
+        exists RegistroFacturacionAltaType_field_sf_NumRegistroAcuerdoFacturacion
+        exists RegistroFacturacionAltaType_field_sf_IdAcuerdoSistemaInformatico
+        exists RegistroFacturacionAltaType_field_sf_TipoHuella
+        exists RegistroFacturacionAltaType_field_sf_Huella
+        exists RegistroFacturacionAltaType_field_ds_Signature
+    ]
+inl x_registro_facturacion_alta_type_field_meta forall r.
+    (f : x_registro_facturacion_alta_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegistroFacturacionAltaType_field_sf_IDVersion => { tag = "sf:IDVersion"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_IDFactura => { tag = "sf:IDFactura"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_RefExterna => { tag = "sf:RefExterna"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_NombreRazonEmisor =>
+        { tag = "sf:NombreRazonEmisor"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Subsanacion => { tag = "sf:Subsanacion"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_RechazoPrevio => { tag = "sf:RechazoPrevio"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_TipoFactura => { tag = "sf:TipoFactura"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_TipoRectificativa =>
+        { tag = "sf:TipoRectificativa"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_FacturasRectificadas =>
+        { tag = "sf:FacturasRectificadas"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_FacturasSustituidas =>
+        { tag = "sf:FacturasSustituidas"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_ImporteRectificacion =>
+        { tag = "sf:ImporteRectificacion"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_FechaOperacion => { tag = "sf:FechaOperacion"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_DescripcionOperacion =>
+        { tag = "sf:DescripcionOperacion"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_FacturaSimplificadaArt7273 =>
+        { tag = "sf:FacturaSimplificadaArt7273"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_FacturaSinIdentifDestinatarioArt61d =>
+        { tag = "sf:FacturaSinIdentifDestinatarioArt61d"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Macrodato => { tag = "sf:Macrodato"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_EmitidaPorTerceroODestinatario =>
+        { tag = "sf:EmitidaPorTerceroODestinatario"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Tercero => { tag = "sf:Tercero"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Destinatarios => { tag = "sf:Destinatarios"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Cupon => { tag = "sf:Cupon"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Desglose => { tag = "sf:Desglose"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_CuotaTotal => { tag = "sf:CuotaTotal"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_ImporteTotal => { tag = "sf:ImporteTotal"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Encadenamiento => { tag = "sf:Encadenamiento"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_SistemaInformatico =>
+        { tag = "sf:SistemaInformatico"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_FechaHoraHusoGenRegistro =>
+        { tag = "sf:FechaHoraHusoGenRegistro"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_NumRegistroAcuerdoFacturacion =>
+        { tag = "sf:NumRegistroAcuerdoFacturacion"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_IdAcuerdoSistemaInformatico =>
+        { tag = "sf:IdAcuerdoSistemaInformatico"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_TipoHuella => { tag = "sf:TipoHuella"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_sf_Huella => { tag = "sf:Huella"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAltaType_field_ds_Signature => { tag = "ds:Signature"; min = 0i32; max = Some 1i32 }
+
 union x_registro_facturacion_alta_type_sf_encadenamiento_field r =
     | RegistroFacturacionAltaType_sf_Encadenamiento_field_choice_primer_registro ::
         x_registro_facturacion_alta_type_sf_encadenamiento_field
@@ -3259,6 +3470,19 @@ inl x_registro_facturacion_alta_type_sf_encadenamiento_get forall r.
     match f with
     | RegistroFacturacionAltaType_sf_Encadenamiento_field_choice_primer_registro => x.choice_primer_registro
 
+inl x_registro_facturacion_alta_type_sf_encadenamiento_fields
+    ()
+    : list (exists r. x_registro_facturacion_alta_type_sf_encadenamiento_field r)
+    =
+    [ exists RegistroFacturacionAltaType_sf_Encadenamiento_field_choice_primer_registro ]
+inl x_registro_facturacion_alta_type_sf_encadenamiento_field_meta forall r.
+    (f : x_registro_facturacion_alta_type_sf_encadenamiento_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegistroFacturacionAltaType_sf_Encadenamiento_field_choice_primer_registro =>
+        { tag = "choice_primer_registro"; min = 1i32; max = Some 1i32 }
+
 union x_registro_facturacion_alta_type_sf_destinatarios_field r =
     | RegistroFacturacionAltaType_sf_Destinatarios_field_sf_IDDestinatario ::
         x_registro_facturacion_alta_type_sf_destinatarios_field (list (x_persona_fisica_juridica_type))
@@ -3270,6 +3494,19 @@ inl x_registro_facturacion_alta_type_sf_destinatarios_get forall r.
     =
     match f with
     | RegistroFacturacionAltaType_sf_Destinatarios_field_sf_IDDestinatario => x.id_destinatario
+
+inl x_registro_facturacion_alta_type_sf_destinatarios_fields
+    ()
+    : list (exists r. x_registro_facturacion_alta_type_sf_destinatarios_field r)
+    =
+    [ exists RegistroFacturacionAltaType_sf_Destinatarios_field_sf_IDDestinatario ]
+inl x_registro_facturacion_alta_type_sf_destinatarios_field_meta forall r.
+    (f : x_registro_facturacion_alta_type_sf_destinatarios_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegistroFacturacionAltaType_sf_Destinatarios_field_sf_IDDestinatario =>
+        { tag = "sf:IDDestinatario"; min = 1i32; max = Some 1000i32 }
 
 union x_registro_facturacion_alta_type_sf_facturas_sustituidas_field r =
     | RegistroFacturacionAltaType_sf_FacturasSustituidas_field_sf_IDFacturaSustituida ::
@@ -3283,6 +3520,19 @@ inl x_registro_facturacion_alta_type_sf_facturas_sustituidas_get forall r.
     match f with
     | RegistroFacturacionAltaType_sf_FacturasSustituidas_field_sf_IDFacturaSustituida => x.id_factura_sustituida
 
+inl x_registro_facturacion_alta_type_sf_facturas_sustituidas_fields
+    ()
+    : list (exists r. x_registro_facturacion_alta_type_sf_facturas_sustituidas_field r)
+    =
+    [ exists RegistroFacturacionAltaType_sf_FacturasSustituidas_field_sf_IDFacturaSustituida ]
+inl x_registro_facturacion_alta_type_sf_facturas_sustituidas_field_meta forall r.
+    (f : x_registro_facturacion_alta_type_sf_facturas_sustituidas_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegistroFacturacionAltaType_sf_FacturasSustituidas_field_sf_IDFacturaSustituida =>
+        { tag = "sf:IDFacturaSustituida"; min = 1i32; max = Some 1000i32 }
+
 union x_registro_facturacion_alta_type_sf_facturas_rectificadas_field r =
     | RegistroFacturacionAltaType_sf_FacturasRectificadas_field_sf_IDFacturaRectificada ::
         x_registro_facturacion_alta_type_sf_facturas_rectificadas_field (list (x_id_factura_ar_type))
@@ -3294,6 +3544,19 @@ inl x_registro_facturacion_alta_type_sf_facturas_rectificadas_get forall r.
     =
     match f with
     | RegistroFacturacionAltaType_sf_FacturasRectificadas_field_sf_IDFacturaRectificada => x.id_factura_rectificada
+
+inl x_registro_facturacion_alta_type_sf_facturas_rectificadas_fields
+    ()
+    : list (exists r. x_registro_facturacion_alta_type_sf_facturas_rectificadas_field r)
+    =
+    [ exists RegistroFacturacionAltaType_sf_FacturasRectificadas_field_sf_IDFacturaRectificada ]
+inl x_registro_facturacion_alta_type_sf_facturas_rectificadas_field_meta forall r.
+    (f : x_registro_facturacion_alta_type_sf_facturas_rectificadas_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegistroFacturacionAltaType_sf_FacturasRectificadas_field_sf_IDFacturaRectificada =>
+        { tag = "sf:IDFacturaRectificada"; min = 1i32; max = Some 1000i32 }
 
 union x_registro_facturacion_anulacion_type_field r =
     | RegistroFacturacionAnulacionType_field_sf_IDVersion ::
@@ -3342,6 +3605,46 @@ inl x_registro_facturacion_anulacion_type_get forall r.
     | RegistroFacturacionAnulacionType_field_sf_Huella => x.huella
     | RegistroFacturacionAnulacionType_field_ds_Signature => x.signature
 
+inl x_registro_facturacion_anulacion_type_fields () : list (exists r. x_registro_facturacion_anulacion_type_field r) =
+    [
+        exists RegistroFacturacionAnulacionType_field_sf_IDVersion
+        exists RegistroFacturacionAnulacionType_field_sf_IDFactura
+        exists RegistroFacturacionAnulacionType_field_sf_RefExterna
+        exists RegistroFacturacionAnulacionType_field_sf_SinRegistroPrevio
+        exists RegistroFacturacionAnulacionType_field_sf_RechazoPrevio
+        exists RegistroFacturacionAnulacionType_field_sf_GeneradoPor
+        exists RegistroFacturacionAnulacionType_field_sf_Generador
+        exists RegistroFacturacionAnulacionType_field_sf_Encadenamiento
+        exists RegistroFacturacionAnulacionType_field_sf_SistemaInformatico
+        exists RegistroFacturacionAnulacionType_field_sf_FechaHoraHusoGenRegistro
+        exists RegistroFacturacionAnulacionType_field_sf_TipoHuella
+        exists RegistroFacturacionAnulacionType_field_sf_Huella
+        exists RegistroFacturacionAnulacionType_field_ds_Signature
+    ]
+inl x_registro_facturacion_anulacion_type_field_meta forall r.
+    (f : x_registro_facturacion_anulacion_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegistroFacturacionAnulacionType_field_sf_IDVersion => { tag = "sf:IDVersion"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_IDFactura => { tag = "sf:IDFactura"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_RefExterna => { tag = "sf:RefExterna"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_SinRegistroPrevio =>
+        { tag = "sf:SinRegistroPrevio"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_RechazoPrevio =>
+        { tag = "sf:RechazoPrevio"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_GeneradoPor => { tag = "sf:GeneradoPor"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_Generador => { tag = "sf:Generador"; min = 0i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_Encadenamiento =>
+        { tag = "sf:Encadenamiento"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_SistemaInformatico =>
+        { tag = "sf:SistemaInformatico"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_FechaHoraHusoGenRegistro =>
+        { tag = "sf:FechaHoraHusoGenRegistro"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_TipoHuella => { tag = "sf:TipoHuella"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_sf_Huella => { tag = "sf:Huella"; min = 1i32; max = Some 1i32 }
+    | RegistroFacturacionAnulacionType_field_ds_Signature => { tag = "ds:Signature"; min = 0i32; max = Some 1i32 }
+
 union x_registro_facturacion_anulacion_type_sf_encadenamiento_field r =
     | RegistroFacturacionAnulacionType_sf_Encadenamiento_field_choice_primer_registro ::
         x_registro_facturacion_anulacion_type_sf_encadenamiento_field
@@ -3354,6 +3657,19 @@ inl x_registro_facturacion_anulacion_type_sf_encadenamiento_get forall r.
     =
     match f with
     | RegistroFacturacionAnulacionType_sf_Encadenamiento_field_choice_primer_registro => x.choice_primer_registro
+
+inl x_registro_facturacion_anulacion_type_sf_encadenamiento_fields
+    ()
+    : list (exists r. x_registro_facturacion_anulacion_type_sf_encadenamiento_field r)
+    =
+    [ exists RegistroFacturacionAnulacionType_sf_Encadenamiento_field_choice_primer_registro ]
+inl x_registro_facturacion_anulacion_type_sf_encadenamiento_field_meta forall r.
+    (f : x_registro_facturacion_anulacion_type_sf_encadenamiento_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RegistroFacturacionAnulacionType_sf_Encadenamiento_field_choice_primer_registro =>
+        { tag = "choice_primer_registro"; min = 1i32; max = Some 1i32 }
 
 union x_encadenamiento_factura_anterior_type_field r =
     | EncadenamientoFacturaAnteriorType_field_sf_IDEmisorFactura ::
@@ -3374,6 +3690,26 @@ inl x_encadenamiento_factura_anterior_type_get forall r.
     | EncadenamientoFacturaAnteriorType_field_sf_NumSerieFactura => x.num_serie_factura
     | EncadenamientoFacturaAnteriorType_field_sf_FechaExpedicionFactura => x.fecha_expedicion_factura
     | EncadenamientoFacturaAnteriorType_field_sf_Huella => x.huella
+
+inl x_encadenamiento_factura_anterior_type_fields () : list (exists r. x_encadenamiento_factura_anterior_type_field r) =
+    [
+        exists EncadenamientoFacturaAnteriorType_field_sf_IDEmisorFactura
+        exists EncadenamientoFacturaAnteriorType_field_sf_NumSerieFactura
+        exists EncadenamientoFacturaAnteriorType_field_sf_FechaExpedicionFactura
+        exists EncadenamientoFacturaAnteriorType_field_sf_Huella
+    ]
+inl x_encadenamiento_factura_anterior_type_field_meta forall r.
+    (f : x_encadenamiento_factura_anterior_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | EncadenamientoFacturaAnteriorType_field_sf_IDEmisorFactura =>
+        { tag = "sf:IDEmisorFactura"; min = 1i32; max = Some 1i32 }
+    | EncadenamientoFacturaAnteriorType_field_sf_NumSerieFactura =>
+        { tag = "sf:NumSerieFactura"; min = 1i32; max = Some 1i32 }
+    | EncadenamientoFacturaAnteriorType_field_sf_FechaExpedicionFactura =>
+        { tag = "sf:FechaExpedicionFactura"; min = 1i32; max = Some 1i32 }
+    | EncadenamientoFacturaAnteriorType_field_sf_Huella => { tag = "sf:Huella"; min = 1i32; max = Some 1i32 }
 
 union x_sistema_informatico_type_field r =
     | SistemaInformaticoType_field_sf_NombreRazon :: x_sistema_informatico_type_field (x_text_max120_type)
@@ -3401,6 +3737,35 @@ inl x_sistema_informatico_type_get forall r.
     | SistemaInformaticoType_field_sf_TipoUsoPosibleSoloVerifactu => x.tipo_uso_posible_solo_verifactu
     | SistemaInformaticoType_field_sf_TipoUsoPosibleMultiOT => x.tipo_uso_posible_multi_ot
     | SistemaInformaticoType_field_sf_IndicadorMultiplesOT => x.indicador_multiples_ot
+
+inl x_sistema_informatico_type_fields () : list (exists r. x_sistema_informatico_type_field r) =
+    [
+        exists SistemaInformaticoType_field_sf_NombreRazon
+        exists SistemaInformaticoType_field_choice_nif
+        exists SistemaInformaticoType_field_sf_NombreSistemaInformatico
+        exists SistemaInformaticoType_field_sf_IdSistemaInformatico
+        exists SistemaInformaticoType_field_sf_Version
+        exists SistemaInformaticoType_field_sf_NumeroInstalacion
+        exists SistemaInformaticoType_field_sf_TipoUsoPosibleSoloVerifactu
+        exists SistemaInformaticoType_field_sf_TipoUsoPosibleMultiOT
+        exists SistemaInformaticoType_field_sf_IndicadorMultiplesOT
+    ]
+inl x_sistema_informatico_type_field_meta forall r. (f : x_sistema_informatico_type_field r) : xml_codec.field_meta =
+    match f with
+    | SistemaInformaticoType_field_sf_NombreRazon => { tag = "sf:NombreRazon"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_choice_nif => { tag = "choice_nif"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_sf_NombreSistemaInformatico =>
+        { tag = "sf:NombreSistemaInformatico"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_sf_IdSistemaInformatico =>
+        { tag = "sf:IdSistemaInformatico"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_sf_Version => { tag = "sf:Version"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_sf_NumeroInstalacion => { tag = "sf:NumeroInstalacion"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_sf_TipoUsoPosibleSoloVerifactu =>
+        { tag = "sf:TipoUsoPosibleSoloVerifactu"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_sf_TipoUsoPosibleMultiOT =>
+        { tag = "sf:TipoUsoPosibleMultiOT"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoType_field_sf_IndicadorMultiplesOT =>
+        { tag = "sf:IndicadorMultiplesOT"; min = 1i32; max = Some 1i32 }
 
 union x_sistema_informatico_consulta_type_field r =
     | SistemaInformaticoConsultaType_field_sf_NombreRazon ::
@@ -3437,6 +3802,39 @@ inl x_sistema_informatico_consulta_type_get forall r.
     | SistemaInformaticoConsultaType_field_sf_TipoUsoPosibleMultiOT => x.tipo_uso_posible_multi_ot
     | SistemaInformaticoConsultaType_field_sf_IndicadorMultiplesOT => x.indicador_multiples_ot
 
+inl x_sistema_informatico_consulta_type_fields () : list (exists r. x_sistema_informatico_consulta_type_field r) =
+    [
+        exists SistemaInformaticoConsultaType_field_sf_NombreRazon
+        exists SistemaInformaticoConsultaType_field_choice_nif
+        exists SistemaInformaticoConsultaType_field_sf_NombreSistemaInformatico
+        exists SistemaInformaticoConsultaType_field_sf_IdSistemaInformatico
+        exists SistemaInformaticoConsultaType_field_sf_Version
+        exists SistemaInformaticoConsultaType_field_sf_NumeroInstalacion
+        exists SistemaInformaticoConsultaType_field_sf_TipoUsoPosibleSoloVerifactu
+        exists SistemaInformaticoConsultaType_field_sf_TipoUsoPosibleMultiOT
+        exists SistemaInformaticoConsultaType_field_sf_IndicadorMultiplesOT
+    ]
+inl x_sistema_informatico_consulta_type_field_meta forall r.
+    (f : x_sistema_informatico_consulta_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | SistemaInformaticoConsultaType_field_sf_NombreRazon => { tag = "sf:NombreRazon"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_choice_nif => { tag = "choice_nif"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_sf_NombreSistemaInformatico =>
+        { tag = "sf:NombreSistemaInformatico"; min = 0i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_sf_IdSistemaInformatico =>
+        { tag = "sf:IdSistemaInformatico"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_sf_Version => { tag = "sf:Version"; min = 0i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_sf_NumeroInstalacion =>
+        { tag = "sf:NumeroInstalacion"; min = 1i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_sf_TipoUsoPosibleSoloVerifactu =>
+        { tag = "sf:TipoUsoPosibleSoloVerifactu"; min = 0i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_sf_TipoUsoPosibleMultiOT =>
+        { tag = "sf:TipoUsoPosibleMultiOT"; min = 0i32; max = Some 1i32 }
+    | SistemaInformaticoConsultaType_field_sf_IndicadorMultiplesOT =>
+        { tag = "sf:IndicadorMultiplesOT"; min = 0i32; max = Some 1i32 }
+
 union x_id_factura_expedida_type_field r =
     | IDFacturaExpedidaType_field_sf_IDEmisorFactura :: x_id_factura_expedida_type_field (x_nif_type)
     | IDFacturaExpedidaType_field_sf_NumSerieFactura :: x_id_factura_expedida_type_field (x_texto_id_factura_type)
@@ -3451,6 +3849,19 @@ inl x_id_factura_expedida_type_get forall r.
     | IDFacturaExpedidaType_field_sf_NumSerieFactura => x.num_serie_factura
     | IDFacturaExpedidaType_field_sf_FechaExpedicionFactura => x.fecha_expedicion_factura
 
+inl x_id_factura_expedida_type_fields () : list (exists r. x_id_factura_expedida_type_field r) =
+    [
+        exists IDFacturaExpedidaType_field_sf_IDEmisorFactura
+        exists IDFacturaExpedidaType_field_sf_NumSerieFactura
+        exists IDFacturaExpedidaType_field_sf_FechaExpedicionFactura
+    ]
+inl x_id_factura_expedida_type_field_meta forall r. (f : x_id_factura_expedida_type_field r) : xml_codec.field_meta =
+    match f with
+    | IDFacturaExpedidaType_field_sf_IDEmisorFactura => { tag = "sf:IDEmisorFactura"; min = 1i32; max = Some 1i32 }
+    | IDFacturaExpedidaType_field_sf_NumSerieFactura => { tag = "sf:NumSerieFactura"; min = 1i32; max = Some 1i32 }
+    | IDFacturaExpedidaType_field_sf_FechaExpedicionFactura =>
+        { tag = "sf:FechaExpedicionFactura"; min = 1i32; max = Some 1i32 }
+
 union x_id_factura_ar_type_field r =
     | IDFacturaARType_field_sf_IDEmisorFactura :: x_id_factura_ar_type_field (x_nif_type)
     | IDFacturaARType_field_sf_NumSerieFactura :: x_id_factura_ar_type_field (x_texto_id_factura_type)
@@ -3461,6 +3872,19 @@ inl x_id_factura_ar_type_get forall r. (f : x_id_factura_ar_type_field r) (x : x
     | IDFacturaARType_field_sf_IDEmisorFactura => x.id_emisor_factura
     | IDFacturaARType_field_sf_NumSerieFactura => x.num_serie_factura
     | IDFacturaARType_field_sf_FechaExpedicionFactura => x.fecha_expedicion_factura
+
+inl x_id_factura_ar_type_fields () : list (exists r. x_id_factura_ar_type_field r) =
+    [
+        exists IDFacturaARType_field_sf_IDEmisorFactura
+        exists IDFacturaARType_field_sf_NumSerieFactura
+        exists IDFacturaARType_field_sf_FechaExpedicionFactura
+    ]
+inl x_id_factura_ar_type_field_meta forall r. (f : x_id_factura_ar_type_field r) : xml_codec.field_meta =
+    match f with
+    | IDFacturaARType_field_sf_IDEmisorFactura => { tag = "sf:IDEmisorFactura"; min = 1i32; max = Some 1i32 }
+    | IDFacturaARType_field_sf_NumSerieFactura => { tag = "sf:NumSerieFactura"; min = 1i32; max = Some 1i32 }
+    | IDFacturaARType_field_sf_FechaExpedicionFactura =>
+        { tag = "sf:FechaExpedicionFactura"; min = 1i32; max = Some 1i32 }
 
 union x_detalle_type_field r =
     | DetalleType_field_sf_Impuesto :: x_detalle_type_field (option (x_impuesto_type))
@@ -3487,6 +3911,34 @@ inl x_detalle_type_get forall r. (f : x_detalle_type_field r) (x : x_detalle_typ
     | DetalleType_field_sf_TipoRecargoEquivalencia => x.tipo_recargo_equivalencia
     | DetalleType_field_sf_CuotaRecargoEquivalencia => x.cuota_recargo_equivalencia
 
+inl x_detalle_type_fields () : list (exists r. x_detalle_type_field r) =
+    [
+        exists DetalleType_field_sf_Impuesto
+        exists DetalleType_field_sf_ClaveRegimen
+        exists DetalleType_field_choice_calificacion_operacion
+        exists DetalleType_field_sf_TipoImpositivo
+        exists DetalleType_field_sf_BaseImponibleOimporteNoSujeto
+        exists DetalleType_field_sf_BaseImponibleACoste
+        exists DetalleType_field_sf_CuotaRepercutida
+        exists DetalleType_field_sf_TipoRecargoEquivalencia
+        exists DetalleType_field_sf_CuotaRecargoEquivalencia
+    ]
+inl x_detalle_type_field_meta forall r. (f : x_detalle_type_field r) : xml_codec.field_meta =
+    match f with
+    | DetalleType_field_sf_Impuesto => { tag = "sf:Impuesto"; min = 0i32; max = Some 1i32 }
+    | DetalleType_field_sf_ClaveRegimen => { tag = "sf:ClaveRegimen"; min = 0i32; max = Some 1i32 }
+    | DetalleType_field_choice_calificacion_operacion =>
+        { tag = "choice_calificacion_operacion"; min = 1i32; max = Some 1i32 }
+    | DetalleType_field_sf_TipoImpositivo => { tag = "sf:TipoImpositivo"; min = 0i32; max = Some 1i32 }
+    | DetalleType_field_sf_BaseImponibleOimporteNoSujeto =>
+        { tag = "sf:BaseImponibleOimporteNoSujeto"; min = 1i32; max = Some 1i32 }
+    | DetalleType_field_sf_BaseImponibleACoste => { tag = "sf:BaseImponibleACoste"; min = 0i32; max = Some 1i32 }
+    | DetalleType_field_sf_CuotaRepercutida => { tag = "sf:CuotaRepercutida"; min = 0i32; max = Some 1i32 }
+    | DetalleType_field_sf_TipoRecargoEquivalencia =>
+        { tag = "sf:TipoRecargoEquivalencia"; min = 0i32; max = Some 1i32 }
+    | DetalleType_field_sf_CuotaRecargoEquivalencia =>
+        { tag = "sf:CuotaRecargoEquivalencia"; min = 0i32; max = Some 1i32 }
+
 union x_desglose_rectificacion_type_field r =
     | DesgloseRectificacionType_field_sf_BaseRectificada :: x_desglose_rectificacion_type_field (x_importe_sgn12_2_type)
     | DesgloseRectificacionType_field_sf_CuotaRectificada ::
@@ -3503,6 +3955,23 @@ inl x_desglose_rectificacion_type_get forall r.
     | DesgloseRectificacionType_field_sf_CuotaRectificada => x.cuota_rectificada
     | DesgloseRectificacionType_field_sf_CuotaRecargoRectificado => x.cuota_recargo_rectificado
 
+inl x_desglose_rectificacion_type_fields () : list (exists r. x_desglose_rectificacion_type_field r) =
+    [
+        exists DesgloseRectificacionType_field_sf_BaseRectificada
+        exists DesgloseRectificacionType_field_sf_CuotaRectificada
+        exists DesgloseRectificacionType_field_sf_CuotaRecargoRectificado
+    ]
+inl x_desglose_rectificacion_type_field_meta forall r.
+    (f : x_desglose_rectificacion_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | DesgloseRectificacionType_field_sf_BaseRectificada => { tag = "sf:BaseRectificada"; min = 1i32; max = Some 1i32 }
+    | DesgloseRectificacionType_field_sf_CuotaRectificada =>
+        { tag = "sf:CuotaRectificada"; min = 1i32; max = Some 1i32 }
+    | DesgloseRectificacionType_field_sf_CuotaRecargoRectificado =>
+        { tag = "sf:CuotaRecargoRectificado"; min = 0i32; max = Some 1i32 }
+
 union x_persona_fisica_juridica_es_type_field r =
     | PersonaFisicaJuridicaESType_field_sf_NombreRazon :: x_persona_fisica_juridica_es_type_field (x_text_max120_type)
     | PersonaFisicaJuridicaESType_field_sf_NIF :: x_persona_fisica_juridica_es_type_field (x_nif_type)
@@ -3514,6 +3983,16 @@ inl x_persona_fisica_juridica_es_type_get forall r.
     match f with
     | PersonaFisicaJuridicaESType_field_sf_NombreRazon => x.nombre_razon
     | PersonaFisicaJuridicaESType_field_sf_NIF => x.nif
+
+inl x_persona_fisica_juridica_es_type_fields () : list (exists r. x_persona_fisica_juridica_es_type_field r) =
+    [ exists PersonaFisicaJuridicaESType_field_sf_NombreRazon; exists PersonaFisicaJuridicaESType_field_sf_NIF ]
+inl x_persona_fisica_juridica_es_type_field_meta forall r.
+    (f : x_persona_fisica_juridica_es_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PersonaFisicaJuridicaESType_field_sf_NombreRazon => { tag = "sf:NombreRazon"; min = 1i32; max = Some 1i32 }
+    | PersonaFisicaJuridicaESType_field_sf_NIF => { tag = "sf:NIF"; min = 1i32; max = Some 1i32 }
 
 union x_persona_fisica_juridica_type_field r =
     | PersonaFisicaJuridicaType_field_sf_NombreRazon :: x_persona_fisica_juridica_type_field (x_text_max120_type)
@@ -3528,6 +4007,16 @@ inl x_persona_fisica_juridica_type_get forall r.
     | PersonaFisicaJuridicaType_field_sf_NombreRazon => x.nombre_razon
     | PersonaFisicaJuridicaType_field_choice_nif => x.choice_nif
 
+inl x_persona_fisica_juridica_type_fields () : list (exists r. x_persona_fisica_juridica_type_field r) =
+    [ exists PersonaFisicaJuridicaType_field_sf_NombreRazon; exists PersonaFisicaJuridicaType_field_choice_nif ]
+inl x_persona_fisica_juridica_type_field_meta forall r.
+    (f : x_persona_fisica_juridica_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PersonaFisicaJuridicaType_field_sf_NombreRazon => { tag = "sf:NombreRazon"; min = 1i32; max = Some 1i32 }
+    | PersonaFisicaJuridicaType_field_choice_nif => { tag = "choice_nif"; min = 1i32; max = Some 1i32 }
+
 union x_id_otro_type_field r =
     | IDOtroType_field_sf_CodigoPais :: x_id_otro_type_field (option (x_country_type2))
     | IDOtroType_field_sf_IDType :: x_id_otro_type_field (x_persona_fisica_juridica_id_type_type)
@@ -3538,6 +4027,14 @@ inl x_id_otro_type_get forall r. (f : x_id_otro_type_field r) (x : x_id_otro_typ
     | IDOtroType_field_sf_CodigoPais => x.codigo_pais
     | IDOtroType_field_sf_IDType => x.id_type
     | IDOtroType_field_sf_ID => x.id
+
+inl x_id_otro_type_fields () : list (exists r. x_id_otro_type_field r) =
+    [ exists IDOtroType_field_sf_CodigoPais; exists IDOtroType_field_sf_IDType; exists IDOtroType_field_sf_ID ]
+inl x_id_otro_type_field_meta forall r. (f : x_id_otro_type_field r) : xml_codec.field_meta =
+    match f with
+    | IDOtroType_field_sf_CodigoPais => { tag = "sf:CodigoPais"; min = 0i32; max = Some 1i32 }
+    | IDOtroType_field_sf_IDType => { tag = "sf:IDType"; min = 1i32; max = Some 1i32 }
+    | IDOtroType_field_sf_ID => { tag = "sf:ID"; min = 1i32; max = Some 1i32 }
 
 union x_rango_fecha_expedicion_type_field r =
     | RangoFechaExpedicionType_field_sf_Desde :: x_rango_fecha_expedicion_type_field (option (x_fecha))
@@ -3551,6 +4048,16 @@ inl x_rango_fecha_expedicion_type_get forall r.
     | RangoFechaExpedicionType_field_sf_Desde => x.desde
     | RangoFechaExpedicionType_field_sf_Hasta => x.hasta
 
+inl x_rango_fecha_expedicion_type_fields () : list (exists r. x_rango_fecha_expedicion_type_field r) =
+    [ exists RangoFechaExpedicionType_field_sf_Desde; exists RangoFechaExpedicionType_field_sf_Hasta ]
+inl x_rango_fecha_expedicion_type_field_meta forall r.
+    (f : x_rango_fecha_expedicion_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | RangoFechaExpedicionType_field_sf_Desde => { tag = "sf:Desde"; min = 0i32; max = Some 1i32 }
+    | RangoFechaExpedicionType_field_sf_Hasta => { tag = "sf:Hasta"; min = 0i32; max = Some 1i32 }
+
 union x_fecha_expedicion_consulta_type_field r =
     | FechaExpedicionConsultaType_field_choice_fecha_expedicion_factura ::
         x_fecha_expedicion_consulta_type_field (x_fecha_expedicion_consulta_type_choice_sf_fecha_expedicion_factura)
@@ -3561,6 +4068,16 @@ inl x_fecha_expedicion_consulta_type_get forall r.
     =
     match f with
     | FechaExpedicionConsultaType_field_choice_fecha_expedicion_factura => x.choice_fecha_expedicion_factura
+
+inl x_fecha_expedicion_consulta_type_fields () : list (exists r. x_fecha_expedicion_consulta_type_field r) =
+    [ exists FechaExpedicionConsultaType_field_choice_fecha_expedicion_factura ]
+inl x_fecha_expedicion_consulta_type_field_meta forall r.
+    (f : x_fecha_expedicion_consulta_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | FechaExpedicionConsultaType_field_choice_fecha_expedicion_factura =>
+        { tag = "choice_fecha_expedicion_factura"; min = 1i32; max = Some 1i32 }
 
 union x_registro_duplicado_type_field r =
     | RegistroDuplicadoType_field_sf_IdPeticionRegistroDuplicado :: x_registro_duplicado_type_field (x_text_max20_type)
@@ -3581,12 +4098,36 @@ inl x_registro_duplicado_type_get forall r.
     | RegistroDuplicadoType_field_sf_CodigoErrorRegistro => x.codigo_error_registro
     | RegistroDuplicadoType_field_sf_DescripcionErrorRegistro => x.descripcion_error_registro
 
+inl x_registro_duplicado_type_fields () : list (exists r. x_registro_duplicado_type_field r) =
+    [
+        exists RegistroDuplicadoType_field_sf_IdPeticionRegistroDuplicado
+        exists RegistroDuplicadoType_field_sf_EstadoRegistroDuplicado
+        exists RegistroDuplicadoType_field_sf_CodigoErrorRegistro
+        exists RegistroDuplicadoType_field_sf_DescripcionErrorRegistro
+    ]
+inl x_registro_duplicado_type_field_meta forall r. (f : x_registro_duplicado_type_field r) : xml_codec.field_meta =
+    match f with
+    | RegistroDuplicadoType_field_sf_IdPeticionRegistroDuplicado =>
+        { tag = "sf:IdPeticionRegistroDuplicado"; min = 1i32; max = Some 1i32 }
+    | RegistroDuplicadoType_field_sf_EstadoRegistroDuplicado =>
+        { tag = "sf:EstadoRegistroDuplicado"; min = 1i32; max = Some 1i32 }
+    | RegistroDuplicadoType_field_sf_CodigoErrorRegistro =>
+        { tag = "sf:CodigoErrorRegistro"; min = 0i32; max = Some 1i32 }
+    | RegistroDuplicadoType_field_sf_DescripcionErrorRegistro =>
+        { tag = "sf:DescripcionErrorRegistro"; min = 0i32; max = Some 1i32 }
+
 union x_desglose_type_field r =
     | DesgloseType_field_sf_DetalleDesglose :: x_desglose_type_field (list (x_detalle_type))
 
 inl x_desglose_type_get forall r. (f : x_desglose_type_field r) (x : x_desglose_type) : r =
     match f with
     | DesgloseType_field_sf_DetalleDesglose => x.detalle_desglose
+
+inl x_desglose_type_fields () : list (exists r. x_desglose_type_field r) =
+    [ exists DesgloseType_field_sf_DetalleDesglose ]
+inl x_desglose_type_field_meta forall r. (f : x_desglose_type_field r) : xml_codec.field_meta =
+    match f with
+    | DesgloseType_field_sf_DetalleDesglose => { tag = "sf:DetalleDesglose"; min = 1i32; max = Some 12i32 }
 
 union x_contraparte_consulta_type_field r =
     | ContraparteConsultaType_field_sf_NombreRazon :: x_contraparte_consulta_type_field (x_text_max120_type)
@@ -3601,6 +4142,13 @@ inl x_contraparte_consulta_type_get forall r.
     | ContraparteConsultaType_field_sf_NombreRazon => x.nombre_razon
     | ContraparteConsultaType_field_choice_nif => x.choice_nif
 
+inl x_contraparte_consulta_type_fields () : list (exists r. x_contraparte_consulta_type_field r) =
+    [ exists ContraparteConsultaType_field_sf_NombreRazon; exists ContraparteConsultaType_field_choice_nif ]
+inl x_contraparte_consulta_type_field_meta forall r. (f : x_contraparte_consulta_type_field r) : xml_codec.field_meta =
+    match f with
+    | ContraparteConsultaType_field_sf_NombreRazon => { tag = "sf:NombreRazon"; min = 1i32; max = Some 1i32 }
+    | ContraparteConsultaType_field_choice_nif => { tag = "choice_nif"; min = 1i32; max = Some 1i32 }
+
 union x_cabecera_consulta_sf_field r =
     | CabeceraConsultaSf_field_sf_IDVersion :: x_cabecera_consulta_sf_field (x_version_type)
     | CabeceraConsultaSf_field_choice_obligado_emision ::
@@ -3614,6 +4162,20 @@ inl x_cabecera_consulta_sf_get forall r. (f : x_cabecera_consulta_sf_field r) (x
     | CabeceraConsultaSf_field_choice_obligado_emision => x.choice_obligado_emision
     | CabeceraConsultaSf_field_sf_IndicadorRepresentante => x.indicador_representante
 
+inl x_cabecera_consulta_sf_fields () : list (exists r. x_cabecera_consulta_sf_field r) =
+    [
+        exists CabeceraConsultaSf_field_sf_IDVersion
+        exists CabeceraConsultaSf_field_choice_obligado_emision
+        exists CabeceraConsultaSf_field_sf_IndicadorRepresentante
+    ]
+inl x_cabecera_consulta_sf_field_meta forall r. (f : x_cabecera_consulta_sf_field r) : xml_codec.field_meta =
+    match f with
+    | CabeceraConsultaSf_field_sf_IDVersion => { tag = "sf:IDVersion"; min = 1i32; max = Some 1i32 }
+    | CabeceraConsultaSf_field_choice_obligado_emision =>
+        { tag = "choice_obligado_emision"; min = 1i32; max = Some 1i32 }
+    | CabeceraConsultaSf_field_sf_IndicadorRepresentante =>
+        { tag = "sf:IndicadorRepresentante"; min = 0i32; max = Some 1i32 }
+
 union x_obligado_emision_consulta_type_field r =
     | ObligadoEmisionConsultaType_field_sf_NombreRazon :: x_obligado_emision_consulta_type_field (x_text_max120_type)
     | ObligadoEmisionConsultaType_field_sf_NIF :: x_obligado_emision_consulta_type_field (x_nif_type)
@@ -3626,6 +4188,16 @@ inl x_obligado_emision_consulta_type_get forall r.
     | ObligadoEmisionConsultaType_field_sf_NombreRazon => x.nombre_razon
     | ObligadoEmisionConsultaType_field_sf_NIF => x.nif
 
+inl x_obligado_emision_consulta_type_fields () : list (exists r. x_obligado_emision_consulta_type_field r) =
+    [ exists ObligadoEmisionConsultaType_field_sf_NombreRazon; exists ObligadoEmisionConsultaType_field_sf_NIF ]
+inl x_obligado_emision_consulta_type_field_meta forall r.
+    (f : x_obligado_emision_consulta_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | ObligadoEmisionConsultaType_field_sf_NombreRazon => { tag = "sf:NombreRazon"; min = 1i32; max = Some 1i32 }
+    | ObligadoEmisionConsultaType_field_sf_NIF => { tag = "sf:NIF"; min = 1i32; max = Some 1i32 }
+
 union x_obligado_generacion_type_field r =
     | ObligadoGeneracionType_field_sf_NombreRazon :: x_obligado_generacion_type_field (x_text_max120_type)
     | ObligadoGeneracionType_field_sf_NIF :: x_obligado_generacion_type_field (x_nif_type)
@@ -3637,6 +4209,13 @@ inl x_obligado_generacion_type_get forall r.
     match f with
     | ObligadoGeneracionType_field_sf_NombreRazon => x.nombre_razon
     | ObligadoGeneracionType_field_sf_NIF => x.nif
+
+inl x_obligado_generacion_type_fields () : list (exists r. x_obligado_generacion_type_field r) =
+    [ exists ObligadoGeneracionType_field_sf_NombreRazon; exists ObligadoGeneracionType_field_sf_NIF ]
+inl x_obligado_generacion_type_field_meta forall r. (f : x_obligado_generacion_type_field r) : xml_codec.field_meta =
+    match f with
+    | ObligadoGeneracionType_field_sf_NombreRazon => { tag = "sf:NombreRazon"; min = 1i32; max = Some 1i32 }
+    | ObligadoGeneracionType_field_sf_NIF => { tag = "sf:NIF"; min = 1i32; max = Some 1i32 }
 
 union x_operacion_type_field r =
     | OperacionType_field_sf_TipoOperacion :: x_operacion_type_field (x_tipo_operacion_type)
@@ -3651,6 +4230,20 @@ inl x_operacion_type_get forall r. (f : x_operacion_type_field r) (x : x_operaci
     | OperacionType_field_sf_RechazoPrevio => x.rechazo_previo
     | OperacionType_field_sf_SinRegistroPrevio => x.sin_registro_previo
 
+inl x_operacion_type_fields () : list (exists r. x_operacion_type_field r) =
+    [
+        exists OperacionType_field_sf_TipoOperacion
+        exists OperacionType_field_sf_Subsanacion
+        exists OperacionType_field_sf_RechazoPrevio
+        exists OperacionType_field_sf_SinRegistroPrevio
+    ]
+inl x_operacion_type_field_meta forall r. (f : x_operacion_type_field r) : xml_codec.field_meta =
+    match f with
+    | OperacionType_field_sf_TipoOperacion => { tag = "sf:TipoOperacion"; min = 1i32; max = Some 1i32 }
+    | OperacionType_field_sf_Subsanacion => { tag = "sf:Subsanacion"; min = 0i32; max = Some 1i32 }
+    | OperacionType_field_sf_RechazoPrevio => { tag = "sf:RechazoPrevio"; min = 0i32; max = Some 1i32 }
+    | OperacionType_field_sf_SinRegistroPrevio => { tag = "sf:SinRegistroPrevio"; min = 0i32; max = Some 1i32 }
+
 union x_signature_type_field r =
     | SignatureType_field_ds_SignedInfo :: x_signature_type_field (x_signed_info_type)
     | SignatureType_field_ds_SignatureValue :: x_signature_type_field (x_signature_value_type)
@@ -3664,6 +4257,20 @@ inl x_signature_type_get forall r. (f : x_signature_type_field r) (x : x_signatu
     | SignatureType_field_ds_KeyInfo => x.key_info
     | SignatureType_field_ds_Object => x.object
 
+inl x_signature_type_fields () : list (exists r. x_signature_type_field r) =
+    [
+        exists SignatureType_field_ds_SignedInfo
+        exists SignatureType_field_ds_SignatureValue
+        exists SignatureType_field_ds_KeyInfo
+        exists SignatureType_field_ds_Object
+    ]
+inl x_signature_type_field_meta forall r. (f : x_signature_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignatureType_field_ds_SignedInfo => { tag = "ds:SignedInfo"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_ds_SignatureValue => { tag = "ds:SignatureValue"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_ds_KeyInfo => { tag = "ds:KeyInfo"; min = 0i32; max = Some 1i32 }
+    | SignatureType_field_ds_Object => { tag = "ds:Object"; min = 0i32; max = None }
+
 union x_signed_info_type_field r =
     | SignedInfoType_field_ds_CanonicalizationMethod :: x_signed_info_type_field (x_canonicalization_method_type)
     | SignedInfoType_field_ds_SignatureMethod :: x_signed_info_type_field (x_signature_method_type)
@@ -3675,6 +4282,19 @@ inl x_signed_info_type_get forall r. (f : x_signed_info_type_field r) (x : x_sig
     | SignedInfoType_field_ds_SignatureMethod => x.signature_method
     | SignedInfoType_field_ds_Reference => x.reference
 
+inl x_signed_info_type_fields () : list (exists r. x_signed_info_type_field r) =
+    [
+        exists SignedInfoType_field_ds_CanonicalizationMethod
+        exists SignedInfoType_field_ds_SignatureMethod
+        exists SignedInfoType_field_ds_Reference
+    ]
+inl x_signed_info_type_field_meta forall r. (f : x_signed_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignedInfoType_field_ds_CanonicalizationMethod =>
+        { tag = "ds:CanonicalizationMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_ds_SignatureMethod => { tag = "ds:SignatureMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_ds_Reference => { tag = "ds:Reference"; min = 1i32; max = None }
+
 union x_canonicalization_method_type_field r =
     | CanonicalizationMethodType_field_any :: x_canonicalization_method_type_field (any_content)
 
@@ -3685,6 +4305,15 @@ inl x_canonicalization_method_type_get forall r.
     match f with
     | CanonicalizationMethodType_field_any => x.any
 
+inl x_canonicalization_method_type_fields () : list (exists r. x_canonicalization_method_type_field r) =
+    [ exists CanonicalizationMethodType_field_any ]
+inl x_canonicalization_method_type_field_meta forall r.
+    (f : x_canonicalization_method_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CanonicalizationMethodType_field_any => { tag = "any"; min = 0i32; max = None }
+
 union x_signature_method_type_field r =
     | SignatureMethodType_field_HMACOutputLength :: x_signature_method_type_field (option (x_hmac_output_length_type))
     | SignatureMethodType_field_any :: x_signature_method_type_field (any_content)
@@ -3693,6 +4322,13 @@ inl x_signature_method_type_get forall r. (f : x_signature_method_type_field r) 
     match f with
     | SignatureMethodType_field_HMACOutputLength => x.hmac_output_length
     | SignatureMethodType_field_any => x.any
+
+inl x_signature_method_type_fields () : list (exists r. x_signature_method_type_field r) =
+    [ exists SignatureMethodType_field_HMACOutputLength; exists SignatureMethodType_field_any ]
+inl x_signature_method_type_field_meta forall r. (f : x_signature_method_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignatureMethodType_field_HMACOutputLength => { tag = "HMACOutputLength"; min = 0i32; max = Some 1i32 }
+    | SignatureMethodType_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_reference_type_field r =
     | ReferenceType_field_ds_Transforms :: x_reference_type_field (option (x_transforms_type))
@@ -3705,12 +4341,30 @@ inl x_reference_type_get forall r. (f : x_reference_type_field r) (x : x_referen
     | ReferenceType_field_ds_DigestMethod => x.digest_method
     | ReferenceType_field_ds_DigestValue => x.digest_value
 
+inl x_reference_type_fields () : list (exists r. x_reference_type_field r) =
+    [
+        exists ReferenceType_field_ds_Transforms
+        exists ReferenceType_field_ds_DigestMethod
+        exists ReferenceType_field_ds_DigestValue
+    ]
+inl x_reference_type_field_meta forall r. (f : x_reference_type_field r) : xml_codec.field_meta =
+    match f with
+    | ReferenceType_field_ds_Transforms => { tag = "ds:Transforms"; min = 0i32; max = Some 1i32 }
+    | ReferenceType_field_ds_DigestMethod => { tag = "ds:DigestMethod"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_ds_DigestValue => { tag = "ds:DigestValue"; min = 1i32; max = Some 1i32 }
+
 union x_transforms_type_field r =
     | TransformsType_field_ds_Transform :: x_transforms_type_field (list (x_transform_type))
 
 inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_transforms_type) : r =
     match f with
     | TransformsType_field_ds_Transform => x.transform
+
+inl x_transforms_type_fields () : list (exists r. x_transforms_type_field r) =
+    [ exists TransformsType_field_ds_Transform ]
+inl x_transforms_type_field_meta forall r. (f : x_transforms_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformsType_field_ds_Transform => { tag = "ds:Transform"; min = 1i32; max = None }
 
 union x_transform_type_field r =
     | TransformType_field_choice_x_path :: x_transform_type_field (list (x_transform_type_choice_x_path))
@@ -3719,12 +4373,24 @@ inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transfo
     match f with
     | TransformType_field_choice_x_path => x.choice_x_path
 
+inl x_transform_type_fields () : list (exists r. x_transform_type_field r) =
+    [ exists TransformType_field_choice_x_path ]
+inl x_transform_type_field_meta forall r. (f : x_transform_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformType_field_choice_x_path => { tag = "choice_x_path"; min = 0i32; max = None }
+
 union x_digest_method_type_field r =
     | DigestMethodType_field_any :: x_digest_method_type_field (any_content)
 
 inl x_digest_method_type_get forall r. (f : x_digest_method_type_field r) (x : x_digest_method_type) : r =
     match f with
     | DigestMethodType_field_any => x.any
+
+inl x_digest_method_type_fields () : list (exists r. x_digest_method_type_field r) =
+    [ exists DigestMethodType_field_any ]
+inl x_digest_method_type_field_meta forall r. (f : x_digest_method_type_field r) : xml_codec.field_meta =
+    match f with
+    | DigestMethodType_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_key_info_type_field r =
     | KeyInfoType_field_choice_key_name :: x_key_info_type_field (list (x_key_info_type_choice_ds_key_name))
@@ -3733,12 +4399,23 @@ inl x_key_info_type_get forall r. (f : x_key_info_type_field r) (x : x_key_info_
     match f with
     | KeyInfoType_field_choice_key_name => x.choice_key_name
 
+inl x_key_info_type_fields () : list (exists r. x_key_info_type_field r) = [ exists KeyInfoType_field_choice_key_name ]
+inl x_key_info_type_field_meta forall r. (f : x_key_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | KeyInfoType_field_choice_key_name => { tag = "choice_key_name"; min = 1i32; max = None }
+
 union x_key_value_type_field r =
     | KeyValueType_field_choice_dsa_key_value :: x_key_value_type_field (x_key_value_type_choice_ds_dsa_key_value)
 
 inl x_key_value_type_get forall r. (f : x_key_value_type_field r) (x : x_key_value_type) : r =
     match f with
     | KeyValueType_field_choice_dsa_key_value => x.choice_dsa_key_value
+
+inl x_key_value_type_fields () : list (exists r. x_key_value_type_field r) =
+    [ exists KeyValueType_field_choice_dsa_key_value ]
+inl x_key_value_type_field_meta forall r. (f : x_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | KeyValueType_field_choice_dsa_key_value => { tag = "choice_dsa_key_value"; min = 1i32; max = Some 1i32 }
 
 union x_retrieval_method_type_field r =
     | RetrievalMethodType_field_ds_Transforms :: x_retrieval_method_type_field (option (x_transforms_type))
@@ -3747,6 +4424,12 @@ inl x_retrieval_method_type_get forall r. (f : x_retrieval_method_type_field r) 
     match f with
     | RetrievalMethodType_field_ds_Transforms => x.transforms
 
+inl x_retrieval_method_type_fields () : list (exists r. x_retrieval_method_type_field r) =
+    [ exists RetrievalMethodType_field_ds_Transforms ]
+inl x_retrieval_method_type_field_meta forall r. (f : x_retrieval_method_type_field r) : xml_codec.field_meta =
+    match f with
+    | RetrievalMethodType_field_ds_Transforms => { tag = "ds:Transforms"; min = 0i32; max = Some 1i32 }
+
 union x_x509_data_type_field r =
     | X509DataType_field_choice_x509_issuer_serial ::
         x_x509_data_type_field (list (x_x509_data_type_choice_x509_issuer_serial))
@@ -3754,6 +4437,12 @@ union x_x509_data_type_field r =
 inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_data_type) : r =
     match f with
     | X509DataType_field_choice_x509_issuer_serial => x.choice_x509_issuer_serial
+
+inl x_x509_data_type_fields () : list (exists r. x_x509_data_type_field r) =
+    [ exists X509DataType_field_choice_x509_issuer_serial ]
+inl x_x509_data_type_field_meta forall r. (f : x_x509_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | X509DataType_field_choice_x509_issuer_serial => { tag = "choice_x509_issuer_serial"; min = 1i32; max = None }
 
 union x_x509_issuer_serial_type_field r =
     | X509IssuerSerialType_field_X509IssuerName :: x_x509_issuer_serial_type_field (string)
@@ -3767,12 +4456,25 @@ inl x_x509_issuer_serial_type_get forall r.
     | X509IssuerSerialType_field_X509IssuerName => x.x509_issuer_name
     | X509IssuerSerialType_field_X509SerialNumber => x.x509_serial_number
 
+inl x_x509_issuer_serial_type_fields () : list (exists r. x_x509_issuer_serial_type_field r) =
+    [ exists X509IssuerSerialType_field_X509IssuerName; exists X509IssuerSerialType_field_X509SerialNumber ]
+inl x_x509_issuer_serial_type_field_meta forall r. (f : x_x509_issuer_serial_type_field r) : xml_codec.field_meta =
+    match f with
+    | X509IssuerSerialType_field_X509IssuerName => { tag = "X509IssuerName"; min = 1i32; max = Some 1i32 }
+    | X509IssuerSerialType_field_X509SerialNumber => { tag = "X509SerialNumber"; min = 1i32; max = Some 1i32 }
+
 union x_pgp_data_type_field r =
     | PGPDataType_field_choice_pgp_key_id :: x_pgp_data_type_field (x_pgp_data_type_choice_pgp_key_id)
 
 inl x_pgp_data_type_get forall r. (f : x_pgp_data_type_field r) (x : x_pgp_data_type) : r =
     match f with
     | PGPDataType_field_choice_pgp_key_id => x.choice_pgp_key_id
+
+inl x_pgp_data_type_fields () : list (exists r. x_pgp_data_type_field r) =
+    [ exists PGPDataType_field_choice_pgp_key_id ]
+inl x_pgp_data_type_field_meta forall r. (f : x_pgp_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | PGPDataType_field_choice_pgp_key_id => { tag = "choice_pgp_key_id"; min = 1i32; max = Some 1i32 }
 
 union x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r =
     | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket ::
@@ -3788,6 +4490,23 @@ inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_get forall r.
     match f with
     | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket => x.pgp_key_packet
     | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any => x.any
+
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_fields
+    ()
+    : list (exists r. x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r)
+    =
+    [
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any
+    ]
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field_meta forall r.
+    (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket =>
+        { tag = "PGPKeyPacket"; min = 1i32; max = Some 1i32 }
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r =
     | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID ::
@@ -3807,12 +4526,37 @@ inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_get forall r.
     | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket => x.pgp_key_packet
     | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any => x.any
 
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_fields
+    ()
+    : list (exists r. x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r)
+    =
+    [
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any
+    ]
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field_meta forall r.
+    (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID => { tag = "PGPKeyID"; min = 1i32; max = Some 1i32 }
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket =>
+        { tag = "PGPKeyPacket"; min = 0i32; max = Some 1i32 }
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any => { tag = "any"; min = 0i32; max = None }
+
 union x_spki_data_type_field r =
     | SPKIDataType_field_group_spki_sexp :: x_spki_data_type_field (list (x_spki_data_type_group_spki_sexp))
 
 inl x_spki_data_type_get forall r. (f : x_spki_data_type_field r) (x : x_spki_data_type) : r =
     match f with
     | SPKIDataType_field_group_spki_sexp => x.group_spki_sexp
+
+inl x_spki_data_type_fields () : list (exists r. x_spki_data_type_field r) =
+    [ exists SPKIDataType_field_group_spki_sexp ]
+inl x_spki_data_type_field_meta forall r. (f : x_spki_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | SPKIDataType_field_group_spki_sexp => { tag = "group_spki_sexp"; min = 1i32; max = None }
 
 union x_spki_data_type_group_spki_sexp_field r =
     | SPKIDataType_group_SPKISexp_field_SPKISexp :: x_spki_data_type_group_spki_sexp_field (string)
@@ -3826,6 +4570,16 @@ inl x_spki_data_type_group_spki_sexp_get forall r.
     | SPKIDataType_group_SPKISexp_field_SPKISexp => x.spki_sexp
     | SPKIDataType_group_SPKISexp_field_any => x.any
 
+inl x_spki_data_type_group_spki_sexp_fields () : list (exists r. x_spki_data_type_group_spki_sexp_field r) =
+    [ exists SPKIDataType_group_SPKISexp_field_SPKISexp; exists SPKIDataType_group_SPKISexp_field_any ]
+inl x_spki_data_type_group_spki_sexp_field_meta forall r.
+    (f : x_spki_data_type_group_spki_sexp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | SPKIDataType_group_SPKISexp_field_SPKISexp => { tag = "SPKISexp"; min = 1i32; max = Some 1i32 }
+    | SPKIDataType_group_SPKISexp_field_any => { tag = "any"; min = 0i32; max = None }
+
 union x_object_type_field r =
     | ObjectType_field_any :: x_object_type_field (any_content)
 
@@ -3833,12 +4587,22 @@ inl x_object_type_get forall r. (f : x_object_type_field r) (x : x_object_type) 
     match f with
     | ObjectType_field_any => x.any
 
+inl x_object_type_fields () : list (exists r. x_object_type_field r) = [ exists ObjectType_field_any ]
+inl x_object_type_field_meta forall r. (f : x_object_type_field r) : xml_codec.field_meta =
+    match f with
+    | ObjectType_field_any => { tag = "any"; min = 0i32; max = None }
+
 union x_manifest_type_field r =
     | ManifestType_field_ds_Reference :: x_manifest_type_field (list (x_reference_type))
 
 inl x_manifest_type_get forall r. (f : x_manifest_type_field r) (x : x_manifest_type) : r =
     match f with
     | ManifestType_field_ds_Reference => x.reference
+
+inl x_manifest_type_fields () : list (exists r. x_manifest_type_field r) = [ exists ManifestType_field_ds_Reference ]
+inl x_manifest_type_field_meta forall r. (f : x_manifest_type_field r) : xml_codec.field_meta =
+    match f with
+    | ManifestType_field_ds_Reference => { tag = "ds:Reference"; min = 1i32; max = None }
 
 union x_signature_properties_type_field r =
     | SignaturePropertiesType_field_ds_SignatureProperty ::
@@ -3851,6 +4615,12 @@ inl x_signature_properties_type_get forall r.
     match f with
     | SignaturePropertiesType_field_ds_SignatureProperty => x.signature_property
 
+inl x_signature_properties_type_fields () : list (exists r. x_signature_properties_type_field r) =
+    [ exists SignaturePropertiesType_field_ds_SignatureProperty ]
+inl x_signature_properties_type_field_meta forall r. (f : x_signature_properties_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignaturePropertiesType_field_ds_SignatureProperty => { tag = "ds:SignatureProperty"; min = 1i32; max = None }
+
 union x_signature_property_type_field r =
     | SignaturePropertyType_field_any :: x_signature_property_type_field (any_content)
 
@@ -3860,6 +4630,12 @@ inl x_signature_property_type_get forall r.
     =
     match f with
     | SignaturePropertyType_field_any => x.any
+
+inl x_signature_property_type_fields () : list (exists r. x_signature_property_type_field r) =
+    [ exists SignaturePropertyType_field_any ]
+inl x_signature_property_type_field_meta forall r. (f : x_signature_property_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignaturePropertyType_field_any => { tag = "any"; min = 0i32; max = None }
 
 union x_dsa_key_value_type_field r =
     | DSAKeyValueType_field_P :: x_dsa_key_value_type_field (x_crypto_binary)
@@ -3880,6 +4656,26 @@ inl x_dsa_key_value_type_get forall r. (f : x_dsa_key_value_type_field r) (x : x
     | DSAKeyValueType_field_Seed => x.seed
     | DSAKeyValueType_field_PgenCounter => x.pgen_counter
 
+inl x_dsa_key_value_type_fields () : list (exists r. x_dsa_key_value_type_field r) =
+    [
+        exists DSAKeyValueType_field_P
+        exists DSAKeyValueType_field_Q
+        exists DSAKeyValueType_field_G
+        exists DSAKeyValueType_field_Y
+        exists DSAKeyValueType_field_J
+        exists DSAKeyValueType_field_Seed
+        exists DSAKeyValueType_field_PgenCounter
+    ]
+inl x_dsa_key_value_type_field_meta forall r. (f : x_dsa_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | DSAKeyValueType_field_P => { tag = "P"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_Q => { tag = "Q"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_G => { tag = "G"; min = 0i32; max = Some 1i32 }
+    | DSAKeyValueType_field_Y => { tag = "Y"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_J => { tag = "J"; min = 0i32; max = Some 1i32 }
+    | DSAKeyValueType_field_Seed => { tag = "Seed"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_PgenCounter => { tag = "PgenCounter"; min = 1i32; max = Some 1i32 }
+
 union x_rsa_key_value_type_field r =
     | RSAKeyValueType_field_Modulus :: x_rsa_key_value_type_field (x_crypto_binary)
     | RSAKeyValueType_field_Exponent :: x_rsa_key_value_type_field (x_crypto_binary)
@@ -3888,6 +4684,13 @@ inl x_rsa_key_value_type_get forall r. (f : x_rsa_key_value_type_field r) (x : x
     match f with
     | RSAKeyValueType_field_Modulus => x.modulus
     | RSAKeyValueType_field_Exponent => x.exponent
+
+inl x_rsa_key_value_type_fields () : list (exists r. x_rsa_key_value_type_field r) =
+    [ exists RSAKeyValueType_field_Modulus; exists RSAKeyValueType_field_Exponent ]
+inl x_rsa_key_value_type_field_meta forall r. (f : x_rsa_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | RSAKeyValueType_field_Modulus => { tag = "Modulus"; min = 1i32; max = Some 1i32 }
+    | RSAKeyValueType_field_Exponent => { tag = "Exponent"; min = 1i32; max = Some 1i32 }
 
 let rec x_reg_factu_sistema_facturacion_of_children
     (attributes : list (string * string)) (children : list xml.xml_node)
@@ -8280,3 +9083,20 @@ test generated_es_verifactu_writes_its_example =
 ///> rust
 test generated_es_verifactu_keeps_raw_strings_out fails "Unification failure" =
     x_year_type_to_string "raw"
+
+///> rust
+test generated_es_verifactu_reports_a_missing_element_with_its_path =
+    inl document =
+        xml_codec.pruned
+            "NombreRazon"
+            (
+                x_reg_factu_sistema_facturacion_to_xml
+                    "RegFactuSistemaFacturacion"
+                    (x_reg_factu_sistema_facturacion_example 0i32)
+            )
+    if
+        xml_codec.reports
+            "missing Cabecera/sf:ObligadoEmision/sf:NombreRazon"
+            (x_reg_factu_sistema_facturacion_of_xml document)
+        = false
+    then failwith "a document without Cabecera/sf:ObligadoEmision/sf:NombreRazon is reported as missing, not raised"
