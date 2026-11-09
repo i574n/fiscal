@@ -102,8 +102,7 @@ test cfdi_supplies_11_of_the_24_required_terms =
     := supplied = listm'::filter (canon_coverage::is_bound (cfdi_bindings ())) required
     := absent = canon_coverage::absent_required (cfdi_bindings ()) required
     console::write_line ("CFDI 4.0 lacks these required canon terms: " ++# sm'::concat_list ", " absent)
-    ? (listm::length required, listm::length supplied) <> (24i32, 11i32)
-    ?>
+    ? (listm::length required, listm::length supplied) <> (24i32, 11i32) ?>
         failwith (
             "CFDI 4.0 binds 11 of the 24 required EN 16931 terms directly (@Total is after withholding, i.e. "
             ^^ "BT-115; SubTotal and Importe are gross)"

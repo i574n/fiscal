@@ -47,8 +47,7 @@
 
 := remove_generated_module (module_name : string) : () =
     := folder = generated_folder module_name
-    ? file_system::directory_exists folder
-    ?>
+    ? file_system::directory_exists folder ?>
         ?= file_system::remove_dir_all folder |> resultm::unbox ?|
         | Ok _ => ()
         | Error _ => failwith ("generator: cannot remove " ++# folder)
@@ -90,7 +89,8 @@ test generates_the_uf_code_union =
 :~ ^ declared_prefixes (schema_text : string) (attributes : list (string * string)) (acc : string) : string =
     ?= attributes ?|
     | (key, value) :: rest =>
-        ? is_declared_prefix schema_text key value ?> declared_prefixes schema_text rest (acc ++# prefix_pair key value)
+        ? is_declared_prefix schema_text key value
+        ?> declared_prefixes schema_text rest (acc ++# prefix_pair key value)
         |: declared_prefixes schema_text rest acc
     | [] => acc
 
@@ -632,7 +632,8 @@ test generates_the_uf_code_union =
     (ref : option (type_reference form)) (rest : list (xsd particle form))
     : option string
     =
-    ? o::min < 1i32 || xml::local_name (tag_text name) = "Signature" ?> law_first_required schema depth rest
+    ? o::min < 1i32 || xml::local_name (tag_text name) = "Signature"
+    ?> law_first_required schema depth rest
     |: Some (law_element_path schema depth (tag_text name) (law_element_type schema inline ref))
 
 :& :~ law_from_sequence \* form.
@@ -640,7 +641,8 @@ test generates_the_uf_code_union =
     (rest : list (xsd particle form))
     : option string
     =
-    ? o::min < 1i32 ?> law_first_required schema depth rest
+    ? o::min < 1i32
+    ?> law_first_required schema depth rest
     |: ?= law_first_required schema depth inner ?| Some path => Some path | None => law_first_required schema depth rest
 
 :& :~ law_element_path \* form.

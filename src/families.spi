@@ -295,7 +295,8 @@
 
 := manifest_documents (prefix : string) (manifest : string) : list string =
     := path = fiscal_paths::under manifest
-    ? xml::is_file path = !- ?> []
+    ? xml::is_file path = !-
+    ?> []
     |: manifest_entries prefix (sm'::split_list "\n" (xml::read_text_replacing_invalid_utf8 path)) []
 
 := documents_of (source : document_source) : list string =

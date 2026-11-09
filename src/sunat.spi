@@ -274,7 +274,8 @@
     | None => category_check (checked + 1i32, findings)
 
 := category_here (node : xml::xml_node) (acc : category_check) : category_check =
-    ? xml::local_name (xml::node_name node) <> "TaxCategory" ?> acc
+    ? xml::local_name (xml::node_name node) <> "TaxCategory"
+    ?> acc
     |:
         ?= child_text "TaxExemptionReasonCode" node ?|
         | None => acc
@@ -433,8 +434,7 @@ test the_homologation_cases_carry_the_scheme_of_each_affectation =
     ?= findings_of result ?|
     | first :: _ => failwith ("a homologation case breaks the catalog 07 -> 05 rule: " ++# first)
     | [] => ()
-    ? checked_of result <> 233i32
-    ?>
+    ? checked_of result <> 233i32 ?>
         failwith (
             "233 TaxCategory elements with a reason code are checked, got " ++# sm'::obj_to_string (checked_of result)
         )

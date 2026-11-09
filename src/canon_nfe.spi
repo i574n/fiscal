@@ -106,8 +106,7 @@ test nfe_supplies_11_of_the_24_required_terms =
     := supplied = listm'::filter (canon_coverage::is_bound (nfe_bindings ())) required
     := absent = canon_coverage::absent_required (nfe_bindings ()) required
     console::write_line ("NF-e 4.00 lacks these required canon terms: " ++# sm'::concat_list ", " absent)
-    ? (listm::length required, listm::length supplied) <> (24i32, 11i32)
-    ?>
+    ? (listm::length required, listm::length supplied) <> (24i32, 11i32) ?>
         failwith (
             "NF-e 4.00 binds 11 of the 24 required EN 16931 terms directly (its line and total vProd are gross, so "
             ^^ "BT-106 and BT-131 are derived)"

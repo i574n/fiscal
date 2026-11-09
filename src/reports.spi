@@ -54,9 +54,12 @@
     | None => !+
 
 := verdict_of (written : bool) (messages : string) : example_verdict =
-    ? written = !- ?> NotWritten
-    |? sm'::trim messages = "" ?> Unmeasured
-    |? count_of messages = 0i32 ?> Valid
+    ? written = !-
+    ?> NotWritten
+    |? sm'::trim messages = ""
+    ?> Unmeasured
+    |? count_of messages = 0i32
+    ?> Valid
     |: Invalid (count_of messages)
 
 := tsv_rows (text : string) : list (list string) =
@@ -173,7 +176,8 @@
 
 := failing_lines (tests : list test_row) : list string =
     := not_passed = listm'::filter (\ (r : test_row) => passing r = !-) tests
-    ? not_passed = [] ?> [ "Every test passed." ]
+    ? not_passed = []
+    ?> [ "Every test passed." ]
     |: table [ "file"; "test"; "target"; "status"; "ms" ] (listm::map test_cells not_passed)
 
 := tests_section (tests : list test_row) : list string =

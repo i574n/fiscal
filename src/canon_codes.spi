@@ -95,8 +95,7 @@ test bt_3_comes_from_each_regimes_document_type =
     ? cfdi <> [ Some "380"; Some "381"; None; None; None; None ]
     ?> failwith "a CFDI ingreso is an invoice, an egreso a credit note"
     := nfe = listm::map (bt3_of (nfe_purpose_codes ()) nfe_invoice_type) [ "1"; "2"; "3"; "4"; "5"; "6" ]
-    ? nfe <> [ Some "380"; None; None; None; Some "381"; Some "383" ]
-    ?>
+    ? nfe <> [ Some "380"; None; None; None; Some "381"; Some "383" ] ?>
         failwith (
             "a normal NF-e is an invoice, a nota de credito a credit note, a nota de debito a debit note; a "
             ^^ "devolucao / retorno (often issued by the buyer, or goods coming back) has no UNTDID 1001 equivalent"

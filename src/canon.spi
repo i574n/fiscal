@@ -69,7 +69,8 @@
     | None => failwith ("canon: unknown cardinality " ++# text)
 
 := bound_of (text : string) (high : string) : bound =
-    ? high = "n" ?> Unbounded
+    ? high = "n"
+    ?> Unbounded
     |:
         ?= sm'::decimal_i32 high ?|
         | Some n => AtMost n
@@ -127,18 +128,22 @@
 
 :~ ^ split_commas (s : string) (acc : list string) : list string =
     := at = sm'::index_of "," s
-    ? at < 0i32 ?> listm::rev (sm'::trim s :: acc)
+    ? at < 0i32
+    ?> listm::rev (sm'::trim s :: acc)
     |:
         := rest = sm'::substring (at + 1i32) (sm'::length s - at - 1i32) s
         split_commas rest (sm'::trim (sm'::substring 0i32 at s) :: acc)
 
 := term_id_from (text : string) (n : i32) : option term_id =
-    ? sm'::starts_with "BT-" text ?> Some (BusinessTerm n)
-    |? sm'::starts_with "BG-" text ?> Some (BusinessGroup n)
+    ? sm'::starts_with "BT-" text
+    ?> Some (BusinessTerm n)
+    |? sm'::starts_with "BG-" text
+    ?> Some (BusinessGroup n)
     |: None
 
 := term_id_of (text : string) : option term_id =
-    ? sm'::length text <= 3i32 ?> None
+    ? sm'::length text <= 3i32
+    ?> None
     |:
         ?= sm'::decimal_i32 (sm'::substring 3i32 (sm'::length text - 3i32) text) ?|
         | Some n => term_id_from text n

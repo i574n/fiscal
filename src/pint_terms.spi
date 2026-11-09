@@ -61,8 +61,10 @@
     | None => None
 
 := pint_id_of (text : string) : option pint_id =
-    ? sm'::starts_with "IBT-" text ?> term_of (after "IBT-" text)
-    |? sm'::starts_with "IBG-" text ?> group_of (after "IBG-" text)
+    ? sm'::starts_with "IBT-" text
+    ?> term_of (after "IBT-" text)
+    |? sm'::starts_with "IBG-" text
+    ?> group_of (after "IBG-" text)
     |: None
 
 := pint_id_text (id : pint_id) : string =
@@ -283,8 +285,7 @@ test pint_terms_are_written_to_the_canon =
     := invoice_path ((_, r) : pint_id * pint_row) : string = ubl_path_of "ubl:Invoice" r
     := sepa (path : string) : bool =
         sm'::contains "cac:Party/cac:PartyIdentification[cac:ID/@schemeID = " path && sm'::contains "SEPA" path
-    ? listm::map (\ (t : pint_id * pint_row) => sepa (invoice_path t)) creditor <> [ !+ ]
-    ?>
+    ? listm::map (\ (t : pint_id * pint_row) => sepa (invoice_path t)) creditor <> [ !+ ] ?>
         failwith (
             "a variant step carries its printed qualifier, so IBT-090 is the SEPA PartyIdentification, not the "
             ^^ "first one"

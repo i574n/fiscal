@@ -424,8 +424,7 @@ test ubl_tr_main_schematron_runs_its_extended_rules =
         ++# sm'::obj_to_string tr::invalid
     )
     ? tr::rules <> 112i32 ?> failwith ("UBL-TR's 112 concrete rules are read, got " ++# sm'::obj_to_string tr::rules)
-    ? tr::assertions <> 488i32
-    ?>
+    ? tr::assertions <> 488i32 ?>
         := got = sm'::obj_to_string tr::assertions
         failwith ("the 210 extends bring in 488 assertions from the abstract rules, got " ++# got)
     ? tr::invalid <> 0i32 ?> failwith "every UBL-TR context and test parses"
