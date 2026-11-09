@@ -1,0 +1,4 @@
+File	Test	Target	Status	Ms	Memo
+document	a_manual_invoice_reconciles_its_totals	rust	passed	3915	
+document	each_term_value_names_its_canon_data_type	rust	passed	4782	
+document	a_projection_carries_its_measured_loss_in_its_type	rust	passed	2058	

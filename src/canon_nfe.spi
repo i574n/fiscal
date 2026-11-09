@@ -1,0 +1,132 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:= bt (n : i32) : canon::term_id = canon::BusinessTerm n
+
+:= nfe_header_bindings () : list (canon::term_id * string) =
+    [
+        (bt 1i32, "NFe/infNFe/ide/nNF"); (bt 2i32, "NFe/infNFe/ide/dhEmi"); (bt 9i32, "NFe/infNFe/cobr/dup/dVenc")
+        (bt 22i32, "NFe/infNFe/infAdic/infCpl")
+    ]
+
+:= nfe_seller_bindings () : list (canon::term_id * string) =
+    [
+        (bt 27i32, "NFe/infNFe/emit/xNome"); (bt 28i32, "NFe/infNFe/emit/xFant"); (bt 30i32, "NFe/infNFe/emit/CNPJ")
+        (bt 31i32, "NFe/infNFe/emit/IE"); (bt 35i32, "NFe/infNFe/emit/enderEmit/xLgr")
+    ]
+
+:= nfe_seller_place_bindings () : list (canon::term_id * string) =
+    [
+        (bt 37i32, "NFe/infNFe/emit/enderEmit/xMun"); (bt 38i32, "NFe/infNFe/emit/enderEmit/CEP")
+        (bt 39i32, "NFe/infNFe/emit/enderEmit/UF")
+    ]
+
+:= nfe_buyer_bindings () : list (canon::term_id * string) =
+    [
+        (bt 44i32, "NFe/infNFe/dest/xNome"); (bt 47i32, "NFe/infNFe/dest/CNPJ"); (bt 48i32, "NFe/infNFe/dest/IE")
+        (bt 49i32, "NFe/infNFe/dest/email")
+        (bt 50i32, "NFe/infNFe/dest/enderDest/xLgr")
+    ]
+
+:= nfe_buyer_place_bindings () : list (canon::term_id * string) =
+    [
+        (bt 52i32, "NFe/infNFe/dest/enderDest/xMun"); (bt 53i32, "NFe/infNFe/dest/enderDest/CEP")
+        (bt 54i32, "NFe/infNFe/dest/enderDest/UF")
+    ]
+
+:= nfe_total_bindings () : list (canon::term_id * string) =
+    [
+        (bt 112i32, "NFe/infNFe/total/ICMSTot/vNF"); (bt 115i32, "NFe/infNFe/cobr/fat/vLiq")
+    ]
+
+:= nfe_line_bindings () : list (canon::term_id * string) =
+    [
+        (bt 126i32, "NFe/infNFe/det/@nItem"); (bt 129i32, "NFe/infNFe/det/prod/qCom")
+    ]
+
+:= nfe_item_bindings () : list (canon::term_id * string) =
+    [
+        (bt 146i32, "NFe/infNFe/det/prod/vUnCom"); (bt 153i32, "NFe/infNFe/det/prod/xProd")
+        (bt 157i32, "NFe/infNFe/det/prod/cEAN"); (bt 158i32, "NFe/infNFe/det/prod/NCM")
+    ]
+
+:= nfe_sellers () : list (canon::term_id * string) =
+    listm::append (nfe_seller_bindings ()) (nfe_seller_place_bindings ())
+
+:= nfe_buyers () : list (canon::term_id * string) = listm::append (nfe_buyer_bindings ()) (nfe_buyer_place_bindings ())
+
+:= nfe_party_bindings () : list (canon::term_id * string) = listm::append (nfe_sellers ()) (nfe_buyers ())
+
+:= nfe_bindings () : list (canon::term_id * string) =
+    listm::concat [
+        nfe_header_bindings ()
+        nfe_party_bindings ()
+        nfe_total_bindings ()
+        nfe_line_bindings ()
+        nfe_item_bindings ()
+    ]
+
+:= nfe_implied () : list (canon::term_id * string) = [ (bt 5i32, "BRL"); (bt 40i32, "BR") ]
+
+:= nfe_code_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 3i32, canon_coverage::NationalCode "finNFe"); (bt 55i32, canon_coverage::NationalCode "cPais (BACEN)")
+        (bt 151i32, canon_coverage::NationalCode "CST"); (bt 130i32, canon_coverage::NationalCode "uCom (free text)")
+    ]
+
+:= nfe_absent_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 23i32, canon_coverage::NotCarried); (bt 24i32, canon_coverage::NotCarried)
+        (bt 34i32, canon_coverage::NotCarried)
+    ]
+
+:= nfe_derived_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 106i32, canon_coverage::Derived); (bt 109i32, canon_coverage::Derived); (bt 110i32, canon_coverage::Derived)
+        (bt 131i32, canon_coverage::Derived)
+    ]
+
+:= nfe_gaps () : list (canon::term_id * canon_coverage::gap) =
+    listm::concat [ nfe_code_gaps (); nfe_absent_gaps (); nfe_derived_gaps () ]
+:= nfe_model () : canon_coverage::schema_model =
+    canon_coverage::schema_model_of (fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
+
+///> rust
+test every_nfe_binding_reaches_a_declared_field =
+    := model = nfe_model ()
+    := missed = canon_coverage::unreached_terms model (nfe_bindings ())
+    ? missed <> []
+    ?> failwith ("every NF-e binding names a field the 4.00 schema declares: " ++# sm'::concat_list ", " missed)
+    ? canon_coverage::is_reached (canon_coverage::path_reach model "NFe/infNFe/ide/noSuchField")
+    ?> failwith "a field the schema does not declare is not reached"
+
+///> rust
+test nfe_supplies_11_of_the_24_required_terms =
+    := required = canon_coverage::required_ids (canon::en16931_terms ())
+    := supplied = listm'::filter (canon_coverage::is_bound (nfe_bindings ())) required
+    := absent = canon_coverage::absent_required (nfe_bindings ()) required
+    console::write_line ("NF-e 4.00 lacks these required canon terms: " ++# sm'::concat_list ", " absent)
+    ? (listm::length required, listm::length supplied) <> (24i32, 11i32) ?>
+        failwith (
+            "NF-e 4.00 binds 11 of the 24 required EN 16931 terms directly (its line and total vProd are gross, so "
+            ^^ "BT-106 and BT-131 are derived)"
+        )
+
+///> rust
+test nfe_implies_its_currency_and_seller_country =
+    := implied = nfe_implied ()
+    := bound = listm'::filter (\ (id, _) => canon_coverage::is_bound (nfe_bindings ()) id) implied
+    ? bound <> [] ?> failwith "an implied term is one the NF-e does not carry"
+    := required = canon_coverage::required_ids (canon::en16931_terms ())
+    := filled = listm'::filter (canon_coverage::is_bound (listm::append (nfe_bindings ()) implied)) required
+    ? listm::length filled <> 13i32
+    ?> failwith "with BRL and BR implied, NF-e 4.00 supplies 13 of the 24 required terms"
+
+///> rust
+test every_required_term_is_bound_implied_or_a_typed_gap_in_nfe =
+    := required = canon_coverage::required_ids (canon::en16931_terms ())
+    := bound = canon_coverage::ids_of (listm::append (nfe_bindings ()) (nfe_implied ()))
+    := accounted = listm::append bound (canon_coverage::gap_ids (nfe_gaps ()))
+    := wrong = canon_coverage::unaccounted required accounted
+    ? wrong <> []
+    ?> failwith ("each required term is accounted exactly once for NF-e: " ++# sm'::concat_list ", " wrong)

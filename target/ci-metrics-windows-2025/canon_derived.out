@@ -1,0 +1,5 @@
+cell-budget d:/a/fiscal/fiscal/src/canon_derived.spi:88:50: mention: @Total (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_derived.spi:90:61: mention: @Total (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_derived.spi:100:70: mention: @Total (a renderer turns '@' before a name into a mention)
+spiral-tests file {"accept_refused":{},"accepted":0,"accepted_sites":{},"built":0,"discovered":3,"executed":3,"failed":0,"failed_targets":{},"failed_tests":[],"file":"d:/a/fiscal/fiscal/src/canon_derived.spi","filtered":0,"headroom":0.0,"memo_hits":0,"mismatches":{},"no_agree_reasons":{},"not_run":0,"passed":3,"preludes":0,"skipped":0,"slowest_ms":4969,"static":0,"timed_out":0,"timeout_ms":1200000,"unsupported":0}
+spiral-tests total {"accepted":0,"built":0,"discovered":3,"executed":3,"failed":0,"files":1,"filtered":0,"memo_hits":0,"no_agree_reasons":{},"not_run":0,"passed":3,"preludes":0,"skipped":0,"static":0,"unsupported":0}

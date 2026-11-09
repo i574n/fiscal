@@ -1,0 +1,4 @@
+File	Test	Target	Status	Ms	Memo
+families	every_family_has_its_own_module_name	rust	passed	40312	
+families	the_gate_table_has_one_row_per_gated_family	rust	passed	44551	
+families	every_regime_lists_its_own_families	rust	passed	37326	

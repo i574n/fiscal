@@ -1,0 +1,504 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xml
+:< xsd
+:< json_schema
+
+:| term_id =
+    | BusinessTerm : i32
+    | BusinessGroup : i32
+
+:| ubl_document =
+    | UblInvoice
+    | UblCreditNote
+
+:| data_type =
+    | Text
+    | Identifier
+    | Amount
+    | Code
+    | Date
+    | DocumentReference
+    | Percentage
+    | Quantity
+    | BinaryObject
+
+:| presence =
+    | Optional
+    | Required
+
+:| bound =
+    | AtMost : i32
+    | Unbounded
+
+:== cardinality = { presence : presence; bound : bound }
+
+:! ubl_path = string
+
+:= path_text ((ubl_path text) : ubl_path) : string = text
+
+:= ubl_document_name (document : ubl_document) : string = "ubl-" ++# case_labels::case_label "Ubl" "" document
+
+:= data_type_names () : list (string * data_type) =
+    [
+        ("Text", Text); ("Identifier", Identifier); ("Amount", Amount); ("Code", Code); ("Date", Date)
+        ("Document Reference", DocumentReference); ("Percentage", Percentage); ("Quantity", Quantity)
+        ("Binary object", BinaryObject)
+    ]
+
+:= data_type_of (text : string) : data_type =
+    ?= listm'::try_find_ (\ (name, _) => name = text) (data_type_names ()) ?|
+    | Some (_, d) => d
+    | None => failwith ("canon: unknown EN 16931 data type " ++# text)
+
+:= data_type_text (d : data_type) : string =
+    ?= listm'::try_find_ (\ (_, t) => t = d) (data_type_names ()) ?|
+    | Some (name, _) => name
+    | None => failwith "canon: every data type has a name"
+
+:= declared_type_text (d : option data_type) : string =
+    ?= d ?|
+    | Some t => data_type_text t
+    | None => ""
+
+:= presence_names () : list (string * presence) = [ ("0", Optional); ("1", Required) ]
+
+:= presence_of (text : string) (low : string) : presence =
+    ?= listm'::try_find_ (\ (name, _) => name = low) (presence_names ()) ?|
+    | Some (_, p) => p
+    | None => failwith ("canon: unknown cardinality " ++# text)
+
+:= bound_of (text : string) (high : string) : bound =
+    ? high = "n"
+    ?> Unbounded
+    |:
+        ?= sm'::decimal_i32 high ?|
+        | Some n => AtMost n
+        | None => failwith ("canon: unknown cardinality " ++# text)
+
+:= cardinality_parts (text : string) (at : i32) : cardinality =
+    := low = sm'::substring 0i32 at text
+    := high = sm'::substring (at + 2i32) (sm'::length text - at - 2i32) text
+    { presence = presence_of text low; bound = bound_of text high }
+
+:= cardinality_of (text : string) : cardinality =
+    := at = sm'::index_of ".." text
+    ? at < 0i32 ?> failwith ("canon: unknown cardinality " ++# text) |: cardinality_parts text at
+
+:= presence_text (p : presence) : string =
+    ?= listm'::try_find_ (\ (_, t) => t = p) (presence_names ()) ?|
+    | Some (name, _) => name
+    | None => failwith "canon: every presence has a name"
+
+:= bound_text (b : bound) : string =
+    ?= b ?|
+    | AtMost n => sm'::obj_to_string n
+    | Unbounded => "n"
+
+:= cardinality_text (c : cardinality) : string = presence_text c::presence ++# ".." ++# bound_text c::bound
+
+:= exactly_once () : cardinality = { presence = Required; bound = AtMost 1i32 }
+
+:= presence_within (outer : presence) (own : presence) : presence =
+    ? outer = Required && own = Required ?> Required |: Optional
+
+:= bound_within (outer : bound) (own : bound) : bound =
+    ?= (outer, own) ?|
+    | (AtMost a, AtMost b) => AtMost (a * b)
+    | _ => Unbounded
+
+:= within (outer : cardinality) (own : cardinality) : cardinality =
+    { presence = presence_within outer::presence own::presence; bound = bound_within outer::bound own::bound }
+
+:== term_row =
+    {
+        id : term_id
+        name : string
+        data_type : option data_type
+        cardinality : cardinality
+        effective : cardinality
+        effective_by : list (ubl_document * cardinality)
+        ubl : list (ubl_document * ubl_path)
+    }
+
+:~ child_text (name : string) (children : list xml_node) : string =
+    ?= first_named name children ?|
+    | Some (_, inner) => sm'::trim (text_in inner)
+    | None => ""
+
+:~ ^ split_commas (s : string) (acc : list string) : list string =
+    := at = sm'::index_of "," s
+    ? at < 0i32
+    ?> listm::rev (sm'::trim s :: acc)
+    |:
+        := rest = sm'::substring (at + 1i32) (sm'::length s - at - 1i32) s
+        split_commas rest (sm'::trim (sm'::substring 0i32 at s) :: acc)
+
+:= term_id_from (text : string) (n : i32) : option term_id =
+    ? sm'::starts_with "BT-" text
+    ?> Some (BusinessTerm n)
+    |? sm'::starts_with "BG-" text
+    ?> Some (BusinessGroup n)
+    |: None
+
+:= term_id_of (text : string) : option term_id =
+    ? sm'::length text <= 3i32
+    ?> None
+    |:
+        ?= sm'::decimal_i32 (sm'::substring 3i32 (sm'::length text - 3i32) text) ?|
+        | Some n => term_id_from text n
+        | None => None
+
+:= term_id_text (id : term_id) : string =
+    ?= id ?|
+    | BusinessTerm n => "BT-" ++# sm'::obj_to_string n
+    | BusinessGroup n => "BG-" ++# sm'::obj_to_string n
+
+:~ is_group (id : term_id) : bool =
+    ?= id ?|
+    | BusinessGroup _ => !+
+    | BusinessTerm _ => !-
+
+:~ ^ term_ids (texts : list string) (acc : list term_id) : list term_id =
+    ?= texts ?|
+    | text :: rest =>
+        ?= term_id_of text ?|
+        | Some id => term_ids rest (id :: acc)
+        | None => term_ids rest acc
+    | [] => listm::rev acc
+
+:= is_business_term_reference (name : string) (attributes : list (string * string)) : bool =
+    local_name name = "Reference" && attribute_or "type" "" attributes = "BUSINESS_TERM"
+
+:= reference_terms (inner : list xml_node) : list term_id = term_ids (split_commas (text_in inner) []) []
+
+:= node_terms (node : xml_node) : list term_id =
+    ?= node ?|
+    | XmlElement (name, attributes, inner) ?& is_business_term_reference name attributes => reference_terms inner
+    | _ => []
+
+:~ ^ business_terms (nodes : list xml_node) (acc : list term_id) : list term_id =
+    ?= nodes ?|
+    | node :: rest => business_terms rest (listm::append acc (node_terms node))
+    | [] => acc
+
+:~ ^ nth_or_last (i : i32) (items : list string) : string =
+    ?= items ?|
+    | x :: [] => x
+    | x :: rest => ? i = 0i32 ?> x |: nth_or_last (i - 1i32) rest
+    | [] => ""
+
+:~ ^ with_document \* t.
+    (document : ubl_document) (value : t) (pairs : list (ubl_document * t))
+    : list (ubl_document * t)
+    =
+    ?= pairs ?|
+    | (d, v) :: rest => ? d = document ?> (d, v) :: rest |: (d, v) :: with_document document value rest
+    | [] => [ (document, value) ]
+
+:~ ^ has_term (id : term_id) (rows : list term_row) : bool =
+    ?= rows ?|
+    | r :: rest => r::id = id || has_term id rest
+    | [] => !-
+
+:= merged_row (row : term_row) (document : ubl_document) (path : ubl_path) (r : term_row) : term_row =
+    := effective_by = with_document document row::effective r::effective_by
+    ? r::id = row::id ?> { r ?| ubl = with_document document path r::ubl; effective_by = effective_by } |: r
+
+:= with_term (row : term_row) (document : ubl_document) (path : ubl_path) (rows : list term_row) : list term_row =
+    ? has_term row::id rows
+    ?> listm::map (merged_row row document path) rows
+    |: listm::append rows [ { row ?| ubl = [ (document, path) ]; effective_by = [ (document, row::effective) ] } ]
+
+:= effective_in (r : term_row) (document : ubl_document) : cardinality =
+    ?= listm'::try_find_ (\ (d, _) => d = document) r::effective_by ?|
+    | Some (_, c) => c
+    | None => r::effective
+
+:= term_row_of
+    (id : term_id) (name : string) (data_type : option data_type) ((own, effective) : cardinality * cardinality)
+    : term_row
+    =
+    {
+        id = id
+        name = name
+        data_type = data_type
+        cardinality = own
+        effective = effective
+        effective_by = []
+        ubl = []
+    }
+
+:~ ^ add_terms
+    (ids : list term_id) (i : i32) (names : list string) (data_type : option data_type)
+    (cardinalities : cardinality * cardinality) (document : ubl_document) (path : ubl_path) (rows : list term_row)
+    : list term_row
+    =
+    ?= ids ?|
+    | id :: rest =>
+        := row = term_row_of id (nth_or_last i names) data_type cardinalities
+        add_terms rest (i + 1i32) names data_type cardinalities document path (with_term row document path rows)
+    | [] => rows
+
+:= term_names (ids : list term_id) (name : string) : list string =
+    := split = split_commas name []
+    ? listm::length ids > 1i32 && (listm::length split : i32) = listm::length ids ?> split |: [ name ]
+
+:= declared_data_type (declared : string) : option data_type = ? declared = "" ?> None |: Some (data_type_of declared)
+
+:= element_data_type (children : list xml_node) : option data_type = declared_data_type (child_text "DataType" children)
+
+:= element_cardinality (attributes : list (string * string)) : cardinality =
+    cardinality_of (attribute_or "cardinality" "1..1" attributes)
+
+:= attribute_cardinality (attributes : list (string * string)) : cardinality =
+    := presence = ? attribute_or "usage" "" attributes = "Optional" ?> Optional |: Required
+    { presence = presence; bound = AtMost 1i32 }
+
+:= element_terms
+    (cardinalities : cardinality * cardinality) (children : list xml_node) (document : ubl_document) (here : string)
+    (rows : list term_row)
+    : list term_row
+    =
+    := ids = business_terms children []
+    := names = term_names ids (child_text "Name" children)
+    add_terms ids 0i32 names (element_data_type children) cardinalities document (ubl_path here) rows
+
+:= included_file (inner : list xml_node) (folder : string) : string = folder ++# "/" ++# sm'::trim (text_in inner)
+
+:= parent_folder (file : string) : string = sm'::substring 0i32 (sm'::last_index_of "/" file) file
+
+:| structure_part =
+    | IncludePart : list xml_node
+    | ElementPart : list (string * string) * list xml_node
+    | AttributePart : list (string * string) * list xml_node
+    | OtherPart
+
+:| structure_tag =
+    | IncludeTag
+    | ElementTag
+    | AttributeTag
+
+:= structure_tags () : list (string * structure_tag) =
+    [ ("Include", IncludeTag); ("Element", ElementTag); ("Attribute", AttributeTag) ]
+
+:= part_of_tag (tag : structure_tag) (attributes : list (string * string)) (inner : list xml_node) : structure_part =
+    ?= tag ?|
+    | IncludeTag => IncludePart inner
+    | ElementTag => ElementPart (attributes, inner)
+    | AttributeTag => AttributePart (attributes, inner)
+
+:= tagged_part (local : string) (attributes : list (string * string)) (inner : list xml_node) : structure_part =
+    ?= listm'::try_find_ (\ (name, _) => name = local) (structure_tags ()) ?|
+    | Some (_, tag) => part_of_tag tag attributes inner
+    | None => OtherPart
+
+:= structure_part_of (node : xml_node) : structure_part =
+    ?= node ?|
+    | XmlElement (name, attributes, inner) => tagged_part (local_name name) attributes inner
+    | _ => OtherPart
+
+:= attribute_terms
+    (outer : cardinality) (attributes : list (string * string)) (children : list xml_node) (path : string)
+    (document : ubl_document) (rows : list term_row)
+    : list term_row
+    =
+    := own = attribute_cardinality attributes
+    element_terms (own, within outer own) children document (path ++# "/@" ++# child_text "Term" children) rows
+
+:~ ^ visit_element
+    (outer : cardinality) (attributes : list (string * string)) (children : list xml_node) (path : string)
+    (folder : string) (document : ubl_document) (rows : list term_row)
+    : list term_row
+    =
+    := here = path ++# "/" ++# child_text "Term" children
+    := own = element_cardinality attributes
+    := effective = within outer own
+    read_children effective children here folder document (element_terms (own, effective) children document here rows)
+
+:& :~ read_children
+    (outer : cardinality) (nodes : list xml_node) (path : string) (folder : string) (document : ubl_document)
+    (rows : list term_row)
+    : list term_row
+    =
+    ?= nodes ?|
+    | node :: rest => read_children outer rest path folder document (read_child outer node path folder document rows)
+    | [] => rows
+
+:& :~ read_child
+    (outer : cardinality) (node : xml_node) (path : string) (folder : string) (document : ubl_document)
+    (rows : list term_row)
+    : list term_row
+    =
+    ?= structure_part_of node ?|
+    | IncludePart inner => included_terms outer inner path folder document rows
+    | ElementPart (attributes, inner) => visit_element outer attributes inner path folder document rows
+    | AttributePart (attributes, inner) => attribute_terms outer attributes inner path document rows
+    | OtherPart => rows
+
+:& :~ included_terms
+    (outer : cardinality) (inner : list xml_node) (path : string) (folder : string) (document : ubl_document)
+    (rows : list term_row)
+    : list term_row
+    =
+    := file = included_file inner folder
+    ?= first_named "Element" (read_xml (file_system::read_all_text file)) ?|
+    | Some (a, c) => visit_element outer a c path (parent_folder file) document rows
+    | None => rows
+
+:= document_section_terms
+    (children : list xml_node) (structure : string) (document : ubl_document) (rows : list term_row)
+    : list term_row
+    =
+    ?= first_named "Document" children ?|
+    | Some (_, inner) => read_children (exactly_once ()) inner (child_text "Term" inner) structure document rows
+    | None => rows
+
+:~ structure_terms (structure : string) (document : ubl_document) (rows : list term_row) : list term_row =
+    := file = structure ++# "/" ++# ubl_document_name document ++# ".xml"
+    ?= first_named "Structure" (read_xml (file_system::read_all_text file)) ?|
+    | Some (_, children) => document_section_terms children structure document rows
+    | None => rows
+
+:~ term_order (r : term_row) : i32 =
+    ?= r::id ?|
+    | BusinessTerm n => n
+    | BusinessGroup n => 100000i32 + n
+
+:~ ^ insert_ordered (row : term_row) (rows : list term_row) : list term_row =
+    ?= rows ?|
+    | r :: rest => ? term_order row < term_order r ?> row :: rows |: r :: insert_ordered row rest
+    | [] => [ row ]
+
+:~ ^ ordered_terms (rows : list term_row) (acc : list term_row) : list term_row =
+    ?= rows ?|
+    | r :: rest => ordered_terms rest (insert_ordered r acc)
+    | [] => acc
+
+:= term_kind_text (id : term_id) : string = ? is_group id ?> "group" |: "term"
+
+:= ubl_json (ubl : list (ubl_document * ubl_path)) : json_value =
+    JsonObject (listm::map (\ (d, p) => ubl_document_name d, JsonText (path_text p)) ubl)
+
+:= term_head_fields (r : term_row) : list (string * json_value) =
+    [ ("id", JsonText (term_id_text r::id)); ("kind", JsonText (term_kind_text r::id)); ("name", JsonText r::name) ]
+
+:= effective_json ((d, c) : ubl_document * cardinality) : string * json_value =
+    (ubl_document_name d, JsonText (cardinality_text c))
+
+:= cardinality_fields (r : term_row) : list (string * json_value) =
+    [
+        ("cardinality", JsonText (cardinality_text r::cardinality))
+        ("effective", JsonText (cardinality_text r::effective))
+        ("effective_by", JsonObject (listm::map effective_json r::effective_by))
+    ]
+
+:= term_json (r : term_row) : json_value =
+    := shape = ("data_type", JsonText (declared_type_text r::data_type)) :: cardinality_fields r
+    JsonObject (listm::append (term_head_fields r) (listm::append shape [ ("ubl", ubl_json r::ubl) ]))
+
+:= en16931_terms () : list term_row =
+    := structure = fiscal_paths::under "deps/corpus/eu/peppol-bis3/structure"
+    ordered_terms (structure_terms structure UblCreditNote (structure_terms structure UblInvoice [])) []
+
+///> rust
+test data_types_and_cardinalities_read_back_as_written =
+    := types =
+        [
+            "Text"
+            "Identifier"
+            "Amount"
+            "Code"
+            "Date"
+            "Document Reference"
+            "Percentage"
+            "Quantity"
+            "Binary object"
+        ]
+    ? listm::length (listm'::filter (\ (t : string) => data_type_text (data_type_of t) <> t) types) <> 0i32
+    ?> failwith "every EN 16931 data type reads back as written"
+    := cardinalities = [ "0..1"; "1..1"; "0..n"; "1..n"; "0..2"; "1..2" ]
+    ? listm::length (listm'::filter (\ (c : string) => cardinality_text (cardinality_of c) <> c) cardinalities) <> 0i32
+    ?> failwith "every cardinality reads back as written"
+
+///> rust
+test the_canon_text_codecs_declare_their_round_trip_shapes =
+    := types = listm::map (\ (_, d) => d) (data_type_names ())
+    := names = listm::map (\ (n, _) => n) (data_type_names ())
+    := same_type (a : data_type) (b : data_type) : bool = a = b
+    := same_text (a : string) (b : string) : bool = a = b
+    ? round_trip::laws_hold round_trip::Iso same_type same_text data_type_text data_type_of types names = !-
+    ?> failwith "an EN 16931 data type and its name are an isomorphism"
+    := cards = listm::map cardinality_of [ "0..1"; "1..1"; "0..n"; "1..n"; "0..2"; "1..2" ]
+    := texts = [ "0..1"; "1..n"; "1..01"; "0..002" ]
+    := same_card (a : cardinality) (b : cardinality) : bool = a = b
+    := shape = round_trip::Retraction round_trip::ThereAndBack
+    ? round_trip::laws_hold shape same_card same_text cardinality_text cardinality_of cards texts = !-
+    ?> failwith "a cardinality survives printing and reading back"
+    ? round_trip::tight shape same_card same_text cardinality_text cardinality_of cards texts = !-
+    ?> failwith "the cardinality codec is a tight retraction: 1..01 reads as 1..1, so text does not survive reading"
+///> rust
+test a_cardinality_within_its_ancestors_is_their_product =
+    := card = cardinality_of
+    := nested = [ ("0..1", "1..1"); ("1..1", "1..1"); ("1..n", "0..1"); ("0..2", "1..1"); ("1..2", "1..n") ]
+    ? listm::map (\ (outer, own) => cardinality_text (within (card outer) (card own))) nested
+        <> [ "0..1"; "1..1"; "0..n"; "0..2"; "1..n" ]
+    ?> failwith "presence is required only when every step is, and bounds multiply"
+
+///> rust
+test only_business_term_references_name_terms =
+    := reference = XmlElement ("Reference", [ ("type", "BUSINESS_TERM") ], [ XmlText "BT-1, BG-2" ])
+    := description = XmlElement ("Description", [], [ XmlText "BT-9" ])
+    := syntax = XmlElement ("Reference", [ ("type", "SYNTAX") ], [ XmlText "BT-7" ])
+    ? business_terms [ description; reference; syntax ] [] <> [ BusinessTerm 1i32; BusinessGroup 2i32 ]
+    ?> failwith "only BUSINESS_TERM references name terms; other elements' text does not"
+
+///> rust
+test each_ubl_document_is_named_by_its_case =
+    ? listm::map ubl_document_name [ UblInvoice; UblCreditNote ] <> [ "ubl-invoice"; "ubl-creditnote" ]
+    ?> failwith "a UBL document's structure file is named by its case"
+
+///> rust
+test en16931_terms_are_written_to_the_canon =
+    := rows = en16931_terms ()
+    := groups = listm::length (listm'::filter (\ (r : term_row) => is_group r::id) rows)
+    := terms = listm::length rows - groups
+    := source = "OpenPeppol peppol-bis-invoice-3 v3.0.20 structure/syntax (EN 16931 UBL binding)"
+    := text = json_text (JsonObject [ ("source", JsonText source); ("terms", JsonArray (listm::map term_json rows)) ])
+    := folder = fiscal_paths::under "canon"
+    file_system::directory_create_all folder |> ignore
+    file_system::write_all_text (folder ++# "/en16931-terms.json") (text ++# "\n")
+    console::write_line (
+        "en16931 terms: " ++# sm'::obj_to_string terms ++# " terms, " ++# sm'::obj_to_string groups ++# " groups"
+    )
+    ? terms <> 162i32 || groups <> 30i32
+    ?> failwith "162 EN 16931 terms (BT-82 and BT-130 bound to attributes) and 30 groups"
+    := required (r : term_row) : bool = is_group r::id = !- && r::effective::presence = Required
+    ? listm::length (listm'::filter required rows) <> 25i32
+    ?> failwith "25 business terms are required once their optional ancestors count"
+    := unit = listm'::filter (\ (r : term_row) => r::id = BusinessTerm 130i32) rows
+    := invoice_unit = "ubl:Invoice/cac:InvoiceLine/cbc:InvoicedQuantity/@unitCode"
+    := credit_unit = "ubl:CreditNote/cac:CreditNoteLine/cbc:CreditedQuantity/@unitCode"
+    := bound (r : term_row) = listm::map (\ (_, p) => path_text p) r::ubl, cardinality_text r::effective
+    ? listm::map bound unit <> [ ([ invoice_unit; credit_unit ], "1..n") ]
+    ?> failwith "BT-130 is the unitCode attribute of every line's quantity"
+    := reference = listm'::filter (\ (r : term_row) => r::id = BusinessTerm 18i32) rows
+    := first_paths = listm::map (\ (r : term_row) => listm::map (\ (_, p) => path_text p) r::ubl) reference
+    ?
+        first_paths
+        <> [
+            [
+                "ubl:Invoice/cac:AdditionalDocumentReference/cbc:ID"
+                "ubl:CreditNote/cac:AdditionalDocumentReference/cbc:ID"
+            ]
+        ]
+    ?> failwith "a term keeps its first binding in a document, not a later qualifier that repeats its reference"
+    := due = listm'::filter (\ (r : term_row) => r::id = BusinessTerm 9i32) rows
+    := per_document (r : term_row) : string * string =
+        (cardinality_text (effective_in r UblInvoice), cardinality_text (effective_in r UblCreditNote))
+    ? listm::map per_document due <> [ ("0..1", "0..n") ]
+    ?> failwith "BT-9 is once in an invoice, per payment means in a credit note"
+    := project = listm'::filter (\ (r : term_row) => r::id = BusinessTerm 11i32) rows
+    ? listm::map (\ (r : term_row) => cardinality_text r::cardinality, cardinality_text r::effective) project
+        <> [ ("1..1", "0..1") ]
+    ?> failwith "BT-11 is required inside its optional ProjectReference, so optional in the invoice"

@@ -1,0 +1,49 @@
+///- --package . --timeout 2400000
+inl sample_path (name : string) : string =
+    inl from_env = env.get_environment_variable "FISCAL_ROOT"
+    inl root =
+        if from_env <> "" then from_env
+        else
+            inl here = file_system.get_current_directory ()
+            match here |> file_system.find_parent file_system.File "src/generator.spi" with
+            | Ok dir => dir
+            | Error message => failwith message
+    sm'.(++#) (sm'.(++#) root "/samples/") name
+
+let rec run_count (n : i32) (xs : list i64) : i32 =
+    match xs with
+    | _ :: rest => run_count (n + 1i32) rest
+    | [] => n
+
+let rec run_at (i : i32) (xs : list i64) : i64 =
+    match xs with
+    | x :: rest => if i = 0i32 then x else run_at (i - 1i32) rest
+    | [] => failwith "a bench row needs its timed runs"
+
+let rec insert_run (x : i64) (xs : list i64) : list i64 =
+    match xs with
+    | y :: rest => if x <= y then x :: xs else y :: insert_run x rest
+    | [] => x :: []
+
+inl median (xs : list i64) : string =
+    sm'.obj_to_string (run_at (run_count 0i32 xs / 2i32) xs)
+
+let rec countdown (n : i64) : list i64 =
+    if n <= 0i64 then [] else n :: countdown (n - 1i64)
+
+let rec sorted_runs (xs : list i64) (acc : list i64) : list i64 =
+    match xs with
+    | x :: rest => sorted_runs rest (insert_run x acc)
+    | [] => acc
+
+///> rust
+test median_takes_the_middle_run =
+    if median [ 1i64; 5i64; 9i64 ] <> "5" then failwith "the middle of three runs"
+
+///> rust
+test median_walks_a_runtime_list =
+    if median (countdown (dyn 31i64)) <> "16" then failwith "the middle of thirty-one timed runs"
+
+///> rust
+test insert_run_keeps_runtime_runs_ascending =
+    if run_at 0i32 (sorted_runs (countdown (dyn 31i64)) []) <> 1i64 then failwith "the fastest run comes first"

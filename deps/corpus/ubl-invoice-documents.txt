@@ -1,0 +1,155 @@
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Combustible.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Compra o Venta de Divisas.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Consumidor Final.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplicacion Impuestos Saludables.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion cambio otra Moneda.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificación Impuesto especial para la estabilidad fiscal.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion Licores-ICL-1.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion Licores-ICL-2.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion Licores-ICL.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion Licores.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion Muestras Gratis.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion otra Moneda  UBLExtension-CustomTagGneral-InvoiceLine.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Ejemplificacion Propina.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ejemplificacionIBUA-1.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ejemplificacionIBUA-2.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ejemplificacionIBUA-3.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ejemplificacionIBUA.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ejemplificacionICUI-1.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ejemplificacionICUI.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ejemplificacionINPP.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/EmisorAutoretenedor.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Excluido de IVA.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/ExcluidosExentos.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Exento de IVA.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Exportacion.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Factura otra Moneda.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Generica ingresos terceros.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Generica.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/GenericaPagoAnticipado.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Mandatos.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Multiples Adquirientes.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Servicios.xml
+co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/Transporte de Carga.xml
+eu/en16931/examples/ubl-tc434-example1.xml
+eu/en16931/examples/ubl-tc434-example10.xml
+eu/en16931/examples/ubl-tc434-example2.xml
+eu/en16931/examples/ubl-tc434-example3.xml
+eu/en16931/examples/ubl-tc434-example4.xml
+eu/en16931/examples/ubl-tc434-example5.xml
+eu/en16931/examples/ubl-tc434-example6.xml
+eu/en16931/examples/ubl-tc434-example7.xml
+eu/en16931/examples/ubl-tc434-example8.xml
+eu/en16931/examples/ubl-tc434-example9.xml
+eu/peppol-bis3/examples/Allowance-example.xml
+eu/peppol-bis3/examples/base-example.xml
+eu/peppol-bis3/examples/base-negative-inv-correction.xml
+eu/peppol-bis3/examples/vat-category-E.xml
+eu/peppol-bis3/examples/vat-category-O.xml
+eu/peppol-bis3/examples/Vat-category-S.xml
+eu/peppol-bis3/examples/vat-category-Z.xml
+my/myinvois/1.1-Invoice-Sample.xml
+my/samples/1.0-Credit-Note-Sample.xml
+my/samples/1.0-Debit-Note-Sample.xml
+my/samples/1.0-Invoice-Consolidated-Sample.xml
+my/samples/1.0-Invoice-ForeignCurrency-Sample.xml
+my/samples/1.0-Invoice-MultiLineItem-Sample.xml
+my/samples/1.0-Invoice-Sample.xml
+my/samples/1.0-Refund-Note-Sample.xml
+my/samples/1.0-Self-Billed-Credit-Sample.xml
+my/samples/1.0-Self-Billed-Debit-Sample.xml
+my/samples/1.0-Self-Billed-Invoice-Sample.xml
+my/samples/1.0-Self-Billed-Refund-Sample.xml
+my/samples/1.1-Credit-Note-Sample.xml
+my/samples/1.1-Debit-Note-Sample.xml
+my/samples/1.1-Invoice-Consolidated-Sample.xml
+my/samples/1.1-Invoice-ForeignCurrency-Sample.xml
+my/samples/1.1-Invoice-MultiLineItem-Sample.xml
+my/samples/1.1-Refund-Note-Sample.xml
+my/samples/1.1-Self-Billed-Credit-Sample.xml
+my/samples/1.1-Self-Billed-Debit-Sample.xml
+my/samples/1.1-Self-Billed-Invoice-Sample.xml
+my/samples/1.1-Self-Billed-Refund-Sample.xml
+pe/sunat-homologacion/Group1Test/factura1Con3Items.xml
+pe/sunat-homologacion/Group1Test/factura2Con2Items.xml
+pe/sunat-homologacion/Group1Test/factura3Con1Items.xml
+pe/sunat-homologacion/Group1Test/factura4Con5Items.xml
+pe/sunat-homologacion/Group1Test/factura5Con4Items.xml
+pe/sunat-homologacion/Group2ExoneradoTest/factura1Con1Items.xml
+pe/sunat-homologacion/Group2ExoneradoTest/factura2Con4Items.xml
+pe/sunat-homologacion/Group2ExoneradoTest/factura3Con7Items.xml
+pe/sunat-homologacion/Group2ExoneradoTest/factura4Con5Items.xml
+pe/sunat-homologacion/Group2ExoneradoTest/factura5Con6Items.xml
+pe/sunat-homologacion/Group2InafectoTest/factura1Con1Items.xml
+pe/sunat-homologacion/Group2InafectoTest/factura2Con4Items.xml
+pe/sunat-homologacion/Group2InafectoTest/factura3Con7Items.xml
+pe/sunat-homologacion/Group2InafectoTest/factura4Con5Items.xml
+pe/sunat-homologacion/Group2InafectoTest/factura5Con6Items.xml
+pe/sunat-homologacion/Group3Test/factura1Con7Items.xml
+pe/sunat-homologacion/Group3Test/factura2Con2Items.xml
+pe/sunat-homologacion/Group3Test/factura3Con5Items.xml
+pe/sunat-homologacion/Group3Test/factura4Con4Items.xml
+pe/sunat-homologacion/Group3Test/factura5Con3Items.xml
+pe/sunat-homologacion/Group4Test/factura1Con2Items.xml
+pe/sunat-homologacion/Group4Test/factura2Con2Items.xml
+pe/sunat-homologacion/Group4Test/factura3Con4Items.xml
+pe/sunat-homologacion/Group4Test/factura4Con3Items.xml
+pe/sunat-homologacion/Group4Test/factura5Con5Items.xml
+pe/sunat-homologacion/Group5Test/factura1Con5Items.xml
+pe/sunat-homologacion/Group6Test/factura1Con5Items.xml
+pe/sunat-homologacion/Group7Test/factura1Con5Items.xml
+ro/cius/examples/exemple_Invoice_CreditNote/eInvoice_ex.xml
+sa/zatca/Samples/Simplified/Credit/Simplified_Credit_Note.xml
+sa/zatca/Samples/Simplified/Debit/Simplified_Debit_Note.xml
+sa/zatca/Samples/Simplified/Invoice/Nominal supply invoice.xml
+sa/zatca/Samples/Simplified/Invoice/Simplified Tax Invoice with Zero Rated Item.xml
+sa/zatca/Samples/Simplified/Invoice/Simplified_Invoice.xml
+sa/zatca/Samples/Standard/Credit/Standard_Credit_Note.xml
+sa/zatca/Samples/Standard/Debit/Standard_Debit_Note.xml
+sa/zatca/Samples/Standard/Invoice/Advance Payment adjustments with foreign currency invoice.xml
+sa/zatca/Samples/Standard/Invoice/Advance Payment adjustments with rate change scenarios.xml
+sa/zatca/Samples/Standard/Invoice/Advance Payment adjustments.xml
+sa/zatca/Samples/Standard/Invoice/Exempt Tax Invoice.xml
+sa/zatca/Samples/Standard/Invoice/Export invoice.xml
+sa/zatca/Samples/Standard/Invoice/Out of Scope Standard Tax Invoice.xml
+sa/zatca/Samples/Standard/Invoice/Self-billing invoice.xml
+sa/zatca/Samples/Standard/Invoice/Standard Invoice with Document Level Charge.xml
+sa/zatca/Samples/Standard/Invoice/Standard Invoice with Payable Rounding Adjustment.xml
+sa/zatca/Samples/Standard/Invoice/Standard_Invoice.xml
+sa/zatca/Samples/Standard/Invoice/Summary Invoice.xml
+sa/zatca/Samples/Standard/Invoice/Third party billing.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/1_TEMEL_FATURA.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/2_TICARI_FATURA.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/3_TICARI_FATURA.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/6_TEMEL_FATURA_KDV_SIFIR.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/7_TEMEL_FATURA_IADE.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/7_TICARI_FATURA.xml
+tr/ubltr/efatura/e-FaturaPaketi/xml/TEKNOLOJI_DESTEK.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/HASTANE.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/HKS-Ornek1.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/HKS-Ornek2.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IadeFaturasiOrnegi.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IDIS_Fatura.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/IHRACAT.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/ISTISNA-1.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/ISTISNA-2.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/OTV.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/OZELMATRAH.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/SARJ.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/SARJANLIK.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/TemelFaturaOrnegi.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/TEVKIFAT.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/TicariFaturaOrnegi.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YOLCUBERABER.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Iade_EArsıv.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Iade_Efatura.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Iade_Istısna_EArsıv.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Iade_Istısna_Efatura.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Istisna_EArsıv.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Istisna_Efatura.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Satıs_EArşiv.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Satıs_Efatura.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Tevkıfat_EArşiv.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_Tevkıfat_Efatura.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_TevkıfatIade_EArşiv.xml
+tr/ubltr/UBLTR_1.2.1_Paketi/xml/YTB_TevkıfatIade_Efatura.xml

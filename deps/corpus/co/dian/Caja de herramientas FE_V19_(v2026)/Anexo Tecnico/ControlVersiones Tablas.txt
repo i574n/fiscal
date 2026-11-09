@@ -1,0 +1,3 @@
+La tabla de xxxxxxxxxxxxxxxx, se encuentra en la Caja de Herramientas “Caja_de_herramientas_Factura_Electronica_Validacion_Previa.zip\Anexo Tecnico\Tablas Referenciadas”, en formato Excel “.xlsx” donde se deberá utilizar los códigos que se encuentran en la columna XXXXXXXX.
+
+

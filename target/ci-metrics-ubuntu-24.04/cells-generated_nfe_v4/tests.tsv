@@ -1,0 +1,4 @@
+File	Test	Target	Status	Ms	Memo
+generated_nfe_v4	generated_nfe_v4_writes_its_example	rust	passed	1089207	
+generated_nfe_v4	generated_nfe_model_type_checks	rust	passed	60145	
+generated_nfe_v4	generated_nfe_v4_reports_a_missing_element_with_its_path	rust	passed	1221787	

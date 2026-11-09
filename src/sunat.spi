@@ -1,0 +1,462 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:! gravado = ()
+:! exonerado = ()
+:! inafecto = ()
+
+:| igv_affectation g =
+    | GravadoOperacionOnerosa :: igv_affectation gravado
+    | GravadoRetiroPorPremio :: igv_affectation gravado
+    | GravadoRetiroPorDonacion :: igv_affectation gravado
+    | GravadoRetiro :: igv_affectation gravado
+    | GravadoRetiroPorPublicidad :: igv_affectation gravado
+    | GravadoBonificaciones :: igv_affectation gravado
+    | GravadoRetiroPorEntregaATrabajadores :: igv_affectation gravado
+    | GravadoIvap :: igv_affectation gravado
+    | ExoneradoOperacionOnerosa :: igv_affectation exonerado
+    | ExoneradoTransferenciaGratuita :: igv_affectation exonerado
+    | Exportacion :: igv_affectation exonerado
+    | InafectoOperacionOnerosa :: igv_affectation inafecto
+    | InafectoRetiroPorBonificacion :: igv_affectation inafecto
+    | InafectoRetiro :: igv_affectation inafecto
+    | InafectoRetiroPorMuestrasMedicas :: igv_affectation inafecto
+    | InafectoRetiroPorConvenioColectivo :: igv_affectation inafecto
+    | InafectoRetiroPorPremio :: igv_affectation inafecto
+    | InafectoRetiroPorPublicidad :: igv_affectation inafecto
+
+:| affectation =
+    | Taxed : igv_affectation gravado
+    | Exempt : igv_affectation exonerado
+    | Unaffected : igv_affectation inafecto
+
+:= affectation_code \* g. (a : igv_affectation g) : string =
+    ?= a ?|
+    | GravadoOperacionOnerosa => "10"
+    | GravadoRetiroPorPremio => "11"
+    | GravadoRetiroPorDonacion => "12"
+    | GravadoRetiro => "13"
+    | GravadoRetiroPorPublicidad => "14"
+    | GravadoBonificaciones => "15"
+    | GravadoRetiroPorEntregaATrabajadores => "16"
+    | GravadoIvap => "17"
+    | ExoneradoOperacionOnerosa => "20"
+    | ExoneradoTransferenciaGratuita => "21"
+    | Exportacion => "40"
+    | InafectoOperacionOnerosa => "30"
+    | InafectoRetiroPorBonificacion => "31"
+    | InafectoRetiro => "32"
+    | InafectoRetiroPorMuestrasMedicas => "33"
+    | InafectoRetiroPorConvenioColectivo => "34"
+    | InafectoRetiroPorPremio => "35"
+    | InafectoRetiroPorPublicidad => "36"
+
+:= taxed_cases () : list (igv_affectation gravado) =
+    GravadoOperacionOnerosa
+    :: GravadoRetiroPorPremio
+    :: GravadoRetiroPorDonacion
+    :: GravadoRetiro
+    :: GravadoRetiroPorPublicidad
+    :: GravadoBonificaciones
+    :: GravadoRetiroPorEntregaATrabajadores
+    :: GravadoIvap
+    :: []
+
+:= exempt_cases () : list (igv_affectation exonerado) =
+    ExoneradoOperacionOnerosa :: ExoneradoTransferenciaGratuita :: Exportacion :: []
+
+:= unaffected_cases () : list (igv_affectation inafecto) =
+    InafectoOperacionOnerosa
+    :: InafectoRetiroPorBonificacion
+    :: InafectoRetiro
+    :: InafectoRetiroPorMuestrasMedicas
+    :: InafectoRetiroPorConvenioColectivo
+    :: InafectoRetiroPorPremio
+    :: InafectoRetiroPorPublicidad
+    :: []
+
+:= taxed_of (code : string) : option (igv_affectation gravado) =
+    listm'::try_find_ (\ a => affectation_code a = code) (taxed_cases ())
+
+:= exempt_of (code : string) : option (igv_affectation exonerado) =
+    listm'::try_find_ (\ a => affectation_code a = code) (exempt_cases ())
+
+:= unaffected_of (code : string) : option (igv_affectation inafecto) =
+    listm'::try_find_ (\ a => affectation_code a = code) (unaffected_cases ())
+
+:= affectation_of (code : string) : option affectation =
+    ?= taxed_of code ?|
+    | Some a => Some (Taxed a)
+    | None =>
+        ?= exempt_of code ?|
+        | Some a => Some (Exempt a)
+        | None => optionm::map (\ a => Unaffected a) (unaffected_of code)
+
+:= code_of (a : affectation) : string =
+    ?= a ?|
+    | Taxed g => affectation_code g
+    | Exempt e => affectation_code e
+    | Unaffected u => affectation_code u
+
+:| document_type =
+    | Factura
+    | Boleta
+    | NotaCredito
+    | NotaDebito
+    | GuiaRemisionRemitente
+
+:= document_type_code (d : document_type) : string =
+    ?= d ?|
+    | Factura => "01"
+    | Boleta => "03"
+    | NotaCredito => "07"
+    | NotaDebito => "08"
+    | GuiaRemisionRemitente => "09"
+
+:| credit_note_reason =
+    | AnulacionDeLaOperacion
+    | AnulacionPorErrorEnElRuc
+    | CorreccionPorErrorEnLaDescripcion
+    | DescuentoGlobal
+    | DescuentoPorItem
+    | DevolucionTotal
+    | DevolucionPorItem
+    | Bonificacion
+    | DisminucionEnElValor
+    | OtrosConceptos
+
+:= credit_note_reason_code (r : credit_note_reason) : string =
+    ?= r ?|
+    | AnulacionDeLaOperacion => "01"
+    | AnulacionPorErrorEnElRuc => "02"
+    | CorreccionPorErrorEnLaDescripcion => "03"
+    | DescuentoGlobal => "04"
+    | DescuentoPorItem => "05"
+    | DevolucionTotal => "06"
+    | DevolucionPorItem => "07"
+    | Bonificacion => "08"
+    | DisminucionEnElValor => "09"
+    | OtrosConceptos => "10"
+
+:| debit_note_reason =
+    | InteresPorMora
+    | AumentoEnElValor
+    | PenalidadOtrosConceptos
+
+:= debit_note_reason_code (r : debit_note_reason) : string =
+    ?= r ?|
+    | InteresPorMora => "01"
+    | AumentoEnElValor => "02"
+    | PenalidadOtrosConceptos => "03"
+
+:| price_type =
+    | PrecioUnitarioIncluyeIgv
+    | ValorReferencialUnitarioEnOperacionesNoOnerosas
+
+:= price_type_code (p : price_type) : string =
+    ?= p ?|
+    | PrecioUnitarioIncluyeIgv => "01"
+    | ValorReferencialUnitarioEnOperacionesNoOnerosas => "02"
+
+:~ ^ coded \* t. (code : string) (encode : t -> string) (cases : list t) : option t =
+    ?= cases ?|
+    | c :: rest => ? encode c = code ?> Some c |: coded code encode rest
+    | [] => None
+
+:= all_document_types () : list document_type = [ Factura; Boleta; NotaCredito; NotaDebito; GuiaRemisionRemitente ]
+
+:= all_credit_note_reasons () : list credit_note_reason =
+    [
+        AnulacionDeLaOperacion
+        AnulacionPorErrorEnElRuc
+        CorreccionPorErrorEnLaDescripcion
+        DescuentoGlobal
+        DescuentoPorItem
+        DevolucionTotal
+        DevolucionPorItem
+        Bonificacion
+        DisminucionEnElValor
+        OtrosConceptos
+    ]
+
+:= all_debit_note_reasons () : list debit_note_reason = [ InteresPorMora; AumentoEnElValor; PenalidadOtrosConceptos ]
+
+:= document_type_of (code : string) : option document_type = coded code document_type_code (all_document_types ())
+
+:= price_type_of (code : string) : option price_type =
+    coded code price_type_code [ PrecioUnitarioIncluyeIgv; ValorReferencialUnitarioEnOperacionesNoOnerosas ]
+
+:= credit_note_reason_of (code : string) : option credit_note_reason =
+    coded code credit_note_reason_code (all_credit_note_reasons ())
+
+:= debit_note_reason_of (code : string) : option debit_note_reason =
+    coded code debit_note_reason_code (all_debit_note_reasons ())
+
+:| tax_scheme =
+    | Igv
+    | ImpuestoArrozPilado
+    | Isc
+    | ExportacionScheme
+    | Gratuito
+    | ExoneradoScheme
+    | InafectoScheme
+    | IcbPer
+    | Otros
+
+:= tax_scheme_code (s : tax_scheme) : string =
+    ?= s ?|
+    | Igv => "1000"
+    | ImpuestoArrozPilado => "1016"
+    | Isc => "2000"
+    | ExportacionScheme => "9995"
+    | Gratuito => "9996"
+    | ExoneradoScheme => "9997"
+    | InafectoScheme => "9998"
+    | IcbPer => "7152"
+    | Otros => "9999"
+
+:= all_tax_schemes () : list tax_scheme =
+    [ Igv; ImpuestoArrozPilado; Isc; ExportacionScheme; Gratuito; ExoneradoScheme; InafectoScheme; IcbPer; Otros ]
+
+:= tax_scheme_of (code : string) : option tax_scheme = coded code tax_scheme_code (all_tax_schemes ())
+
+:= is_onerosa \* g. (a : igv_affectation g) : bool =
+    ?= a ?|
+    | GravadoOperacionOnerosa => !+
+    | GravadoIvap => !+
+    | ExoneradoOperacionOnerosa => !+
+    | InafectoOperacionOnerosa => !+
+    | Exportacion => !+
+    | _ => !-
+
+:= tax_category \* g. (a : igv_affectation g) : tax_scheme =
+    ?= a ?|
+    | GravadoOperacionOnerosa => Igv
+    | GravadoIvap => ImpuestoArrozPilado
+    | ExoneradoOperacionOnerosa => ExoneradoScheme
+    | InafectoOperacionOnerosa => InafectoScheme
+    | Exportacion => ExportacionScheme
+    | _ => Gratuito
+
+:= affectation_scheme (a : affectation) : tax_scheme =
+    ?= a ?|
+    | Taxed g => tax_category g
+    | Exempt e => tax_category e
+    | Unaffected u => tax_category u
+
+:= scheme_code_of (a : affectation) : string = tax_scheme_code (affectation_scheme a)
+
+:~ ^ child_named (name : string) (nodes : list xml::xml_node) : option xml::xml_node =
+    ?= nodes ?|
+    | node :: rest => ? xml::local_name (xml::node_name node) = name ?> Some node |: child_named name rest
+    | [] => None
+
+:= child_text (name : string) (node : xml::xml_node) : option string =
+    := text_of = \ c => sm'::trim (xml::text_in (xml::element_children c))
+    optionm::map text_of (child_named name (xml::element_children node))
+
+:= scheme_verdict (reason : string) (found : string) : option string =
+    ?= affectation_of reason ?|
+    | None => Some ("TaxExemptionReasonCode " ++# reason ++# " is not in catalog 07")
+    | Some a ?& scheme_code_of a = found => None
+    | Some a => Some ("reason " ++# reason ++# " expects TaxScheme " ++# scheme_code_of a ++# ", found " ++# found)
+
+:= scheme_finding (reason : string) (category : xml::xml_node) : option string =
+    ?= child_named "TaxScheme" (xml::element_children category) ?|
+    | None => Some ("TaxExemptionReasonCode " ++# reason ++# " without a TaxScheme")
+    | Some scheme => scheme_verdict reason (?= child_text "ID" scheme ?| Some id => id | None => "")
+
+:! category_check = i32 * list string
+
+:= tallied (finding : option string) (category_check (checked, findings)) : category_check =
+    ?= finding ?|
+    | Some f => category_check (checked + 1i32, f :: findings)
+    | None => category_check (checked + 1i32, findings)
+
+:= category_here (node : xml::xml_node) (acc : category_check) : category_check =
+    ? xml::local_name (xml::node_name node) <> "TaxCategory"
+    ?> acc
+    |:
+        ?= child_text "TaxExemptionReasonCode" node ?|
+        | None => acc
+        | Some reason => tallied (scheme_finding reason node) acc
+
+:~ ^ category_findings (node : xml::xml_node) (acc : category_check) : category_check =
+    findings_within (xml::element_children node) (category_here node acc)
+
+:& :~ findings_within (nodes : list xml::xml_node) (acc : category_check) : category_check =
+    ?= nodes ?|
+    | node :: rest => findings_within rest (category_findings node acc)
+    | [] => acc
+
+:= affectation_is_onerosa (a : affectation) : bool =
+    ?= a ?|
+    | Taxed g => is_onerosa g
+    | Exempt e => is_onerosa e
+    | Unaffected u => is_onerosa u
+
+:= expected_price_type (a : affectation) : price_type =
+    ? affectation_is_onerosa a ?> PrecioUnitarioIncluyeIgv |: ValorReferencialUnitarioEnOperacionesNoOnerosas
+
+:~ ^ descendant_text (name : string) (node : xml::xml_node) : option string =
+    ?= child_text name node ?|
+    | Some text => Some text
+    | None => descendant_text_within name (xml::element_children node)
+
+:& :~ descendant_text_within (name : string) (nodes : list xml::xml_node) : option string =
+    ?= nodes ?|
+    | node :: rest =>
+        ?= descendant_text name node ?|
+        | Some text => Some text
+        | None => descendant_text_within name rest
+    | [] => None
+
+:= price_verdict (reason : string) (found : string) : option string =
+    ?= optionm::map (\ a => price_type_code (expected_price_type a)) (affectation_of reason) ?|
+    | Some expected ?& expected <> found =>
+        Some ("reason " ++# reason ++# " expects PriceTypeCode " ++# expected ++# ", found " ++# found)
+    | _ => None
+
+:= price_finding (line : xml::xml_node) : option string =
+    ?= descendant_text "TaxExemptionReasonCode" line ?|
+    | None => None
+    | Some reason => price_verdict reason (?= descendant_text "PriceTypeCode" line ?| Some p => p | None => "")
+
+:= is_line (node : xml::xml_node) : bool =
+    := local = xml::local_name (xml::node_name node)
+    listm'::contains local [ "InvoiceLine"; "CreditNoteLine"; "DebitNoteLine" ]
+
+:~ ^ line_findings (node : xml::xml_node) (acc : category_check) : category_check =
+    ? is_line node ?> tallied (price_finding node) acc |: lines_within (xml::element_children node) acc
+
+:& :~ lines_within (nodes : list xml::xml_node) (acc : category_check) : category_check =
+    ?= nodes ?|
+    | node :: rest => lines_within rest (line_findings node acc)
+    | [] => acc
+
+:= pe_entries (manifest : string) : list string =
+    := text = xml::read_text_replacing_invalid_utf8 (fiscal_paths::under manifest)
+    listm'::filter (\ (line : string) => sm'::starts_with "pe/" line) (listm::map sm'::trim (sm'::split_list "\n" text))
+
+:= homologation_entries () : list string =
+    listm::concat [
+        pe_entries "deps/corpus/ubl-invoice-documents.txt"
+        pe_entries "deps/corpus/ubl-creditnote-documents.txt"
+        pe_entries "deps/corpus/ubl-debitnote-documents.txt"
+    ]
+
+:= document_check (acc : category_check) (entry : string) : category_check =
+    := text = xml::read_text_replacing_invalid_utf8 (fiscal_paths::under ("deps/corpus/" ++# entry))
+    findings_within (xml::read_xml text) acc
+
+:= line_check (acc : category_check) (entry : string) : category_check =
+    := text = xml::read_text_replacing_invalid_utf8 (fiscal_paths::under ("deps/corpus/" ++# entry))
+    lines_within (xml::read_xml text) acc
+
+:= checked_of (category_check (checked, _)) : i32 = checked
+
+:= findings_of (category_check (_, findings)) : list string = listm::rev findings
+
+:= igv_line (rate_percent : i32) (line : igv_affectation gravado) (base_cents : i64) : i64 =
+    base_cents * (conv rate_percent : i64) / 100i64
+
+///> rust
+test every_catalog_07_code_round_trips_through_its_group =
+    := taxed = [ "10"; "11"; "12"; "13"; "14"; "15"; "16"; "17" ]
+    := codes = listm::append taxed [ "20"; "21"; "40"; "30"; "31"; "32"; "33"; "34"; "35"; "36" ]
+    := back = listm::map (\ code => optionm::map code_of (affectation_of code)) codes
+    ? back <> listm::map (\ code => Some code) codes ?> failwith "every catalog 07 code parses and prints back"
+    ? affectation_of "40" <> Some (Exempt Exportacion)
+    ?> failwith "export is an exonerado code (openubl Catalog7::group)"
+    ? affectation_of "18" <> None || affectation_of "" <> None ?> failwith "a code outside catalog 07 is no affectation"
+
+///> rust
+test the_homologation_cases_use_known_codes =
+    := used = [ "10"; "11"; "12"; "13"; "20"; "21"; "30"; "31" ]
+    ? listm'::filter (\ a => a = None) (listm::map affectation_of used) <> []
+    ?> failwith "every TaxExemptionReasonCode in the corpus parses"
+
+///> rust
+test only_taxed_lines_charge_igv =
+    ?= taxed_of "10" ?|
+    | Some taxed => ? igv_line 18i32 taxed 10000i64 <> 1800i64 ?> failwith "18% of 100.00 is 18.00"
+    | None => failwith "10 is taxed"
+    ? is_onerosa GravadoRetiroPorPremio || is_onerosa ExoneradoOperacionOnerosa = !- ?> failwith "onerosa flags"
+
+///> rust
+test catalogs_01_09_10_have_unique_codes_that_round_trip =
+    := codes = listm::map credit_note_reason_code (all_credit_note_reasons ())
+    ? codes <> [ "01"; "02"; "03"; "04"; "05"; "06"; "07"; "08"; "09"; "10" ]
+    ?> failwith "catalog 09 codes are unique (openubl maps DevolucionPorItem to 06 twice; 07 is its code)"
+    := back = listm::map (\ r => credit_note_reason_of (credit_note_reason_code r)) (all_credit_note_reasons ())
+    ? back <> listm::map (\ r => Some r) (all_credit_note_reasons ()) ?> failwith "every credit note reason round-trips"
+    := debits = listm::map (\ r => debit_note_reason_of (debit_note_reason_code r)) (all_debit_note_reasons ())
+    ? debits <> listm::map (\ r => Some r) (all_debit_note_reasons ()) ?> failwith "every debit note reason round-trips"
+    := types = listm::map (\ d => document_type_of (document_type_code d)) (all_document_types ())
+    ? types <> listm::map (\ d => Some d) (all_document_types ()) ?> failwith "every document type round-trips"
+    ? document_type_of "01" <> Some Factura || credit_note_reason_of "01" <> Some AnulacionDeLaOperacion
+    ?> failwith "the homologation cases' 01 codes parse (invoices; ResponseCode of the notes)"
+    ? document_type_of "02" <> None || debit_note_reason_of "04" <> None ?> failwith "codes outside a catalog are None"
+    ? price_type_of "01" <> Some PrecioUnitarioIncluyeIgv || price_type_of "03" <> None
+    ?> failwith "catalog 16: 01 and 02 are the corpus's PriceTypeCode values (133 and 100); 03 is none"
+    ? optionm::map price_type_code (price_type_of "02") <> Some "02" ?> failwith "02 round-trips"
+
+///> rust
+test every_affectation_has_the_tax_scheme_openubl_assigns =
+    := codes = [ "10"; "11"; "17"; "20"; "21"; "30"; "31"; "40" ]
+    := expected = [ "1000"; "9996"; "1016"; "9997"; "9996"; "9998"; "9996"; "9995" ]
+    := schemes = listm::map (\ code => optionm::map scheme_code_of (affectation_of code)) codes
+    ? schemes <> listm::map (\ s => Some s) expected
+    ?> failwith "onerosa lines carry their own scheme, every free transfer (retiro, gratuita) carries 9996 GRA"
+    := corpus = listm::map tax_scheme_of [ "1000"; "2000"; "9996"; "9997"; "9998" ]
+    ? listm'::filter (\ s => s = None) corpus <> [] ?> failwith "every TaxScheme ID in the homologation corpus parses"
+    ? is_onerosa GravadoIvap = !- ?> failwith "IVAP (17) is an onerosa operation"
+
+///> rust
+test a_tax_category_carries_the_scheme_of_its_affectation =
+    := category = \ reason scheme =>
+        xml::element "cac:TaxCategory" [] [
+            xml::element "cbc:TaxExemptionReasonCode" [] (xml::text_children reason)
+            xml::element "cac:TaxScheme" [] [ xml::element "cbc:ID" [] (xml::text_children scheme) ]
+        ]
+    := line = xml::element "cac:InvoiceLine" [] [ category "11" "9996"; category "10" "9996"; category "99" "1000" ]
+    := result = category_findings line (category_check (0i32, []))
+    ? checked_of result <> 3i32 ?> failwith "every TaxCategory with a reason code is checked"
+    := expected = [ "reason 10 expects TaxScheme 1000, found 9996"; "TaxExemptionReasonCode 99 is not in catalog 07" ]
+    ? findings_of result <> expected
+    ?> failwith "a retiro with GRA passes; IGV-onerosa under GRA and an unknown code are findings"
+
+///> rust
+test the_homologation_cases_carry_the_scheme_of_each_affectation =
+    := entries = homologation_entries ()
+    ? (listm::length entries : i32) <> 58i32 ?> failwith "58 SUNAT homologation cases in the UBL manifests"
+    := result = listm::fold document_check (category_check (0i32, [])) entries
+    ?= findings_of result ?|
+    | first :: _ => failwith ("a homologation case breaks the catalog 07 -> 05 rule: " ++# first)
+    | [] => ()
+    ? checked_of result <> 233i32 ?>
+        failwith (
+            "233 TaxCategory elements with a reason code are checked, got " ++# sm'::obj_to_string (checked_of result)
+        )
+
+///> rust
+test every_homologation_line_prices_by_its_onerosa_flag =
+    := line = \ reason price =>
+        xml::element "cac:InvoiceLine" [] [
+            xml::element "cbc:PriceTypeCode" [] (xml::text_children price)
+            xml::element "cbc:TaxExemptionReasonCode" [] (xml::text_children reason)
+        ]
+    := doc = xml::element "Invoice" [] [ line "10" "01"; line "11" "02"; line "21" "01" ]
+    := synthetic = line_findings doc (category_check (0i32, []))
+    ? checked_of synthetic <> 3i32 || findings_of synthetic <> [ "reason 21 expects PriceTypeCode 02, found 01" ]
+    ?> failwith "an onerosa line prices with 01, a free transfer with 02"
+    := result = listm::fold line_check (category_check (0i32, [])) (homologation_entries ())
+    ?= findings_of result ?|
+    | first :: _ => failwith ("a homologation line breaks the catalog 16 rule: " ++# first)
+    | [] => ()
+    ? checked_of result <> 233i32
+    ?> failwith "233 homologation lines are checked (133 onerosa with 01, 100 free with 02)"
+
+///> rust
+test an_exempt_line_cannot_charge_igv fails "Unification failure" =
+    igv_line 18i32 ExoneradoOperacionOnerosa 10000i64 |> ignore

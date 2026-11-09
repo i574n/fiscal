@@ -1,0 +1,2928 @@
+///- --package . --timeout 2400000
+open xml_codec
+
+prototype to_text t : t -> string
+
+inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
+    xml.element name [] (xml.text_children (to_text v))
+
+inl optional_text_nodes forall t {to_text}. (name : string) (v : option t) : list xml.xml_node =
+    xml.option_list (optionm.map (text_node name) v)
+
+inl repeated_text_nodes forall t {to_text}. (name : string) (vs : list t) : list xml.xml_node =
+    listm.map (text_node name) vs
+
+nominal lexical t = { value : t; text : string }
+
+instance to_text lexical t = fun x => x.text
+
+inl lexical_of forall t. (text : string) (value : option t) : option (lexical t) =
+    optionm.map (fun v => lexical { value = v; text = text }) value
+
+inl whole_of (text : string) : option i64 =
+    if sm'.index_of "." text >= 0i32 then None
+    else optionm.map (fun (d : decimal.decimal) => d.units) (decimal.parse text)
+
+inl whole_at_least (least : i64) (text : string) : option i64 =
+    match whole_of text with
+    | Some n => if n >= least then Some n else None
+    | None => None
+
+inl boolean_of (text : string) : option bool =
+    match xml.collapsed_space text with
+    | "true" => Some true
+    | "1" => Some true
+    | "false" => Some false
+    | "0" => Some false
+    | _ => None
+
+type xsd_integer = lexical i64
+
+inl xsd_integer_of_string (s : string) : option xsd_integer = lexical_of s (whole_of s)
+
+inl xsd_integer_example (_ : i32) : xsd_integer = lexical { value = 1i64; text = "1" }
+
+inl xsd_integer_example_text (_ : i32) : string = "1"
+
+nominal unsigned = ()
+nominal signed = ()
+
+union staged s a =
+    | Pending :: forall a. string -> staged unsigned a
+    | Present :: forall a. a -> staged signed a
+
+union stage s =
+    | Unsigned :: stage unsigned
+    | Signed :: stage signed
+
+prototype stage_of s : () -> stage s
+instance stage_of unsigned = fun () => Unsigned
+instance stage_of signed = fun () => Signed
+
+inl staged_read forall s a.
+    (witness : stage s) (read : list xml_codec.decode_error -> option a * list xml_codec.decode_error)
+    (errors : list xml_codec.decode_error)
+    : option (staged s a) * list xml_codec.decode_error
+    =
+    match witness with
+    | Unsigned => Some (Pending "unsigned"), errors
+    | Signed =>
+        inl value, errors = read errors
+        optionm.map (fun v => Present v) value, errors
+
+inl signed_value forall a. (x : staged signed a) : a =
+    match x with
+    | Present v => v
+
+inl staged_list forall s a b. (f : a -> b) (x : staged s a) : list b =
+    match x with
+    | Pending _ => []
+    | Present v => [ f v ]
+
+type any_content = list xml.xml_node
+
+inl any_content_of (nodes : list xml.xml_node) : any_content = nodes
+
+inl any_content_to (content : any_content) : list xml.xml_node = content
+
+type x_hmac_output_length_type = string
+
+inl x_hmac_output_length_type_is_valid (s : string) : bool = true
+
+inl x_hmac_output_length_type_example (_ : i32) : string = "1"
+
+inl x_hmac_output_length_type_example_text (k : i32) : string = x_hmac_output_length_type_example k
+
+type x_digest_value_type = string
+
+inl x_digest_value_type_is_valid (s : string) : bool = true
+
+inl x_digest_value_type_example (_ : i32) : string = "AAAA"
+
+inl x_digest_value_type_example_text (k : i32) : string = x_digest_value_type_example k
+
+type x_crypto_binary = string
+
+inl x_crypto_binary_is_valid (s : string) : bool = true
+
+inl x_crypto_binary_example (_ : i32) : string = "AAAA"
+
+inl x_crypto_binary_example_text (k : i32) : string = x_crypto_binary_example k
+
+type x_decimal_dinero_type = string
+
+inl x_decimal_dinero_type_is_valid (s : string) : bool = true
+
+inl x_decimal_dinero_type_example (_ : i32) : string = "1"
+
+inl x_decimal_dinero_type_example_text (k : i32) : string = x_decimal_dinero_type_example k
+
+nominal x_rsa_key_value_type =
+    {
+        modulus : x_crypto_binary
+        exponent : x_crypto_binary
+    }
+
+nominal x_dsa_key_value_type =
+    {
+        p : x_crypto_binary
+        q : x_crypto_binary
+        g : option (x_crypto_binary)
+        y : x_crypto_binary
+        j : option (x_crypto_binary)
+        seed : x_crypto_binary
+        pgen_counter : x_crypto_binary
+    }
+
+nominal x_signature_property_type =
+    {
+        any : any_content
+        target : string
+        id : option (string)
+    }
+
+nominal x_signature_properties_type =
+    {
+        signature_property : list (x_signature_property_type)
+        id : option (string)
+    }
+
+nominal x_object_type =
+    {
+        any : any_content
+        id : option (string)
+        mime_type : option (string)
+        encoding : option (string)
+    }
+
+nominal x_spki_data_type_group_spki_sexp =
+    {
+        spki_sexp : string
+        any : any_content
+    }
+
+nominal x_spki_data_type =
+    {
+        group_spki_sexp : list (x_spki_data_type_group_spki_sexp)
+    }
+
+nominal x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id =
+    {
+        pgp_key_id : string
+        pgp_key_packet : option (string)
+        any : any_content
+    }
+
+nominal x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet =
+    {
+        pgp_key_packet : string
+        any : any_content
+    }
+
+union x_pgp_data_type_choice_pgp_key_id =
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet
+
+nominal x_pgp_data_type =
+    {
+        choice_pgp_key_id : x_pgp_data_type_choice_pgp_key_id
+    }
+
+nominal x_x509_issuer_serial_type =
+    {
+        x509_issuer_name : string
+        x509_serial_number : xsd_integer
+    }
+
+union x_x509_data_type_choice_x509_issuer_serial =
+    | X509DataType_choice_X509IssuerSerial_X509IssuerSerial : x_x509_issuer_serial_type
+    | X509DataType_choice_X509IssuerSerial_X509SKI : string
+    | X509DataType_choice_X509IssuerSerial_X509SubjectName : string
+    | X509DataType_choice_X509IssuerSerial_X509Certificate : string
+    | X509DataType_choice_X509IssuerSerial_X509CRL : string
+
+nominal x_x509_data_type =
+    {
+        choice_x509_issuer_serial : list (x_x509_data_type_choice_x509_issuer_serial)
+    }
+
+union x_key_value_type_choice_ds_dsa_key_value =
+    | KeyValueType_choice_ds_DSAKeyValue_ds_DSAKeyValue : x_dsa_key_value_type
+    | KeyValueType_choice_ds_DSAKeyValue_ds_RSAKeyValue : x_rsa_key_value_type
+
+nominal x_key_value_type =
+    {
+        choice_dsa_key_value : x_key_value_type_choice_ds_dsa_key_value
+    }
+
+nominal x_digest_method_type =
+    {
+        any : any_content
+        algorithm : string
+    }
+
+union x_transform_type_choice_x_path =
+    | TransformType_choice_XPath_XPath : string
+
+nominal x_transform_type =
+    {
+        choice_x_path : list (x_transform_type_choice_x_path)
+        algorithm : string
+    }
+
+nominal x_transforms_type =
+    {
+        transform : list (x_transform_type)
+    }
+
+nominal x_reference_type =
+    {
+        transforms : option (x_transforms_type)
+        digest_method : x_digest_method_type
+        digest_value : x_digest_value_type
+        id : option (string)
+        uri : option (string)
+        type_value : option (string)
+    }
+
+nominal x_signature_method_type =
+    {
+        hmac_output_length : option (x_hmac_output_length_type)
+        any : any_content
+        algorithm : string
+    }
+
+nominal x_canonicalization_method_type =
+    {
+        any : any_content
+        algorithm : string
+    }
+
+nominal x_signed_info_type =
+    {
+        canonicalization_method : x_canonicalization_method_type
+        signature_method : x_signature_method_type
+        reference : list (x_reference_type)
+        id : option (string)
+    }
+
+nominal x_signature_value_type =
+    {
+        base : string
+        id : option (string)
+    }
+
+let rec xsd_pattern_447a24f5_18 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s then state = 50i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 1i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 1i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 2i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 2i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 3i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 3i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 4i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 4i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 5i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 5i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 6i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 6i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 7i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 7i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 8i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 8i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 9i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 9i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 9i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 10i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 10i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 10i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 11i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 11i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 12i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 12i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 12i32 s next
+            else false
+        elif state = 12i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 13i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 13i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 13i32 s next
+            else false
+        elif state = 13i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 14i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 14i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 14i32 s next
+            else false
+        elif state = 14i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 15i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 15i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 15i32 s next
+            else false
+        elif state = 15i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 16i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 16i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 16i32 s next
+            else false
+        elif state = 16i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 17i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 17i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 17i32 s next
+            else false
+        elif state = 17i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 18i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 18i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 18i32 s next
+            else false
+        elif state = 18i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 19i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 19i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 19i32 s next
+            else false
+        elif state = 19i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 20i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 20i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 20i32 s next
+            else false
+        elif state = 20i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 21i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 21i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 21i32 s next
+            else false
+        elif state = 21i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 22i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 22i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 22i32 s next
+            else false
+        elif state = 22i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 23i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 23i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 23i32 s next
+            else false
+        elif state = 23i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 24i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 24i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 24i32 s next
+            else false
+        elif state = 24i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 25i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 25i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 25i32 s next
+            else false
+        elif state = 25i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 26i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 26i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 26i32 s next
+            else false
+        elif state = 26i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 27i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 27i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 27i32 s next
+            else false
+        elif state = 27i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 28i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 28i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 28i32 s next
+            else false
+        elif state = 28i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 29i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 29i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 29i32 s next
+            else false
+        elif state = 29i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 30i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 30i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 30i32 s next
+            else false
+        elif state = 30i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 31i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 31i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 31i32 s next
+            else false
+        elif state = 31i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 32i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 32i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 32i32 s next
+            else false
+        elif state = 32i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 33i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 33i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 33i32 s next
+            else false
+        elif state = 33i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 34i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 34i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 34i32 s next
+            else false
+        elif state = 34i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 35i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 35i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 35i32 s next
+            else false
+        elif state = 35i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 36i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 36i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 36i32 s next
+            else false
+        elif state = 36i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 37i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 37i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 37i32 s next
+            else false
+        elif state = 37i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 38i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 38i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 38i32 s next
+            else false
+        elif state = 38i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 39i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 39i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 39i32 s next
+            else false
+        elif state = 39i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 40i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 40i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 40i32 s next
+            else false
+        elif state = 40i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 41i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 41i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 41i32 s next
+            else false
+        elif state = 41i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 42i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 42i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 42i32 s next
+            else false
+        elif state = 42i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 43i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 43i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 43i32 s next
+            else false
+        elif state = 43i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 44i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 44i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 44i32 s next
+            else false
+        elif state = 44i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 45i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 45i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 45i32 s next
+            else false
+        elif state = 45i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 46i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 46i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 46i32 s next
+            else false
+        elif state = 46i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 47i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 47i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 47i32 s next
+            else false
+        elif state = 47i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 48i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 48i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 48i32 s next
+            else false
+        elif state = 48i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 49i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 49i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 49i32 s next
+            else false
+        elif state = 49i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_447a24f5_18 50i32 s next
+            elif 65u32 <= c && c <= 90u32 then xsd_pattern_447a24f5_18 50i32 s next
+            elif 97u32 <= c && c <= 122u32 then xsd_pattern_447a24f5_18 50i32 s next
+            else false
+        elif state = 50i32 then
+            false
+        else false
+
+nominal private x_mensaje_receptor_clave = string
+
+inl x_mensaje_receptor_clave_is_valid (s : string) : bool = (xsd_pattern_447a24f5_18 0i32 s 0i32)
+
+inl x_mensaje_receptor_clave_of_string (s : string) : option x_mensaje_receptor_clave =
+    if x_mensaje_receptor_clave_is_valid s then Some (x_mensaje_receptor_clave s) else None
+
+inl x_mensaje_receptor_clave_to_string (x : x_mensaje_receptor_clave) : string =
+    match x with x_mensaje_receptor_clave s => s
+
+instance to_text x_mensaje_receptor_clave = fun x => x_mensaje_receptor_clave_to_string x
+inl x_mensaje_receptor_clave_example (_ : i32) : x_mensaje_receptor_clave =
+    x_mensaje_receptor_clave "00000000000000000000000000000000000000000000000000"
+
+inl x_mensaje_receptor_clave_example_text (k : i32) : string =
+    x_mensaje_receptor_clave_to_string (x_mensaje_receptor_clave_example k)
+
+nominal private x_mensaje_receptor_numero_cedula_emisor = string
+
+inl x_mensaje_receptor_numero_cedula_emisor_is_valid (s : string) : bool = xml.code_point_count s <= 20
+
+inl x_mensaje_receptor_numero_cedula_emisor_of_string (s : string) : option x_mensaje_receptor_numero_cedula_emisor =
+    if x_mensaje_receptor_numero_cedula_emisor_is_valid s then Some (x_mensaje_receptor_numero_cedula_emisor s)
+    else None
+
+inl x_mensaje_receptor_numero_cedula_emisor_to_string (x : x_mensaje_receptor_numero_cedula_emisor) : string =
+    match x with x_mensaje_receptor_numero_cedula_emisor s => s
+
+instance to_text x_mensaje_receptor_numero_cedula_emisor = fun x => x_mensaje_receptor_numero_cedula_emisor_to_string x
+inl x_mensaje_receptor_numero_cedula_emisor_example (_ : i32) : x_mensaje_receptor_numero_cedula_emisor =
+    x_mensaje_receptor_numero_cedula_emisor "1"
+
+inl x_mensaje_receptor_numero_cedula_emisor_example_text (k : i32) : string =
+    x_mensaje_receptor_numero_cedula_emisor_to_string (x_mensaje_receptor_numero_cedula_emisor_example k)
+
+union x_mensaje_receptor_mensaje =
+    | MensajeReceptor_Mensaje_1
+    | MensajeReceptor_Mensaje_2
+    | MensajeReceptor_Mensaje_3
+
+inl x_mensaje_receptor_mensaje_of_string (s : string) : option x_mensaje_receptor_mensaje =
+    inl s = xml.collapsed_space s
+    match s with
+    | "1" => Some MensajeReceptor_Mensaje_1
+    | "2" => Some MensajeReceptor_Mensaje_2
+    | "3" => Some MensajeReceptor_Mensaje_3
+    | _ => None
+
+inl x_mensaje_receptor_mensaje_to_string (x : x_mensaje_receptor_mensaje) : string =
+    match x with
+    | MensajeReceptor_Mensaje_1 => "1"
+    | MensajeReceptor_Mensaje_2 => "2"
+    | MensajeReceptor_Mensaje_3 => "3"
+
+instance to_text x_mensaje_receptor_mensaje = fun x => x_mensaje_receptor_mensaje_to_string x
+
+inl x_mensaje_receptor_mensaje_example (k : i32) : x_mensaje_receptor_mensaje =
+    inl index = ((k % 3i32) + 3i32) % 3i32
+    if index = 0i32 then MensajeReceptor_Mensaje_1
+    elif index = 1i32 then MensajeReceptor_Mensaje_2
+    else MensajeReceptor_Mensaje_3
+
+inl x_mensaje_receptor_mensaje_example_text (k : i32) : string =
+    x_mensaje_receptor_mensaje_to_string (x_mensaje_receptor_mensaje_example k)
+
+nominal private x_mensaje_receptor_detalle_mensaje = string
+
+inl x_mensaje_receptor_detalle_mensaje_is_valid (s : string) : bool = xml.code_point_count s <= 160
+
+inl x_mensaje_receptor_detalle_mensaje_of_string (s : string) : option x_mensaje_receptor_detalle_mensaje =
+    if x_mensaje_receptor_detalle_mensaje_is_valid s then Some (x_mensaje_receptor_detalle_mensaje s) else None
+
+inl x_mensaje_receptor_detalle_mensaje_to_string (x : x_mensaje_receptor_detalle_mensaje) : string =
+    match x with x_mensaje_receptor_detalle_mensaje s => s
+
+instance to_text x_mensaje_receptor_detalle_mensaje = fun x => x_mensaje_receptor_detalle_mensaje_to_string x
+inl x_mensaje_receptor_detalle_mensaje_example (_ : i32) : x_mensaje_receptor_detalle_mensaje =
+    x_mensaje_receptor_detalle_mensaje "1"
+
+inl x_mensaje_receptor_detalle_mensaje_example_text (k : i32) : string =
+    x_mensaje_receptor_detalle_mensaje_to_string (x_mensaje_receptor_detalle_mensaje_example k)
+
+type x_mensaje_receptor_monto_total_impuesto = string
+
+inl x_mensaje_receptor_monto_total_impuesto_is_valid (s : string) : bool = true
+
+inl x_mensaje_receptor_monto_total_impuesto_example (_ : i32) : string = "1"
+
+inl x_mensaje_receptor_monto_total_impuesto_example_text (k : i32) : string =
+    x_mensaje_receptor_monto_total_impuesto_example k
+
+nominal private x_mensaje_receptor_codigo_actividad = string
+
+inl x_mensaje_receptor_codigo_actividad_is_valid (s : string) : bool = xml.code_point_count s <= 6
+
+inl x_mensaje_receptor_codigo_actividad_of_string (s : string) : option x_mensaje_receptor_codigo_actividad =
+    if x_mensaje_receptor_codigo_actividad_is_valid s then Some (x_mensaje_receptor_codigo_actividad s) else None
+
+inl x_mensaje_receptor_codigo_actividad_to_string (x : x_mensaje_receptor_codigo_actividad) : string =
+    match x with x_mensaje_receptor_codigo_actividad s => s
+
+instance to_text x_mensaje_receptor_codigo_actividad = fun x => x_mensaje_receptor_codigo_actividad_to_string x
+inl x_mensaje_receptor_codigo_actividad_example (_ : i32) : x_mensaje_receptor_codigo_actividad =
+    x_mensaje_receptor_codigo_actividad "1"
+
+inl x_mensaje_receptor_codigo_actividad_example_text (k : i32) : string =
+    x_mensaje_receptor_codigo_actividad_to_string (x_mensaje_receptor_codigo_actividad_example k)
+
+union x_mensaje_receptor_condicion_impuesto =
+    | MensajeReceptor_CondicionImpuesto_01
+    | MensajeReceptor_CondicionImpuesto_02
+    | MensajeReceptor_CondicionImpuesto_03
+    | MensajeReceptor_CondicionImpuesto_04
+    | MensajeReceptor_CondicionImpuesto_05
+
+inl x_mensaje_receptor_condicion_impuesto_of_string (s : string) : option x_mensaje_receptor_condicion_impuesto =
+    match s with
+    | "01" => Some MensajeReceptor_CondicionImpuesto_01
+    | "02" => Some MensajeReceptor_CondicionImpuesto_02
+    | "03" => Some MensajeReceptor_CondicionImpuesto_03
+    | "04" => Some MensajeReceptor_CondicionImpuesto_04
+    | "05" => Some MensajeReceptor_CondicionImpuesto_05
+    | _ => None
+
+inl x_mensaje_receptor_condicion_impuesto_to_string (x : x_mensaje_receptor_condicion_impuesto) : string =
+    match x with
+    | MensajeReceptor_CondicionImpuesto_01 => "01"
+    | MensajeReceptor_CondicionImpuesto_02 => "02"
+    | MensajeReceptor_CondicionImpuesto_03 => "03"
+    | MensajeReceptor_CondicionImpuesto_04 => "04"
+    | MensajeReceptor_CondicionImpuesto_05 => "05"
+
+instance to_text x_mensaje_receptor_condicion_impuesto = fun x => x_mensaje_receptor_condicion_impuesto_to_string x
+
+inl x_mensaje_receptor_condicion_impuesto_example (k : i32) : x_mensaje_receptor_condicion_impuesto =
+    inl index = ((k % 5i32) + 5i32) % 5i32
+    if index = 0i32 then MensajeReceptor_CondicionImpuesto_01
+    elif index = 1i32 then MensajeReceptor_CondicionImpuesto_02
+    elif index = 2i32 then MensajeReceptor_CondicionImpuesto_03
+    elif index = 3i32 then MensajeReceptor_CondicionImpuesto_04
+    else MensajeReceptor_CondicionImpuesto_05
+
+inl x_mensaje_receptor_condicion_impuesto_example_text (k : i32) : string =
+    x_mensaje_receptor_condicion_impuesto_to_string (x_mensaje_receptor_condicion_impuesto_example k)
+
+type x_mensaje_receptor_total_factura = string
+
+inl x_mensaje_receptor_total_factura_is_valid (s : string) : bool = true
+
+inl x_mensaje_receptor_total_factura_example (_ : i32) : string = "1"
+
+inl x_mensaje_receptor_total_factura_example_text (k : i32) : string = x_mensaje_receptor_total_factura_example k
+
+let rec xsd_pattern_194316e7_8 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s then state = 9i32 || state = 10i32 || state = 11i32 || state = 12i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 9i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 10i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_194316e7_8 12i32 s next
+            else false
+        elif state = 12i32 then
+            false
+        else false
+
+nominal private x_mensaje_receptor_numero_cedula_receptor = string
+
+inl x_mensaje_receptor_numero_cedula_receptor_is_valid (s : string) : bool =
+    (xsd_pattern_194316e7_8 0i32 s 0i32) && xml.code_point_count s <= 20
+
+inl x_mensaje_receptor_numero_cedula_receptor_of_string
+    (s : string)
+    : option x_mensaje_receptor_numero_cedula_receptor
+    =
+    if x_mensaje_receptor_numero_cedula_receptor_is_valid s then Some (x_mensaje_receptor_numero_cedula_receptor s)
+    else None
+
+inl x_mensaje_receptor_numero_cedula_receptor_to_string (x : x_mensaje_receptor_numero_cedula_receptor) : string =
+    match x with x_mensaje_receptor_numero_cedula_receptor s => s
+
+instance to_text x_mensaje_receptor_numero_cedula_receptor =
+    fun x => x_mensaje_receptor_numero_cedula_receptor_to_string x
+inl x_mensaje_receptor_numero_cedula_receptor_example (_ : i32) : x_mensaje_receptor_numero_cedula_receptor =
+    x_mensaje_receptor_numero_cedula_receptor "000000000"
+
+inl x_mensaje_receptor_numero_cedula_receptor_example_text (k : i32) : string =
+    x_mensaje_receptor_numero_cedula_receptor_to_string (x_mensaje_receptor_numero_cedula_receptor_example k)
+
+let rec xsd_pattern_8421e111_9 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s then state = 20i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 9i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 10i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 12i32 s next
+            else false
+        elif state = 12i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 13i32 s next
+            else false
+        elif state = 13i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 14i32 s next
+            else false
+        elif state = 14i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 15i32 s next
+            else false
+        elif state = 15i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 16i32 s next
+            else false
+        elif state = 16i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 17i32 s next
+            else false
+        elif state = 17i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 18i32 s next
+            else false
+        elif state = 18i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 19i32 s next
+            else false
+        elif state = 19i32 then
+            if 48u32 <= c && c <= 57u32 then xsd_pattern_8421e111_9 20i32 s next
+            else false
+        elif state = 20i32 then
+            false
+        else false
+
+nominal private x_mensaje_receptor_numero_consecutivo_receptor = string
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_is_valid (s : string) : bool =
+    (xsd_pattern_8421e111_9 0i32 s 0i32) && xml.code_point_count s <= 20
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_of_string
+    (s : string)
+    : option x_mensaje_receptor_numero_consecutivo_receptor
+    =
+    if x_mensaje_receptor_numero_consecutivo_receptor_is_valid s
+    then Some (x_mensaje_receptor_numero_consecutivo_receptor s)
+    else None
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_to_string
+    (x : x_mensaje_receptor_numero_consecutivo_receptor)
+    : string
+    =
+    match x with x_mensaje_receptor_numero_consecutivo_receptor s => s
+
+instance to_text x_mensaje_receptor_numero_consecutivo_receptor =
+    fun x => x_mensaje_receptor_numero_consecutivo_receptor_to_string x
+inl x_mensaje_receptor_numero_consecutivo_receptor_example (_ : i32) : x_mensaje_receptor_numero_consecutivo_receptor =
+    x_mensaje_receptor_numero_consecutivo_receptor "00000000000000000000"
+
+inl x_mensaje_receptor_numero_consecutivo_receptor_example_text (k : i32) : string =
+    x_mensaje_receptor_numero_consecutivo_receptor_to_string (x_mensaje_receptor_numero_consecutivo_receptor_example k)
+
+nominal x_manifest_type =
+    {
+        reference : list (x_reference_type)
+        id : option (string)
+    }
+
+nominal x_retrieval_method_type =
+    {
+        transforms : option (x_transforms_type)
+        uri : option (string)
+        type_value : option (string)
+    }
+
+union x_key_info_type_choice_ds_key_name =
+    | KeyInfoType_choice_ds_KeyName_ds_KeyName : string
+    | KeyInfoType_choice_ds_KeyName_ds_KeyValue : x_key_value_type
+    | KeyInfoType_choice_ds_KeyName_ds_RetrievalMethod : x_retrieval_method_type
+    | KeyInfoType_choice_ds_KeyName_ds_X509Data : x_x509_data_type
+    | KeyInfoType_choice_ds_KeyName_ds_PGPData : x_pgp_data_type
+    | KeyInfoType_choice_ds_KeyName_ds_SPKIData : x_spki_data_type
+    | KeyInfoType_choice_ds_KeyName_ds_MgmtData : string
+
+nominal x_key_info_type =
+    {
+        choice_key_name : list (x_key_info_type_choice_ds_key_name)
+        id : option (string)
+    }
+
+nominal x_signature_type =
+    {
+        signed_info : x_signed_info_type
+        signature_value : x_signature_value_type
+        key_info : option (x_key_info_type)
+        object : list (x_object_type)
+        id : option (string)
+    }
+
+nominal x_mensaje_receptor s =
+    {
+        clave : x_mensaje_receptor_clave
+        numero_cedula_emisor : x_mensaje_receptor_numero_cedula_emisor
+        fecha_emision_doc : string
+        mensaje : x_mensaje_receptor_mensaje
+        detalle_mensaje : option (x_mensaje_receptor_detalle_mensaje)
+        monto_total_impuesto : option (x_mensaje_receptor_monto_total_impuesto)
+        codigo_actividad : option (x_mensaje_receptor_codigo_actividad)
+        condicion_impuesto : option (x_mensaje_receptor_condicion_impuesto)
+        monto_total_impuesto_acreditar : option (x_decimal_dinero_type)
+        monto_total_de_gasto_aplicable : option (x_decimal_dinero_type)
+        total_factura : x_mensaje_receptor_total_factura
+        numero_cedula_receptor : x_mensaje_receptor_numero_cedula_receptor
+        numero_consecutivo_receptor : x_mensaje_receptor_numero_consecutivo_receptor
+        signature : staged s (list (x_signature_type))
+    }
+
+union x_signature_type_field r =
+    | SignatureType_field_ds_SignedInfo :: x_signature_type_field (x_signed_info_type)
+    | SignatureType_field_ds_SignatureValue :: x_signature_type_field (x_signature_value_type)
+    | SignatureType_field_ds_KeyInfo :: x_signature_type_field (option (x_key_info_type))
+    | SignatureType_field_ds_Object :: x_signature_type_field (list (x_object_type))
+
+inl x_signature_type_get forall r. (f : x_signature_type_field r) (x : x_signature_type) : r =
+    match f with
+    | SignatureType_field_ds_SignedInfo => x.signed_info
+    | SignatureType_field_ds_SignatureValue => x.signature_value
+    | SignatureType_field_ds_KeyInfo => x.key_info
+    | SignatureType_field_ds_Object => x.object
+
+inl x_signature_type_fields () : list (exists r. x_signature_type_field r) =
+    [
+        exists SignatureType_field_ds_SignedInfo
+        exists SignatureType_field_ds_SignatureValue
+        exists SignatureType_field_ds_KeyInfo
+        exists SignatureType_field_ds_Object
+    ]
+inl x_signature_type_field_meta forall r. (f : x_signature_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignatureType_field_ds_SignedInfo => { tag = "ds:SignedInfo"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_ds_SignatureValue => { tag = "ds:SignatureValue"; min = 1i32; max = Some 1i32 }
+    | SignatureType_field_ds_KeyInfo => { tag = "ds:KeyInfo"; min = 0i32; max = Some 1i32 }
+    | SignatureType_field_ds_Object => { tag = "ds:Object"; min = 0i32; max = None }
+
+union x_signed_info_type_field r =
+    | SignedInfoType_field_ds_CanonicalizationMethod :: x_signed_info_type_field (x_canonicalization_method_type)
+    | SignedInfoType_field_ds_SignatureMethod :: x_signed_info_type_field (x_signature_method_type)
+    | SignedInfoType_field_ds_Reference :: x_signed_info_type_field (list (x_reference_type))
+
+inl x_signed_info_type_get forall r. (f : x_signed_info_type_field r) (x : x_signed_info_type) : r =
+    match f with
+    | SignedInfoType_field_ds_CanonicalizationMethod => x.canonicalization_method
+    | SignedInfoType_field_ds_SignatureMethod => x.signature_method
+    | SignedInfoType_field_ds_Reference => x.reference
+
+inl x_signed_info_type_fields () : list (exists r. x_signed_info_type_field r) =
+    [
+        exists SignedInfoType_field_ds_CanonicalizationMethod
+        exists SignedInfoType_field_ds_SignatureMethod
+        exists SignedInfoType_field_ds_Reference
+    ]
+inl x_signed_info_type_field_meta forall r. (f : x_signed_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignedInfoType_field_ds_CanonicalizationMethod =>
+        { tag = "ds:CanonicalizationMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_ds_SignatureMethod => { tag = "ds:SignatureMethod"; min = 1i32; max = Some 1i32 }
+    | SignedInfoType_field_ds_Reference => { tag = "ds:Reference"; min = 1i32; max = None }
+
+union x_canonicalization_method_type_field r =
+    | CanonicalizationMethodType_field_any :: x_canonicalization_method_type_field (any_content)
+
+inl x_canonicalization_method_type_get forall r.
+    (f : x_canonicalization_method_type_field r) (x : x_canonicalization_method_type)
+    : r
+    =
+    match f with
+    | CanonicalizationMethodType_field_any => x.any
+
+inl x_canonicalization_method_type_fields () : list (exists r. x_canonicalization_method_type_field r) =
+    [ exists CanonicalizationMethodType_field_any ]
+inl x_canonicalization_method_type_field_meta forall r.
+    (f : x_canonicalization_method_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CanonicalizationMethodType_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_signature_method_type_field r =
+    | SignatureMethodType_field_HMACOutputLength :: x_signature_method_type_field (option (x_hmac_output_length_type))
+    | SignatureMethodType_field_any :: x_signature_method_type_field (any_content)
+
+inl x_signature_method_type_get forall r. (f : x_signature_method_type_field r) (x : x_signature_method_type) : r =
+    match f with
+    | SignatureMethodType_field_HMACOutputLength => x.hmac_output_length
+    | SignatureMethodType_field_any => x.any
+
+inl x_signature_method_type_fields () : list (exists r. x_signature_method_type_field r) =
+    [ exists SignatureMethodType_field_HMACOutputLength; exists SignatureMethodType_field_any ]
+inl x_signature_method_type_field_meta forall r. (f : x_signature_method_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignatureMethodType_field_HMACOutputLength => { tag = "HMACOutputLength"; min = 0i32; max = Some 1i32 }
+    | SignatureMethodType_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_reference_type_field r =
+    | ReferenceType_field_ds_Transforms :: x_reference_type_field (option (x_transforms_type))
+    | ReferenceType_field_ds_DigestMethod :: x_reference_type_field (x_digest_method_type)
+    | ReferenceType_field_ds_DigestValue :: x_reference_type_field (x_digest_value_type)
+
+inl x_reference_type_get forall r. (f : x_reference_type_field r) (x : x_reference_type) : r =
+    match f with
+    | ReferenceType_field_ds_Transforms => x.transforms
+    | ReferenceType_field_ds_DigestMethod => x.digest_method
+    | ReferenceType_field_ds_DigestValue => x.digest_value
+
+inl x_reference_type_fields () : list (exists r. x_reference_type_field r) =
+    [
+        exists ReferenceType_field_ds_Transforms
+        exists ReferenceType_field_ds_DigestMethod
+        exists ReferenceType_field_ds_DigestValue
+    ]
+inl x_reference_type_field_meta forall r. (f : x_reference_type_field r) : xml_codec.field_meta =
+    match f with
+    | ReferenceType_field_ds_Transforms => { tag = "ds:Transforms"; min = 0i32; max = Some 1i32 }
+    | ReferenceType_field_ds_DigestMethod => { tag = "ds:DigestMethod"; min = 1i32; max = Some 1i32 }
+    | ReferenceType_field_ds_DigestValue => { tag = "ds:DigestValue"; min = 1i32; max = Some 1i32 }
+
+union x_transforms_type_field r =
+    | TransformsType_field_ds_Transform :: x_transforms_type_field (list (x_transform_type))
+
+inl x_transforms_type_get forall r. (f : x_transforms_type_field r) (x : x_transforms_type) : r =
+    match f with
+    | TransformsType_field_ds_Transform => x.transform
+
+inl x_transforms_type_fields () : list (exists r. x_transforms_type_field r) =
+    [ exists TransformsType_field_ds_Transform ]
+inl x_transforms_type_field_meta forall r. (f : x_transforms_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformsType_field_ds_Transform => { tag = "ds:Transform"; min = 1i32; max = None }
+
+union x_transform_type_field r =
+    | TransformType_field_choice_x_path :: x_transform_type_field (list (x_transform_type_choice_x_path))
+
+inl x_transform_type_get forall r. (f : x_transform_type_field r) (x : x_transform_type) : r =
+    match f with
+    | TransformType_field_choice_x_path => x.choice_x_path
+
+inl x_transform_type_fields () : list (exists r. x_transform_type_field r) =
+    [ exists TransformType_field_choice_x_path ]
+inl x_transform_type_field_meta forall r. (f : x_transform_type_field r) : xml_codec.field_meta =
+    match f with
+    | TransformType_field_choice_x_path => { tag = "choice_x_path"; min = 0i32; max = None }
+
+union x_digest_method_type_field r =
+    | DigestMethodType_field_any :: x_digest_method_type_field (any_content)
+
+inl x_digest_method_type_get forall r. (f : x_digest_method_type_field r) (x : x_digest_method_type) : r =
+    match f with
+    | DigestMethodType_field_any => x.any
+
+inl x_digest_method_type_fields () : list (exists r. x_digest_method_type_field r) =
+    [ exists DigestMethodType_field_any ]
+inl x_digest_method_type_field_meta forall r. (f : x_digest_method_type_field r) : xml_codec.field_meta =
+    match f with
+    | DigestMethodType_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_key_info_type_field r =
+    | KeyInfoType_field_choice_key_name :: x_key_info_type_field (list (x_key_info_type_choice_ds_key_name))
+
+inl x_key_info_type_get forall r. (f : x_key_info_type_field r) (x : x_key_info_type) : r =
+    match f with
+    | KeyInfoType_field_choice_key_name => x.choice_key_name
+
+inl x_key_info_type_fields () : list (exists r. x_key_info_type_field r) = [ exists KeyInfoType_field_choice_key_name ]
+inl x_key_info_type_field_meta forall r. (f : x_key_info_type_field r) : xml_codec.field_meta =
+    match f with
+    | KeyInfoType_field_choice_key_name => { tag = "choice_key_name"; min = 1i32; max = None }
+
+union x_key_value_type_field r =
+    | KeyValueType_field_choice_dsa_key_value :: x_key_value_type_field (x_key_value_type_choice_ds_dsa_key_value)
+
+inl x_key_value_type_get forall r. (f : x_key_value_type_field r) (x : x_key_value_type) : r =
+    match f with
+    | KeyValueType_field_choice_dsa_key_value => x.choice_dsa_key_value
+
+inl x_key_value_type_fields () : list (exists r. x_key_value_type_field r) =
+    [ exists KeyValueType_field_choice_dsa_key_value ]
+inl x_key_value_type_field_meta forall r. (f : x_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | KeyValueType_field_choice_dsa_key_value => { tag = "choice_dsa_key_value"; min = 1i32; max = Some 1i32 }
+
+union x_retrieval_method_type_field r =
+    | RetrievalMethodType_field_ds_Transforms :: x_retrieval_method_type_field (option (x_transforms_type))
+
+inl x_retrieval_method_type_get forall r. (f : x_retrieval_method_type_field r) (x : x_retrieval_method_type) : r =
+    match f with
+    | RetrievalMethodType_field_ds_Transforms => x.transforms
+
+inl x_retrieval_method_type_fields () : list (exists r. x_retrieval_method_type_field r) =
+    [ exists RetrievalMethodType_field_ds_Transforms ]
+inl x_retrieval_method_type_field_meta forall r. (f : x_retrieval_method_type_field r) : xml_codec.field_meta =
+    match f with
+    | RetrievalMethodType_field_ds_Transforms => { tag = "ds:Transforms"; min = 0i32; max = Some 1i32 }
+
+union x_x509_data_type_field r =
+    | X509DataType_field_choice_x509_issuer_serial ::
+        x_x509_data_type_field (list (x_x509_data_type_choice_x509_issuer_serial))
+
+inl x_x509_data_type_get forall r. (f : x_x509_data_type_field r) (x : x_x509_data_type) : r =
+    match f with
+    | X509DataType_field_choice_x509_issuer_serial => x.choice_x509_issuer_serial
+
+inl x_x509_data_type_fields () : list (exists r. x_x509_data_type_field r) =
+    [ exists X509DataType_field_choice_x509_issuer_serial ]
+inl x_x509_data_type_field_meta forall r. (f : x_x509_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | X509DataType_field_choice_x509_issuer_serial => { tag = "choice_x509_issuer_serial"; min = 1i32; max = None }
+
+union x_x509_issuer_serial_type_field r =
+    | X509IssuerSerialType_field_X509IssuerName :: x_x509_issuer_serial_type_field (string)
+    | X509IssuerSerialType_field_X509SerialNumber :: x_x509_issuer_serial_type_field (xsd_integer)
+
+inl x_x509_issuer_serial_type_get forall r.
+    (f : x_x509_issuer_serial_type_field r) (x : x_x509_issuer_serial_type)
+    : r
+    =
+    match f with
+    | X509IssuerSerialType_field_X509IssuerName => x.x509_issuer_name
+    | X509IssuerSerialType_field_X509SerialNumber => x.x509_serial_number
+
+inl x_x509_issuer_serial_type_fields () : list (exists r. x_x509_issuer_serial_type_field r) =
+    [ exists X509IssuerSerialType_field_X509IssuerName; exists X509IssuerSerialType_field_X509SerialNumber ]
+inl x_x509_issuer_serial_type_field_meta forall r. (f : x_x509_issuer_serial_type_field r) : xml_codec.field_meta =
+    match f with
+    | X509IssuerSerialType_field_X509IssuerName => { tag = "X509IssuerName"; min = 1i32; max = Some 1i32 }
+    | X509IssuerSerialType_field_X509SerialNumber => { tag = "X509SerialNumber"; min = 1i32; max = Some 1i32 }
+
+union x_pgp_data_type_field r =
+    | PGPDataType_field_choice_pgp_key_id :: x_pgp_data_type_field (x_pgp_data_type_choice_pgp_key_id)
+
+inl x_pgp_data_type_get forall r. (f : x_pgp_data_type_field r) (x : x_pgp_data_type) : r =
+    match f with
+    | PGPDataType_field_choice_pgp_key_id => x.choice_pgp_key_id
+
+inl x_pgp_data_type_fields () : list (exists r. x_pgp_data_type_field r) =
+    [ exists PGPDataType_field_choice_pgp_key_id ]
+inl x_pgp_data_type_field_meta forall r. (f : x_pgp_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | PGPDataType_field_choice_pgp_key_id => { tag = "choice_pgp_key_id"; min = 1i32; max = Some 1i32 }
+
+union x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r =
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket ::
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field (string)
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any ::
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field (any_content)
+
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_get forall r.
+    (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r)
+    (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet)
+    : r
+    =
+    match f with
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket => x.pgp_key_packet
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any => x.any
+
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_fields
+    ()
+    : list (exists r. x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r)
+    =
+    [
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any
+    ]
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field_meta forall r.
+    (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket =>
+        { tag = "PGPKeyPacket"; min = 1i32; max = Some 1i32 }
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r =
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID ::
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field (string)
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket ::
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field (option (string))
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any ::
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field (any_content)
+
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_get forall r.
+    (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r)
+    (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id)
+    : r
+    =
+    match f with
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID => x.pgp_key_id
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket => x.pgp_key_packet
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any => x.any
+
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_fields
+    ()
+    : list (exists r. x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r)
+    =
+    [
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any
+    ]
+inl x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field_meta forall r.
+    (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID => { tag = "PGPKeyID"; min = 1i32; max = Some 1i32 }
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket =>
+        { tag = "PGPKeyPacket"; min = 0i32; max = Some 1i32 }
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_spki_data_type_field r =
+    | SPKIDataType_field_group_spki_sexp :: x_spki_data_type_field (list (x_spki_data_type_group_spki_sexp))
+
+inl x_spki_data_type_get forall r. (f : x_spki_data_type_field r) (x : x_spki_data_type) : r =
+    match f with
+    | SPKIDataType_field_group_spki_sexp => x.group_spki_sexp
+
+inl x_spki_data_type_fields () : list (exists r. x_spki_data_type_field r) =
+    [ exists SPKIDataType_field_group_spki_sexp ]
+inl x_spki_data_type_field_meta forall r. (f : x_spki_data_type_field r) : xml_codec.field_meta =
+    match f with
+    | SPKIDataType_field_group_spki_sexp => { tag = "group_spki_sexp"; min = 1i32; max = None }
+
+union x_spki_data_type_group_spki_sexp_field r =
+    | SPKIDataType_group_SPKISexp_field_SPKISexp :: x_spki_data_type_group_spki_sexp_field (string)
+    | SPKIDataType_group_SPKISexp_field_any :: x_spki_data_type_group_spki_sexp_field (any_content)
+
+inl x_spki_data_type_group_spki_sexp_get forall r.
+    (f : x_spki_data_type_group_spki_sexp_field r) (x : x_spki_data_type_group_spki_sexp)
+    : r
+    =
+    match f with
+    | SPKIDataType_group_SPKISexp_field_SPKISexp => x.spki_sexp
+    | SPKIDataType_group_SPKISexp_field_any => x.any
+
+inl x_spki_data_type_group_spki_sexp_fields () : list (exists r. x_spki_data_type_group_spki_sexp_field r) =
+    [ exists SPKIDataType_group_SPKISexp_field_SPKISexp; exists SPKIDataType_group_SPKISexp_field_any ]
+inl x_spki_data_type_group_spki_sexp_field_meta forall r.
+    (f : x_spki_data_type_group_spki_sexp_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | SPKIDataType_group_SPKISexp_field_SPKISexp => { tag = "SPKISexp"; min = 1i32; max = Some 1i32 }
+    | SPKIDataType_group_SPKISexp_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_object_type_field r =
+    | ObjectType_field_any :: x_object_type_field (any_content)
+
+inl x_object_type_get forall r. (f : x_object_type_field r) (x : x_object_type) : r =
+    match f with
+    | ObjectType_field_any => x.any
+
+inl x_object_type_fields () : list (exists r. x_object_type_field r) = [ exists ObjectType_field_any ]
+inl x_object_type_field_meta forall r. (f : x_object_type_field r) : xml_codec.field_meta =
+    match f with
+    | ObjectType_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_manifest_type_field r =
+    | ManifestType_field_ds_Reference :: x_manifest_type_field (list (x_reference_type))
+
+inl x_manifest_type_get forall r. (f : x_manifest_type_field r) (x : x_manifest_type) : r =
+    match f with
+    | ManifestType_field_ds_Reference => x.reference
+
+inl x_manifest_type_fields () : list (exists r. x_manifest_type_field r) = [ exists ManifestType_field_ds_Reference ]
+inl x_manifest_type_field_meta forall r. (f : x_manifest_type_field r) : xml_codec.field_meta =
+    match f with
+    | ManifestType_field_ds_Reference => { tag = "ds:Reference"; min = 1i32; max = None }
+
+union x_signature_properties_type_field r =
+    | SignaturePropertiesType_field_ds_SignatureProperty ::
+        x_signature_properties_type_field (list (x_signature_property_type))
+
+inl x_signature_properties_type_get forall r.
+    (f : x_signature_properties_type_field r) (x : x_signature_properties_type)
+    : r
+    =
+    match f with
+    | SignaturePropertiesType_field_ds_SignatureProperty => x.signature_property
+
+inl x_signature_properties_type_fields () : list (exists r. x_signature_properties_type_field r) =
+    [ exists SignaturePropertiesType_field_ds_SignatureProperty ]
+inl x_signature_properties_type_field_meta forall r. (f : x_signature_properties_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignaturePropertiesType_field_ds_SignatureProperty => { tag = "ds:SignatureProperty"; min = 1i32; max = None }
+
+union x_signature_property_type_field r =
+    | SignaturePropertyType_field_any :: x_signature_property_type_field (any_content)
+
+inl x_signature_property_type_get forall r.
+    (f : x_signature_property_type_field r) (x : x_signature_property_type)
+    : r
+    =
+    match f with
+    | SignaturePropertyType_field_any => x.any
+
+inl x_signature_property_type_fields () : list (exists r. x_signature_property_type_field r) =
+    [ exists SignaturePropertyType_field_any ]
+inl x_signature_property_type_field_meta forall r. (f : x_signature_property_type_field r) : xml_codec.field_meta =
+    match f with
+    | SignaturePropertyType_field_any => { tag = "any"; min = 0i32; max = None }
+
+union x_dsa_key_value_type_field r =
+    | DSAKeyValueType_field_P :: x_dsa_key_value_type_field (x_crypto_binary)
+    | DSAKeyValueType_field_Q :: x_dsa_key_value_type_field (x_crypto_binary)
+    | DSAKeyValueType_field_G :: x_dsa_key_value_type_field (option (x_crypto_binary))
+    | DSAKeyValueType_field_Y :: x_dsa_key_value_type_field (x_crypto_binary)
+    | DSAKeyValueType_field_J :: x_dsa_key_value_type_field (option (x_crypto_binary))
+    | DSAKeyValueType_field_Seed :: x_dsa_key_value_type_field (x_crypto_binary)
+    | DSAKeyValueType_field_PgenCounter :: x_dsa_key_value_type_field (x_crypto_binary)
+
+inl x_dsa_key_value_type_get forall r. (f : x_dsa_key_value_type_field r) (x : x_dsa_key_value_type) : r =
+    match f with
+    | DSAKeyValueType_field_P => x.p
+    | DSAKeyValueType_field_Q => x.q
+    | DSAKeyValueType_field_G => x.g
+    | DSAKeyValueType_field_Y => x.y
+    | DSAKeyValueType_field_J => x.j
+    | DSAKeyValueType_field_Seed => x.seed
+    | DSAKeyValueType_field_PgenCounter => x.pgen_counter
+
+inl x_dsa_key_value_type_fields () : list (exists r. x_dsa_key_value_type_field r) =
+    [
+        exists DSAKeyValueType_field_P
+        exists DSAKeyValueType_field_Q
+        exists DSAKeyValueType_field_G
+        exists DSAKeyValueType_field_Y
+        exists DSAKeyValueType_field_J
+        exists DSAKeyValueType_field_Seed
+        exists DSAKeyValueType_field_PgenCounter
+    ]
+inl x_dsa_key_value_type_field_meta forall r. (f : x_dsa_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | DSAKeyValueType_field_P => { tag = "P"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_Q => { tag = "Q"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_G => { tag = "G"; min = 0i32; max = Some 1i32 }
+    | DSAKeyValueType_field_Y => { tag = "Y"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_J => { tag = "J"; min = 0i32; max = Some 1i32 }
+    | DSAKeyValueType_field_Seed => { tag = "Seed"; min = 1i32; max = Some 1i32 }
+    | DSAKeyValueType_field_PgenCounter => { tag = "PgenCounter"; min = 1i32; max = Some 1i32 }
+
+union x_rsa_key_value_type_field r =
+    | RSAKeyValueType_field_Modulus :: x_rsa_key_value_type_field (x_crypto_binary)
+    | RSAKeyValueType_field_Exponent :: x_rsa_key_value_type_field (x_crypto_binary)
+
+inl x_rsa_key_value_type_get forall r. (f : x_rsa_key_value_type_field r) (x : x_rsa_key_value_type) : r =
+    match f with
+    | RSAKeyValueType_field_Modulus => x.modulus
+    | RSAKeyValueType_field_Exponent => x.exponent
+
+inl x_rsa_key_value_type_fields () : list (exists r. x_rsa_key_value_type_field r) =
+    [ exists RSAKeyValueType_field_Modulus; exists RSAKeyValueType_field_Exponent ]
+inl x_rsa_key_value_type_field_meta forall r. (f : x_rsa_key_value_type_field r) : xml_codec.field_meta =
+    match f with
+    | RSAKeyValueType_field_Modulus => { tag = "Modulus"; min = 1i32; max = Some 1i32 }
+    | RSAKeyValueType_field_Exponent => { tag = "Exponent"; min = 1i32; max = Some 1i32 }
+
+let rec x_mensaje_receptor_of_children forall s.
+    (witness : stage s) (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_mensaje_receptor s) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_clave, errors =
+        xml_codec.read_required "Clave" (xml_codec.read_value x_mensaje_receptor_clave_of_string) children errors
+    inl o_numero_cedula_emisor, errors =
+        xml_codec.read_required
+            "NumeroCedulaEmisor"
+            (xml_codec.read_value x_mensaje_receptor_numero_cedula_emisor_of_string)
+            children
+            errors
+    inl o_fecha_emision_doc, errors = xml_codec.read_required "FechaEmisionDoc" xml_codec.read_text children errors
+    inl o_mensaje, errors =
+        xml_codec.read_required "Mensaje" (xml_codec.read_value x_mensaje_receptor_mensaje_of_string) children errors
+    inl v_detalle_mensaje, errors =
+        xml_codec.read_optional
+            "DetalleMensaje"
+            (xml_codec.read_value x_mensaje_receptor_detalle_mensaje_of_string)
+            children
+            errors
+    inl v_monto_total_impuesto, errors =
+        xml_codec.read_optional "MontoTotalImpuesto" xml_codec.read_text children errors
+    inl v_codigo_actividad, errors =
+        xml_codec.read_optional
+            "CodigoActividad"
+            (xml_codec.read_value x_mensaje_receptor_codigo_actividad_of_string)
+            children
+            errors
+    inl v_condicion_impuesto, errors =
+        xml_codec.read_optional
+            "CondicionImpuesto"
+            (xml_codec.read_value x_mensaje_receptor_condicion_impuesto_of_string)
+            children
+            errors
+    inl v_monto_total_impuesto_acreditar, errors =
+        xml_codec.read_optional "MontoTotalImpuestoAcreditar" xml_codec.read_text children errors
+    inl v_monto_total_de_gasto_aplicable, errors =
+        xml_codec.read_optional "MontoTotalDeGastoAplicable" xml_codec.read_text children errors
+    inl o_total_factura, errors = xml_codec.read_required "TotalFactura" xml_codec.read_text children errors
+    inl o_numero_cedula_receptor, errors =
+        xml_codec.read_required
+            "NumeroCedulaReceptor"
+            (xml_codec.read_value x_mensaje_receptor_numero_cedula_receptor_of_string)
+            children
+            errors
+    inl o_numero_consecutivo_receptor, errors =
+        xml_codec.read_required
+            "NumeroConsecutivoReceptor"
+            (xml_codec.read_value x_mensaje_receptor_numero_consecutivo_receptor_of_string)
+            children
+            errors
+    inl o_signature, errors =
+        staged_read witness
+            fun errors =>
+                xml_codec.as_some (xml_codec.read_repeated "ds:Signature" x_signature_type_of_xml children errors)
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_mensaje_receptor {
+            clave = xml_codec.present o_clave
+            numero_cedula_emisor = xml_codec.present o_numero_cedula_emisor
+            fecha_emision_doc = xml_codec.present o_fecha_emision_doc
+            mensaje = xml_codec.present o_mensaje
+            detalle_mensaje = v_detalle_mensaje
+            monto_total_impuesto = v_monto_total_impuesto
+            codigo_actividad = v_codigo_actividad
+            condicion_impuesto = v_condicion_impuesto
+            monto_total_impuesto_acreditar = v_monto_total_impuesto_acreditar
+            monto_total_de_gasto_aplicable = v_monto_total_de_gasto_aplicable
+            total_factura = xml_codec.present o_total_factura
+            numero_cedula_receptor = xml_codec.present o_numero_cedula_receptor
+            numero_consecutivo_receptor = xml_codec.present o_numero_consecutivo_receptor
+            signature = xml_codec.present o_signature
+        }
+
+and let x_mensaje_receptor_of_xml forall s.
+    (witness : stage s) (c : xml.xml_node)
+    : result (x_mensaje_receptor s) (list xml_codec.decode_error)
+    =
+    x_mensaje_receptor_of_children witness (xml.element_attributes c) (xml.element_children c)
+
+and let x_signature_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_signature_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_signed_info, errors = xml_codec.read_required "ds:SignedInfo" x_signed_info_type_of_xml children errors
+    inl o_signature_value, errors =
+        xml_codec.read_required "ds:SignatureValue" x_signature_value_type_of_xml children errors
+    inl v_key_info, errors = xml_codec.read_optional "ds:KeyInfo" x_key_info_type_of_xml children errors
+    inl v_object, errors = xml_codec.read_repeated "ds:Object" x_object_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_signature_type {
+            signed_info = xml_codec.present o_signed_info
+            signature_value = xml_codec.present o_signature_value
+            key_info = v_key_info
+            object = v_object
+            id = v_id
+        }
+
+and let x_signature_type_of_xml (c : xml.xml_node) : result (x_signature_type) (list xml_codec.decode_error) =
+    x_signature_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signature_value_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_signature_value_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_base, errors = xml.text_in children, errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_signature_value_type { base = v_base; id = v_id })
+
+and let x_signature_value_type_of_xml (c : xml.xml_node) : result (x_signature_value_type) (list xml_codec.decode_error) =
+    x_signature_value_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signed_info_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_signed_info_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_canonicalization_method, errors =
+        xml_codec.read_required "ds:CanonicalizationMethod" x_canonicalization_method_type_of_xml children errors
+    inl o_signature_method, errors =
+        xml_codec.read_required "ds:SignatureMethod" x_signature_method_type_of_xml children errors
+    inl v_reference, errors = xml_codec.read_repeated "ds:Reference" x_reference_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_signed_info_type {
+            canonicalization_method = xml_codec.present o_canonicalization_method
+            signature_method = xml_codec.present o_signature_method
+            reference = v_reference
+            id = v_id
+        }
+
+and let x_signed_info_type_of_xml (c : xml.xml_node) : result (x_signed_info_type) (list xml_codec.decode_error) =
+    x_signed_info_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_canonicalization_method_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_canonicalization_method_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    xml_codec.decoded_by errors (fun () => x_canonicalization_method_type { any = v_any; algorithm = v_algorithm })
+
+and let x_canonicalization_method_type_of_xml
+    (c : xml.xml_node)
+    : result (x_canonicalization_method_type) (list xml_codec.decode_error)
+    =
+    x_canonicalization_method_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signature_method_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_signature_method_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_hmac_output_length, errors = xml_codec.read_optional "HMACOutputLength" xml_codec.read_text children errors
+    inl v_any, errors = any_content_of (xml.unclaimed_children [ "HMACOutputLength" ] children), errors
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    xml_codec.decoded_by errors fun () =>
+        x_signature_method_type { hmac_output_length = v_hmac_output_length; any = v_any; algorithm = v_algorithm }
+
+and let x_signature_method_type_of_xml (c : xml.xml_node) : result (x_signature_method_type) (list xml_codec.decode_error) =
+    x_signature_method_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_reference_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_reference_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_transforms, errors = xml_codec.read_optional "ds:Transforms" x_transforms_type_of_xml children errors
+    inl o_digest_method, errors = xml_codec.read_required "ds:DigestMethod" x_digest_method_type_of_xml children errors
+    inl o_digest_value, errors = xml_codec.read_required "ds:DigestValue" xml_codec.read_text children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    inl v_uri, errors = xml.attribute_of "URI" attributes, errors
+    inl v_type_value, errors = xml.attribute_of "Type" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_reference_type {
+            transforms = v_transforms
+            digest_method = xml_codec.present o_digest_method
+            digest_value = xml_codec.present o_digest_value
+            id = v_id
+            uri = v_uri
+            type_value = v_type_value
+        }
+
+and let x_reference_type_of_xml (c : xml.xml_node) : result (x_reference_type) (list xml_codec.decode_error) =
+    x_reference_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_transforms_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_transforms_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_transform, errors = xml_codec.read_repeated "ds:Transform" x_transform_type_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_transforms_type { transform = v_transform })
+
+and let x_transforms_type_of_xml (c : xml.xml_node) : result (x_transforms_type) (list xml_codec.decode_error) =
+    x_transforms_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_transform_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_transform_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_choice_x_path, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun c => x_transform_type_choice_x_path_of_children attributes [ c ]
+                    (xml.claimed_children [ "XPath" ] children)
+            )
+            errors
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    xml_codec.decoded_by errors fun () => x_transform_type { choice_x_path = v_choice_x_path; algorithm = v_algorithm }
+
+and let x_transform_type_of_xml (c : xml.xml_node) : result (x_transform_type) (list xml_codec.decode_error) =
+    x_transform_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_transform_type_choice_x_path_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_transform_type_choice_x_path) (list xml_codec.decode_error)
+    =
+    if false then xml_codec.no_alternative "x_transform_type_choice_x_path"
+    elif xml.has_child "XPath" children then
+        xml_codec.mapped
+            fun v => TransformType_choice_XPath_XPath v
+            (xml_codec.read_child "XPath" xml_codec.read_text children)
+    else xml_codec.no_alternative "x_transform_type_choice_x_path"
+
+and let x_digest_method_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_digest_method_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    inl v_algorithm, errors = xml_codec.attribute_required "Algorithm" attributes errors
+    xml_codec.decoded_by errors (fun () => x_digest_method_type { any = v_any; algorithm = v_algorithm })
+
+and let x_digest_method_type_of_xml (c : xml.xml_node) : result (x_digest_method_type) (list xml_codec.decode_error) =
+    x_digest_method_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_key_info_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_key_info_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_choice_key_name, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun c => x_key_info_type_choice_ds_key_name_of_children attributes [ c ]
+                    (
+                        xml.claimed_children
+                            [
+                                "ds:KeyName"
+                                "ds:KeyValue"
+                                "ds:RetrievalMethod"
+                                "ds:X509Data"
+                                "ds:PGPData"
+                                "ds:SPKIData"
+                                "ds:MgmtData"
+                            ]
+                            children
+                    )
+            )
+            errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_key_info_type { choice_key_name = v_choice_key_name; id = v_id })
+
+and let x_key_info_type_of_xml (c : xml.xml_node) : result (x_key_info_type) (list xml_codec.decode_error) =
+    x_key_info_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_key_info_type_choice_ds_key_name_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_key_info_type_choice_ds_key_name) (list xml_codec.decode_error)
+    =
+    if false then xml_codec.no_alternative "x_key_info_type_choice_ds_key_name"
+    elif xml.has_child "ds:KeyName" children then
+        xml_codec.mapped
+            fun v => KeyInfoType_choice_ds_KeyName_ds_KeyName v
+            (xml_codec.read_child "ds:KeyName" xml_codec.read_text children)
+    elif xml.has_child "ds:KeyValue" children then
+        xml_codec.mapped
+            fun v => KeyInfoType_choice_ds_KeyName_ds_KeyValue v
+            (xml_codec.read_child "ds:KeyValue" x_key_value_type_of_xml children)
+    elif xml.has_child "ds:RetrievalMethod" children then
+        xml_codec.mapped
+            fun v => KeyInfoType_choice_ds_KeyName_ds_RetrievalMethod v
+            (xml_codec.read_child "ds:RetrievalMethod" x_retrieval_method_type_of_xml children)
+    elif xml.has_child "ds:X509Data" children then
+        xml_codec.mapped
+            fun v => KeyInfoType_choice_ds_KeyName_ds_X509Data v
+            (xml_codec.read_child "ds:X509Data" x_x509_data_type_of_xml children)
+    elif xml.has_child "ds:PGPData" children then
+        xml_codec.mapped
+            fun v => KeyInfoType_choice_ds_KeyName_ds_PGPData v
+            (xml_codec.read_child "ds:PGPData" x_pgp_data_type_of_xml children)
+    elif xml.has_child "ds:SPKIData" children then
+        xml_codec.mapped
+            fun v => KeyInfoType_choice_ds_KeyName_ds_SPKIData v
+            (xml_codec.read_child "ds:SPKIData" x_spki_data_type_of_xml children)
+    elif xml.has_child "ds:MgmtData" children then
+        xml_codec.mapped
+            fun v => KeyInfoType_choice_ds_KeyName_ds_MgmtData v
+            (xml_codec.read_child "ds:MgmtData" xml_codec.read_text children)
+    else xml_codec.no_alternative "x_key_info_type_choice_ds_key_name"
+
+and let x_key_value_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_key_value_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_choice_dsa_key_value, errors =
+        xml_codec.taken (x_key_value_type_choice_ds_dsa_key_value_of_children attributes children) errors
+    xml_codec.decoded_by errors fun () =>
+        x_key_value_type { choice_dsa_key_value = xml_codec.present o_choice_dsa_key_value }
+
+and let x_key_value_type_of_xml (c : xml.xml_node) : result (x_key_value_type) (list xml_codec.decode_error) =
+    x_key_value_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_key_value_type_choice_ds_dsa_key_value_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_key_value_type_choice_ds_dsa_key_value) (list xml_codec.decode_error)
+    =
+    if false then xml_codec.no_alternative "x_key_value_type_choice_ds_dsa_key_value"
+    elif xml.has_child "ds:DSAKeyValue" children then
+        xml_codec.mapped
+            fun v => KeyValueType_choice_ds_DSAKeyValue_ds_DSAKeyValue v
+            (xml_codec.read_child "ds:DSAKeyValue" x_dsa_key_value_type_of_xml children)
+    elif xml.has_child "ds:RSAKeyValue" children then
+        xml_codec.mapped
+            fun v => KeyValueType_choice_ds_DSAKeyValue_ds_RSAKeyValue v
+            (xml_codec.read_child "ds:RSAKeyValue" x_rsa_key_value_type_of_xml children)
+    else xml_codec.no_alternative "x_key_value_type_choice_ds_dsa_key_value"
+
+and let x_retrieval_method_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_retrieval_method_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_transforms, errors = xml_codec.read_optional "ds:Transforms" x_transforms_type_of_xml children errors
+    inl v_uri, errors = xml.attribute_of "URI" attributes, errors
+    inl v_type_value, errors = xml.attribute_of "Type" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_retrieval_method_type { transforms = v_transforms; uri = v_uri; type_value = v_type_value }
+
+and let x_retrieval_method_type_of_xml (c : xml.xml_node) : result (x_retrieval_method_type) (list xml_codec.decode_error) =
+    x_retrieval_method_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_x509_data_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_x509_data_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_choice_x509_issuer_serial, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun c => x_x509_data_type_choice_x509_issuer_serial_of_children attributes [ c ]
+                    (
+                        xml.claimed_children
+                            [ "X509IssuerSerial"; "X509SKI"; "X509SubjectName"; "X509Certificate"; "X509CRL" ]
+                            children
+                    )
+            )
+            errors
+    xml_codec.decoded_by errors (fun () => x_x509_data_type { choice_x509_issuer_serial = v_choice_x509_issuer_serial })
+
+and let x_x509_data_type_of_xml (c : xml.xml_node) : result (x_x509_data_type) (list xml_codec.decode_error) =
+    x_x509_data_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_x509_data_type_choice_x509_issuer_serial_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_x509_data_type_choice_x509_issuer_serial) (list xml_codec.decode_error)
+    =
+    if false then xml_codec.no_alternative "x_x509_data_type_choice_x509_issuer_serial"
+    elif xml.has_child "X509IssuerSerial" children then
+        xml_codec.mapped
+            fun v => X509DataType_choice_X509IssuerSerial_X509IssuerSerial v
+            (xml_codec.read_child "X509IssuerSerial" x_x509_issuer_serial_type_of_xml children)
+    elif xml.has_child "X509SKI" children then
+        xml_codec.mapped
+            fun v => X509DataType_choice_X509IssuerSerial_X509SKI v
+            (xml_codec.read_child "X509SKI" xml_codec.read_text children)
+    elif xml.has_child "X509SubjectName" children then
+        xml_codec.mapped
+            fun v => X509DataType_choice_X509IssuerSerial_X509SubjectName v
+            (xml_codec.read_child "X509SubjectName" xml_codec.read_text children)
+    elif xml.has_child "X509Certificate" children then
+        xml_codec.mapped
+            fun v => X509DataType_choice_X509IssuerSerial_X509Certificate v
+            (xml_codec.read_child "X509Certificate" xml_codec.read_text children)
+    elif xml.has_child "X509CRL" children then
+        xml_codec.mapped
+            fun v => X509DataType_choice_X509IssuerSerial_X509CRL v
+            (xml_codec.read_child "X509CRL" xml_codec.read_text children)
+    else xml_codec.no_alternative "x_x509_data_type_choice_x509_issuer_serial"
+
+and let x_x509_issuer_serial_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_x509_issuer_serial_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_x509_issuer_name, errors = xml_codec.read_required "X509IssuerName" xml_codec.read_text children errors
+    inl o_x509_serial_number, errors =
+        xml_codec.read_required "X509SerialNumber" (xml_codec.read_value xsd_integer_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_x509_issuer_serial_type {
+            x509_issuer_name = xml_codec.present o_x509_issuer_name
+            x509_serial_number = xml_codec.present o_x509_serial_number
+        }
+
+and let x_x509_issuer_serial_type_of_xml
+    (c : xml.xml_node)
+    : result (x_x509_issuer_serial_type) (list xml_codec.decode_error)
+    =
+    x_x509_issuer_serial_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_pgp_data_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_pgp_data_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_choice_pgp_key_id, errors =
+        xml_codec.taken (x_pgp_data_type_choice_pgp_key_id_of_children attributes children) errors
+    xml_codec.decoded_by errors fun () => x_pgp_data_type { choice_pgp_key_id = xml_codec.present o_choice_pgp_key_id }
+
+and let x_pgp_data_type_of_xml (c : xml.xml_node) : result (x_pgp_data_type) (list xml_codec.decode_error) =
+    x_pgp_data_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_pgp_data_type_choice_pgp_key_id_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_pgp_data_type_choice_pgp_key_id) (list xml_codec.decode_error)
+    =
+    if false then xml_codec.no_alternative "x_pgp_data_type_choice_pgp_key_id"
+    elif xml.has_child "PGPKeyID" children then
+        xml_codec.mapped
+            fun v => PGPDataType_choice_PGPKeyID_group_PGPKeyID v
+            (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_of_children attributes children)
+    elif xml.has_child "PGPKeyPacket" children then
+        xml_codec.mapped
+            fun v => PGPDataType_choice_PGPKeyID_group_PGPKeyPacket v
+            (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_of_children attributes children)
+    else xml_codec.no_alternative "x_pgp_data_type_choice_pgp_key_id"
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_pgp_key_packet, errors = xml_codec.read_required "PGPKeyPacket" xml_codec.read_text children errors
+    inl v_any, errors = any_content_of (xml.unclaimed_children [ "PGPKeyPacket" ] children), errors
+    xml_codec.decoded_by errors fun () =>
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet {
+            pgp_key_packet = xml_codec.present o_pgp_key_packet
+            any = v_any
+        }
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_of_xml
+    (c : xml.xml_node)
+    : result (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet) (list xml_codec.decode_error)
+    =
+    x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_of_children
+        (xml.element_attributes c)
+        (xml.element_children c)
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_pgp_key_id, errors = xml_codec.read_required "PGPKeyID" xml_codec.read_text children errors
+    inl v_pgp_key_packet, errors = xml_codec.read_optional "PGPKeyPacket" xml_codec.read_text children errors
+    inl v_any, errors = any_content_of (xml.unclaimed_children [ "PGPKeyID"; "PGPKeyPacket" ] children), errors
+    xml_codec.decoded_by errors fun () =>
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id {
+            pgp_key_id = xml_codec.present o_pgp_key_id
+            pgp_key_packet = v_pgp_key_packet
+            any = v_any
+        }
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_of_xml
+    (c : xml.xml_node)
+    : result (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id) (list xml_codec.decode_error)
+    =
+    x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_spki_data_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_spki_data_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_group_spki_sexp, errors =
+        xml_codec.all_taken
+            (
+                listm.map
+                    fun run => x_spki_data_type_group_spki_sexp_of_children [] run
+                    (xml.group_runs [ "SPKISexp" ] children)
+            )
+            errors
+    xml_codec.decoded_by errors (fun () => x_spki_data_type { group_spki_sexp = v_group_spki_sexp })
+
+and let x_spki_data_type_of_xml (c : xml.xml_node) : result (x_spki_data_type) (list xml_codec.decode_error) =
+    x_spki_data_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_spki_data_type_group_spki_sexp_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_spki_data_type_group_spki_sexp) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_spki_sexp, errors = xml_codec.read_required "SPKISexp" xml_codec.read_text children errors
+    inl v_any, errors = any_content_of (xml.unclaimed_children [ "SPKISexp" ] children), errors
+    xml_codec.decoded_by errors fun () =>
+        x_spki_data_type_group_spki_sexp { spki_sexp = xml_codec.present o_spki_sexp; any = v_any }
+
+and let x_spki_data_type_group_spki_sexp_of_xml
+    (c : xml.xml_node)
+    : result (x_spki_data_type_group_spki_sexp) (list xml_codec.decode_error)
+    =
+    x_spki_data_type_group_spki_sexp_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_object_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_object_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    inl v_mime_type, errors = xml.attribute_of "MimeType" attributes, errors
+    inl v_encoding, errors = xml.attribute_of "Encoding" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_object_type { any = v_any; id = v_id; mime_type = v_mime_type; encoding = v_encoding }
+
+and let x_object_type_of_xml (c : xml.xml_node) : result (x_object_type) (list xml_codec.decode_error) =
+    x_object_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_manifest_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_manifest_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_reference, errors = xml_codec.read_repeated "ds:Reference" x_reference_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_manifest_type { reference = v_reference; id = v_id })
+
+and let x_manifest_type_of_xml (c : xml.xml_node) : result (x_manifest_type) (list xml_codec.decode_error) =
+    x_manifest_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signature_properties_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_signature_properties_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_signature_property, errors =
+        xml_codec.read_repeated "ds:SignatureProperty" x_signature_property_type_of_xml children errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors fun () =>
+        x_signature_properties_type { signature_property = v_signature_property; id = v_id }
+
+and let x_signature_properties_type_of_xml
+    (c : xml.xml_node)
+    : result (x_signature_properties_type) (list xml_codec.decode_error)
+    =
+    x_signature_properties_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_signature_property_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_signature_property_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_any, errors = any_content_of (xml.unclaimed_children [] children), errors
+    inl v_target, errors = xml_codec.attribute_required "Target" attributes errors
+    inl v_id, errors = xml.attribute_of "Id" attributes, errors
+    xml_codec.decoded_by errors (fun () => x_signature_property_type { any = v_any; target = v_target; id = v_id })
+
+and let x_signature_property_type_of_xml
+    (c : xml.xml_node)
+    : result (x_signature_property_type) (list xml_codec.decode_error)
+    =
+    x_signature_property_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_dsa_key_value_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_dsa_key_value_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_p, errors = xml_codec.read_required "P" xml_codec.read_text children errors
+    inl o_q, errors = xml_codec.read_required "Q" xml_codec.read_text children errors
+    inl v_g, errors = xml_codec.read_optional "G" xml_codec.read_text children errors
+    inl o_y, errors = xml_codec.read_required "Y" xml_codec.read_text children errors
+    inl v_j, errors = xml_codec.read_optional "J" xml_codec.read_text children errors
+    inl o_seed, errors = xml_codec.read_required "Seed" xml_codec.read_text children errors
+    inl o_pgen_counter, errors = xml_codec.read_required "PgenCounter" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_dsa_key_value_type {
+            p = xml_codec.present o_p
+            q = xml_codec.present o_q
+            g = v_g
+            y = xml_codec.present o_y
+            j = v_j
+            seed = xml_codec.present o_seed
+            pgen_counter = xml_codec.present o_pgen_counter
+        }
+
+and let x_dsa_key_value_type_of_xml (c : xml.xml_node) : result (x_dsa_key_value_type) (list xml_codec.decode_error) =
+    x_dsa_key_value_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_rsa_key_value_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_rsa_key_value_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_modulus, errors = xml_codec.read_required "Modulus" xml_codec.read_text children errors
+    inl o_exponent, errors = xml_codec.read_required "Exponent" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_rsa_key_value_type { modulus = xml_codec.present o_modulus; exponent = xml_codec.present o_exponent }
+
+and let x_rsa_key_value_type_of_xml (c : xml.xml_node) : result (x_rsa_key_value_type) (list xml_codec.decode_error) =
+    x_rsa_key_value_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_mensaje_receptor_children forall s. (x : x_mensaje_receptor s) : list xml.xml_node =
+    listm.concat [
+        [ text_node "Clave" x.clave ]
+        [ text_node "NumeroCedulaEmisor" x.numero_cedula_emisor ]
+        [ xml.element "FechaEmisionDoc" [] (xml.text_children x.fecha_emision_doc) ]
+        [ text_node "Mensaje" x.mensaje ]
+        optional_text_nodes "DetalleMensaje" x.detalle_mensaje
+        xml.option_list (
+            optionm.map (fun v => xml.element "MontoTotalImpuesto" [] (xml.text_children v)) x.monto_total_impuesto
+        )
+        optional_text_nodes "CodigoActividad" x.codigo_actividad
+        optional_text_nodes "CondicionImpuesto" x.condicion_impuesto
+        xml.option_list (
+            optionm.map
+                fun v => xml.element "MontoTotalImpuestoAcreditar" [] (xml.text_children v)
+                x.monto_total_impuesto_acreditar
+        )
+        xml.option_list (
+            optionm.map
+                fun v => xml.element "MontoTotalDeGastoAplicable" [] (xml.text_children v)
+                x.monto_total_de_gasto_aplicable
+        )
+        [ xml.element "TotalFactura" [] (xml.text_children x.total_factura) ]
+        [ text_node "NumeroCedulaReceptor" x.numero_cedula_receptor ]
+        [ text_node "NumeroConsecutivoReceptor" x.numero_consecutivo_receptor ]
+        listm.concat (
+            staged_list (fun vs => listm.map (fun v => x_signature_type_to_xml "ds:Signature" v) vs) x.signature
+        )
+    ]
+
+and let x_mensaje_receptor_attributes forall s. (x : x_mensaje_receptor s) : list (string * string) = []
+
+and let x_mensaje_receptor_to_xml forall s. (name : string) (x : x_mensaje_receptor s) : xml.xml_node =
+    xml.element name (x_mensaje_receptor_attributes x) (x_mensaje_receptor_children x)
+
+and let x_signature_type_children (x : x_signature_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_signature_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SignatureType_field_ds_SignedInfo => [ x_signed_info_type_to_xml "ds:SignedInfo" v ]
+        | SignatureType_field_ds_SignatureValue => [ x_signature_value_type_to_xml "ds:SignatureValue" v ]
+        | SignatureType_field_ds_KeyInfo =>
+            xml.option_list (optionm.map (fun v => x_key_info_type_to_xml "ds:KeyInfo" v) v)
+        | SignatureType_field_ds_Object => listm.map (fun v => x_object_type_to_xml "ds:Object" v) v
+    inl rec walk (fields : list (exists r. x_signature_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_signature_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists SignatureType_field_ds_SignedInfo
+        exists SignatureType_field_ds_SignatureValue
+        exists SignatureType_field_ds_KeyInfo
+        exists SignatureType_field_ds_Object
+    ]
+
+and let x_signature_type_attributes (x : x_signature_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_signature_type_to_xml (name : string) (x : x_signature_type) : xml.xml_node =
+    xml.element name (x_signature_type_attributes x) (x_signature_type_children x)
+
+and let x_signature_value_type_children (x : x_signature_value_type) : list xml.xml_node = xml.text_children x.base
+
+and let x_signature_value_type_attributes (x : x_signature_value_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_signature_value_type_to_xml (name : string) (x : x_signature_value_type) : xml.xml_node =
+    xml.element name (x_signature_value_type_attributes x) (x_signature_value_type_children x)
+
+and let x_signed_info_type_children (x : x_signed_info_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_signed_info_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SignedInfoType_field_ds_CanonicalizationMethod =>
+            [ x_canonicalization_method_type_to_xml "ds:CanonicalizationMethod" v ]
+        | SignedInfoType_field_ds_SignatureMethod => [ x_signature_method_type_to_xml "ds:SignatureMethod" v ]
+        | SignedInfoType_field_ds_Reference => listm.map (fun v => x_reference_type_to_xml "ds:Reference" v) v
+    inl rec walk (fields : list (exists r. x_signed_info_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_signed_info_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists SignedInfoType_field_ds_CanonicalizationMethod
+        exists SignedInfoType_field_ds_SignatureMethod
+        exists SignedInfoType_field_ds_Reference
+    ]
+
+and let x_signed_info_type_attributes (x : x_signed_info_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_signed_info_type_to_xml (name : string) (x : x_signed_info_type) : xml.xml_node =
+    xml.element name (x_signed_info_type_attributes x) (x_signed_info_type_children x)
+
+and let x_canonicalization_method_type_children (x : x_canonicalization_method_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_canonicalization_method_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | CanonicalizationMethodType_field_any => any_content_to v
+    inl rec walk (fields : list (exists r. x_canonicalization_method_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_canonicalization_method_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists CanonicalizationMethodType_field_any ]
+
+and let x_canonicalization_method_type_attributes (x : x_canonicalization_method_type) : list (string * string) =
+    [ ("Algorithm", x.algorithm) ]
+
+and let x_canonicalization_method_type_to_xml (name : string) (x : x_canonicalization_method_type) : xml.xml_node =
+    xml.element name (x_canonicalization_method_type_attributes x) (x_canonicalization_method_type_children x)
+
+and let x_signature_method_type_children (x : x_signature_method_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_signature_method_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SignatureMethodType_field_HMACOutputLength =>
+            xml.option_list (optionm.map (fun v => xml.element "HMACOutputLength" [] (xml.text_children v)) v)
+        | SignatureMethodType_field_any => any_content_to v
+    inl rec walk (fields : list (exists r. x_signature_method_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_signature_method_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists SignatureMethodType_field_HMACOutputLength; exists SignatureMethodType_field_any ]
+
+and let x_signature_method_type_attributes (x : x_signature_method_type) : list (string * string) =
+    [ ("Algorithm", x.algorithm) ]
+
+and let x_signature_method_type_to_xml (name : string) (x : x_signature_method_type) : xml.xml_node =
+    xml.element name (x_signature_method_type_attributes x) (x_signature_method_type_children x)
+
+and let x_reference_type_children (x : x_reference_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_reference_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | ReferenceType_field_ds_Transforms =>
+            xml.option_list (optionm.map (fun v => x_transforms_type_to_xml "ds:Transforms" v) v)
+        | ReferenceType_field_ds_DigestMethod => [ x_digest_method_type_to_xml "ds:DigestMethod" v ]
+        | ReferenceType_field_ds_DigestValue => [ xml.element "ds:DigestValue" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_reference_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_reference_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists ReferenceType_field_ds_Transforms
+        exists ReferenceType_field_ds_DigestMethod
+        exists ReferenceType_field_ds_DigestValue
+    ]
+
+and let x_reference_type_attributes (x : x_reference_type) : list (string * string) =
+    listm.concat [
+        xml.option_list (optionm.map (fun v => "Id", v) x.id)
+        xml.option_list (optionm.map (fun v => "URI", v) x.uri)
+        xml.option_list (optionm.map (fun v => "Type", v) x.type_value)
+    ]
+
+and let x_reference_type_to_xml (name : string) (x : x_reference_type) : xml.xml_node =
+    xml.element name (x_reference_type_attributes x) (x_reference_type_children x)
+
+and let x_transforms_type_children (x : x_transforms_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_transforms_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformsType_field_ds_Transform => listm.map (fun v => x_transform_type_to_xml "ds:Transform" v) v
+    inl rec walk (fields : list (exists r. x_transforms_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transforms_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformsType_field_ds_Transform ]
+
+and let x_transforms_type_attributes (x : x_transforms_type) : list (string * string) = []
+
+and let x_transforms_type_to_xml (name : string) (x : x_transforms_type) : xml.xml_node =
+    xml.element name (x_transforms_type_attributes x) (x_transforms_type_children x)
+
+and let x_transform_type_children (x : x_transform_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_transform_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | TransformType_field_choice_x_path => listm.concat (listm.map x_transform_type_choice_x_path_children v)
+    inl rec walk (fields : list (exists r. x_transform_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_transform_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists TransformType_field_choice_x_path ]
+
+and let x_transform_type_attributes (x : x_transform_type) : list (string * string) = [ ("Algorithm", x.algorithm) ]
+
+and let x_transform_type_to_xml (name : string) (x : x_transform_type) : xml.xml_node =
+    xml.element name (x_transform_type_attributes x) (x_transform_type_children x)
+
+and let x_transform_type_choice_x_path_children (x : x_transform_type_choice_x_path) : list xml.xml_node =
+    match x with
+    | TransformType_choice_XPath_XPath v => [ xml.element "XPath" [] (xml.text_children v) ]
+
+and let x_digest_method_type_children (x : x_digest_method_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_digest_method_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | DigestMethodType_field_any => any_content_to v
+    inl rec walk (fields : list (exists r. x_digest_method_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_digest_method_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists DigestMethodType_field_any ]
+
+and let x_digest_method_type_attributes (x : x_digest_method_type) : list (string * string) =
+    [ ("Algorithm", x.algorithm) ]
+
+and let x_digest_method_type_to_xml (name : string) (x : x_digest_method_type) : xml.xml_node =
+    xml.element name (x_digest_method_type_attributes x) (x_digest_method_type_children x)
+
+and let x_key_info_type_children (x : x_key_info_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_key_info_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | KeyInfoType_field_choice_key_name => listm.concat (listm.map x_key_info_type_choice_ds_key_name_children v)
+    inl rec walk (fields : list (exists r. x_key_info_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_key_info_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists KeyInfoType_field_choice_key_name ]
+
+and let x_key_info_type_attributes (x : x_key_info_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_key_info_type_to_xml (name : string) (x : x_key_info_type) : xml.xml_node =
+    xml.element name (x_key_info_type_attributes x) (x_key_info_type_children x)
+
+and let x_key_info_type_choice_ds_key_name_children (x : x_key_info_type_choice_ds_key_name) : list xml.xml_node =
+    match x with
+    | KeyInfoType_choice_ds_KeyName_ds_KeyName v => [ xml.element "ds:KeyName" [] (xml.text_children v) ]
+    | KeyInfoType_choice_ds_KeyName_ds_KeyValue v => [ x_key_value_type_to_xml "ds:KeyValue" v ]
+    | KeyInfoType_choice_ds_KeyName_ds_RetrievalMethod v => [ x_retrieval_method_type_to_xml "ds:RetrievalMethod" v ]
+    | KeyInfoType_choice_ds_KeyName_ds_X509Data v => [ x_x509_data_type_to_xml "ds:X509Data" v ]
+    | KeyInfoType_choice_ds_KeyName_ds_PGPData v => [ x_pgp_data_type_to_xml "ds:PGPData" v ]
+    | KeyInfoType_choice_ds_KeyName_ds_SPKIData v => [ x_spki_data_type_to_xml "ds:SPKIData" v ]
+    | KeyInfoType_choice_ds_KeyName_ds_MgmtData v => [ xml.element "ds:MgmtData" [] (xml.text_children v) ]
+
+and let x_key_value_type_children (x : x_key_value_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_key_value_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | KeyValueType_field_choice_dsa_key_value => x_key_value_type_choice_ds_dsa_key_value_children v
+    inl rec walk (fields : list (exists r. x_key_value_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_key_value_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists KeyValueType_field_choice_dsa_key_value ]
+
+and let x_key_value_type_attributes (x : x_key_value_type) : list (string * string) = []
+
+and let x_key_value_type_to_xml (name : string) (x : x_key_value_type) : xml.xml_node =
+    xml.element name (x_key_value_type_attributes x) (x_key_value_type_children x)
+
+and let x_key_value_type_choice_ds_dsa_key_value_children
+    (x : x_key_value_type_choice_ds_dsa_key_value)
+    : list xml.xml_node
+    =
+    match x with
+    | KeyValueType_choice_ds_DSAKeyValue_ds_DSAKeyValue v => [ x_dsa_key_value_type_to_xml "ds:DSAKeyValue" v ]
+    | KeyValueType_choice_ds_DSAKeyValue_ds_RSAKeyValue v => [ x_rsa_key_value_type_to_xml "ds:RSAKeyValue" v ]
+
+and let x_retrieval_method_type_children (x : x_retrieval_method_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_retrieval_method_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | RetrievalMethodType_field_ds_Transforms =>
+            xml.option_list (optionm.map (fun v => x_transforms_type_to_xml "ds:Transforms" v) v)
+    inl rec walk (fields : list (exists r. x_retrieval_method_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_retrieval_method_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists RetrievalMethodType_field_ds_Transforms ]
+
+and let x_retrieval_method_type_attributes (x : x_retrieval_method_type) : list (string * string) =
+    listm.concat [
+        xml.option_list (optionm.map (fun v => "URI", v) x.uri)
+        xml.option_list (optionm.map (fun v => "Type", v) x.type_value)
+    ]
+
+and let x_retrieval_method_type_to_xml (name : string) (x : x_retrieval_method_type) : xml.xml_node =
+    xml.element name (x_retrieval_method_type_attributes x) (x_retrieval_method_type_children x)
+
+and let x_x509_data_type_children (x : x_x509_data_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_x509_data_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | X509DataType_field_choice_x509_issuer_serial =>
+            listm.concat (listm.map x_x509_data_type_choice_x509_issuer_serial_children v)
+    inl rec walk (fields : list (exists r. x_x509_data_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_x509_data_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists X509DataType_field_choice_x509_issuer_serial ]
+
+and let x_x509_data_type_attributes (x : x_x509_data_type) : list (string * string) = []
+
+and let x_x509_data_type_to_xml (name : string) (x : x_x509_data_type) : xml.xml_node =
+    xml.element name (x_x509_data_type_attributes x) (x_x509_data_type_children x)
+
+and let x_x509_data_type_choice_x509_issuer_serial_children
+    (x : x_x509_data_type_choice_x509_issuer_serial)
+    : list xml.xml_node
+    =
+    match x with
+    | X509DataType_choice_X509IssuerSerial_X509IssuerSerial v =>
+        [ x_x509_issuer_serial_type_to_xml "X509IssuerSerial" v ]
+    | X509DataType_choice_X509IssuerSerial_X509SKI v => [ xml.element "X509SKI" [] (xml.text_children v) ]
+    | X509DataType_choice_X509IssuerSerial_X509SubjectName v =>
+        [ xml.element "X509SubjectName" [] (xml.text_children v) ]
+    | X509DataType_choice_X509IssuerSerial_X509Certificate v =>
+        [ xml.element "X509Certificate" [] (xml.text_children v) ]
+    | X509DataType_choice_X509IssuerSerial_X509CRL v => [ xml.element "X509CRL" [] (xml.text_children v) ]
+
+and let x_x509_issuer_serial_type_children (x : x_x509_issuer_serial_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_x509_issuer_serial_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | X509IssuerSerialType_field_X509IssuerName => [ xml.element "X509IssuerName" [] (xml.text_children v) ]
+        | X509IssuerSerialType_field_X509SerialNumber => [ text_node "X509SerialNumber" v ]
+    inl rec walk (fields : list (exists r. x_x509_issuer_serial_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_x509_issuer_serial_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists X509IssuerSerialType_field_X509IssuerName; exists X509IssuerSerialType_field_X509SerialNumber ]
+
+and let x_x509_issuer_serial_type_attributes (x : x_x509_issuer_serial_type) : list (string * string) = []
+
+and let x_x509_issuer_serial_type_to_xml (name : string) (x : x_x509_issuer_serial_type) : xml.xml_node =
+    xml.element name (x_x509_issuer_serial_type_attributes x) (x_x509_issuer_serial_type_children x)
+
+and let x_pgp_data_type_children (x : x_pgp_data_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_pgp_data_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | PGPDataType_field_choice_pgp_key_id => x_pgp_data_type_choice_pgp_key_id_children v
+    inl rec walk (fields : list (exists r. x_pgp_data_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_pgp_data_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists PGPDataType_field_choice_pgp_key_id ]
+
+and let x_pgp_data_type_attributes (x : x_pgp_data_type) : list (string * string) = []
+
+and let x_pgp_data_type_to_xml (name : string) (x : x_pgp_data_type) : xml.xml_node =
+    xml.element name (x_pgp_data_type_attributes x) (x_pgp_data_type_children x)
+
+and let x_pgp_data_type_choice_pgp_key_id_children (x : x_pgp_data_type_choice_pgp_key_id) : list xml.xml_node =
+    match x with
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyID v => x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_children v
+    | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket v =>
+        x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_children v
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_children
+    (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet)
+    : list xml.xml_node
+    =
+    inl nodes forall r.
+        (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r) (v : r)
+        : list xml.xml_node
+        =
+        match f with
+        | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket =>
+            [ xml.element "PGPKeyPacket" [] (xml.text_children v) ]
+        | PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any => any_content_to v
+    inl rec walk
+        (fields : list (exists r. x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_PGPKeyPacket
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyPacket_field_any
+    ]
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_attributes
+    (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet)
+    : list (string * string)
+    =
+    []
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_to_xml
+    (name : string) (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_attributes x)
+        (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_children x)
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_children
+    (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r) (v : r) : list xml.xml_node =
+        match f with
+        | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID =>
+            [ xml.element "PGPKeyID" [] (xml.text_children v) ]
+        | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket =>
+            xml.option_list (optionm.map (fun v => xml.element "PGPKeyPacket" [] (xml.text_children v)) v)
+        | PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any => any_content_to v
+    inl rec walk
+        (fields : list (exists r. x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyID
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_PGPKeyPacket
+        exists PGPDataType_choice_PGPKeyID_group_PGPKeyID_field_any
+    ]
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_attributes
+    (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id)
+    : list (string * string)
+    =
+    []
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_to_xml
+    (name : string) (x : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_attributes x)
+        (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_children x)
+
+and let x_spki_data_type_children (x : x_spki_data_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_spki_data_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SPKIDataType_field_group_spki_sexp => listm.concat (listm.map x_spki_data_type_group_spki_sexp_children v)
+    inl rec walk (fields : list (exists r. x_spki_data_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_spki_data_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists SPKIDataType_field_group_spki_sexp ]
+
+and let x_spki_data_type_attributes (x : x_spki_data_type) : list (string * string) = []
+
+and let x_spki_data_type_to_xml (name : string) (x : x_spki_data_type) : xml.xml_node =
+    xml.element name (x_spki_data_type_attributes x) (x_spki_data_type_children x)
+
+and let x_spki_data_type_group_spki_sexp_children (x : x_spki_data_type_group_spki_sexp) : list xml.xml_node =
+    inl nodes forall r. (f : x_spki_data_type_group_spki_sexp_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SPKIDataType_group_SPKISexp_field_SPKISexp => [ xml.element "SPKISexp" [] (xml.text_children v) ]
+        | SPKIDataType_group_SPKISexp_field_any => any_content_to v
+    inl rec walk (fields : list (exists r. x_spki_data_type_group_spki_sexp_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_spki_data_type_group_spki_sexp_get f x)) (walk rest)
+        | [] => []
+    walk [ exists SPKIDataType_group_SPKISexp_field_SPKISexp; exists SPKIDataType_group_SPKISexp_field_any ]
+
+and let x_spki_data_type_group_spki_sexp_attributes (x : x_spki_data_type_group_spki_sexp) : list (string * string) = []
+
+and let x_spki_data_type_group_spki_sexp_to_xml (name : string) (x : x_spki_data_type_group_spki_sexp) : xml.xml_node =
+    xml.element name (x_spki_data_type_group_spki_sexp_attributes x) (x_spki_data_type_group_spki_sexp_children x)
+
+and let x_object_type_children (x : x_object_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_object_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | ObjectType_field_any => any_content_to v
+    inl rec walk (fields : list (exists r. x_object_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_object_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists ObjectType_field_any ]
+
+and let x_object_type_attributes (x : x_object_type) : list (string * string) =
+    listm.concat [
+        xml.option_list (optionm.map (fun v => "Id", v) x.id)
+        xml.option_list (optionm.map (fun v => "MimeType", v) x.mime_type)
+        xml.option_list (optionm.map (fun v => "Encoding", v) x.encoding)
+    ]
+
+and let x_object_type_to_xml (name : string) (x : x_object_type) : xml.xml_node =
+    xml.element name (x_object_type_attributes x) (x_object_type_children x)
+
+and let x_manifest_type_children (x : x_manifest_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_manifest_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | ManifestType_field_ds_Reference => listm.map (fun v => x_reference_type_to_xml "ds:Reference" v) v
+    inl rec walk (fields : list (exists r. x_manifest_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_manifest_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists ManifestType_field_ds_Reference ]
+
+and let x_manifest_type_attributes (x : x_manifest_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_manifest_type_to_xml (name : string) (x : x_manifest_type) : xml.xml_node =
+    xml.element name (x_manifest_type_attributes x) (x_manifest_type_children x)
+
+and let x_signature_properties_type_children (x : x_signature_properties_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_signature_properties_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SignaturePropertiesType_field_ds_SignatureProperty =>
+            listm.map (fun v => x_signature_property_type_to_xml "ds:SignatureProperty" v) v
+    inl rec walk (fields : list (exists r. x_signature_properties_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_signature_properties_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists SignaturePropertiesType_field_ds_SignatureProperty ]
+
+and let x_signature_properties_type_attributes (x : x_signature_properties_type) : list (string * string) =
+    xml.option_list (optionm.map (fun v => ("Id", v)) x.id)
+
+and let x_signature_properties_type_to_xml (name : string) (x : x_signature_properties_type) : xml.xml_node =
+    xml.element name (x_signature_properties_type_attributes x) (x_signature_properties_type_children x)
+
+and let x_signature_property_type_children (x : x_signature_property_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_signature_property_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | SignaturePropertyType_field_any => any_content_to v
+    inl rec walk (fields : list (exists r. x_signature_property_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_signature_property_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists SignaturePropertyType_field_any ]
+
+and let x_signature_property_type_attributes (x : x_signature_property_type) : list (string * string) =
+    listm.concat [ [ ("Target", x.target) ]; xml.option_list (optionm.map (fun v => ("Id", v)) x.id) ]
+
+and let x_signature_property_type_to_xml (name : string) (x : x_signature_property_type) : xml.xml_node =
+    xml.element name (x_signature_property_type_attributes x) (x_signature_property_type_children x)
+
+and let x_dsa_key_value_type_children (x : x_dsa_key_value_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_dsa_key_value_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | DSAKeyValueType_field_P => [ xml.element "P" [] (xml.text_children v) ]
+        | DSAKeyValueType_field_Q => [ xml.element "Q" [] (xml.text_children v) ]
+        | DSAKeyValueType_field_G => xml.option_list (optionm.map (fun v => xml.element "G" [] (xml.text_children v)) v)
+        | DSAKeyValueType_field_Y => [ xml.element "Y" [] (xml.text_children v) ]
+        | DSAKeyValueType_field_J => xml.option_list (optionm.map (fun v => xml.element "J" [] (xml.text_children v)) v)
+        | DSAKeyValueType_field_Seed => [ xml.element "Seed" [] (xml.text_children v) ]
+        | DSAKeyValueType_field_PgenCounter => [ xml.element "PgenCounter" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_dsa_key_value_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_dsa_key_value_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists DSAKeyValueType_field_P
+        exists DSAKeyValueType_field_Q
+        exists DSAKeyValueType_field_G
+        exists DSAKeyValueType_field_Y
+        exists DSAKeyValueType_field_J
+        exists DSAKeyValueType_field_Seed
+        exists DSAKeyValueType_field_PgenCounter
+    ]
+
+and let x_dsa_key_value_type_attributes (x : x_dsa_key_value_type) : list (string * string) = []
+
+and let x_dsa_key_value_type_to_xml (name : string) (x : x_dsa_key_value_type) : xml.xml_node =
+    xml.element name (x_dsa_key_value_type_attributes x) (x_dsa_key_value_type_children x)
+
+and let x_rsa_key_value_type_children (x : x_rsa_key_value_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_rsa_key_value_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | RSAKeyValueType_field_Modulus => [ xml.element "Modulus" [] (xml.text_children v) ]
+        | RSAKeyValueType_field_Exponent => [ xml.element "Exponent" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_rsa_key_value_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_rsa_key_value_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists RSAKeyValueType_field_Modulus; exists RSAKeyValueType_field_Exponent ]
+
+and let x_rsa_key_value_type_attributes (x : x_rsa_key_value_type) : list (string * string) = []
+
+and let x_rsa_key_value_type_to_xml (name : string) (x : x_rsa_key_value_type) : xml.xml_node =
+    xml.element name (x_rsa_key_value_type_attributes x) (x_rsa_key_value_type_children x)
+
+and let x_mensaje_receptor_example (k : i32) : x_mensaje_receptor unsigned =
+    x_mensaje_receptor {
+        clave = x_mensaje_receptor_clave_example k
+        numero_cedula_emisor = x_mensaje_receptor_numero_cedula_emisor_example k
+        fecha_emision_doc = "2026-01-01T00:00:00"
+        mensaje = x_mensaje_receptor_mensaje_example k
+        detalle_mensaje = None
+        monto_total_impuesto = None
+        codigo_actividad = None
+        condicion_impuesto = None
+        monto_total_impuesto_acreditar = None
+        monto_total_de_gasto_aplicable = None
+        total_factura = x_mensaje_receptor_total_factura_example k
+        numero_cedula_receptor = x_mensaje_receptor_numero_cedula_receptor_example k
+        numero_consecutivo_receptor = x_mensaje_receptor_numero_consecutivo_receptor_example k
+        signature = Pending "an unsigned example"
+    }
+
+and let x_signature_type_example (k : i32) : x_signature_type =
+    x_signature_type {
+        signed_info = x_signed_info_type_example k
+        signature_value = x_signature_value_type_example k
+        key_info = None
+        object = []
+        id = None
+    }
+
+and let x_signature_value_type_example (k : i32) : x_signature_value_type =
+    x_signature_value_type {
+        base = "AAAA"
+        id = None
+    }
+
+and let x_signed_info_type_example (k : i32) : x_signed_info_type =
+    x_signed_info_type {
+        canonicalization_method = x_canonicalization_method_type_example k
+        signature_method = x_signature_method_type_example k
+        reference = [ x_reference_type_example (k + 0i32) ]
+        id = None
+    }
+
+and let x_canonicalization_method_type_example (k : i32) : x_canonicalization_method_type =
+    x_canonicalization_method_type {
+        any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
+        algorithm = "http://example.com"
+    }
+
+and let x_signature_method_type_example (k : i32) : x_signature_method_type =
+    x_signature_method_type {
+        hmac_output_length = None
+        any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
+        algorithm = "http://example.com"
+    }
+
+and let x_reference_type_example (k : i32) : x_reference_type =
+    x_reference_type {
+        transforms = None
+        digest_method = x_digest_method_type_example k
+        digest_value = x_digest_value_type_example k
+        id = None
+        uri = None
+        type_value = None
+    }
+
+and let x_transforms_type_example (k : i32) : x_transforms_type =
+    x_transforms_type {
+        transform = [ x_transform_type_example (k + 0i32) ]
+    }
+
+and let x_transform_type_example (k : i32) : x_transform_type =
+    x_transform_type {
+        choice_x_path = []
+        algorithm = "http://example.com"
+    }
+
+and let x_transform_type_choice_x_path_example (k : i32) : x_transform_type_choice_x_path =
+    failwith "x_transform_type_choice_x_path: no first alternative"
+
+and let x_digest_method_type_example (k : i32) : x_digest_method_type =
+    x_digest_method_type {
+        any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
+        algorithm = "http://example.com"
+    }
+
+and let x_key_info_type_example (k : i32) : x_key_info_type =
+    x_key_info_type {
+        choice_key_name = [ x_key_info_type_choice_ds_key_name_example (k + 0i32) ]
+        id = None
+    }
+
+and let x_key_info_type_choice_ds_key_name_example (k : i32) : x_key_info_type_choice_ds_key_name =
+    KeyInfoType_choice_ds_KeyName_ds_KeyName ("1")
+
+and let x_key_value_type_example (k : i32) : x_key_value_type =
+    x_key_value_type {
+        choice_dsa_key_value = x_key_value_type_choice_ds_dsa_key_value_example k
+    }
+
+and let x_key_value_type_choice_ds_dsa_key_value_example (k : i32) : x_key_value_type_choice_ds_dsa_key_value =
+    KeyValueType_choice_ds_DSAKeyValue_ds_DSAKeyValue (x_dsa_key_value_type_example k)
+
+and let x_retrieval_method_type_example (k : i32) : x_retrieval_method_type =
+    x_retrieval_method_type {
+        transforms = None
+        uri = None
+        type_value = None
+    }
+
+and let x_x509_data_type_example (k : i32) : x_x509_data_type =
+    x_x509_data_type {
+        choice_x509_issuer_serial = [ x_x509_data_type_choice_x509_issuer_serial_example (k + 0i32) ]
+    }
+
+and let x_x509_data_type_choice_x509_issuer_serial_example (k : i32) : x_x509_data_type_choice_x509_issuer_serial =
+    X509DataType_choice_X509IssuerSerial_X509IssuerSerial (x_x509_issuer_serial_type_example k)
+
+and let x_x509_issuer_serial_type_example (k : i32) : x_x509_issuer_serial_type =
+    x_x509_issuer_serial_type {
+        x509_issuer_name = "1"
+        x509_serial_number = xsd_integer_example k
+    }
+
+and let x_pgp_data_type_example (k : i32) : x_pgp_data_type =
+    x_pgp_data_type {
+        choice_pgp_key_id = x_pgp_data_type_choice_pgp_key_id_example k
+    }
+
+and let x_pgp_data_type_choice_pgp_key_id_example (k : i32) : x_pgp_data_type_choice_pgp_key_id =
+    PGPDataType_choice_PGPKeyID_group_PGPKeyID (x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_example k)
+
+and let x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_example
+    (k : i32)
+    : x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id
+    =
+    x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id {
+        pgp_key_id = "AAAA"
+        pgp_key_packet = None
+        any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
+    }
+
+and let x_spki_data_type_example (k : i32) : x_spki_data_type =
+    x_spki_data_type {
+        group_spki_sexp = [ x_spki_data_type_group_spki_sexp_example (k + 0i32) ]
+    }
+
+and let x_spki_data_type_group_spki_sexp_example (k : i32) : x_spki_data_type_group_spki_sexp =
+    x_spki_data_type_group_spki_sexp {
+        spki_sexp = "AAAA"
+        any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
+    }
+
+and let x_object_type_example (k : i32) : x_object_type =
+    x_object_type {
+        any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
+        id = None
+        mime_type = None
+        encoding = None
+    }
+
+and let x_manifest_type_example (k : i32) : x_manifest_type =
+    x_manifest_type {
+        reference = [ x_reference_type_example (k + 0i32) ]
+        id = None
+    }
+
+and let x_signature_properties_type_example (k : i32) : x_signature_properties_type =
+    x_signature_properties_type {
+        signature_property = [ x_signature_property_type_example (k + 0i32) ]
+        id = None
+    }
+
+and let x_signature_property_type_example (k : i32) : x_signature_property_type =
+    x_signature_property_type {
+        any = any_content_of [ xml.element "modal" [ ("xmlns", "urn:example:any") ] [] ]
+        target = "http://example.com"
+        id = None
+    }
+
+and let x_dsa_key_value_type_example (k : i32) : x_dsa_key_value_type =
+    x_dsa_key_value_type {
+        p = x_crypto_binary_example k
+        q = x_crypto_binary_example k
+        g = None
+        y = x_crypto_binary_example k
+        j = None
+        seed = x_crypto_binary_example k
+        pgen_counter = x_crypto_binary_example k
+    }
+
+and let x_rsa_key_value_type_example (k : i32) : x_rsa_key_value_type =
+    x_rsa_key_value_type {
+        modulus = x_crypto_binary_example k
+        exponent = x_crypto_binary_example k
+    }
+
+
+instance of_xml x_mensaje_receptor s {stage_of} = fun c => x_mensaje_receptor_of_xml (stage_of ()) c
+instance to_xml x_mensaje_receptor s = x_mensaje_receptor_to_xml
+
+instance of_xml x_signature_type = x_signature_type_of_xml
+instance to_xml x_signature_type = x_signature_type_to_xml
+
+instance of_xml x_signature_value_type = x_signature_value_type_of_xml
+instance to_xml x_signature_value_type = x_signature_value_type_to_xml
+
+instance of_xml x_signed_info_type = x_signed_info_type_of_xml
+instance to_xml x_signed_info_type = x_signed_info_type_to_xml
+
+instance of_xml x_canonicalization_method_type = x_canonicalization_method_type_of_xml
+instance to_xml x_canonicalization_method_type = x_canonicalization_method_type_to_xml
+
+instance of_xml x_signature_method_type = x_signature_method_type_of_xml
+instance to_xml x_signature_method_type = x_signature_method_type_to_xml
+
+instance of_xml x_reference_type = x_reference_type_of_xml
+instance to_xml x_reference_type = x_reference_type_to_xml
+
+instance of_xml x_transforms_type = x_transforms_type_of_xml
+instance to_xml x_transforms_type = x_transforms_type_to_xml
+
+instance of_xml x_transform_type = x_transform_type_of_xml
+instance to_xml x_transform_type = x_transform_type_to_xml
+
+instance of_xml x_digest_method_type = x_digest_method_type_of_xml
+instance to_xml x_digest_method_type = x_digest_method_type_to_xml
+
+instance of_xml x_key_info_type = x_key_info_type_of_xml
+instance to_xml x_key_info_type = x_key_info_type_to_xml
+
+instance of_xml x_key_value_type = x_key_value_type_of_xml
+instance to_xml x_key_value_type = x_key_value_type_to_xml
+
+instance of_xml x_retrieval_method_type = x_retrieval_method_type_of_xml
+instance to_xml x_retrieval_method_type = x_retrieval_method_type_to_xml
+
+instance of_xml x_x509_data_type = x_x509_data_type_of_xml
+instance to_xml x_x509_data_type = x_x509_data_type_to_xml
+
+instance of_xml x_x509_issuer_serial_type = x_x509_issuer_serial_type_of_xml
+instance to_xml x_x509_issuer_serial_type = x_x509_issuer_serial_type_to_xml
+
+instance of_xml x_pgp_data_type = x_pgp_data_type_of_xml
+instance to_xml x_pgp_data_type = x_pgp_data_type_to_xml
+
+instance of_xml x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet =
+    x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_of_xml
+instance to_xml x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet =
+    x_pgp_data_type_choice_pgp_key_id_group_pgp_key_packet_to_xml
+
+instance of_xml x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id =
+    x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_of_xml
+instance to_xml x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id =
+    x_pgp_data_type_choice_pgp_key_id_group_pgp_key_id_to_xml
+
+instance of_xml x_spki_data_type = x_spki_data_type_of_xml
+instance to_xml x_spki_data_type = x_spki_data_type_to_xml
+
+instance of_xml x_spki_data_type_group_spki_sexp = x_spki_data_type_group_spki_sexp_of_xml
+instance to_xml x_spki_data_type_group_spki_sexp = x_spki_data_type_group_spki_sexp_to_xml
+
+instance of_xml x_object_type = x_object_type_of_xml
+instance to_xml x_object_type = x_object_type_to_xml
+
+instance of_xml x_manifest_type = x_manifest_type_of_xml
+instance to_xml x_manifest_type = x_manifest_type_to_xml
+
+instance of_xml x_signature_properties_type = x_signature_properties_type_of_xml
+instance to_xml x_signature_properties_type = x_signature_properties_type_to_xml
+
+instance of_xml x_signature_property_type = x_signature_property_type_of_xml
+instance to_xml x_signature_property_type = x_signature_property_type_to_xml
+
+instance of_xml x_dsa_key_value_type = x_dsa_key_value_type_of_xml
+instance to_xml x_dsa_key_value_type = x_dsa_key_value_type_to_xml
+
+instance of_xml x_rsa_key_value_type = x_rsa_key_value_type_of_xml
+instance to_xml x_rsa_key_value_type = x_rsa_key_value_type_to_xml
+
+
+///> rust
+test generated_cr_mensaje_receptor_4_4_writes_its_example =
+    inl example = x_mensaje_receptor_example 0i32
+    inl document =
+        xml.element
+            "MensajeReceptor"
+            (
+                ("xmlns", "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/mensajeReceptor")
+                :: x_mensaje_receptor_attributes example
+            )
+            (x_mensaje_receptor_children example)
+    file_system.directory_create_all (generated_fiscal_runtime.sample_path "") |> ignore
+    file_system.write_all_text
+        (generated_fiscal_runtime.sample_path "generated_cr_mensaje_receptor_4_4_example.xml")
+        (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+    inl text =
+        file_system.read_all_text (generated_fiscal_runtime.sample_path "generated_cr_mensaje_receptor_4_4_example.xml")
+    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64) : list i64 * list i64 * i64 =
+        if left = 0i32 then parses, writes, bytes
+        else
+            inl watch = date_time.stopwatch ()
+            date_time.stopwatch_start watch
+            inl start = date_time.stopwatch_elapsed_microseconds watch
+            match xml.read_xml text with
+            | node :: [] =>
+                inl parsed = xml_codec.expect_decoded (x_mensaje_receptor_of_xml Unsigned node)
+                inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
+                inl written = xml.write_node (x_mensaje_receptor_to_xml "MensajeReceptor" parsed)
+                inl written_at = date_time.stopwatch_elapsed_microseconds watch
+                inl parses = generated_fiscal_runtime.insert_run (parsed_at - start) parses
+                inl writes = generated_fiscal_runtime.insert_run (written_at - parsed_at) writes
+                runs (left - 1i32) parses writes (bytes + sm'.length written)
+            | _ => failwith "one MensajeReceptor element"
+    inl _ = runs (dyn 5i32) [] [] 0i64
+    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64
+    inl row = sm'.(++#) "generated_cr_mensaje_receptor_4_4 parse_us " (generated_fiscal_runtime.median parses)
+    inl row = sm'.(++#) row (sm'.(++#) " write_us " (generated_fiscal_runtime.median writes))
+    inl row = sm'.(++#) row (sm'.(++#) " runs 31 bytes " (sm'.obj_to_string bytes))
+    console.write_line row
+    match xml.read_xml text with
+    | node :: [] =>
+        inl parsed = xml_codec.expect_decoded (x_mensaje_receptor_of_xml Unsigned node)
+        inl document =
+            xml.element
+                "MensajeReceptor"
+                (
+                    ("xmlns", "https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/mensajeReceptor")
+                    :: x_mensaje_receptor_attributes parsed
+                )
+                (x_mensaje_receptor_children parsed)
+        inl folder = generated_fiscal_runtime.sample_path "../target/bench"
+        match file_system.directory_create_all folder with
+        | Ok _ =>
+            file_system.write_all_text
+                (sm'.(++#) folder "/ours-generated_cr_mensaje_receptor_4_4_example.xml")
+                (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+        | Error _ => failwith "cannot create target/bench"
+    | _ => failwith "one MensajeReceptor element"
+
+///> rust
+test generated_cr_mensaje_receptor_4_4_reports_a_missing_element_with_its_path =
+    inl document =
+        xml_codec.pruned "Clave" (x_mensaje_receptor_to_xml "MensajeReceptor" (x_mensaje_receptor_example 0i32))
+    if xml_codec.reports "missing Clave" (x_mensaje_receptor_of_xml Unsigned document) = false then
+        failwith "a document without Clave is reported as missing, not raised"

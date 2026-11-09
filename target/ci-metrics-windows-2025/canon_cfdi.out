@@ -1,0 +1,18 @@
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:8:32: mention: @Fecha (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:8:65: mention: @Moneda (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:9:66: mention: @UUID (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:14:40: mention: @Nombre (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:14:82: mention: @Rfc (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:15:42: mention: @Nombre (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:15:86: mention: @Rfc (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:22:97: mention: @Total (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:26:53: mention: @Cantidad (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:27:53: mention: @ClaveUnidad (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:32:53: mention: @ValorUnitario (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:33:53: mention: @Descripcion (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:39:53: mention: @ClaveProdServ (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:46:95: mention: @UUID (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:96:81: mention: @NoSuchAttribute (a renderer turns '@' before a name into a mention)
+cell-budget d:/a/fiscal/fiscal/src/canon_cfdi.spi:107:76: mention: @Total (a renderer turns '@' before a name into a mention)
+spiral-tests file {"accept_refused":{},"accepted":0,"accepted_sites":{},"built":0,"discovered":4,"executed":4,"failed":0,"failed_targets":{},"failed_tests":[],"file":"d:/a/fiscal/fiscal/src/canon_cfdi.spi","filtered":0,"headroom":0.02,"memo_hits":0,"mismatches":{},"no_agree_reasons":{},"not_run":0,"passed":4,"preludes":0,"skipped":0,"slowest_ms":22041,"static":0,"timed_out":0,"timeout_ms":1200000,"unsupported":0}
+spiral-tests total {"accepted":0,"built":0,"discovered":4,"executed":4,"failed":0,"files":1,"filtered":0,"memo_hits":0,"no_agree_reasons":{},"not_run":0,"passed":4,"preludes":0,"skipped":0,"static":0,"unsupported":0}

@@ -1,0 +1,1 @@
+<Pagos xmlns="http://www.sat.gob.mx/Pagos20" Version="2.0"><Totales MontoTotalPagos="0"/><Pago FechaPago="2026-01-01T00:00:00" FormaDePagoP="01" MonedaP="AED" Monto="0"><DoctoRelacionado IdDocumento="AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA" MonedaDR="AED" NumParcialidad="1" ImpSaldoAnt="0" ImpPagado="0" ImpSaldoInsoluto="0" ObjetoImpDR="01"/></Pago></Pagos>

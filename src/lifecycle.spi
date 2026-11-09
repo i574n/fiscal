@@ -1,0 +1,315 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:! issued = ()
+:! authorized = ()
+:! rejected = ()
+:! cancelled = ()
+
+:! nfe = string
+:! cfdi = string
+:! ubl = string
+:! hacienda = string
+:! dian = string
+
+:! event_code = string
+
+:| buyer_response =
+    | Accepted
+    | PartlyAccepted
+    | Refused : string
+
+:? cancellation_event r : r -> event_code
+:? correction_event r : r -> event_code
+:? response_event r : r -> buyer_response -> option event_code
+
+:+ cancellation_event nfe = \ _ => event_code "110111"
+:+ correction_event nfe = \ _ => event_code "110110"
+:+ cancellation_event cfdi = \ _ => event_code "Cancelacion"
+
+:+ response_event nfe = \ _ response =>
+    ?= response ?|
+    | Accepted => Some (event_code "210200")
+    | PartlyAccepted => None
+    | Refused _ => Some (event_code "210240")
+
+:+ response_event hacienda = \ _ response =>
+    ?= response ?|
+    | Accepted => Some (event_code "1")
+    | PartlyAccepted => Some (event_code "2")
+    | Refused _ => Some (event_code "3")
+
+:+ response_event dian = \ _ response =>
+    ?= response ?|
+    | Accepted => Some (event_code "033")
+    | PartlyAccepted => None
+    | Refused _ => Some (event_code "031")
+
+:= event_text ((event_code code) : event_code) : string = code
+
+:! access_key = string
+
+:! protocol_id = string
+
+:= key_text ((access_key text) : access_key) : string = text
+
+:= protocol_text ((protocol_id text) : protocol_id) : string = text
+
+:== correction_letter = { sequence : i32; text : string; event : event_code }
+
+:== buyer_reply = { response : buyer_response; event : event_code }
+
+:| private document r s =
+    | Issued :: \* r. r * access_key -> document r issued
+    | Authorized :: \* r.
+        {
+            regime : r; key : access_key; protocol : protocol_id; corrections : list correction_letter
+            replies : list buyer_reply
+        }
+        -> document r authorized
+    | Rejected :: \* r. r * access_key * string -> document r rejected
+    | Cancelled :: \* r.
+        { regime : r; key : access_key; protocol : protocol_id; event : event_code; event_protocol : protocol_id }
+        -> document r cancelled
+
+:~ key_of \* r s. (doc : document r s) : access_key =
+    ?= doc ?|
+    | Issued (_, key) => key
+    | Authorized a => a::key
+    | Rejected (_, key, _) => key
+    | Cancelled c => c::key
+
+:= issue \* r. (regime : r) (key : access_key) : document r issued = Issued (regime, key)
+
+:= authorize \* r. (doc : document r issued) (protocol : protocol_id) : document r authorized =
+    ?= doc ?|
+    | Issued (regime, key) =>
+        Authorized { regime = regime; key = key; protocol = protocol; corrections = []; replies = [] }
+
+:= reject \* r. (doc : document r issued) (reason : string) : document r rejected =
+    ?= doc ?|
+    | Issued (regime, key) => Rejected (regime, key, reason)
+
+:= correct \* r {correction_event}. (doc : document r authorized) (letter : string) : document r authorized =
+    ?= doc ?|
+    | Authorized a =>
+        := next = { sequence = listm::length a::corrections + 1i32; text = letter; event = correction_event a::regime }
+        Authorized { a ?| corrections = listm::append a::corrections [ next ] }
+
+:= corrections_of \* r. (doc : document r authorized) : list correction_letter =
+    ?= doc ?|
+    | Authorized a => a::corrections
+
+:= replied \* r. (doc : document r authorized) (reply : buyer_reply) : document r authorized =
+    ?= doc ?|
+    | Authorized a => Authorized { a ?| replies = listm::append a::replies [ reply ] }
+
+:= respond \* r {response_event}. (doc : document r authorized) (response : buyer_response)
+    : option (document r authorized)
+    =
+    ?= doc ?|
+    | Authorized a =>
+        ?= response_event a::regime response ?|
+        | Some event => Some (replied doc { response = response; event = event })
+        | None => None
+
+:= replies_of \* r. (doc : document r authorized) : list buyer_reply =
+    ?= doc ?|
+    | Authorized a => a::replies
+
+:= cancel \* r {cancellation_event}. (doc : document r authorized) (event_protocol : protocol_id)
+    : document r cancelled
+    =
+    ?= doc ?|
+    | Authorized a =>
+        Cancelled {
+            regime = a::regime; key = a::key; protocol = a::protocol
+            event = cancellation_event a::regime; event_protocol = event_protocol
+        }
+
+:= authorization_protocol \* r. (doc : document r cancelled) : protocol_id =
+    ?= doc ?|
+    | Cancelled c => c::protocol
+
+:= cancellation_event_of \* r. (doc : document r cancelled) : event_code =
+    ?= doc ?|
+    | Cancelled c => c::event
+
+:| actor =
+    | Issuer
+    | Recipient
+    | Fisco
+    | LinkedDocument
+    | Export
+    | OtherAgency
+
+:= actor_of_event_code (code : i32) : option actor =
+    ?= code / 100000i32 ?|
+    | 1i32 => Some Issuer
+    | 2i32 => Some Recipient
+    | 4i32 => Some Fisco
+    | 6i32 => Some LinkedDocument
+    | 7i32 => Some Export
+    | 9i32 => Some OtherAgency
+    | _ => None
+
+:| recipient_event =
+    | Awareness
+    | Confirmation
+    | Disownment : string
+    | NonPerformance : string
+
+:= recipient_event_of_code (code : i32) (justification : string) : option recipient_event =
+    ?= code ?|
+    | 210210i32 => Some Awareness
+    | 210200i32 => Some Confirmation
+    | 210220i32 => Some (Disownment justification)
+    | 210240i32 => Some (NonPerformance justification)
+    | _ => None
+
+:= lifecycle_response_text (code : option event_code) : string =
+    ?= code ?|
+    | Some c => event_text c
+    | None => ""
+
+:~ ^ lifecycle_all_produced (codes : list string) (produced : list string) : bool =
+    ?= codes ?|
+    | code :: rest => families::contains_name code produced && lifecycle_all_produced rest produced
+    | [] => !+
+
+:= lifecycle_nfe_codes () : list string =
+    := regime = nfe "4.00"
+    := accepted = lifecycle_response_text (response_event regime Accepted)
+    [ event_text (cancellation_event regime); event_text (correction_event regime); accepted ]
+
+:= lifecycle_declared_codes () : list string =
+    listm::concat (
+        listm::map (\ (f : families::family_root) => families::lifecycle_events f::extras) (families::all_families ())
+    )
+
+///> rust
+test event_codes_name_their_author =
+    ? actor_of_event_code 110111i32 <> Some Issuer ?> failwith "110111 cancellation is the issuer's"
+    ? actor_of_event_code 110110i32 <> Some Issuer ?> failwith "110110 correction is the issuer's"
+    ? actor_of_event_code 210200i32 <> Some Recipient ?> failwith "210200 confirmation is the recipient's"
+    ? actor_of_event_code 411500i32 <> Some Fisco ?> failwith "411500 is the fisco's"
+    ? actor_of_event_code 610130i32 <> Some LinkedDocument ?> failwith "610130 comes from a CT-e"
+    ? actor_of_event_code 790700i32 <> Some Export ?> failwith "790700 is an export endorsement"
+    ? actor_of_event_code 990900i32 <> Some OtherAgency ?> failwith "990900 is SUFRAMA's"
+    ? actor_of_event_code 310000i32 <> None ?> failwith "no observed event starts with 3"
+
+///> rust
+test recipient_refusals_carry_their_justification =
+    ? recipient_event_of_code 210220i32 "never ordered" <> Some (Disownment "never ordered")
+    ?> failwith "210220 is a disownment that keeps its xJust"
+    ? recipient_event_of_code 210240i32 "goods refused" <> Some (NonPerformance "goods refused")
+    ?> failwith "210240 is a non-performance that keeps its xJust"
+    ? recipient_event_of_code 210210i32 "" <> Some Awareness ?> failwith "210210 is awareness"
+    ? recipient_event_of_code 210200i32 "" <> Some Confirmation ?> failwith "210200 is confirmation"
+    ? recipient_event_of_code 110111i32 "" <> None ?> failwith "110111 is not a recipient event"
+
+///> rust
+test a_cancellation_keeps_the_authorization_protocol =
+    := key = "35260112345678000195550010000000011000000019"
+    := authorized = authorize (issue (nfe "4.00") (access_key key)) (protocol_id "135260000000001")
+    := corrected = correct (correct authorized "xCorrecao one") "xCorrecao two"
+    := closed = cancel corrected (protocol_id "135260000000002")
+    ? key_text (key_of closed) <> key ?> failwith "the key survives every step"
+    ? protocol_text (authorization_protocol closed) <> "135260000000001"
+    ?> failwith "a cancellation quotes the authorization (nProt)"
+    ? cancellation_event_of closed <> event_code "110111" ?> failwith "an NF-e cancellation is tpEvento 110111"
+    ?= corrections_of corrected ?|
+    | first :: second :: [] =>
+        ? first::sequence <> 1i32 || second::sequence <> 2i32 || second::text <> "xCorrecao two"
+        ?> failwith "CC-e letters keep their order and nSeqEvento"
+        ? second::event <> event_code "110110" ?> failwith "a CC-e is tpEvento 110110"
+    | _ => failwith "two correction letters stay on the authorized document"
+    := rejected = reject (issue (nfe "4.00") (access_key "k")) "duplicate"
+    ? key_text (key_of rejected) <> "k" ?> failwith "a rejection keeps the key"
+
+///> rust
+test a_cfdi_cancels_through_its_own_request =
+    := uuid = access_key "5FB2822E-396D-4725-8521-CDC4BDD20CCF"
+    := authorized = authorize (issue (cfdi "4.0") uuid) (protocol_id "sello")
+    ? cancellation_event_of (cancel authorized (protocol_id "acuse")) <> event_code "Cancelacion"
+    ?> failwith "a CFDI cancellation is a Cancelacion request"
+
+///> rust
+test buyer_responses_take_their_regime_codes =
+    ? response_event (nfe "4.00") Accepted <> Some (event_code "210200")
+    ?> failwith "an NF-e acceptance is the 210200 confirmation"
+    ? response_event (nfe "4.00") (Refused "goods refused") <> Some (event_code "210240")
+    ?> failwith "an NF-e refusal is the 210240 non-performance"
+    ? response_event (nfe "4.00") PartlyAccepted <> None ?> failwith "an NF-e has no partial acceptance"
+    ? response_event (hacienda "4.4") Accepted <> Some (event_code "1") ?> failwith "MensajeReceptor 1 accepts"
+    ? response_event (hacienda "4.4") PartlyAccepted <> Some (event_code "2")
+    ?> failwith "MensajeReceptor 2 accepts in part"
+    ? response_event (hacienda "4.4") (Refused "x") <> Some (event_code "3") ?> failwith "MensajeReceptor 3 rejects"
+    ? response_event (dian "1.9") Accepted <> Some (event_code "033") ?> failwith "RADIAN 033 is the express acceptance"
+    ? response_event (dian "1.9") (Refused "x") <> Some (event_code "031") ?> failwith "RADIAN 031 is the claim"
+    ? response_event (dian "1.9") PartlyAccepted <> None ?> failwith "RADIAN has no partial acceptance"
+
+///> rust
+test a_buyer_reply_stays_on_the_authorized_document =
+    := key = access_key "50601012600310123456700100001010000000001199999999"
+    := authorized = authorize (issue (hacienda "4.4") key) (protocol_id "aceptado")
+    ?= respond authorized (Refused "price differs") ?|
+    | Some answered =>
+        ?= replies_of answered ?|
+        | reply :: [] =>
+            ? reply::event <> event_code "3" || reply::response <> Refused "price differs"
+            ?> failwith "the refusal keeps its MensajeReceptor code and its reason"
+        | _ => failwith "one reply is recorded"
+    | None => failwith "a CR receiver can refuse"
+    ?= respond (authorize (issue (nfe "4.00") (access_key "k")) (protocol_id "p")) PartlyAccepted ?|
+    | Some _ => failwith "an NF-e cannot record a partial acceptance"
+    | None => ()
+
+///> rust
+test a_cancellation_reaches_the_outbox_once =
+    := key = "35260112345678000195550010000000011000000019"
+    := authorized = authorize (issue (nfe "4.00") (access_key key)) (protocol_id "135260000000001")
+    := event = cancellation_event_of (cancel authorized (protocol_id "135260000000002"))
+    := path = durable_file::probe_path "fiscal-lifecycle-outbox.txt"
+    file_system::file_delete path
+    := send (log : event_log::event_log event_code) : event_log::append_outcome event_code =
+        := id, hash = event_log::command_id key, event_log::payload_hash "cancel-1"
+        event_log::written (event_log::append_durably event_text path 0i64 id hash event log)
+    := first = send (event_log::empty_log ())
+    ? event_log::outcome_code (send (event_log::appended_log first)) <> (1i64, 1i64)
+    ?> failwith "a retried cancellation replays position 1"
+    ? file_system::read_all_text path <> "1\t" ++# key ++# "\tcancel-1\t110111\n"
+    ?> failwith "the outbox holds the NF-e cancellation (tpEvento 110111) once"
+    file_system::file_delete path
+
+///> rust
+test cancelling_an_unauthorized_document_does_not_type fails "Unification failure" =
+    cancel (issue (nfe "4.00") (access_key "k")) (protocol_id "p") |> ignore
+
+///> rust
+test cancelling_a_cancelled_document_does_not_type fails "Unification failure" =
+    := authorized = authorize (issue (nfe "4.00") (access_key "k")) (protocol_id "p")
+    cancel (cancel authorized (protocol_id "e1")) (protocol_id "e2") |> ignore
+
+///> rust
+test correcting_an_unauthorized_document_does_not_type fails "Unification failure" =
+    correct (issue (nfe "4.00") (access_key "k")) "letter" |> ignore
+
+///> rust
+test a_ubl_invoice_cannot_be_cancelled_only_credited fails "does not have the prototype cancellation_event" =
+    cancel (authorize (issue (ubl "2.1") (access_key "INV-1")) (protocol_id "p")) (protocol_id "e") |> ignore
+
+///> rust
+test a_cfdi_takes_no_correction_letter fails "does not have the prototype correction_event" =
+    correct (authorize (issue (cfdi "4.0") (access_key "k")) (protocol_id "p")) "letter" |> ignore
+
+///> rust
+test a_cfdi_takes_no_buyer_response fails "does not have the prototype response_event" =
+    respond (authorize (issue (cfdi "4.0") (access_key "k")) (protocol_id "p")) Accepted |> ignore
+
+///> rust
+test every_family_lifecycle_event_is_one_nfe_produces =
+    := declared = lifecycle_declared_codes ()
+    ? (listm::length declared : i32) <> 3i32 ?> failwith "the three NF-e event families declare their tpEvento"
+    ? lifecycle_all_produced declared (lifecycle_nfe_codes ()) = !-
+    ?> failwith "every declared event code is one the nfe capabilities produce"

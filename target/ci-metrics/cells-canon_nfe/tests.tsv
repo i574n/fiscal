@@ -1,0 +1,5 @@
+File	Test	Target	Status	Ms	Memo
+canon_nfe	every_nfe_binding_reaches_a_declared_field	rust	passed	39794	
+canon_nfe	nfe_supplies_11_of_the_24_required_terms	rust	passed	28179	
+canon_nfe	nfe_implies_its_currency_and_seller_country	rust	passed	25866	
+canon_nfe	every_required_term_is_bound_implied_or_a_typed_gap_in_nfe	rust	passed	38242	

@@ -1,0 +1,4 @@
+File	Test	Target	Status	Ms	Memo
+pint_terms	a_slug_step_becomes_its_ubl_name	rust	passed	3922	
+pint_terms	pint_invoice_terms_are_read_from_the_syntax_page	rust	passed	7944	
+pint_terms	pint_terms_are_written_to_the_canon	rust	passed	13425	

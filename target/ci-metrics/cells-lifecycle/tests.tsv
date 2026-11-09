@@ -1,0 +1,9 @@
+File	Test	Target	Status	Ms	Memo
+lifecycle	event_codes_name_their_author	rust	passed	53712	
+lifecycle	recipient_refusals_carry_their_justification	rust	passed	52629	
+lifecycle	a_cancellation_keeps_the_authorization_protocol	rust	passed	53666	
+lifecycle	a_cfdi_cancels_through_its_own_request	rust	passed	52419	
+lifecycle	buyer_responses_take_their_regime_codes	rust	passed	2712	
+lifecycle	a_buyer_reply_stays_on_the_authorized_document	rust	passed	2944	
+lifecycle	a_cancellation_reaches_the_outbox_once	rust	passed	5876	
+lifecycle	every_family_lifecycle_event_is_one_nfe_produces	rust	passed	2319	

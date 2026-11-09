@@ -1,0 +1,3 @@
+File	Test	Target	Status	Ms	Memo
+generated_nfe_v3_10	generated_nfe_v3_10_writes_its_example	rust	passed	185327	
+generated_nfe_v3_10	generated_nfe_v3_10_reports_a_missing_element_with_its_path	rust	passed	181129	

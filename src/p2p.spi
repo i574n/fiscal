@@ -1,0 +1,276 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< document
+
+:! requested = ()
+:! reserved = ()
+:! approved = ()
+:! ordered = ()
+:! received = ()
+:! matched = ()
+:! paid = ()
+
+:== order_line = { item : string; amount : decimal::decimal }
+
+:| approval_role =
+    | Controller
+    | Cfo
+    | Treasurer
+    | BudgetOwner
+
+:== approval = { who : string; role : approval_role }
+
+:| private purchase s =
+    | Requested :: order_line -> purchase requested
+    | Reserved :: order_line -> purchase reserved
+    | Approved :: order_line * list approval -> purchase approved
+    | Ordered :: order_line * string -> purchase ordered
+    | Received :: order_line * string * decimal::decimal -> purchase received
+    | Matched :: order_line * string * string -> purchase matched
+    | Paid :: order_line * string * string * string -> purchase paid
+
+:= same (x : decimal::decimal) (y : decimal::decimal) : bool = decimal::compare x y = 0i32
+
+:= request (item : string) (amount : decimal::decimal) : purchase requested = Requested { item = item; amount = amount }
+
+:= reserve (p : purchase requested) (budget_left : decimal::decimal) : option (purchase reserved) =
+    ?= p ?|
+    | Requested line => ? decimal::compare line::amount budget_left <= 0i32 ?> Some (Reserved line) |: None
+
+:~ ^ signed_by (a : approval) (xs : list approval) : bool =
+    ?= xs ?|
+    | [] => false
+    | x :: rest => x::who = a::who || x::role = a::role || signed_by a rest
+
+:~ ^ quorum_of (counted : list approval) (xs : list approval) : i32 =
+    ?= xs ?|
+    | [] => listm::length counted
+    | a :: rest => ? signed_by a counted ?> quorum_of counted rest |: quorum_of (a :: counted) rest
+
+:= approve (p : purchase reserved) (approvals : list approval) (quorum : i32) : option (purchase approved) =
+    ?= p ?|
+    | Reserved line => ? quorum_of [] approvals >= quorum ?> Some (Approved (line, approvals)) |: None
+
+:= place_order (p : purchase approved) (order_number : string) : purchase ordered =
+    ?= p ?|
+    | Approved (line, _) => Ordered (line, order_number)
+
+:= receive (p : purchase ordered) (amount : decimal::decimal) : purchase received =
+    ?= p ?|
+    | Ordered (line, order_number) => Received (line, order_number, amount)
+
+:= receive_more (p : purchase received) (amount : decimal::decimal) : purchase received =
+    ?= p ?|
+    | Received (line, order_number, so_far) => Received (line, order_number, decimal::add so_far amount)
+
+:= three_way (ordered : decimal::decimal) (received : decimal::decimal) (billed : decimal::decimal) : bool =
+    same ordered received && same received billed
+
+:= match_invoice \* r f {canon_of}.
+    (p : purchase received) (invoice : f) (authorization : lifecycle::document r lifecycle::authorized)
+    : option (purchase matched)
+    =
+    ?= p ?|
+    | Received (line, order_number, got) =>
+        ? three_way line::amount got (amount_in (canon_of invoice)::with_tax)
+        ?> Some (Matched (line, order_number, lifecycle::key_text (lifecycle::key_of authorization)))
+        |: None
+
+:= pay (p : purchase matched) (reference : string) : purchase paid =
+    ?= p ?|
+    | Matched (line, order_number, key) => Paid (line, order_number, key, reference)
+
+:= invoice_key_of (p : purchase paid) : string =
+    ?= p ?|
+    | Paid (_, _, key, _) => key
+
+:= cents (units : i64) : decimal::decimal = { units = units; scale = 2i32 }
+
+:= expected \* a. (what : string) (o : option a) : a =
+    ?= o ?|
+    | Some x => x
+    | None => failwith what
+
+:= protocol (number : string) : lifecycle::protocol_id = lifecycle::protocol_id number
+
+:= issued_nfe () : lifecycle::document lifecycle::nfe lifecycle::issued =
+    lifecycle::issue (lifecycle::nfe "nfe") (lifecycle::access_key "35261100000000000000550010000000011000000010")
+
+:= nfe_authorization () : lifecycle::document lifecycle::nfe lifecycle::authorized =
+    lifecycle::authorize (issued_nfe ()) (protocol "135260000000001")
+
+:= invoice_for (net : i64) (tax : i64) : manual_invoice =
+    manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents net, cents tax)
+
+:= approved_purchase (amount : i64) : purchase approved =
+    := held = expected "the budget covers the order" (reserve (request "widget" (cents amount)) (cents 100000i64))
+    := signers = [ { who = "ana"; role = Controller }; { who = "bia"; role = Cfo } ]
+    expected "two of two approvers sign" (approve held signers 2i32)
+
+:= received_purchase (ordered_amount : i64) (received_amount : i64) : purchase received =
+    receive (place_order (approved_purchase ordered_amount) "PO-7") (cents received_amount)
+
+:= received_full () : purchase received = received_purchase 100i64 100i64
+
+:= matched_purchase () : purchase matched =
+    expected "100.00 matches" (match_invoice (received_full ()) (invoice_for 100i64 0i64) (nfe_authorization ()))
+
+:| ^ p2p_plan from to =
+    | Step :: \* from to. (purchase from -> option (purchase to)) -> p2p_plan from to
+    | Then :: \* from to. (\? middle. p2p_plan from middle * p2p_plan middle to) -> p2p_plan from to
+
+:= then_ \* a b c. (first : p2p_plan a b) (second : p2p_plan b c) : p2p_plan a c = Then (\? (first, second))
+
+:= reserving (budget_left : decimal::decimal) : p2p_plan requested reserved = Step (fun p => reserve p budget_left)
+
+:= approving (approvals : list approval) (quorum : i32) : p2p_plan reserved approved =
+    Step (fun p => approve p approvals quorum)
+
+:= ordering (order_number : string) : p2p_plan approved ordered = Step (fun p => Some (place_order p order_number))
+
+:= receiving (amount : decimal::decimal) : p2p_plan ordered received = Step (fun p => Some (receive p amount))
+
+:= paying (reference : string) : p2p_plan matched paid = Step (fun p => Some (pay p reference))
+
+:= bind_option \* a b. (o : option a) (next : a -> option b) : option b =
+    ?= o ?|
+    | Some x => next x
+    | None => None
+
+:= ^ run_plan \* from to. (plan : p2p_plan from to) (p : purchase from) : option (purchase to) =
+    ?= plan ?|
+    | Step step => step p
+    | Then pair =>
+        := \? middle. first, rest = pair
+        bind_option (run_plan first p) (run_plan rest)
+
+:= two_signers () : list approval = [ { who = "ana"; role = Controller }; { who = "bia"; role = Cfo } ]
+
+:= ordering_plan (quorum : i32) : p2p_plan requested received =
+    := through_order = then_ (approving (two_signers ()) quorum) (ordering "PO-9")
+    then_ (reserving (cents 20000i64)) (then_ through_order (receiving (cents 10000i64)))
+
+:= planned_receipt (quorum : i32) : option (purchase received) =
+    run_plan (ordering_plan quorum) (request "widget" (cents 10000i64))
+
+:= matches_hundred (got : purchase received) : bool =
+    ?= match_invoice got (invoice_for 10000i64 0i64) (nfe_authorization ()) ?|
+    | Some _ => true
+    | None => false
+
+///> rust
+test a_purchase_flows_from_requisition_to_payment =
+    := delivered = receive_more (received_purchase 11800i64 6000i64) (cents 5800i64)
+    ?= match_invoice delivered (invoice_for 10000i64 1800i64) (nfe_authorization ()) ?|
+    | Some m =>
+        ? invoice_key_of (pay m "PIX-1") <> "35261100000000000000550010000000011000000010"
+        ?> failwith "the paid purchase names the authorized NF-e it matched"
+    | None => failwith "order 118.00, receipts 60.00 + 58.00 and BT-112 118.00 match"
+
+///> rust
+test a_three_way_mismatch_does_not_match =
+    ?= match_invoice (received_purchase 11800i64 10000i64) (invoice_for 10000i64 1800i64) (nfe_authorization ()) ?|
+    | Some _ => failwith "a short receipt does not match"
+    | None => ()
+    ?= match_invoice (received_purchase 11800i64 11800i64) (invoice_for 10000i64 2000i64) (nfe_authorization ()) ?|
+    | Some _ => failwith "an invoice over the order does not match"
+    | None => ()
+
+///> rust
+test budget_and_quorum_gate_a_purchase =
+    ?= reserve (request "widget" (cents 11800i64)) (cents 10000i64) ?|
+    | Some _ => failwith "118.00 does not fit a 100.00 budget"
+    | None => ()
+    := held = expected "118.00 fits a 200.00 budget" (reserve (request "widget" (cents 11800i64)) (cents 20000i64))
+    ?= approve held [ { who = "ana"; role = Controller } ] 2i32 ?|
+    | Some _ => failwith "one approver is not a quorum of two"
+    | None => ()
+
+///> rust
+test a_quorum_counts_distinct_roles_and_distinct_people =
+    := held = expected "100.00 fits" (reserve (request "widget" (cents 10000i64)) (cents 20000i64))
+    := three = [ { who = "ana"; role = Controller }; { who = "bia"; role = Cfo }; { who = "caio"; role = Treasurer } ]
+    ?= approve held three 3i32 ?|
+    | Some _ => ()
+    | None => failwith "three people in three roles are a quorum of three"
+    ?=
+        approve held
+            [ { who = "ana"; role = Controller }; { who = "bia"; role = Controller }; { who = "caio"; role = Cfo } ]
+            3i32
+    ?|
+    | Some _ => failwith "two controllers count as one role"
+    | None => ()
+    ?=
+        approve held
+            [ { who = "ana"; role = Controller }; { who = "ana"; role = Cfo }; { who = "caio"; role = Treasurer } ]
+            3i32
+    ?|
+    | Some _ => failwith "one person signing as two roles counts once"
+    | None => ()
+
+///> rust
+test approving_with_bare_names_does_not_type fails "Unification failure" =
+    := held = expected "100.00 fits" (reserve (request "widget" (cents 10000i64)) (cents 20000i64))
+    approve held [ "controller"; "cfo" ] 2i32 |> ignore
+
+///> rust
+test approving_an_unreserved_requisition_does_not_type fails "Unification failure" =
+    approve (request "widget" (cents 100i64)) [ { who = "ana"; role = Controller } ] 1i32 |> ignore
+
+///> rust
+test ordering_an_unapproved_requisition_does_not_type fails "Unification failure" =
+    place_order (request "widget" (cents 100i64)) "PO-7" |> ignore
+
+///> rust
+test approving_twice_does_not_type fails "Unification failure" =
+    approve (approved_purchase 100i64) [ { who = "ana"; role = Controller } ] 1i32 |> ignore
+
+///> rust
+test receiving_before_ordering_does_not_type fails "Unification failure" =
+    receive (approved_purchase 100i64) (cents 100i64) |> ignore
+
+///> rust
+test matching_before_receipt_does_not_type fails "Unification failure" =
+    match_invoice (place_order (approved_purchase 100i64) "PO-7") (invoice_for 100i64 0i64) (nfe_authorization ())
+    |> ignore
+
+///> rust
+test matching_an_unauthorized_invoice_does_not_type fails "Unification failure" =
+    match_invoice (received_full ()) (invoice_for 100i64 0i64) (issued_nfe ()) |> ignore
+
+///> rust
+test matching_a_cancelled_invoice_does_not_type fails "Unification failure" =
+    := cancelled = lifecycle::cancel (nfe_authorization ()) (protocol "135260000000002")
+    match_invoice (received_full ()) (invoice_for 100i64 0i64) cancelled |> ignore
+
+///> rust
+test matching_a_string_as_the_invoice_does_not_type fails "Fails to satisfy: canon_of" =
+    match_invoice (received_purchase 100i64 100i64) "A-1" (nfe_authorization ()) |> ignore
+
+///> rust
+test paying_an_unmatched_purchase_does_not_type fails "Unification failure" =
+    pay (received_purchase 100i64 100i64) "PIX-1" |> ignore
+
+///> rust
+test paying_twice_does_not_type fails "Unification failure" =
+    pay (pay (matched_purchase ()) "PIX-1") "PIX-2" |> ignore
+
+///> rust
+test receiving_a_paid_purchase_does_not_type fails "Unification failure" =
+    receive (pay (matched_purchase ()) "PIX-1") (cents 100i64) |> ignore
+
+///> rust
+test a_plan_composes_the_stages_in_order =
+    ?= planned_receipt 2i32 ?|
+    | Some got => ? matches_hundred got ?> () |: failwith "a planned 100.00 receipt matches a 100.00 invoice"
+    | None => failwith "two of two signers and a 200.00 budget reach received"
+
+///> rust
+test a_plan_stops_where_a_step_refuses =
+    ?= planned_receipt 3i32 ?|
+    | Some _ => failwith "two signers are not a quorum of three, so the plan stops at approval"
+    | None => ()
+
+///> rust
+test a_plan_out_of_stage_order_does_not_type fails "Unification failure" =
+    then_ (reserving (cents 100i64)) (ordering "PO-9") |> ignore

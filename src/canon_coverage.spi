@@ -1,0 +1,266 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+:< xsd
+
+:| reach =
+    | Reached
+    | ReachedByPint
+    | MissingStep : string
+    | Unbound
+
+:== schema_model = { types : list (xsd type_def final); roots : list (xsd particle final) }
+
+:== element_hit = { type_ref : option (type_reference final); inline : option (xsd type_def final) }
+
+:= schema_model_of (path : string) : schema_model =
+    := tree = xsd_resolve::load_schema_tree path
+    := types, roots = xsd_emit::dereferenced_parts tree::schema
+    { types = types; roots = roots }
+
+:= ubl_schema_path (document : canon::ubl_document) : string =
+    := file = ? document = canon::UblInvoice ?> "UBL-Invoice-2.1.xsd" |: "UBL-CreditNote-2.1.xsd"
+    fiscal_paths::under ("deps/corpus/eu/ubl21/maindoc/" ++# file)
+
+:= model_of (document : canon::ubl_document) : schema_model = schema_model_of (ubl_schema_path document)
+
+:= type_named (model : schema_model) (name : string) : option (xsd type_def final) =
+    listm'::try_find_ (\ (t : xsd type_def final) => xsd_resolve::type_name_of t = name) model::types
+
+:= resolved (model : schema_model) (hit : element_hit) : option (xsd type_def final) =
+    ?= hit::inline ?|
+    | Some t => Some t
+    | None =>
+        ?= hit::type_ref ?|
+        | Some r => type_named model (reference_text r)
+        | None => None
+
+:~ ^ element_in (local : string) (items : list (xsd particle final)) : option element_hit =
+    ?= items ?|
+    | item :: rest =>
+        ?= element_found local item ?|
+        | Some found => Some found
+        | None => element_in local rest
+    | [] => None
+
+:& :~ element_found (local : string) (item : xsd particle final) : option element_hit =
+    ?= item ?|
+    | Element e ?& xml::local_name (tag_text e::name) = local => Some { type_ref = e::type_ref; inline = e::inline }
+    | Sequence s => element_in local s::items
+    | Choice c => element_in local c::items
+    | _ => None
+
+:= own_content (t : xsd type_def final) : list (xsd particle final) =
+    ?= t ?|
+    | Complex c => [ c::content ]
+    | Derived d => [ d::content ]
+    | Simple _ => []
+
+:= attribute_name (a : xsd attribute_decl final) : string =
+    ?= a ?|
+    | Attribute v => xml::local_name (tag_text v::name)
+
+:= own_attributes (t : xsd type_def final) : list string =
+    ?= t ?|
+    | Complex c => listm::map attribute_name c::attributes
+    | Derived d => listm::map attribute_name d::attributes
+    | Simple _ => []
+
+:= base_type (model : schema_model) (t : xsd type_def final) : option (xsd type_def final) =
+    ?= t ?|
+    | Derived d => type_named model (reference_text d::base)
+    | _ => None
+
+:~ ^ child_hit (model : schema_model) (depth : i32) (owner : xsd type_def final) (local : string) : option element_hit =
+    ?= element_in local (own_content owner) ?|
+    | Some found => Some found
+    | None =>
+        ?= base_type model owner ?|
+        | Some base ?& depth > 0i32 => child_hit model (depth - 1i32) base local
+        | _ => None
+
+:~ ^ has_attribute (model : schema_model) (depth : i32) (owner : xsd type_def final) (local : string) : bool =
+    ?= base_type model owner ?|
+    | Some base ?& depth > 0i32 =>
+        listm'::contains local (own_attributes owner) || has_attribute model (depth - 1i32) base local
+    | _ => listm'::contains local (own_attributes owner)
+
+:= attribute_reach (model : schema_model) (owner : xsd type_def final) (step : string) (rest : list string) : reach =
+    := local = sm'::substring 1i32 (sm'::length step - 1i32) step
+    ? has_attribute model 8i32 owner local && rest = [] ?> Reached |: MissingStep step
+
+:= inner_type (model : schema_model) (owner : xsd type_def final) (step : string) : option (xsd type_def final) =
+    ?= child_hit model 8i32 owner (xml::local_name step) ?|
+    | Some hit => resolved model hit
+    | None => None
+
+:= is_declared (model : schema_model) (owner : xsd type_def final) (step : string) : bool =
+    ?= child_hit model 8i32 owner (xml::local_name step) ?|
+    | Some _ => !+
+    | None => !-
+
+:= leaf_reach (model : schema_model) (owner : xsd type_def final) (step : string) : reach =
+    ? is_declared model owner step ?> Reached |: MissingStep step
+
+:~ ^ walk (model : schema_model) (owner : xsd type_def final) (steps : list string) : reach =
+    ?= steps ?|
+    | step :: rest ?& sm'::starts_with "@" step => attribute_reach model owner step rest
+    | step :: [] => leaf_reach model owner step
+    | step :: rest => step_reach model owner step rest
+    | [] => Reached
+
+:& :~ step_reach (model : schema_model) (owner : xsd type_def final) (step : string) (rest : list string) : reach =
+    ?= inner_type model owner step ?|
+    | Some next => walk model next rest
+    | None => MissingStep step
+
+:= root_of (model : schema_model) (local : string) : option (xsd type_def final) =
+    ?= element_in local model::roots ?|
+    | Some hit => resolved model hit
+    | None => None
+
+:= rooted_reach (model : schema_model) (root : string) (steps : list string) : reach =
+    ?= root_of model (xml::local_name root) ?|
+    | Some t => walk model t steps
+    | None => MissingStep root
+
+:= path_reach (model : schema_model) (path : string) : reach =
+    ?= sm'::split_list "/" path ?|
+    | root :: steps => rooted_reach model root steps
+    | [] => Unbound
+
+:~ ^ unqualified (path : string) : string =
+    ? sm'::contains "[" path
+    ?> pint_terms::before "[" path ++# unqualified (pint_terms::after "]" path)
+    |: path
+
+:= is_pint_term (id : canon::term_id) ((p, _) : pint_terms::pint_id * pint_terms::pint_row) : bool =
+    ?= pint_terms::base_number p ?|
+    | Some n => canon::BusinessTerm n = id
+    | None => !-
+
+:= pint_path (document : canon::ubl_document) (id : canon::term_id) : option string =
+    ?= listm'::try_find_ (is_pint_term id) (pint_terms::document_terms document) ?|
+    | Some (_, r) => Some (pint_terms::ubl_path_of (pint_terms::root_of document) r)
+    | None => None
+
+:= pint_reach (model : schema_model) (document : canon::ubl_document) (id : canon::term_id) : reach =
+    ?= pint_path document id ?|
+    | Some path =>
+        := r = path_reach model (unqualified path)
+        ? r = Reached ?> ReachedByPint |: r
+    | None => Unbound
+
+:= term_reach (model : schema_model) (document : canon::ubl_document) (r : canon::term_row) : reach =
+    ?= listm'::try_find_ (\ (d, _) => d = document) r::ubl ?|
+    | Some (_, p) => path_reach model (canon::path_text p)
+    | None => pint_reach model document r::id
+
+:= reach_text (r : reach) : string =
+    ?= r ?|
+    | Reached => "typed"
+    | ReachedByPint => "typed via PINT"
+    | MissingStep at => "missing " ++# at
+    | Unbound => "unbound"
+
+:= is_reached (r : reach) : bool = r = Reached || r = ReachedByPint
+
+:= is_bound (bindings : list (canon::term_id * string)) (id : canon::term_id) : bool =
+    listm::length (listm'::filter (\ (b, _) => b = id) bindings) > 0i32
+
+:= is_required_term (r : canon::term_row) : bool =
+    canon::term_kind_text r::id = "term" && r::effective::presence = canon::Required
+
+:= semantic_optional ((id, r) : pint_terms::pint_id * pint_terms::pint_row) : list canon::term_id =
+    ?= (pint_terms::base_number id, r::semantic) ?|
+    | (Some n, Some c) ?& c::presence = canon::Optional => [ canon::BusinessTerm n ]
+    | _ => []
+
+:= semantically_optional () : list canon::term_id =
+    listm::concat (listm::map semantic_optional (pint_terms::document_terms canon::UblInvoice))
+
+:= required_ids (rows : list canon::term_row) : list canon::term_id =
+    := optional = semantically_optional ()
+    := required (r : canon::term_row) : bool = is_required_term r && listm'::contains r::id optional = !-
+    listm::map (\ (r : canon::term_row) => r::id) (listm'::filter required rows)
+
+:= unreached_terms (model : schema_model) (bindings : list (canon::term_id * string)) : list string =
+    := unreached ((_, path) : canon::term_id * string) : bool = is_reached (path_reach model path) = !-
+    listm::map (\ (id, _) => canon::term_id_text id) (listm'::filter unreached bindings)
+
+:| gap =
+    | NotCarried
+    | Derived
+    | NationalCode : string
+
+:= ids_of (pairs : list (canon::term_id * string)) : list canon::term_id = listm::map (\ (id, _) => id) pairs
+
+:= gap_ids (gaps : list (canon::term_id * gap)) : list canon::term_id = listm::map (\ (id, _) => id) gaps
+
+:= times_accounted (accounted : list canon::term_id) (id : canon::term_id) : i32 =
+    listm::length (listm'::filter (\ (a : canon::term_id) => a = id) accounted)
+
+:= unaccounted (required : list canon::term_id) (accounted : list canon::term_id) : list string =
+    listm::map canon::term_id_text (
+        listm'::filter (\ (id : canon::term_id) => times_accounted accounted id <> 1i32) required
+    )
+
+:= absent_required (bindings : list (canon::term_id * string)) (required : list canon::term_id) : list string =
+    listm::map canon::term_id_text (listm'::filter (\ (id : canon::term_id) => is_bound bindings id = !-) required)
+
+:= coverage_row (document : canon::ubl_document) (row : canon::term_row) (r : reach) : string =
+    := cells =
+        [
+            canon::term_id_text row::id
+            canon::ubl_document_name document
+            canon::cardinality_text (canon::effective_in row document)
+            reach_text r
+        ]
+    sm'::concat_list "\t" cells
+
+:= reached_row (model : schema_model) (document : canon::ubl_document) (r : canon::term_row) : canon::term_row * reach =
+    (r, term_reach model document r)
+
+:= document_rows (document : canon::ubl_document) (rows : list canon::term_row) : list (canon::term_row * reach) =
+    listm::map (reached_row (model_of document) document) rows
+
+///> rust
+test a_path_reaches_through_references_and_attribute_bases =
+    := model = model_of canon::UblInvoice
+    := quantity = "ubl:Invoice/cac:InvoiceLine/cbc:InvoicedQuantity/@unitCode"
+    := location = "ubl:Invoice/cac:Delivery/cac:DeliveryLocation/cac:Address/cbc:CityName"
+    ? (is_reached (path_reach model quantity), is_reached (path_reach model location)) <> (!+, !+)
+    ?> failwith "an element reference and an inherited attribute are both reached"
+    ? is_reached (path_reach model "ubl:Invoice/cac:InvoiceLine/cbc:NoSuchElement")
+    ?> failwith "an element the schema does not declare is not reached"
+    := qualified =
+        "ubl:Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme[cac:TaxScheme/cbc:ID = VAT]/cbc:CompanyID"
+    ? is_reached (path_reach model (unqualified qualified)) = !-
+    ?> failwith "a qualifier, even one holding a slash, is dropped before the path is walked"
+
+///> rust
+test every_ubl_term_is_reached_in_the_generated_types =
+    := rows = canon::en16931_terms ()
+    := invoice = document_rows canon::UblInvoice rows
+    := credit = document_rows canon::UblCreditNote rows
+    := missed (pairs : list (canon::term_row * reach)) : list (canon::term_row * reach) =
+        listm'::filter (\ (_, r) => is_reached r = !-) pairs
+    := lines =
+        "Term\tDocument\tEffective\tReach"
+        :: listm::append
+            (listm::map (\ (row, r) => coverage_row canon::UblInvoice row r) invoice)
+            (listm::map (\ (row, r) => coverage_row canon::UblCreditNote row r) credit)
+    file_system::directory_create_all (fiscal_paths::under "target/ci-metrics") |> ignore
+    file_system::write_all_text
+        (fiscal_paths::under "target/ci-metrics/canon-coverage.tsv")
+        (sm'::concat_list "\n" lines ++# "\n")
+    := counts : list i32 = [ listm::length (missed invoice); listm::length (missed credit) ]
+    console::write_line (
+        "canon coverage misses (invoice, credit note): "
+        ++# sm'::concat_list ", " (listm::map sm'::obj_to_string counts)
+    )
+    ? counts <> [ 0i32; 0i32 ] ?> failwith "every term reaches a typed field in both documents"
+    := pair_id ((row, _) : canon::term_row * reach) : string = canon::term_id_text row::id
+    := by_pint (pairs : list (canon::term_row * reach)) : list string =
+        listm::map pair_id (listm'::filter (\ (_, r) => r = ReachedByPint) pairs)
+    ? [ by_pint invoice; by_pint credit ] <> [ []; [ "BT-11" ] ]
+    ?> failwith "only BT-11, untagged in the BIS credit note, is reached through PINT's binding"

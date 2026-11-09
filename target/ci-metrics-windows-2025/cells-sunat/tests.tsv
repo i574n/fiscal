@@ -1,0 +1,9 @@
+File	Test	Target	Status	Ms	Memo
+sunat	every_catalog_07_code_round_trips_through_its_group	rust	passed	21600	
+sunat	the_homologation_cases_use_known_codes	rust	passed	11948	
+sunat	only_taxed_lines_charge_igv	rust	passed	12382	
+sunat	catalogs_01_09_10_have_unique_codes_that_round_trip	rust	passed	22725	
+sunat	every_affectation_has_the_tax_scheme_openubl_assigns	rust	passed	31008	
+sunat	a_tax_category_carries_the_scheme_of_its_affectation	rust	passed	32647	
+sunat	the_homologation_cases_carry_the_scheme_of_each_affectation	rust	passed	28127	
+sunat	every_homologation_line_prices_by_its_onerosa_flag	rust	passed	27665	

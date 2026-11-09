@@ -1,0 +1,20 @@
+Resolving Hex dependencies...
+Resolution completed in 0.011s
+* Getting kino (Hex package)
+* Getting table (Hex package)
+==> table
+Compiling 5 files (.ex)
+Generated table app
+==> kino
+Compiling 50 files (.ex)
+Generated kino app
+==> spiral_cells
+Compiling 1 file (.erl)
+Compiling 46 files (.ex)
+Generated spiral_cells app
+cell-budget /home/runner/work/fiscal/fiscal/src/generator.spi:177:68: autolink: listm.map (a renderer shortens what looks like a domain to a 23-character link)
+cell-budget /home/runner/work/fiscal/fiscal/src/generator.spi:356:46: autolink: listm.map (a renderer shortens what looks like a domain to a 23-character link)
+cell-budget /home/runner/work/fiscal/fiscal/src/generator.spi:357:25: autolink: listm.map (a renderer shortens what looks like a domain to a 23-character link)
+cell-budget /home/runner/work/fiscal/fiscal/src/generator.spi:832:22: autolink: listm.map (a renderer shortens what looks like a domain to a 23-character link)
+spiral-tests file {"accept_refused":{},"accepted":0,"accepted_sites":{},"built":0,"discovered":28,"executed":28,"failed":1,"failed_targets":{"writes_the_family_gate_table":["rust"]},"failed_tests":["writes_the_family_gate_table"],"file":"/home/runner/work/fiscal/fiscal/src/generator.spi","filtered":0,"headroom":0.06,"memo_hits":0,"mismatches":{},"no_agree_reasons":{},"not_run":0,"passed":27,"preludes":0,"skipped":0,"slowest_ms":202417,"static":0,"timed_out":0,"timeout_ms":3600000,"unsupported":0}
+spiral-tests total {"accepted":0,"built":0,"discovered":28,"executed":28,"failed":1,"files":1,"filtered":0,"memo_hits":0,"no_agree_reasons":{},"not_run":0,"passed":27,"preludes":0,"skipped":0,"static":0,"unsupported":0}

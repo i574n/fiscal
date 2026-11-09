@@ -1,0 +1,291 @@
+///- --package . --timeout 3600000
+:< sm'_operators
+:< xsd
+:< xsd_emit
+:< xsd_census
+:< families
+:< generator
+
+:| ceiling_kind =
+    | SchemaCeiling : ceiling_construct
+    | SignatureCeiling
+
+:== ceiling_entry = { family : string; kind : ceiling_kind; expressible : i32; typed : i32; emitted : i32 }
+
+:= ceiling_typed_capped (emitted : i32) (expressible : i32) : i32 = ? emitted < expressible ?> emitted |: expressible
+
+:= ceiling_construct_word (c : ceiling_construct) : string =
+    ?= c ?|
+    | ChoiceCeiling => "choice"
+    | EnumerationCeiling => "enumeration"
+    | PatternCeiling => "pattern"
+    | LengthCeiling => "length-facet"
+    | DigitsCeiling => "digits-facet"
+    | BoundsCeiling => "bounds-facet"
+    | OccursCeiling => "occurs"
+    | RecordCeiling => "record"
+
+:= ceiling_word (kind : ceiling_kind) : string =
+    ?= kind ?|
+    | SchemaCeiling c => ceiling_construct_word c
+    | SignatureCeiling => "signature"
+
+:= ceiling_constructs () : list ceiling_construct =
+    [
+        ChoiceCeiling
+        EnumerationCeiling
+        PatternCeiling
+        LengthCeiling
+        DigitsCeiling
+        BoundsCeiling
+        OccursCeiling
+        RecordCeiling
+    ]
+
+:= ceiling_one (holds : bool) : i32 = ? holds ?> 1i32 |: 0i32
+
+:= ceiling_has_line (line : string) (item : emitted) : bool = listm'::contains line (sm'::split_list "\n" item::text)
+
+:= ceiling_validator_line (item : emitted) : string =
+    := head = "inl " ++# item::name ++# "_is_valid (s : string) : bool = "
+    ?= listm'::filter (sm'::starts_with head) (sm'::split_list "\n" item::text) ?|
+    | line :: _ => line
+    | [] => ""
+
+:= ceiling_patterned (line : string) : bool =
+    sm'::contains "xsd_pattern_" line
+    || sm'::contains "xsd_regex.pattern_matches" line
+    || sm'::contains "xsd_regex.table_matches" line
+
+:= ceiling_digit_checked (line : string) : bool =
+    sm'::contains "xml.total_digits s" line || sm'::contains "xml.fraction_digits s" line
+
+:= ceiling_parses_values (item : emitted) : bool = sm'::contains (item::name ++# "_of_string") item::text
+
+:= ceiling_union_head (item : emitted) : bool = ceiling_has_line ("union " ++# item::name ++# " =") item
+
+:= ceiling_choice_union (item : emitted) : bool = ceiling_union_head item && ceiling_parses_values item = !-
+
+:= ceiling_value_set (item : emitted) : bool =
+    ceiling_parses_values item
+    && (ceiling_union_head item || sm'::contains (item::name ++# "_table () : string =") item::text)
+
+:= ceiling_joined_lines (item : emitted) : list string = sm'::split_list "\n" (sm'::replace " =\n    " " = " item::text)
+
+:= ceiling_after (head : string) (line : string) : string =
+    sm'::substring (sm'::length head) (sm'::length line - sm'::length head) line
+
+:= ceiling_alias_target (item : emitted) : string =
+    := head = "type " ++# item::name ++# " = "
+    ?= listm'::filter (sm'::starts_with head) (ceiling_joined_lines item) ?|
+    | line :: _ => ceiling_after head line
+    | [] => ""
+
+:= ceiling_aliases_value (values : list string) (item : emitted) : bool =
+    listm'::contains (ceiling_alias_target item) values
+
+:= ceiling_enumerated_item (values : list string) (item : emitted) : bool =
+    ceiling_value_set item || ceiling_aliases_value values item
+
+:== ceiling_context = { witnesses : list string; values : list string }
+
+:= ceiling_context_of (items : list emitted) (witnesses : list string) : ceiling_context =
+    { witnesses = witnesses; values = listm::map (\ (i : emitted) => i::name) (listm'::filter ceiling_value_set items) }
+
+:= ceiling_field_line (line : string) : bool =
+    sm'::starts_with "    " line && (sm'::contains " : option " line || sm'::contains " : list " line)
+
+:= ceiling_occurs_lines (item : emitted) : i32 =
+    listm::length (listm'::filter ceiling_field_line (sm'::split_list "\n" item::text))
+
+:= ceiling_item_count (c : ceiling_construct) (x : ceiling_context) (item : emitted) : i32 =
+    ?= c ?|
+    | ChoiceCeiling => ceiling_one (ceiling_choice_union item)
+    | EnumerationCeiling => ceiling_one (ceiling_enumerated_item x::values item)
+    | PatternCeiling => ceiling_one (ceiling_patterned (ceiling_validator_line item))
+    | LengthCeiling => ceiling_one (sm'::contains "xml.code_point_count s" (ceiling_validator_line item))
+    | DigitsCeiling => ceiling_one (ceiling_digit_checked (ceiling_validator_line item))
+    | BoundsCeiling => 0i32
+    | OccursCeiling => ceiling_occurs_lines item
+    | RecordCeiling => ceiling_one (listm'::contains item::name x::witnesses)
+
+:= ceiling_typed (c : ceiling_construct) (x : ceiling_context) (items : list emitted) : i32 =
+    listm::fold (\ total item => total + ceiling_item_count c x item) 0i32 items
+
+:= ceiling_witness (line : string) : option string =
+    ? sm'::starts_with "union " line && sm'::ends_with "_field r =" line
+    ?> Some (sm'::substring 6i32 (sm'::length line - 16i32) line)
+    |: None
+
+:= ceiling_with_witness (names : list string) (found : option string) : list string =
+    ?= found ?|
+    | Some name => name :: names
+    | None => names
+
+:= ceiling_witnesses (text : string) : list string =
+    listm::fold (\ names line => ceiling_with_witness names (ceiling_witness line)) [] (sm'::split_list "\n" text)
+
+:= ceiling_items \* form. (schema : xsd_schema form) : list emitted =
+    := complex_types, elements = dereferenced_parts schema
+    unique_emitted (shared_items schema complex_types elements) [] []
+
+:= ceiling_found \* form. (schema : xsd_schema form) : list ceiling_construct =
+    := complex_types, elements = dereferenced_parts schema
+    ceiling_all elements (ceiling_all complex_types (ceiling_all schema::simple_types []))
+
+:= ceiling_schema_entry (family : string) (c : ceiling_construct) (expressible : i32) (emitted : i32) : ceiling_entry =
+    {
+        family = family
+        kind = SchemaCeiling c
+        expressible = expressible
+        typed = ceiling_typed_capped emitted expressible
+        emitted = emitted
+    }
+
+:= ceiling_schema_row
+    (family : string) (found : list ceiling_construct) (items : list emitted) (x : ceiling_context)
+    (c : ceiling_construct)
+    : ceiling_entry
+    =
+    ceiling_schema_entry family c (ceiling_count c found) (ceiling_typed c x items)
+
+:= ceiling_signature_row (family : family_root) (name : string) (text : string) : ceiling_entry =
+    := signed = listm::length (signatures_of family)
+    := staged = ? sm'::contains ("nominal " ++# root_type_name family ++# " s =") text ?> signed |: 0i32
+    { family = name; kind = SignatureCeiling; expressible = signed; typed = staged; emitted = staged }
+
+:= ceiling_used (row : ceiling_entry) : bool = row::expressible > 0i32 || row::emitted > 0i32
+
+:= ceiling_family_name (family : family_root) : string = sm'::replace "generated_" "" (module_text family::module_name)
+
+:= ceiling_unit_text (family : family_root) : string =
+    := m = module_text family::module_name
+    file_system::read_all_text (generated_folder m ++# "/" ++# m ++# ".spi")
+
+:= ceiling_schema_entries \* form.
+    (name : string) (schema : xsd_schema form) (witnesses : list string)
+    : list ceiling_entry
+    =
+    := items = ceiling_items schema
+    listm::map
+        (ceiling_schema_row name (ceiling_found schema) items (ceiling_context_of items witnesses))
+        (ceiling_constructs ())
+
+:= family_ceiling_rows (family : family_root) : list ceiling_entry =
+    := name = ceiling_family_name family
+    := text = ceiling_unit_text family
+    := schema_rows = ceiling_schema_entries name (family_schema family) (ceiling_witnesses text)
+    listm'::filter ceiling_used (ceiling_signature_row family name text :: schema_rows)
+
+:~ ^ ceiling_rows_of (families : list family_root) (acc : list ceiling_entry) : list ceiling_entry =
+    ?= families ?|
+    | family :: rest => ceiling_rows_of rest (listm::append acc (family_ceiling_rows family))
+    | [] => acc
+
+:= ceiling_slug (s : string) : string = s |> sm'::replace "-" "_" |> sm'::replace "." "_"
+
+:= ceiling_header () : string =
+    "///- --no-respell\nunion ceiling_row =\n"
+    ^^ "    | CeilingRow :: string * string * string * i32 * i32 * string -> ceiling_row\n"
+
+:= ceiling_quoted (s : string) : string = "\"" ++# s ++# "\""
+
+:= ceiling_count_text (n : i32) : string = int_text n ++# "i32"
+
+:= ceiling_fields (day : string) (row : ceiling_entry) : list string =
+    [
+        ceiling_quoted "fiscal"
+        ceiling_quoted row::family
+        ceiling_quoted (ceiling_word row::kind)
+        ceiling_count_text row::expressible
+        ceiling_count_text row::typed
+        ceiling_quoted day
+    ]
+
+:= ceiling_row_text (day : string) (row : ceiling_entry) : string =
+    := binding = "ceiling_" ++# ceiling_slug row::family ++# "_" ++# ceiling_slug (ceiling_word row::kind)
+    "inl " ++# binding ++# " () = CeilingRow (" ++# join_with ", " (ceiling_fields day row) "" ++# ")"
+
+:= ceiling_day () : string =
+    := built = env::get_environment_variable "FISCAL_BUILD_TIME"
+    ? sm'::length built < 10i32 ?> failwith "modeling ceiling: FISCAL_BUILD_TIME (yyyy-MM-dd ...) is unset"
+    sm'::substring 0i32 10i32 built
+
+:= ceiling_text (day : string) (rows : list ceiling_entry) : string =
+    ceiling_header () ++# join_with "\n" (listm::map (ceiling_row_text day) rows) "" ++# "\n"
+
+:= ceiling_tsv_line (row : ceiling_entry) : string =
+    join_with
+        "\t"
+        [ row::family; ceiling_word row::kind; int_text row::expressible; int_text row::typed; int_text row::emitted ]
+        ""
+
+:= ceiling_tsv (rows : list ceiling_entry) : string =
+    join_with "\n" ("family\tconstruct\texpressible\ttyped\temitted" :: listm::map ceiling_tsv_line rows) "" ++# "\n"
+
+:= ceiling_metric_path (name : string) : string = fiscal_paths::under ("target/ci-metrics/" ++# name)
+
+:= ceiling_write (text : string) (tsv : string) : () =
+    file_system::directory_create_all (fiscal_paths::under "target/ci-metrics") |> ignore
+    file_system::write_all_text (ceiling_metric_path "modeling-ceiling.spi") text
+    file_system::write_all_text (ceiling_metric_path "modeling-ceiling.tsv") tsv
+
+:= write_modeling_ceiling (families : list family_root) : list ceiling_entry =
+    := rows = ceiling_rows_of families []
+    ceiling_write (ceiling_text (ceiling_day ()) rows) (ceiling_tsv rows)
+    rows
+
+///> rust
+test each_construct_is_typed_per_emitted_definition =
+    := text =
+        "<xs:schema><xs:simpleType name=\"TCode\"><xs:restriction base=\"xs:string\"><xs:enumeration value=\"A\"/>"
+        ++# "<xs:enumeration value=\"B\"/><xs:pattern value=\"[AB]\"/></xs:restriction></xs:simpleType>"
+        ++# "<xs:simpleType name=\"TKind\"><xs:restriction base=\"xs:string\"><xs:enumeration value=\"A\"/>"
+        ++# "<xs:enumeration value=\"B\"/></xs:restriction></xs:simpleType>"
+        ++# "<xs:simpleType name=\"TAmount\"><xs:restriction base=\"xs:decimal\"><xs:totalDigits value=\"15\"/>"
+        ++# "<xs:fractionDigits value=\"2\"/><xs:minInclusive value=\"0\"/></xs:restriction></xs:simpleType>"
+        ++# "<xs:simpleType name=\"TName\"><xs:restriction base=\"xs:string\"><xs:maxLength value=\"60\"/>"
+        ++# "</xs:restriction></xs:simpleType><xs:complexType name=\"TOrder\"><xs:sequence>"
+        ++# "<xs:element name=\"Line\" minOccurs=\"0\" maxOccurs=\"unbounded\"><xs:complexType><xs:choice>"
+        ++# "<xs:element name=\"Code\" type=\"TCode\"/><xs:element name=\"Name\" type=\"TName\"/></xs:choice>"
+        ++# "</xs:complexType></xs:element></xs:sequence></xs:complexType></xs:schema>"
+    := schema = read_schema text
+    := rows = ceiling_schema_entries "t" schema [ "x_t_order" ]
+    := typed (c : ceiling_construct) : i32 =
+        ?= listm'::filter (\ (r : ceiling_entry) => r::kind = SchemaCeiling c) rows ?|
+        | r :: _ => r::typed
+        | [] => -1i32
+    ? typed EnumerationCeiling <> 2i32
+    ?> failwith "an enumerated type sharing its value set (TKind = TCode) is typed too"
+    ? typed PatternCeiling <> 0i32 ?> failwith "an enumerated type's pattern is not encoded (the union replaces it)"
+    ? typed LengthCeiling <> 1i32 ?> failwith "maxLength is a code_point_count conjunct of TName's validator"
+    ? typed DigitsCeiling <> 0i32 || typed BoundsCeiling <> 0i32 ?> failwith "digits and bounds have no encoding yet"
+    ? typed RecordCeiling <> 1i32 ?> failwith "only the witnessed record counts as typed"
+    ? typed ChoiceCeiling <> 1i32 ?> failwith "the choice is one union"
+    ? typed OccursCeiling < 1i32 ?> failwith "the repeated optional Line is a list field"
+    ? ceiling_witnesses "union x_a_field r =\nunion x_c_estado =\n" <> [ "x_a" ]
+    ?> failwith "witness heads name their record"
+    ? ceiling_word (SchemaCeiling LengthCeiling) <> "length-facet" || ceiling_word SignatureCeiling <> "signature"
+    ?> failwith "kit's words"
+    ? ceiling_typed_capped 5i32 3i32 <> 3i32 || ceiling_typed_capped 2i32 3i32 <> 2i32
+    ?> failwith "typed never exceeds what the schema expresses; the raw emitted count stays beside it"
+    := row = { family = "nfe_v4"; kind = SchemaCeiling RecordCeiling; expressible = 3i32; typed = 2i32; emitted = 2i32 }
+    ? ceiling_row_text "2026-11-07" row
+        <> "inl ceiling_nfe_v4_record () = CeilingRow (\"fiscal\", \"nfe_v4\", \"record\", 3i32, 2i32, \"2026-11-07\")"
+    ?> failwith "one kit row per line"
+
+///> rust
+test writes_the_modeling_ceiling_for_every_family =
+    := families = all_families ()
+    := rows = write_modeling_ceiling families
+    := text = file_system::read_all_text (fiscal_paths::under "target/ci-metrics/modeling-ceiling.spi")
+    ? sm'::starts_with (ceiling_header ()) text = !- ?> failwith "kit's header verbatim"
+    ? sm'::contains "inl ceiling_nfe_v4_record () = CeilingRow (\"fiscal\", \"nfe_v4\", \"record\", " text = !-
+    ?> failwith "NF-e 4.00 records"
+    ?
+        sm'::contains
+            "inl ceiling_nfe_v4_signature () = CeilingRow (\"fiscal\", \"nfe_v4\", \"signature\", 1i32, 1i32, "
+            text
+        = !-
+    ?> failwith "NF-e 4.00 is signed and its root takes the signing stage"
+    ? (listm::length rows : i32) < listm::length families ?> failwith "every family has at least one used construct"

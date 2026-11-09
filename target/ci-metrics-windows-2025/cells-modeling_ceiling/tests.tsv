@@ -1,0 +1,3 @@
+File	Test	Target	Status	Ms	Memo
+modeling_ceiling	each_construct_is_typed_per_emitted_definition	rust	passed	66628	
+modeling_ceiling	writes_the_modeling_ceiling_for_every_family	rust	passed	101788	
