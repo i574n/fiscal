@@ -214,14 +214,13 @@
 := ceiling_text (day : string) (rows : list ceiling_entry) : string =
     ceiling_header () ++# join_with "\n" (listm::map (ceiling_row_text day) rows) "" ++# "\n"
 
-:= ceiling_tsv_line (row : ceiling_entry) : string =
-    join_with
-        "\t"
-        [ row::family; ceiling_word row::kind; int_text row::expressible; int_text row::typed; int_text row::emitted ]
-        ""
+:= ceiling_tsv_line (day : string) (row : ceiling_entry) : string =
+    := counts = [ int_text row::expressible; int_text row::typed; int_text row::emitted ]
+    join_with "\t" (row::family :: ceiling_word row::kind :: listm::append counts [ day ]) ""
 
-:= ceiling_tsv (rows : list ceiling_entry) : string =
-    join_with "\n" ("family\tconstruct\texpressible\ttyped\temitted" :: listm::map ceiling_tsv_line rows) "" ++# "\n"
+:= ceiling_tsv (day : string) (rows : list ceiling_entry) : string =
+    := header = "family\tconstruct\texpressible\ttyped\temitted\tday"
+    join_with "\n" (header :: listm::map (ceiling_tsv_line day) rows) "" ++# "\n"
 
 := ceiling_metric_path (name : string) : string = fiscal_paths::under ("target/ci-metrics/" ++# name)
 
@@ -232,7 +231,8 @@
 
 := write_modeling_ceiling (families : list family_root) : list ceiling_entry =
     := rows = ceiling_rows_of families []
-    ceiling_write (ceiling_text (ceiling_day ()) rows) (ceiling_tsv rows)
+    := day = ceiling_day ()
+    ceiling_write (ceiling_text day rows) (ceiling_tsv day rows)
     rows
 
 ///> rust

@@ -357,6 +357,54 @@
 
 := findings_of (category_check (_, findings)) : list string = listm::rev findings
 
+:= note_type (name : string) : option document_type =
+    ? name = "CreditNote" ?> Some NotaCredito |? name = "DebitNote" ?> Some NotaDebito |: None
+
+:= submitted_type (root : xml::xml_node) : option document_type =
+    := name = xml::local_name (xml::node_name root)
+    ? name = "Invoice" ?> optionm::bind document_type_of (child_text "InvoiceTypeCode" root) |: note_type name
+
+:= child_at (names : list string) (start : xml::xml_node) : option xml::xml_node =
+    listm::fold (\ at name => optionm::bind (\ n => child_named name (xml::element_children n)) at) (Some start) names
+
+:= issuer_ruc (root : xml::xml_node) : option string =
+    optionm::bind (child_text "ID") (child_at [ "AccountingSupplierParty"; "Party"; "PartyIdentification" ] root)
+
+:= submitted_file_name (ruc : string) (kind : document_type) (id : string) : string =
+    ruc ++# "-" ++# document_type_code kind ++# "-" ++# id ++# ".xml"
+
+:= file_name_of (root : xml::xml_node) : option string =
+    := ruc, kind, id = issuer_ruc root, submitted_type root, child_text "ID" root
+    ?= ruc, kind, id ?|
+    | Some r, Some k, Some i => Some (submitted_file_name r k i)
+    | _ => None
+
+:~ ^ first_root (names : list string) (nodes : list xml::xml_node) : option xml::xml_node =
+    ?= names ?|
+    | name :: rest =>
+        := found = child_named name nodes
+        ? found = None ?> first_root rest nodes |: found
+    | [] => None
+
+:= entry_file_name (entry : string) : option string =
+    := text = xml::read_text_replacing_invalid_utf8 (fiscal_paths::under ("deps/corpus/" ++# entry))
+    optionm::bind file_name_of (first_root [ "Invoice"; "CreditNote"; "DebitNote" ] (xml::read_xml text))
+
+:= with_name (acc : list string) (entry : string) : list string =
+    ?= entry_file_name entry ?|
+    | Some name => name :: acc
+    | None => acc
+
+:~ ^ named_in (name : string) (names : list string) : bool =
+    ?= names ?|
+    | other :: rest => other = name || named_in name rest
+    | [] => !-
+
+:~ ^ distinct_count (names : list string) (seen : list string) (n : i32) : i32 =
+    ?= names ?|
+    | name :: rest => ? named_in name seen ?> distinct_count rest seen n |: distinct_count rest (name :: seen) (n + 1i32)
+    | [] => n
+
 := igv_line (rate_percent : i32) (line : igv_affectation gravado) (base_cents : i64) : i64 =
     base_cents * (conv rate_percent : i64) / 100i64
 
@@ -460,3 +508,18 @@ test every_homologation_line_prices_by_its_onerosa_flag =
 ///> rust
 test an_exempt_line_cannot_charge_igv fails "Unification failure" =
     igv_line 18i32 ExoneradoOperacionOnerosa 10000i64 |> ignore
+
+///> rust
+test the_first_homologation_invoice_is_named_as_sfs_names_it =
+    := name = entry_file_name "pe/sunat-homologacion/Group1Test/factura1Con3Items.xml"
+    ? name <> Some "12345678912-01-FF11-1.xml" ?> failwith "RUC-TT-SERIE-NUMERO.xml, catalog 01 type 01"
+
+///> rust
+test every_homologation_case_gets_a_submitted_name =
+    := names = listm::fold with_name [] (homologation_entries ())
+    ? (listm::length names : i32) <> 58i32 ?> failwith "each of the 58 SUNAT homologation documents is named"
+
+///> rust
+test the_homologation_groups_reuse_their_series =
+    := distinct = distinct_count (listm::fold with_name [] (homologation_entries ())) [] 0i32
+    ? distinct <> 43i32 ?> failwith "58 cases, 43 names: Exonerado and Inafecto share FF12, Group4 notes share FF14-1"

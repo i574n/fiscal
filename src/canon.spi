@@ -437,13 +437,17 @@ test the_canon_text_codecs_declare_their_round_trip_shapes =
     ?> failwith "a cardinality survives printing and reading back"
     ? round_trip::tight shape same_card same_text cardinality_text cardinality_of cards texts = !-
     ?> failwith "the cardinality codec is a tight retraction: 1..01 reads as 1..1, so text does not survive reading"
+
+:= nested_text ((outer, own) : string * string) : string = cardinality_text (within (cardinality_of outer) (cardinality_of own))
+
 ///> rust
-test a_cardinality_within_its_ancestors_is_their_product =
-    := card = cardinality_of
-    := nested = [ ("0..1", "1..1"); ("1..1", "1..1"); ("1..n", "0..1"); ("0..2", "1..1"); ("1..2", "1..n") ]
-    ? listm::map (\ (outer, own) => cardinality_text (within (card outer) (card own))) nested
-        <> [ "0..1"; "1..1"; "0..n"; "0..2"; "1..n" ]
-    ?> failwith "presence is required only when every step is, and bounds multiply"
+test a_cardinality_within_its_ancestors_is_required_only_when_every_step_is =
+    ? listm::map nested_text [ ("0..1", "1..1"); ("1..1", "1..1"); ("1..n", "0..1") ] <> [ "0..1"; "1..1"; "0..n" ]
+    ?> failwith "presence is required only when every step is"
+
+///> rust
+test a_cardinality_within_its_ancestors_multiplies_the_bounds =
+    ? listm::map nested_text [ ("0..2", "1..1"); ("1..2", "1..n") ] <> [ "0..2"; "1..n" ] ?> failwith "bounds multiply"
 
 ///> rust
 test only_business_term_references_name_terms =
@@ -502,3 +506,12 @@ test en16931_terms_are_written_to_the_canon =
     ? listm::map (\ (r : term_row) => cardinality_text r::cardinality, cardinality_text r::effective) project
         <> [ ("1..1", "0..1") ]
     ?> failwith "BT-11 is required inside its optional ProjectReference, so optional in the invoice"
+
+:= order_reference_binding () : list (list string * string) =
+    := bound (r : term_row) = listm::map (\ (_, p) => path_text p) r::ubl, cardinality_text r::effective
+    listm::map bound (listm'::filter (\ (r : term_row) => r::id = BusinessTerm 13i32) (en16931_terms ()))
+
+///> rust
+test bt_13_is_the_optional_order_reference =
+    := paths = [ "ubl:Invoice/cac:OrderReference/cbc:ID"; "ubl:CreditNote/cac:OrderReference/cbc:ID" ]
+    ? order_reference_binding () <> [ (paths, "0..1") ] ?> failwith "BT-13 binds once at most"

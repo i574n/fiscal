@@ -37,18 +37,18 @@ foreach ($p in $patterns) {
     }
 }
 $sampled = @(for ($k = 0; $k -lt $enumerations.Count; $k += 3) { $enumerations[$k] })
-$probes = @(@($generic) + $sampled + $examples | Where-Object { $_ -notmatch '[\r\n]' } | Select-Object -Unique)
+$trials = @(@($generic) + $sampled + $examples | Where-Object { $_ -notmatch '[\r\n]' } | Select-Object -Unique)
 $compiled = foreach ($p in $patterns) { [regex]::new('^(?:' + $p + ')$', [Text.RegularExpressions.RegexOptions]::CultureInvariant) }
-$rows = foreach ($r in $compiled) { -join ($probes | ForEach-Object { if ($r.IsMatch($_)) { '1' } else { '0' } }) }
+$rows = foreach ($r in $compiled) { -join ($trials | ForEach-Object { if ($r.IsMatch($_)) { '1' } else { '0' } }) }
 $withPositive = @($rows | Where-Object { $_.Contains('1') }).Count
 $withNegative = @($rows | Where-Object { $_.Contains('0') }).Count
 $ones = ($rows | ForEach-Object { ($_.ToCharArray() | Where-Object { $_ -eq '1' }).Count } | Measure-Object -Sum).Sum
-"patterns $($patterns.Count) ($($brazil.Count) Brazilian schemas, $($families.Count) other family schemas), probes $($probes.Count) ($($generic.Count) generic, $($sampled.Count) of $($enumerations.Count) enumeration values, $($examples.Count) generated examples and near misses), pairs $($patterns.Count * $probes.Count)"
-"patterns with a positive probe $withPositive, with a negative probe $withNegative, positive pairs $ones"
+"patterns $($patterns.Count) ($($brazil.Count) Brazilian schemas, $($families.Count) other family schemas), trials $($trials.Count) ($($generic.Count) generic, $($sampled.Count) of $($enumerations.Count) enumeration values, $($examples.Count) generated examples and near misses), pairs $($patterns.Count * $trials.Count)"
+"patterns with a positive trial $withPositive, with a negative trial $withNegative, positive pairs $ones"
 if ($Write) {
     [IO.File]::WriteAllText((Join-Path $d 'patterns.txt'), ($patterns -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
-    [IO.File]::WriteAllText((Join-Path $d 'pattern_probes.txt'), ($probes -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $d 'pattern_trials.txt'), ($trials -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $d 'pattern_expected.txt'), ($rows -join "`n") + "`n")
     [IO.File]::WriteAllText((Join-Path $d 'corpus.txt'), ($brazilRelative -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
-    "wrote patterns.txt, pattern_probes.txt, pattern_expected.txt and corpus.txt"
+    "wrote patterns.txt, pattern_trials.txt, pattern_expected.txt and corpus.txt"
 }

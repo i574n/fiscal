@@ -281,8 +281,8 @@ if (-not (Test-Path $gstPublished)) {
     "deps/corpus/in/gst: INV-01 1.1 published schema (NIC sandbox page via the Wayback snapshot of 2024-10-05)"
 }
 $raw = [IO.File]::ReadAllText($gstPublished)
-$digest = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($raw))).Replace('-', '')
-if (-not $digest.StartsWith('2F53D00F2F754722')) { throw "init.ps1 / the GST INV-01 published schema is not the pinned one (sha256 $digest)" }
+$fingerprint = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($raw))).Replace('-', '')
+if (-not $fingerprint.StartsWith('2F53D00F2F754722')) { throw "init.ps1 / the GST INV-01 published schema is not the pinned one (sha256 $fingerprint)" }
 $published = ConvertTo-TrimmedKeys ($raw | ConvertFrom-Json -AsHashtable)
 $sections = [ordered]@{}
 foreach ($key in $published.Keys) { if ($key -notin '$schema', 'Title', 'Description', 'required') { $sections[$key] = $published[$key] } }
@@ -305,8 +305,8 @@ if (-not (Test-Path $gstExamples)) {
     $block = $page.IndexOf('id="example1"')
     $start = $page.IndexOf('>', $page.IndexOf('<pre', $block)) + 1
     $payload = [System.Net.WebUtility]::HtmlDecode($page.Substring($start, $page.IndexOf('</pre>', $start) - $start)) -replace '<[^>]+>', ''
-    $payloadDigest = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($payload))).Replace('-', '')
-    if (-not $payloadDigest.StartsWith('AB5BC97C9138D4C1')) { throw "init.ps1 / the GST sample request on the pinned page changed (sha256 $payloadDigest)" }
+    $payloadFingerprint = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($payload))).Replace('-', '')
+    if (-not $payloadFingerprint.StartsWith('AB5BC97C9138D4C1')) { throw "init.ps1 / the GST sample request on the pinned page changed (sha256 $payloadFingerprint)" }
     New-Item -ItemType Directory -Force $gstExamples | Out-Null
     $request = Remove-JsonNulls ($payload | ConvertFrom-Json -AsHashtable)
     [IO.File]::WriteAllText((Join-Path $gstExamples 'irn-request-example.json'), ($request | ConvertTo-Json -Depth 64), [Text.UTF8Encoding]::new($false))
@@ -319,8 +319,8 @@ function Save-Pinned([string] $uri, [string] $path, [string] $sha256) {
         try { $bytes = (Invoke-WebRequest -Uri $uri -TimeoutSec 600 -UseBasicParsing).RawContentStream.ToArray() }
         catch { if ($attempt -ge 3) { throw } }
     }
-    $digest = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($bytes)).Replace('-', '')
-    if (-not $digest.StartsWith($sha256)) { throw "init.ps1 / $uri changed (sha256 $digest, pinned $sha256)" }
+    $fingerprint = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($bytes)).Replace('-', '')
+    if (-not $fingerprint.StartsWith($sha256)) { throw "init.ps1 / $uri changed (sha256 $fingerprint, pinned $sha256)" }
     [IO.File]::WriteAllBytes($path, $bytes)
 }
 function Remove-EmptySigningSlot([string] $path) {
@@ -497,6 +497,13 @@ if (-not (Test-Path $dian)) {
     Expand-Pinned 'https://www.dian.gov.co/impuestos/factura-electronica/Documents/Caja-de-herramientas-FE_V19_v2026.zip' '036EAC8CA529EE7D' $dian
     "deps/corpus/co/dian: Caja de herramientas FE V19 (v2026): UBL 2.1 structures, XSL rules, examples"
 }
+$cnEinv = Join-Path $deps 'corpus/cn/einv'
+if (-not (Test-Path $cnEinv)) {
+    $filling = $cnEinv
+    New-Item -ItemType Directory -Force $cnEinv | Out-Null
+    Expand-Pinned 'http://kjs.mof.gov.cn/zt/kuaijixinxihuajianshe/dzpzkjsjbzshsd/sjbz/202505/P020250617561583232009.zip' 'EB75E173C1315742' $cnEinv
+    "deps/corpus/cn/einv: MOF e-voucher accounting data standard, fully digitalized e-invoice (XBRL taxonomy einv-20231231, element list, 2 instances)"
+}
 $myInvois = Join-Path $deps 'corpus/my/myinvois'
 if (-not (Test-Path $myInvois)) {
     $filling = $myInvois
@@ -672,6 +679,59 @@ if (-not (Test-Path $sunat)) {
     }
     $filling = $null
     "deps/corpus/pe/sunat-homologacion: $($files.Count) SUNAT homologation cases (UBL 2.1, customization 2.0, test RUC 12345678912) from project-openubl xbuilder, unsigned; their empty signing slot (UBLExtensions) is dropped"
+}
+$sunatRules = Join-Path $deps 'corpus/pe/sunat-validaciones'
+if (-not (Test-Path $sunatRules)) {
+    $filling = $sunatRules
+    $cpe = 'https://cpe.sunat.gob.pe/sites/default/files/inline-files/'
+    New-Item -ItemType Directory -Force (Join-Path $sunatRules 'xsl'), (Join-Path $sunatRules 'xsd') | Out-Null
+    Expand-Pinned "${cpe}XSL%20Actualizado%20al%2006092022%20%281%29.zip" '03A8DEC89D8BEB00' (Join-Path $sunatRules 'xsl')
+    Expand-Pinned "${cpe}Archivos%20XSD%20%281%29.zip" '5CAC9D9353521340' (Join-Path $sunatRules 'xsd')
+    $filling = $null
+    "deps/corpus/pe/sunat-validaciones: SUNAT CPE validation rules (UBL 2.1 XSL, ValidaExprReg*-2.0.1, updated 2022-09-06) and the published XSD set"
+}
+$facturX = Join-Path $deps 'corpus/eu/factur-x'
+$facturXZip = if ($env:FISCAL_FACTURX_ZIP) { $env:FISCAL_FACTURX_ZIP } else { Join-Path $HOME 'Downloads/ZUGFeRD_2.5.2_EN.zip' }
+if (-not (Test-Path $facturX)) {
+    if (Test-Path -LiteralPath $facturXZip) {
+        $fingerprint = (Get-FileHash -LiteralPath $facturXZip -Algorithm SHA256).Hash
+        if (-not $fingerprint.StartsWith('03C335F0B898A66A')) { throw "init.ps1 / $facturXZip changed (sha256 $fingerprint, pinned 03C335F0B898A66A)" }
+        $filling = $facturX
+        New-Item -ItemType Directory -Force $facturX | Out-Null
+        Expand-Archive -LiteralPath $facturXZip -DestinationPath $facturX -Force
+        $filling = $null
+        "deps/corpus/eu/factur-x: ZUGFeRD 2.5.2 / Factur-X 1.09.2 package (5 profile schemas with schematron, CII D22B XSD, examples per profile)"
+    } else {
+        "deps/corpus/eu/factur-x: skipped (the ZUGFeRD 2.5.2 package sits behind FeRD's email form; set FISCAL_FACTURX_ZIP or put ZUGFeRD_2.5.2_EN.zip in Downloads)"
+    }
+}
+$iso4217 = Join-Path $deps 'corpus/iso4217'
+if (-not (Test-Path $iso4217)) {
+    $filling = $iso4217
+    New-Item -ItemType Directory -Force $iso4217 | Out-Null
+    $six = 'https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/'
+    Save-Pinned "${six}list-one.xml" (Join-Path $iso4217 'list-one.xml') '33139B438657D1CE'
+    Save-Pinned "${six}list-three.xml" (Join-Path $iso4217 'list-three.xml') '98FDE2423CDB916D'
+    $filling = $null
+    "deps/corpus/iso4217: ISO 4217 list one (2026-09-17, minor units) and list three (2026-01-01, withdrawn currencies with dates)"
+}
+$nfeFixtures = Join-Path $deps 'corpus/br/sped-nfe-fixtures'
+if (-not (Test-Path $nfeFixtures)) {
+    $filling = $nfeFixtures
+    New-Item -ItemType Directory -Force $nfeFixtures | Out-Null
+    $spedNfe = 'https://raw.githubusercontent.com/nfephp-org/sped-nfe/ff80086aa16576345a519629efdd9a05fc49226a/tests/fixtures/xml/'
+    Save-Pinned "${spedNfe}2017protocoled.xml" (Join-Path $nfeFixtures '2017protocoled.xml') 'EE06EE4FB9437667'
+    Save-Pinned "${spedNfe}nfe_layout4_com_prot.xml" (Join-Path $nfeFixtures 'nfe_layout4_com_prot.xml') '7BB040F311E64641'
+    $filling = $null
+    "deps/corpus/br/sped-nfe-fixtures: two authorized NF-e (3.10 from 2017 and 4.00) from the sped-nfe test fixtures at commit ff80086a"
+}
+$sunatSfs = Join-Path $deps 'corpus/pe/sunat-sfs'
+if (-not (Test-Path $sunatSfs)) {
+    $filling = $sunatSfs
+    New-Item -ItemType Directory -Force $sunatSfs | Out-Null
+    Save-Pinned 'https://www2.sunat.gob.pe/facturador/SFS_v-2.5.zip' (Join-Path $sunatSfs 'SFS_v-2.5.zip') '6F59BF9AC8646CC3'
+    $filling = $null
+    "deps/corpus/pe/sunat-sfs: SUNAT's Facturador SFS 2.5 (its VALI rule copies and the Saxon-HE 9.7 inside facturadorApp-2.5.jar run SUNAT's own validations)"
 }
 $peppol = Join-Path $deps 'corpus/eu/peppol-bis3'
 if (-not (Test-Path $peppol)) {

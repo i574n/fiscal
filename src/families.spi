@@ -716,6 +716,52 @@
     | EuropeUbl :: regime_witness europe_ubl
     | Mexico :: regime_witness mexico
 
+:== cfdi_decimals = { importe : i32; cantidad : i32; valor : i32 }
+
+:| amount_window r =
+    | NfeItem :: amount_window brazil
+    | CfdiLine :: cfdi_decimals -> amount_window mexico
+    | En16931Amount :: amount_window europe_ubl
+
+:| window_verdict r =
+    | Within :: \* r. decimal::decimal * decimal::decimal -> window_verdict r
+    | Outside :: \* r. decimal::decimal * decimal::decimal -> window_verdict r
+
+:= around (centre : decimal::decimal) (tolerance : decimal::decimal) : decimal::decimal * decimal::decimal =
+    decimal::subtract centre tolerance, decimal::add centre tolerance
+
+:= tolerance_window (q : decimal::decimal) (v : decimal::decimal) (tolerance_cents : i64) =
+    around (money::rounded money::HalfUp 2i32 (decimal::multiply q v)) (money::cents tolerance_cents)
+
+:= cfdi_half (places : i32) : decimal::decimal = { units = 5i64; scale = places + 1i32 }
+
+:= cfdi_line (places : i32) : amount_window mexico = CfdiLine { importe = places; cantidad = places; valor = places }
+
+:= cfdi_low (d : cfdi_decimals) (q : decimal::decimal) (v : decimal::decimal) : decimal::decimal =
+    := low = decimal::multiply (decimal::subtract q (cfdi_half d::cantidad)) (decimal::subtract v (cfdi_half d::valor))
+    money::rounded money::Floor d::importe low
+
+:= cfdi_high (d : cfdi_decimals) (q : decimal::decimal) (v : decimal::decimal) : decimal::decimal =
+    := high = decimal::multiply (decimal::add q (cfdi_half d::cantidad)) (decimal::add v (cfdi_half d::valor))
+    money::rounded money::Ceiling d::importe high
+
+:= window_bounds \* r. (w : amount_window r) (q : decimal::decimal) (v : decimal::decimal) =
+    ?= w ?|
+    | NfeItem => tolerance_window q v 1i64
+    | CfdiLine d => cfdi_low d q v, cfdi_high d q v
+    | En16931Amount => tolerance_window q v 2i64
+
+:= verdict_of \* r. (lower : decimal::decimal) (upper : decimal::decimal) (found : decimal::decimal) : window_verdict r =
+    ? decimal::compare found lower >= 0i32 && decimal::compare found upper <= 0i32
+    ?> Within (lower, upper)
+    |: Outside (lower, upper)
+
+:= window_check \* r. (w : amount_window r) (q : decimal::decimal) (v : decimal::decimal) (found : decimal::decimal)
+    : window_verdict r
+    =
+    := lower, upper = window_bounds w q v
+    verdict_of lower upper found
+
 :! regime_family r = family_root
 
 := family_root_of \* r. ((regime_family root) : regime_family r) : family_root = root
@@ -726,7 +772,8 @@
 := ubl_families () : list (regime_family europe_ubl) =
     listm::map regime_family (ubl_invoice_2_1 () :: ubl_creditnote_2_1 () :: ubl_business_documents_2_1 ())
 
-:= mexican_families () : list (regime_family mexico) = listm::map regime_family [ cfdi_v4_0 () ]
+:= mexican_families () : list (regime_family mexico) =
+    listm::map regime_family [ cfdi_v4_0 (); cfdi_tfd_1_1 (); cfdi_pagos_2_0 () ]
 
 := families_of \* r. (witness : regime_witness r) : list (regime_family r) =
     ?= witness ?|
@@ -771,7 +818,7 @@ test every_regime_lists_its_own_families =
     ?> failwith "12 NF-e/CT-e/MDF-e roots, NF-e 4.00 and its 3 events are Brazilian"
     ? (listm::length (families_of EuropeUbl) : i32) <> 6i32
     ?> failwith "Invoice, CreditNote and 4 business documents are UBL"
-    ? (listm::length (families_of Mexico) : i32) <> 1i32 ?> failwith "CFDI 4.0 is Mexican"
+    ? (listm::length (families_of Mexico) : i32) <> 3i32 ?> failwith "CFDI 4.0, its TFD stamp and Pagos 2.0 are Mexican"
     ? (listm::length (listm::map access_key_digits (families_of Brazil)) : i32) <> 16i32
     ?> failwith "every Brazilian family has a 44-digit access key"
 
@@ -780,3 +827,42 @@ test a_ubl_family_takes_no_brazilian_access_key fails "Unification" =
     ?= families_of EuropeUbl ?|
     | f :: _ => access_key_digits f |> ignore
     | [] => ()
+
+///> rust
+test a_cfdi_line_window_follows_anexo_20 =
+    := c (n : i64) : decimal::decimal = money::cents n
+    ? window_bounds (cfdi_line 2i32) (c 300i64) (c 1000i64) <> (c 2993i64, c 3007i64)
+    ?> failwith "3.00 x 10.00 at 2 places: 29.93 truncated, 30.07 rounded up"
+
+///> rust
+test a_cfdi_amount_inside_the_window_is_within =
+    := c (n : i64) : decimal::decimal = money::cents n
+    ? window_check (cfdi_line 2i32) (c 300i64) (c 1000i64) (c 3000i64) <> Within (c 2993i64, c 3007i64)
+    ?> failwith "30.00 is inside"
+
+///> rust
+test a_cfdi_amount_past_the_window_is_outside =
+    := c (n : i64) : decimal::decimal = money::cents n
+    ? window_check (cfdi_line 2i32) (c 300i64) (c 1000i64) (c 3008i64) <> Outside (c 2993i64, c 3007i64)
+    ?> failwith "30.08 is outside"
+
+///> rust
+test an_nfe_item_window_starts_one_centavo_below =
+    := low, _ = window_bounds NfeItem (money::cents 200i64) { units = 1005i64; scale = 3i32 }
+    ? money::same low (money::cents 200i64) = !- ?> failwith "2.00 x 1.005 = 2.01 minus 0.01"
+
+///> rust
+test an_nfe_item_window_ends_one_centavo_above =
+    := _, high = window_bounds NfeItem (money::cents 200i64) { units = 1005i64; scale = 3i32 }
+    ? money::same high (money::cents 202i64) = !- ?> failwith "2.00 x 1.005 = 2.01 plus 0.01"
+
+///> rust
+test a_brazilian_window_cannot_check_a_mexican_line fails "Unification" =
+    (NfeItem : amount_window mexico) |> ignore
+
+:= quantity_without_decimals () =
+    window_bounds (CfdiLine { importe = 2i32; cantidad = 0i32; valor = 2i32 }) (money::cents 300i64) (money::cents 1000i64)
+
+///> rust
+test a_cfdi_window_uses_each_factors_decimals =
+    ? quantity_without_decimals () <> (money::cents 2498i64, money::cents 3502i64) ?> failwith "3 x 10.00: 24.98 to 35.02"

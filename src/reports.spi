@@ -20,6 +20,8 @@
 
 :== bench_row = { unit : string; parse_us : i32; write_us : i32; runs : i32; bytes : i32; os : string }
 
+:== growth_row = { unit : string; before : decimal::decimal; now : decimal::decimal; percent : i32; before_run : string }
+
 :| example_verdict =
     | Valid
     | Invalid : i32
@@ -90,6 +92,10 @@
         runs = count_of (cell c 3i32); bytes = count_of (cell c 4i32); os = cell c 5i32
     }
 
+:= growth_row_of (c : list string) : growth_row =
+    := seconds (at : i32) : decimal::decimal = seconds_of (cell c at)
+    { unit = cell c 0i32; before = seconds 1i32; now = seconds 2i32; percent = count_of (cell c 3i32); before_run = cell c 4i32 }
+
 := example_row_of (c : list string) : example_row =
     {
         example = cell c 0i32
@@ -155,6 +161,9 @@
         sm'::obj_to_string r::bytes; r::os
     ]
 
+:= growth_cells (r : growth_row) : list string =
+    [ r::unit; decimal::text r::before; decimal::text r::now; "+" ++# sm'::obj_to_string r::percent ++# " %"; r::before_run ]
+
 := example_cells (r : example_row) : list string = [ r::example; r::bytes; verdict_text r::verdict; r::first ]
 
 := passing (r : test_row) : bool = has_status Passed r || has_status Static r
@@ -191,6 +200,13 @@
     section
         "Bench (median microseconds)"
         (table [ "unit"; "parse µs"; "write µs"; "runs"; "bytes"; "os" ] (listm::map bench_cells bench))
+
+:= growth_body (growth : list growth_row) : list string =
+    ? listm::length growth = 0i32
+    ?> [ "No unit grew over 25 % at the same core, slots and input." ]
+    |: table [ "unit"; "before s"; "now s"; "growth"; "before run" ] (listm::map growth_cells growth)
+
+:= growth_section (growth : list growth_row) : list string = section "Unit growth" (growth_body growth)
 
 := examples_section (examples : list example_row) : list string =
     section "Examples" (table [ "example"; "bytes"; "verdict"; "first message" ] (listm::map example_cells examples))
@@ -302,27 +318,42 @@
 := ceiling_family_cells (rows : list ceiling_report_row) (family : string) : list string =
     family :: ceiling_count_cells (listm'::filter (\ (r : ceiling_report_row) => r::family = family) rows)
 
-:= ceiling_table (rows : list ceiling_report_row) : list string =
-    := header = [ "family"; "typed"; "expressible"; "ceiling %"; "untyped kinds" ]
-    table header (listm::map (ceiling_family_cells rows) (ceiling_families rows []))
+:= ceiling_previous_cell (previous : list ceiling_report_row) (family : string) : string =
+    := mine = listm'::filter (\ (r : ceiling_report_row) => r::family = family) previous
+    ceiling_percent (ceiling_typed_total mine) (ceiling_expressible_total mine)
 
-:= ceiling_section (rows : list ceiling_report_row) : list string =
-    := body = ? rows = [] ?> [ "No modeling-ceiling rows in this run." ] |: ceiling_table rows
-    section "Modeling ceiling (typed / schema-expressible, per family)" body
+:= ceiling_header () : list string = [ "family"; "typed"; "expressible"; "ceiling %"; "untyped kinds"; "previous %" ]
 
-:= coverage_sections (ceiling : list ceiling_report_row) : list string = census_section () ++ ceiling_section ceiling
+:= ceiling_row_cells
+    (rows : list ceiling_report_row) (previous : list ceiling_report_row) (family : string)
+    : list string
+    =
+    ceiling_family_cells rows family ++ [ ceiling_previous_cell previous family ]
+
+:= ceiling_table (rows : list ceiling_report_row) (previous : list ceiling_report_row) : list string =
+    table (ceiling_header ()) (listm::map (ceiling_row_cells rows previous) (ceiling_families rows []))
+
+:= ceiling_body (rows : list ceiling_report_row) (previous : list ceiling_report_row) : list string =
+    ? rows = [] ?> [ "No modeling-ceiling rows in this run." ] |: ceiling_table rows previous
+
+:= ceiling_section (rows : list ceiling_report_row) (previous : list ceiling_report_row) : list string =
+    section "Modeling ceiling (typed / schema-expressible, per family)" (ceiling_body rows previous)
+
+:= coverage_sections (ceiling : list ceiling_report_row) (previous : list ceiling_report_row) : list string =
+    census_section () ++ ceiling_section ceiling previous
 
 := rendered
     (tests : list test_row) (files : list file_row) (bench : list bench_row) (examples : list example_row)
-    (ceiling : list ceiling_report_row)
+    (ceiling : list ceiling_report_row) (previous : list ceiling_report_row) (growth : list growth_row)
     : string
     =
     := body =
         tests_section tests
         ++ files_section files
         ++ bench_section bench
+        ++ growth_section growth
         ++ examples_section examples
-        ++ coverage_sections ceiling
+        ++ coverage_sections ceiling previous
     sm'::concat_list "\n" ([ "# fiscal CI reports"; ""; stamp () ] ++ body ++ [ "" ])
 
 := metrics_rows (kind : string) : list (list string) =
@@ -368,6 +399,8 @@ test writes_the_ci_reports =
             (listm::map test_row_of (metrics_rows "tests")) (listm::map file_row_of (metrics_rows "files"))
             (listm::map bench_row_of (metrics_rows "bench")) (listm::map example_row_of (metrics_rows "examples"))
             (listm::map ceiling_report_row_of (metrics_rows "modeling-ceiling"))
+            (listm::map ceiling_report_row_of (metrics_rows "modeling-ceiling.previous"))
+            (listm::map growth_row_of (metrics_rows "growth"))
     file_system::directory_create_all (fiscal_paths::under "target/ci-metrics") |> ignore
     file_system::write_all_text (fiscal_paths::under "target/ci-metrics/reports.md") text
     ? sm'::starts_with "# fiscal CI reports" text = !- ?> failwith "the report has its title"
@@ -394,7 +427,7 @@ test the_modeling_ceiling_caps_each_kind_at_its_schema =
     ? ceiling_family_cells rows "b" <> [ "b"; "4"; "4"; "100"; "" ]
     ?> failwith "a fully typed family reaches its ceiling"
     ?
-        ceiling_section []
+        ceiling_section [] []
         <> [
             ""
             "## Modeling ceiling (typed / schema-expressible, per family)"
@@ -402,3 +435,19 @@ test the_modeling_ceiling_caps_each_kind_at_its_schema =
             "No modeling-ceiling rows in this run."
         ]
     ?> failwith "a run without the ceiling says so"
+
+///> rust
+test the_ceiling_table_shows_the_previous_run =
+    := previous = [ { family = "a"; construct = "record"; expressible = 4i32; typed = 3i32 } ]
+    ? ceiling_previous_cell previous "a" <> "75" ?> failwith "the previous run's family percent"
+
+///> rust
+test no_previous_run_shows_a_dash =
+    ? ceiling_previous_cell [] "a" <> "-" ?> failwith "no previous run shows a dash"
+
+///> rust
+test the_growth_section_lists_grown_units_or_says_none =
+    := row = growth_row_of [ "generated_nfe_v4"; "600.0"; "900.0"; "50"; "202611090300-host" ]
+    ? listm::length (growth_body [ row ]) <> 3i32 ?> failwith "one grown unit is a header, a rule and one row"
+    ? sm'::contains "+50 %" (sm'::concat_list "" (growth_body [ row ])) = !- ?> failwith "the row shows its growth"
+    ? growth_body [] <> [ "No unit grew over 25 % at the same core, slots and input." ] ?> failwith "no growth says so"

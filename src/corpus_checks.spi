@@ -169,36 +169,34 @@ test every_corpus_pattern_compiles =
     ? failed <> 0i32 ?> failwith "a corpus pattern did not parse"
     ? ok <> 336i32 ?> failwith "336 distinct patterns"
 
+:= trial_disagreements (check : string -> string -> list string -> disagreement -> disagreement) : disagreement =
+    := lines (name : string) : list string = lines_of (file_system::read_all_text (fiscal_paths::under ("src/" ++# name))) 0i32 []
+    := none = { count = 0i32; first = "" }
+    all_disagreements check (lines "patterns.txt") (lines "pattern_expected.txt") (lines "pattern_trials.txt") none
+
 ///> rust
-test matches_like_dotnet_on_every_probe =
-    := folder = (fiscal_paths::under "src/")
-    := patterns = lines_of (file_system::read_all_text (folder ++# "patterns.txt")) 0i32 []
-    := probes = lines_of (file_system::read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
-    := rows = lines_of (file_system::read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
-    := result = all_disagreements derivative_disagreements patterns rows probes { count = 0i32; first = "" }
+test matches_like_dotnet_on_every_trial =
+    := result = trial_disagreements derivative_disagreements
     ? result::count <> 0i32 ?> failwith ("disagrees with .NET Regex: " ++# result::first)
 
 ///> rust
-test dfa_matches_like_dotnet_on_every_probe =
-    := folder = (fiscal_paths::under "src/")
-    := patterns = lines_of (file_system::read_all_text (folder ++# "patterns.txt")) 0i32 []
-    := probes = lines_of (file_system::read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
-    := rows = lines_of (file_system::read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
-    := result = all_disagreements dfa_disagreements patterns rows probes { count = 0i32; first = "" }
+test dfa_matches_like_dotnet_on_every_trial =
+    := result = trial_disagreements dfa_disagreements
     ? result::count <> 0i32 ?> failwith ("the DFA disagrees with .NET Regex: " ++# result::first)
 
-:= table_disagreements (pattern : string) (row : string) (probes : list string) (acc : disagreement) : disagreement =
+///> rust
+test the_canonical_engine_matches_like_dotnet_on_every_trial =
+    := result = trial_disagreements canonical_disagreements
+    ? result::count <> 0i32 ?> failwith ("the canonical regex engine disagrees with .NET Regex: " ++# result::first)
+
+:= table_disagreements (pattern : string) (row : string) (trials : list string) (acc : disagreement) : disagreement =
     ?= dfa_of_pattern pattern ?|
-    | Some rows => row_disagreements pattern (table_matches (dfa_table_text rows)) probes row 0i32 acc
+    | Some rows => row_disagreements pattern (table_matches (dfa_table_text rows)) trials row 0i32 acc
     | None => failed_pattern "no DFA within the state limit: " pattern acc
 
 ///> rust
-test table_matches_like_dotnet_on_every_probe =
-    := folder = (fiscal_paths::under "src/")
-    := patterns = lines_of (file_system::read_all_text (folder ++# "patterns.txt")) 0i32 []
-    := probes = lines_of (file_system::read_all_text (folder ++# "pattern_probes.txt")) 0i32 []
-    := rows = lines_of (file_system::read_all_text (folder ++# "pattern_expected.txt")) 0i32 []
-    := result = all_disagreements table_disagreements patterns rows probes { count = 0i32; first = "" }
+test table_matches_like_dotnet_on_every_trial =
+    := result = trial_disagreements table_disagreements
     ? result::count <> 0i32 ?> failwith ("the in-place table disagrees with .NET Regex: " ++# result::first)
 
 ///> rust

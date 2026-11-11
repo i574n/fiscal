@@ -54,10 +54,10 @@
 
 ///> rust
 test a_family_without_certificates_leaves_no_certificates_unit =
-    write_generated_module "generated_stale_unit_probe" "inl stale () = ()\n"
-    remove_generated_module "generated_stale_unit_probe"
-    remove_generated_module "generated_stale_unit_probe"
-    ? file_system::directory_exists (fiscal_paths::under "generated/generated_stale_unit_probe")
+    write_generated_module "generated_stale_unit_trial" "inl stale () = ()\n"
+    remove_generated_module "generated_stale_unit_trial"
+    remove_generated_module "generated_stale_unit_trial"
+    ? file_system::directory_exists (fiscal_paths::under "generated/generated_stale_unit_trial")
     ?> failwith "a unit the emitter no longer produces is removed"
 
 ///> rust
@@ -552,7 +552,7 @@ test generates_the_uf_code_union =
 := signatures_of (family : family_root) : list string = ? has_extra Signed family::extras ?> [ "Signature" ] |: []
 
 
-:= lifecycle_probe (code : string) : string =
+:= lifecycle_assertion (code : string) : string =
     := tag = "<tpEvento>" ++# code ++# "</tpEvento>"
     "    if sm'.contains \""
     ++# tag
@@ -566,7 +566,7 @@ test generates_the_uf_code_union =
 
 := lifecycle_check (family : family_root) (code : string) : string =
     := head = "///> rust\ntest " ++# module_text family::module_name ++# "_example_carries_its_lifecycle_event =\n"
-    head ++# lifecycle_document family ++# lifecycle_probe code
+    head ++# lifecycle_document family ++# lifecycle_assertion code
 
 := lifecycle_checks (family : family_root) : string =
     join_with "" (listm::map (lifecycle_check family) (lifecycle_events family::extras)) ""
@@ -777,6 +777,7 @@ test generates_the_uf_code_union =
 
 ///> rust
 test writes_the_family_gate_table =
+    ensure_folder (fiscal_paths::under "generated")
     file_system::write_all_text (fiscal_paths::under "generated/family-gates.tsv") (gate_table () ++# "\n")
 
 ///> rust

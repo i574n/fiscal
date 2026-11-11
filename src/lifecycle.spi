@@ -12,6 +12,11 @@
 :! hacienda = string
 :! dian = string
 
+:| system_regime s r =
+    | NfeIsBrazil :: system_regime nfe families::brazil
+    | CfdiIsMexico :: system_regime cfdi families::mexico
+    | UblIsEurope :: system_regime ubl families::europe_ubl
+
 :! event_code = string
 
 :| buyer_response =
@@ -80,6 +85,13 @@
     | Cancelled c => c::key
 
 := issue \* r. (regime : r) (key : access_key) : document r issued = Issued (regime, key)
+
+:= line_verdict \* s st r.
+    (_ : system_regime s r) (window : families::amount_window r) (_ : document s st)
+    (q : decimal::decimal) (v : decimal::decimal) (found : decimal::decimal)
+    : families::window_verdict r
+    =
+    families::window_check window q v found
 
 := authorize \* r. (doc : document r issued) (protocol : protocol_id) : document r authorized =
     ?= doc ?|
@@ -276,7 +288,7 @@ test a_cancellation_reaches_the_outbox_once =
         := id, hash = event_log::command_id key, event_log::payload_hash "cancel-1"
         event_log::written (event_log::append_durably event_text path 0i64 id hash event log)
     := first = send (event_log::empty_log ())
-    ? event_log::outcome_code (send (event_log::appended_log first)) <> (1i64, 1i64)
+    ? send (event_log::appended_log first) <> event_log::Replayed 1i64
     ?> failwith "a retried cancellation replays position 1"
     ? file_system::read_all_text path <> "1\t" ++# key ++# "\tcancel-1\t110111\n"
     ?> failwith "the outbox holds the NF-e cancellation (tpEvento 110111) once"
@@ -313,3 +325,20 @@ test every_family_lifecycle_event_is_one_nfe_produces =
     ? (listm::length declared : i32) <> 3i32 ?> failwith "the three NF-e event families declare their tpEvento"
     ? lifecycle_all_produced declared (lifecycle_nfe_codes ()) = !-
     ?> failwith "every declared event code is one the nfe capabilities produce"
+
+:= issued_nfe_doc () : document nfe issued = issue (nfe "4.00") (access_key "35261100000000000000550010000000011000000010")
+
+:= nfe_line_verdict (found : decimal::decimal) : families::window_verdict families::brazil =
+    := price : decimal::decimal = { units = 1005i64; scale = 3i32 }
+    line_verdict NfeIsBrazil families::NfeItem (issued_nfe_doc ()) (money::cents 200i64) price found
+
+///> rust
+test an_nfe_line_is_checked_against_the_brazilian_window =
+    ?= nfe_line_verdict (money::cents 201i64) ?|
+    | families::Within _ => ()
+    | families::Outside _ => failwith "2.01 is inside the NF-e window"
+
+///> rust
+test an_nfe_document_cannot_use_the_cfdi_window fails "Unification" =
+    := c = money::cents 1i64
+    line_verdict NfeIsBrazil (families::cfdi_line 2i32) (issued_nfe_doc ()) c c c |> ignore

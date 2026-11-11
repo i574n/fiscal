@@ -59,3 +59,133 @@ test each_regime_books_tax_to_its_own_account =
     | None => failwith "the Brazilian journal balances"
     ? (tax_account families::EuropeUbl, tax_account families::Mexico) <> ("VAT payable", "IVA trasladado por pagar")
     ?> failwith "UBL books VAT and CFDI books IVA"
+
+:== posted_totals = { net : decimal::decimal; tax : decimal::decimal; gross : decimal::decimal }
+
+:= totals_lines \* e p c. (currency : money::currency c) (t : posted_totals) : list (ledger::line e p c) =
+    := v = money::amount_of currency
+    [ ledger::debit "receivable" (v t::gross); ledger::credit "revenue" (v t::net); ledger::credit "tax payable" (v t::tax) ]
+
+:= july_journal \* c. (lines : list (ledger::line ledger::seller ledger::july_2026 c)) = ledger::balanced lines
+
+:= law_holds \* c. (currency : money::currency c) (t : posted_totals) : bool =
+    ?= july_journal (totals_lines currency t) ?|
+    | Some j => decimal::compare (ledger::turnover j) t::gross = 0i32
+    | None => false
+
+:= child_amount (name : string) (node : xml::xml_node) : option decimal::decimal =
+    optionm::bind decimal::parse (sunat::child_text name node)
+
+:= ubl_amount (group : string) (name : string) (root : xml::xml_node) : option decimal::decimal =
+    optionm::bind (child_amount name) (sunat::child_named group (xml::element_children root))
+
+:= posted_of (net : option decimal::decimal) (tax : option decimal::decimal) (gross : option decimal::decimal) : option posted_totals =
+    ?= net, tax, gross ?|
+    | Some n, Some x, Some g => Some { net = n; tax = x; gross = g }
+    | _ => None
+
+:= ubl_totals_of (root : xml::xml_node) : option posted_totals =
+    := m (name : string) = ubl_amount "LegalMonetaryTotal" name root
+    posted_of (m "TaxExclusiveAmount") (ubl_amount "TaxTotal" "TaxAmount" root) (m "TaxInclusiveAmount")
+
+:= ubl_example_root (n : i32) : option xml::xml_node =
+    := file = "deps/corpus/eu/en16931/examples/ubl-tc434-example" ++# sm'::obj_to_string n ++# ".xml"
+    sunat::child_named "Invoice" (xml::read_xml (file_system::read_all_text (fiscal_paths::under file)))
+
+:= ubl_example (n : i32) : option posted_totals = optionm::bind ubl_totals_of (ubl_example_root n)
+
+:= cfdi_posted (t : canon_derived::cfdi_totals) : posted_totals =
+    { net = canon_derived::cfdi_bt109 t; tax = t::taxes::carried; gross = canon_derived::cfdi_bt112 t }
+
+:= stamped_cfdi_totals () : option posted_totals =
+    := text = file_system::read_all_text (fiscal_paths::under "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml")
+    optionm::map cfdi_posted (canon_derived::cfdi_totals_of text)
+
+:= decimal_law (t : posted_totals) : bool = decimal::compare (decimal::add t::net t::tax) t::gross = 0i32
+
+:= eur_law (n : i32) : bool =
+    ?= ubl_example n ?|
+    | Some t => law_holds money::Eur t
+    | None => false
+
+:= decimal_law_at (n : i32) : bool =
+    ?= ubl_example n ?|
+    | Some t => decimal_law t
+    | None => false
+
+///> rust
+test every_eur_en16931_example_books_a_balanced_journal_of_its_bt_112 =
+    ? listm::fold (\ ok n => ok && eur_law n) true [ 1i32; 8i32; 9i32; 10i32 ] = !-
+    ?> failwith "examples 1, 8, 9 and 10: receivable BT-112 = revenue BT-109 + tax BT-110"
+
+///> rust
+test the_other_currency_examples_satisfy_the_decimal_law =
+    ? listm::fold (\ acc n => acc && decimal_law_at n) true [ 2i32; 3i32; 4i32; 5i32; 6i32; 7i32 ] = !-
+    ?> failwith "NOK/DKK/SEK: BT-109 + BT-110 = BT-112 (lib money has no typed NOK/DKK/SEK)"
+
+///> rust
+test the_stamped_cfdi_books_a_balanced_journal_of_its_bt_112 =
+    ?= stamped_cfdi_totals () ?|
+    | Some t => ? law_holds money::Mxn t = !- ?> failwith "receivable = SubTotal - Descuento + traslados"
+    | None => failwith "the stamped CFDI has totals"
+
+:= child_path (names : list string) (start : option xml::xml_node) : option xml::xml_node =
+    listm::fold (\ at name => optionm::bind (\ n => sunat::child_named name (xml::element_children n)) at) start names
+
+:= nfe_file_root (file : string) : option xml::xml_node =
+    := text = file_system::read_all_text (fiscal_paths::under ("deps/corpus/br/sped-nfe-fixtures/" ++# file))
+    sunat::child_named "nfeProc" (xml::read_xml text)
+
+:= nfe_icms_tot (file : string) : option xml::xml_node = child_path [ "NFe"; "infNFe"; "total"; "ICMSTot" ] (nfe_file_root file)
+
+:= tot (name : string) (t : xml::xml_node) : decimal::decimal = optionm'::default_value (cents 0i64) (child_amount name t)
+
+:= sum_of (t : xml::xml_node) (names : list string) : decimal::decimal =
+    listm::fold (\ acc name => decimal::add acc (tot name t)) (cents 0i64) names
+
+:= nfe_identity_holds (t : xml::xml_node) : bool =
+    := added = sum_of t [ "vProd"; "vST"; "vFCPST"; "vFrete"; "vSeg"; "vOutro"; "vII"; "vIPI"; "vIPIDevol" ]
+    decimal::compare (decimal::subtract added (sum_of t [ "vDesc"; "vICMSDeson" ])) (tot "vNF" t) = 0i32
+
+:= embedded_pair \* e p c. (cur : money::currency c) (name : string) (value : decimal::decimal) : list (ledger::line e p c) =
+    := x = money::amount_of cur value
+    [ ledger::debit (name ++# " sobre vendas") x; ledger::credit (name ++# " a recolher") x ]
+
+:= nfe_gross (t : xml::xml_node) : decimal::decimal = decimal::subtract (tot "vNF" t) (sum_of t [ "vST"; "vIPI" ])
+
+:= nfe_receipt_lines \* e p c. (cur : money::currency c) (t : xml::xml_node) : list (ledger::line e p c) =
+    [ ledger::debit "receivable" (money::amount_of cur (tot "vNF" t)); ledger::credit "receita bruta" (money::amount_of cur (nfe_gross t)) ]
+
+:= nfe_added_lines \* e p c. (cur : money::currency c) (t : xml::xml_node) : list (ledger::line e p c) =
+    [ ledger::credit "ICMS-ST a recolher" (money::amount_of cur (tot "vST" t)); ledger::credit "IPI a recolher" (money::amount_of cur (tot "vIPI" t)) ]
+
+:= embedded_lines \* e p c. (cur : money::currency c) (t : xml::xml_node) : list (ledger::line e p c) =
+    := pairs = listm::map (\ name => embedded_pair cur name (tot ("v" ++# name) t)) [ "ICMS"; "PIS"; "COFINS" ]
+    listm::fold listm::append [] pairs
+
+:= nfe_journal_lines \* e p c. (cur : money::currency c) (t : xml::xml_node) : list (ledger::line e p c) =
+    listm::append (listm::append (nfe_receipt_lines cur t) (nfe_added_lines cur t)) (embedded_lines cur t)
+
+:= nfe_turnover (t : xml::xml_node) : decimal::decimal = decimal::add (tot "vNF" t) (sum_of t [ "vICMS"; "vPIS"; "vCOFINS" ])
+
+:= nfe_law_holds (t : xml::xml_node) : bool =
+    ?= july_journal (nfe_journal_lines money::Brl t) ?|
+    | Some j => decimal::compare (ledger::side_total ledger::Debit (ledger::lines_of j)) (nfe_turnover t) = 0i32
+    | None => false
+
+:= fixture_holds (check : xml::xml_node -> bool) (file : string) : bool =
+    ?= nfe_icms_tot file ?|
+    | Some t => check t
+    | None => false
+
+:= both_fixtures (check : xml::xml_node -> bool) : bool =
+    fixture_holds check "2017protocoled.xml" && fixture_holds check "nfe_layout4_com_prot.xml"
+
+///> rust
+test both_authorized_nfe_satisfy_the_total_identity =
+    ? both_fixtures nfe_identity_holds = !-
+    ?> failwith "vNF = vProd - vDesc - vICMSDeson + vST + vFCPST + vFrete + vSeg + vOutro + vII + vIPI + vIPIDevol"
+
+///> rust
+test a_por_dentro_nfe_books_a_balanced_brl_journal =
+    ? both_fixtures nfe_law_holds = !- ?> failwith "receivable vNF = receita bruta; ICMS, PIS and COFINS inside the price post as pairs"

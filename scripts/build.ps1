@@ -7,6 +7,10 @@ param(
     [int] $Shards = 1,
     [string[]] $ShardSet = @(),
     [string[]] $ShardWeights = @(),
+    [string[]] $ShardMaxUnitKB = @(),
+    [string] $VerdictUrls = '',
+    [switch] $PagesVerdicts,
+    [double] $UnitBudgetMinutes = 60,
     [switch] $ListOnly,
     [switch] $ListReach,
     [switch] $MergeShards
@@ -24,16 +28,21 @@ foreach ($shard in $shardIds) { if ($shard -lt 0 -or $shard -ge $Shards) { throw
 [double[]] $weights = @($ShardWeights | ForEach-Object { $_ -split ',' } | Where-Object { $_ -ne '' } | ForEach-Object { [double]$_ })
 if (!$weights) { $weights = @(1) * $Shards }
 if ($weights.Count -ne $Shards -or @($weights | Where-Object { $_ -le 0 }).Count) { throw "build.ps1 / -ShardWeights needs $Shards positive weights, one per shard (got $($weights -join ','))" }
+[double[]] $caps = @($ShardMaxUnitKB | ForEach-Object { $_ -split ',' } | Where-Object { $_ -ne '' } | ForEach-Object { [double]$_ })
+if (!$caps) { $caps = [double[]]::new($Shards) }
+if ($caps.Count -ne $Shards -or @($caps | Where-Object { $_ -lt 0 }).Count) { throw "build.ps1 / -ShardMaxUnitKB needs $Shards non-negative caps in KB, one per shard (0 = no cap)" }
 $sharded = $Shards -gt 1 -and !$MergeShards
 $shardSuffix = if ($sharded) { "-shard$($shardIds -join '+')of$Shards" } else { '' }
 $cellsRoot = $env:SPIRAL_CELLS_ROOT ? $env:SPIRAL_CELLS_ROOT : (Join-Path $root 'deps/spiral/apps/cells')
 $labelSuffix = if ($Label -eq 'all') { '' } else { "-$Label" }
 $Parallel = if ($Parallel -gt 0) { $Parallel } else { [math]::Max(1, [math]::Floor([Environment]::ProcessorCount / 2)) }
+if (-not $env:SPIRAL_CELLS_TIMEOUT_SCALE) { $env:SPIRAL_CELLS_TIMEOUT_SCALE = [string]([math]::Max(1, $Parallel / 2)) }
 
 $fileRows = [Collections.Generic.List[object]]::new()
 $testRows = [Collections.Generic.List[object]]::new()
 $costRows = [Collections.Generic.List[object]]::new()
 $hostName = [Environment]::MachineName
+$pages = $env:FISCAL_PAGES_URL ? $env:FISCAL_PAGES_URL : 'https://i574n.github.io/fiscal'
 $runId = [DateTime]::UtcNow.ToString('yyyyMMddHHmm') + '-' + $hostName
 $osName = if ($IsWindows) { 'windows' } elseif ($IsLinux) { 'linux' } else { 'other' }
 $shardTag = if ($sharded) { "$($shardIds -join '+')of$Shards" } else { 'all' }
@@ -61,10 +70,12 @@ function Get-ShardOwners([IO.FileInfo[]] $Sources) {
     $loads = [long[]]::new($Shards)
     $owners = [ordered]@{}
     foreach ($source in @($Sources | Sort-Object @{ Expression = { $_.Length }; Descending = $true }, Name)) {
-        $target = 0
-        for ($candidate = 1; $candidate -lt $Shards; $candidate++) {
-            if (($loads[$candidate] + $source.Length) / $weights[$candidate] -lt ($loads[$target] + $source.Length) / $weights[$target]) { $target = $candidate }
+        $target = -1
+        for ($candidate = 0; $candidate -lt $Shards; $candidate++) {
+            if ($caps[$candidate] -gt 0 -and ($source.Length -gt $caps[$candidate] * 1KB -or $source.BaseName -notmatch '^generated_')) { continue }
+            if ($target -lt 0 -or ($loads[$candidate] + $source.Length) / $weights[$candidate] -lt ($loads[$target] + $source.Length) / $weights[$target]) { $target = $candidate }
         }
+        if ($target -lt 0) { throw ("build.ps1 / {0} ({1:N0} KB) fits no shard under -ShardMaxUnitKB" -f $source.BaseName, ($source.Length / 1KB)) }
         $loads[$target] += $source.Length
         $owners[$source.BaseName] = $target
     }
@@ -139,6 +150,7 @@ if ($ListOnly) {
 . (Join-Path $root 'deps/spiral/lib/spiral/lib.ps1')
 $spiral = Ensure-SpiralCompiler | Select-Object -Last 1
 Write-Output "build.ps1 / compiler / $($spiral.Compiler)"
+Write-Output "build.ps1 / cell budgets / header and default timeouts x$($env:SPIRAL_CELLS_TIMEOUT_SCALE) (SPIRAL_CELLS_TIMEOUT_SCALE; parallel $Parallel)"
 $runNotebook = (Resolve-Path (Join-Path $cellsRoot 'spi/run_notebook.ps1')).Path
 $coreDll = Join-Path (Split-Path ($env:SPIRAL_COMPILER_DLL ? $env:SPIRAL_COMPILER_DLL : $spiral.Compiler)) 'SpiralCompilerCore.dll'
 if (Test-Path -LiteralPath $coreDll) { $coreTag = (Get-FileHash -LiteralPath $coreDll -Algorithm SHA256).Hash.Substring(0, 16) }
@@ -165,7 +177,8 @@ function Add-Cost([string] $Unit, [string] $Phase, [double] $Seconds, [IO.FileIn
         Seconds = [math]::Round($Seconds, 1); InputLines = $lines; InputBytes = $(if ($Source) { $Source.Length } else { 0 }); Target = $(if ($Target) { $Target } else { '-' })
         LoadStart = $LoadStart; LoadEnd = $LoadEnd; FreeMbStart = $FreeStart; Exit = $Exit
     })
-}if (-not $Files -and -not $sharded -and -not $MergeShards) {
+}
+if (-not $Files -and -not $sharded -and -not $MergeShards) {
     foreach ($product in 'generated', 'samples', 'notebooks', 'target/ci-metrics') {
         $path = Join-Path $root $product
         if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
@@ -178,9 +191,17 @@ $metrics = (New-Item -ItemType Directory -Force (Join-Path $root 'target/ci-metr
 
 $gateCache = Join-Path $root 'target/unit-gate-cache/green.tsv'
 $gateKeys = [Collections.Generic.HashSet[string]]::new()
+$storeUrls = @{}
+
+function Test-StoreVerdict([string] $GateKey) {
+    if (-not $script:storeUrls.Count) { return $false }
+    $sha = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($GateKey + "`n"))).ToLower()
+    if (-not $script:storeUrls.ContainsKey($sha)) { return $false }
+    try { (Invoke-WebRequest -Uri $script:storeUrls[$sha] -TimeoutSec 20 -ErrorAction Stop).Content -eq ($GateKey + "`n") } catch { $false }
+}
 $gateContext = ''
 
-function Get-Digest([string[]] $Rows) { [BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Rows -join "`n"))) -replace '-', '' }
+function Get-Fingerprint([string[]] $Rows) { [BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Rows -join "`n"))) -replace '-', '' }
 
 function Get-GateKey([IO.FileInfo] $Source) {
     if ($NoGateCache -or !$script:gateContext -or $Source.BaseName -notmatch '^generated_') { return '' }
@@ -188,7 +209,7 @@ function Get-GateKey([IO.FileInfo] $Source) {
     $rows = @($reach.Lib | ForEach-Object { "$_`:$($libHashes[$_])" }) + @($reach.Siblings | ForEach-Object { "$_`:$((Get-FileHash -LiteralPath (Join-Path $root "generated/$_/$_.spi") -Algorithm SHA256).Hash)" })
     $unitToml = Join-Path $Source.DirectoryName 'spiral.toml'
     if (Test-Path -LiteralPath $unitToml) { $rows += "unit-spiral.toml:$((Get-FileHash -LiteralPath $unitToml -Algorithm SHA256).Hash)" }
-    "$($Source.BaseName)`t$((Get-FileHash -LiteralPath $Source.FullName -Algorithm SHA256).Hash)`treach:$(Get-Digest $rows)`t$script:gateContext"
+    "$($Source.BaseName)`t$((Get-FileHash -LiteralPath $Source.FullName -Algorithm SHA256).Hash)`treach:$(Get-Fingerprint $rows)`t$script:gateContext"
 }
 
 function Set-GateContext {
@@ -198,10 +219,24 @@ function Set-GateContext {
     $runtime = if (Test-Path -LiteralPath $runtimeUnit) { (Get-FileHash -LiteralPath $runtimeUnit -Algorithm SHA256).Hash } else { 'none' }
     $corePackage = Join-Path $root 'deps/spiral/deps/The-Spiral-Language/VS Code Plugin/core'
     $package = if (Test-Path -LiteralPath $corePackage) {
-        Get-Digest @(Get-ChildItem -LiteralPath $corePackage -Recurse -File | Sort-Object FullName | ForEach-Object { "$($_.FullName.Substring($corePackage.Length + 1).Replace('\', '/')):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" })
+        Get-Fingerprint @(Get-ChildItem -LiteralPath $corePackage -Recurse -File | Sort-Object FullName | ForEach-Object { "$($_.FullName.Substring($corePackage.Length + 1).Replace('\', '/')):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" })
     } else { 'none' }
     $script:gateContext = "$core`t$runtime`tcore-package:$($package.Substring(0, [Math]::Min(16, $package.Length)))"
     if (Test-Path -LiteralPath $gateCache) { foreach ($line in [IO.File]::ReadAllLines($gateCache)) { [void]$script:gateKeys.Add($line) } }
+    if ($PagesVerdicts) {
+        try {
+            $content = (Invoke-WebRequest -Uri "$pages/target/unit-gate-cache/green.tsv" -TimeoutSec 20 -ErrorAction Stop).Content
+            if ($content -is [byte[]]) { $content = [Text.Encoding]::UTF8.GetString($content) }
+            $published = @($content -split "`r?`n" | Where-Object { $columns = $_ -split "`t"; $columns.Count -eq 6 -and $columns[3] -eq $core })
+            $seeded = @($published | Where-Object { $script:gateKeys.Add($_) })
+            if ($seeded.Count) { New-Item -ItemType Directory -Force (Split-Path $gateCache) | Out-Null; Add-Content -LiteralPath $gateCache -Value $seeded }
+            Write-Output "build.ps1 / gate cache / $($seeded.Count) green rows seeded from $pages ($($published.Count) published on core $($core.Substring(0, 12)))"
+        } catch { Write-Output "build.ps1 / gate cache / no published green rows ($($_.Exception.Message.Split([Environment]::NewLine)[0]))" }
+    }
+    if ($VerdictUrls -and (Test-Path -LiteralPath $VerdictUrls)) {
+        foreach ($line in [IO.File]::ReadAllLines($VerdictUrls)) { $sha, $url = $line -split "`t", 2; if ($sha -and $url) { $script:storeUrls[$sha.ToLower()] = $url } }
+        Write-Output "build.ps1 / gate cache / $($script:storeUrls.Count) shared verdicts offered by $VerdictUrls"
+    }
     Write-Output "build.ps1 / gate cache / $($script:gateKeys.Count) green rows, keyed per unit on the $($libHashes.Count)-module lib by reach, core $($core.Substring(0, 12))"
 }
 
@@ -211,6 +246,13 @@ function Start-TestFile([IO.FileInfo] $Source, [int] $Slot = -1) {
     $gateKey = Get-GateKey $Source
     if ($gateKey -and $gateKeys.Contains($gateKey)) {
         Write-Output "build.ps1 / $name / gate cache: same unit, lib, compiler and runtime as a green run; skipped"
+        return
+    }
+    if ($gateKey -and (Test-StoreVerdict $gateKey)) {
+        Write-Output "build.ps1 / $name / gate cache: oort hit, a shared verdict proved the same key green; skipped"
+        New-Item -ItemType Directory -Force (Split-Path $gateCache) | Out-Null
+        Add-Content -LiteralPath $gateCache -Value $gateKey
+        [void]$gateKeys.Add($gateKey)
         return
     }
     $output = Join-Path $metrics "$name.out"
@@ -363,7 +405,7 @@ else {
 
 if (!$sharded -and (!$Files -or $Files -contains 'examples')) {
     $examplesLoad = Get-HostLoad; $examplesFree = Get-FreeMb; $examplesClock = [Diagnostics.Stopwatch]::StartNew()
-    $validation = @(& (Join-Path $PSScriptRoot 'family-gates.ps1'))
+    $validation = @(try { & (Join-Path $PSScriptRoot 'family-gates.ps1') } catch { $problems.Add("examples: $($_.Exception.Message)") })
     Add-Cost 'examples' 'Examples' $examplesClock.Elapsed.TotalSeconds $null '' $examplesLoad (Get-HostLoad) $examplesFree $(@($validation | Where-Object { $_ -match 'validation messages [1-9]|not written' }).Count)
     $validation | ForEach-Object { Write-Output "build.ps1 / examples / $_" }
     $bad = @($validation | Where-Object { $_ -match 'validation messages [1-9]|not written' })
@@ -392,6 +434,24 @@ if (!$MergeShards) {
     Write-Table $fileRows "files$labelSuffix$shardSuffix.tsv"
     Write-Table $testRows "tests$labelSuffix$shardSuffix.tsv"
 }
+$budgetWaivers = @{}
+foreach ($row in @($costRows | Where-Object { $_.Phase -in 'Unit', 'Regen' -and $_.Seconds -gt $UnitBudgetMinutes * 60 })) {
+    $waiver = $budgetWaivers[$row.Unit]
+    if ($waiver -and [datetime]$waiver[0] -ge (Get-Date).Date) { Write-Output "build.ps1 / budget / $($row.Unit) $($row.Seconds) s over $UnitBudgetMinutes min, waived until $($waiver[0]) by $($waiver[1])"; continue }
+    $problems.Add("budget: $($row.Unit) took $($row.Seconds) s, over the $UnitBudgetMinutes min unit budget; cut it, or waive it in build.ps1 with a date and the item that cuts it")
+}
+$previousCost = @($(foreach ($folder in 'ci-metrics-windows-2025', 'ci-metrics-ubuntu-24.04') {
+    try { (Invoke-WebRequest -Uri "$pages/target/$folder/gate-cost.tsv" -TimeoutSec 20 -ErrorAction Stop).Content | ConvertFrom-Csv -Delimiter "`t" } catch { }
+}) | Where-Object { $_.Os -eq $osName -and $_.Core -eq $coreTag -and $_.Phase -eq 'Unit' })
+$growth = @(foreach ($row in @($costRows | Where-Object Phase -eq 'Unit')) {
+    $before = $previousCost | Where-Object { $_.Unit -eq $row.Unit -and $_.InputBytes -eq [string]$row.InputBytes -and $_.Slots -eq [string]$row.Slots } | Select-Object -First 1
+    if ($before -and $row.Seconds -gt [double]$before.Seconds * 1.25 -and $row.Seconds - [double]$before.Seconds -gt 60) {
+        [pscustomobject]@{ Unit = $row.Unit; Before = [double]$before.Seconds; Now = $row.Seconds; Percent = [math]::Round(100 * ($row.Seconds / [double]$before.Seconds - 1)); BeforeRun = $before.Run }
+    }
+})
+$growth | ForEach-Object { Write-Output "build.ps1 / growth / $($_.Unit) $($_.Before) s -> $($_.Now) s (+$($_.Percent) %) at the same core, slots and input as run $($_.BeforeRun)" }
+Write-Output "build.ps1 / growth / $($growth.Count) units grew over 25 % against $($previousCost.Count) comparable published rows"
+Write-Table $growth "growth$labelSuffix$shardSuffix.tsv"
 Write-Table $costRows "gate-cost$labelSuffix$shardSuffix.tsv"
 Write-Output "build.ps1 / gate cost / $($costRows.Count) rows -> gate-cost$labelSuffix$shardSuffix.tsv"
 if ($sharded) {
@@ -401,6 +461,10 @@ if ($sharded) {
 }
 else {
     $env:FISCAL_METRICS_SUFFIX = $labelSuffix
+    try {
+        Invoke-WebRequest -Uri "$pages/target/ci-metrics/modeling-ceiling$labelSuffix.tsv" -OutFile (Join-Path $metrics "modeling-ceiling.previous$labelSuffix.tsv") -TimeoutSec 20 -ErrorAction Stop
+        Write-Output "build.ps1 / reports / previous modeling ceiling read from $pages"
+    } catch { Write-Output "build.ps1 / reports / no previous modeling ceiling ($($_.Exception.Message.Split([Environment]::NewLine)[0]))" }
     foreach ($source in @(Select-TestFiles { $_.BaseName -eq 'reports' })) { Invoke-TestFile $source }
 }
 if ($env:GITHUB_STEP_SUMMARY -and !$sharded) {

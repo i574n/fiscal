@@ -30,6 +30,10 @@
     ?= v ?|
     | CodeValue c => c
 
+:= identifier_in (v : term_value identifier_data) : string =
+    ?= v ?|
+    | IdentifierValue i => i
+
 := data_type_of_term \* d. (v : term_value d) : canon::data_type =
     ?= v ?|
     | TextValue _ => canon::Text
@@ -50,6 +54,7 @@
         without_tax : term_value amount_data
         tax_total : term_value amount_data
         with_tax : term_value amount_data
+        order_ref : option (term_value identifier_data)
     }
 
 :? canon_of f : f -> canon_document
@@ -101,6 +106,7 @@
         without_tax = AmountValue net
         tax_total = AmountValue tax
         with_tax = amount_sum net tax
+        order_ref = None
     }
 
 := canon_record
@@ -118,6 +124,10 @@
 :+ canon_of manual_invoice = \ doc => manual_canon doc
 
 := exactly (doc : manual_invoice) : exact canon_document = exact (canon_of doc)
+
+:= with_order_ref (reference : string) (c : canon_document) : canon_document = { c with order_ref = Some (IdentifierValue reference) }
+
+:= order_ref_of (c : canon_document) : option string = optionm::map identifier_in c::order_ref
 
 :! cash_receipt = string * string * string * string * decimal::decimal * decimal::decimal
 
@@ -168,3 +178,13 @@ test an_amount_term_does_not_take_a_date fails "Unification failure" =
 ///> rust
 test a_string_is_not_a_fiscal_document fails "Fails to satisfy: canon_of" =
     totals_reconcile "A-1" |> ignore
+
+:= small_canon () : canon_document = canon_of (manual_invoice ("A-1", "2026-11-03", "BRL", "S", "B", cents 1i64, cents 0i64))
+
+///> rust
+test a_manual_invoice_names_no_order =
+    ? order_ref_of (small_canon ()) <> None ?> failwith "a manual invoice carries no BT-13"
+
+///> rust
+test the_order_reference_is_bt_13 =
+    ? order_ref_of (with_order_ref "PO-7" (small_canon ())) <> Some "PO-7" ?> failwith "BT-13 carries PO-7"

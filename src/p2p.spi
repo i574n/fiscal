@@ -12,6 +12,8 @@
 
 :== order_line = { item : string; amount : decimal::decimal }
 
+:== order_terms = { number : string; supplier : string; currency : string }
+
 :| approval_role =
     | Controller
     | Cfo
@@ -24,10 +26,10 @@
     | Requested :: order_line -> purchase requested
     | Reserved :: order_line -> purchase reserved
     | Approved :: order_line * list approval -> purchase approved
-    | Ordered :: order_line * string -> purchase ordered
-    | Received :: order_line * string * decimal::decimal -> purchase received
-    | Matched :: order_line * string * string -> purchase matched
-    | Paid :: order_line * string * string * string -> purchase paid
+    | Ordered :: order_line * order_terms -> purchase ordered
+    | Received :: order_line * order_terms * decimal::decimal -> purchase received
+    | Matched :: order_line * order_terms * string -> purchase matched
+    | Paid :: order_line * order_terms * string * string -> purchase paid
 
 := same (x : decimal::decimal) (y : decimal::decimal) : bool = decimal::compare x y = 0i32
 
@@ -51,34 +53,72 @@
     ?= p ?|
     | Reserved line => ? quorum_of [] approvals >= quorum ?> Some (Approved (line, approvals)) |: None
 
-:= place_order (p : purchase approved) (order_number : string) : purchase ordered =
+:= place_order (p : purchase approved) (terms : order_terms) : purchase ordered =
     ?= p ?|
-    | Approved (line, _) => Ordered (line, order_number)
+    | Approved (line, _) => Ordered (line, terms)
 
 := receive (p : purchase ordered) (amount : decimal::decimal) : purchase received =
     ?= p ?|
-    | Ordered (line, order_number) => Received (line, order_number, amount)
+    | Ordered (line, terms) => Received (line, terms, amount)
 
 := receive_more (p : purchase received) (amount : decimal::decimal) : purchase received =
     ?= p ?|
-    | Received (line, order_number, so_far) => Received (line, order_number, decimal::add so_far amount)
+    | Received (line, terms, so_far) => Received (line, terms, decimal::add so_far amount)
+
+:| match_decision =
+    | MatchedInvoice : purchase matched
+    | AmountsDiffer : decimal::decimal * decimal::decimal * decimal::decimal
+    | CurrencyDiffers : string * string
+    | SupplierDiffers : string * string
+    | OrderDiffers : string * string
 
 := three_way (ordered : decimal::decimal) (received : decimal::decimal) (billed : decimal::decimal) : bool =
     same ordered received && same received billed
+
+:= amounts_decision (ordered : decimal::decimal) (got : decimal::decimal) (billed : decimal::decimal) (m : purchase matched)
+    : match_decision
+    =
+    ? three_way ordered got billed ?> MatchedInvoice m |: AmountsDiffer (ordered, got, billed)
+
+:= currency_leg (terms : order_terms) (billed_in : string) (next : match_decision) : match_decision =
+    ? billed_in = terms::currency ?> next |: CurrencyDiffers (terms::currency, billed_in)
+
+:= supplier_leg (terms : order_terms) (seller : string) (next : match_decision) : match_decision =
+    ? seller = terms::supplier ?> next |: SupplierDiffers (terms::supplier, seller)
+
+:= order_leg (terms : order_terms) (named : option string) (next : match_decision) : match_decision =
+    ?= named ?|
+    | Some r ?& r <> terms::number => OrderDiffers (terms::number, r)
+    | _ => next
+
+:= legs (c : canon_document) (terms : order_terms) (on_amounts : match_decision) : match_decision =
+    := on_supplier = supplier_leg terms (text_in c::seller) on_amounts
+    order_leg terms (order_ref_of c) (currency_leg terms (code_in c::currency) on_supplier)
+
+:= received_decision (c : canon_document) (key : string) (p : purchase received) : match_decision =
+    ?= p ?|
+    | Received (line, terms, got) => legs c terms (amounts_decision line::amount got (amount_in c::with_tax) (Matched (line, terms, key)))
+
+:= decide_match \* r f {canon_of}.
+    (p : purchase received) (invoice : f) (authorization : lifecycle::document r lifecycle::authorized)
+    : match_decision
+    =
+    received_decision (canon_of invoice) (lifecycle::key_text (lifecycle::key_of authorization)) p
+
+:= matched_of (d : match_decision) : option (purchase matched) =
+    ?= d ?|
+    | MatchedInvoice m => Some m
+    | _ => None
 
 := match_invoice \* r f {canon_of}.
     (p : purchase received) (invoice : f) (authorization : lifecycle::document r lifecycle::authorized)
     : option (purchase matched)
     =
-    ?= p ?|
-    | Received (line, order_number, got) =>
-        ? three_way line::amount got (amount_in (canon_of invoice)::with_tax)
-        ?> Some (Matched (line, order_number, lifecycle::key_text (lifecycle::key_of authorization)))
-        |: None
+    matched_of (decide_match p invoice authorization)
 
 := pay (p : purchase matched) (reference : string) : purchase paid =
     ?= p ?|
-    | Matched (line, order_number, key) => Paid (line, order_number, key, reference)
+    | Matched (line, terms, key) => Paid (line, terms, key, reference)
 
 := invoice_key_of (p : purchase paid) : string =
     ?= p ?|
@@ -102,15 +142,25 @@
 := invoice_for (net : i64) (tax : i64) : manual_invoice =
     manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents net, cents tax)
 
+:= po_terms (number : string) : order_terms = { number = number; supplier = "Seller Ltda"; currency = "BRL" }
+
+:= invoice_from (seller : string) (currency : string) : manual_invoice =
+    manual_invoice ("A-2", "2026-11-03", currency, seller, "Buyer SA", cents 100i64, cents 0i64)
+
 := approved_purchase (amount : i64) : purchase approved =
     := held = expected "the budget covers the order" (reserve (request "widget" (cents amount)) (cents 100000i64))
     := signers = [ { who = "ana"; role = Controller }; { who = "bia"; role = Cfo } ]
     expected "two of two approvers sign" (approve held signers 2i32)
 
 := received_purchase (ordered_amount : i64) (received_amount : i64) : purchase received =
-    receive (place_order (approved_purchase ordered_amount) "PO-7") (cents received_amount)
+    receive (place_order (approved_purchase ordered_amount) (po_terms "PO-7")) (cents received_amount)
 
 := received_full () : purchase received = received_purchase 100i64 100i64
+
+:= decision_for (invoice : manual_invoice) : match_decision = decide_match (received_full ()) invoice (nfe_authorization ())
+
+:= order_decision (named : string) : match_decision =
+    received_decision (with_order_ref named (canon_of (invoice_for 100i64 0i64))) "k" (received_full ())
 
 := matched_purchase () : purchase matched =
     expected "100.00 matches" (match_invoice (received_full ()) (invoice_for 100i64 0i64) (nfe_authorization ()))
@@ -126,7 +176,7 @@
 := approving (approvals : list approval) (quorum : i32) : p2p_plan reserved approved =
     Step (fun p => approve p approvals quorum)
 
-:= ordering (order_number : string) : p2p_plan approved ordered = Step (fun p => Some (place_order p order_number))
+:= ordering (terms : order_terms) : p2p_plan approved ordered = Step (fun p => Some (place_order p terms))
 
 := receiving (amount : decimal::decimal) : p2p_plan ordered received = Step (fun p => Some (receive p amount))
 
@@ -147,7 +197,7 @@
 := two_signers () : list approval = [ { who = "ana"; role = Controller }; { who = "bia"; role = Cfo } ]
 
 := ordering_plan (quorum : i32) : p2p_plan requested received =
-    := through_order = then_ (approving (two_signers ()) quorum) (ordering "PO-9")
+    := through_order = then_ (approving (two_signers ()) quorum) (ordering (po_terms "PO-9"))
     then_ (reserving (cents 20000i64)) (then_ through_order (receiving (cents 10000i64)))
 
 := planned_receipt (quorum : i32) : option (purchase received) =
@@ -157,6 +207,214 @@
     ?= match_invoice got (invoice_for 10000i64 0i64) (nfe_authorization ()) ?|
     | Some _ => true
     | None => false
+
+:= settled_amount \* a b. (p : purchase matched) (currency : money::currency a) (route : money::fx_route a b)
+    : money::amount b
+    =
+    ?= p ?|
+    | Matched (line, _, _) => money::converted money::HalfEven 2i32 route (money::amount_of currency line::amount)
+
+:= pay_in \* a b.
+    (p : purchase matched) (reference : string) (currency : money::currency a) (route : money::fx_route a b)
+    : purchase paid * money::amount b
+    =
+    pay p reference, settled_amount p currency route
+
+:= brl_to_usd () : money::fx_route money::brl money::usd =
+    money::Direct (money::rate_of money::Brl money::Usd (cents 18i64))
+
+:= brl_via_usd_to_eur () : money::fx_route money::brl money::eur =
+    := usd_to_eur = money::rate_of money::Usd money::Eur (cents 92i64)
+    money::Via (\? (money::rate_of money::Brl money::Usd (cents 18i64), usd_to_eur))
+
+:= settled_value \* b. (paid : purchase paid * money::amount b) : decimal::decimal =
+    := _, settled = paid
+    money::value_of settled
+
+:! each = ()
+:! kilogram = ()
+
+:| partial_receipt u =
+    | PartialReceipt :: \* u. units::amount u * units::amount u -> partial_receipt u
+
+:= start_receipt \* u. (ordered : units::amount u) (got : units::amount u) : option (partial_receipt u) =
+    ? units::at_least ordered got ?> Some (PartialReceipt (ordered, got)) |: None
+
+:= receive_units \* u. (r : partial_receipt u) (more : units::amount u) : option (partial_receipt u) =
+    ?= r ?|
+    | PartialReceipt (ordered, so_far) => start_receipt ordered (units::plus so_far more)
+
+:= fully_received \* u. (r : partial_receipt u) : bool =
+    ?= r ?|
+    | PartialReceipt (ordered, so_far) => units::at_least so_far ordered
+
+:= ten_each () : units::amount each = units::amount_of 10i32
+
+:= six_of_ten () : partial_receipt each =
+    expected "6 of 10 each fit" (start_receipt (ten_each ()) (units::amount_of 6i32))
+
+:| private p2p_event =
+    | WasReserved : string * decimal::decimal
+    | WasApproved : list string
+    | WasOrdered : string
+    | WasReceived : decimal::decimal
+    | WasMatched : string
+    | WasPaid : string
+
+:= reserved_event (p : purchase reserved) : p2p_event =
+    ?= p ?|
+    | Reserved line => WasReserved (line::item, decimal::normalized line::amount)
+
+:= approved_event (p : purchase approved) : p2p_event =
+    ?= p ?|
+    | Approved (_, approvals) => WasApproved (listm::map (\ (a : approval) => a::who) approvals)
+
+:= ordered_event (p : purchase ordered) : p2p_event =
+    ?= p ?|
+    | Ordered (_, terms) => WasOrdered terms::number
+
+:= received_event (p : purchase received) : p2p_event =
+    ?= p ?|
+    | Received (_, _, got) => WasReceived (decimal::normalized got)
+
+:= matched_event (p : purchase matched) : p2p_event =
+    ?= p ?|
+    | Matched (_, _, key) => WasMatched key
+
+:= paid_event (p : purchase paid) : p2p_event =
+    ?= p ?|
+    | Paid (_, _, _, reference) => WasPaid reference
+
+:= p2p_event_tag (e : p2p_event) : string =
+    ?= e ?|
+    | WasReserved _ => "reserved"
+    | WasApproved _ => "approved"
+    | WasOrdered _ => "ordered"
+    | WasReceived _ => "received"
+    | WasMatched _ => "matched"
+    | WasPaid _ => "paid"
+
+:= p2p_event_fields (e : p2p_event) : list string =
+    ?= e ?|
+    | WasReserved (i, a) => [ i; decimal::text a ]
+    | WasApproved ns => ns
+    | WasOrdered n => [ n ]
+    | WasReceived g => [ decimal::text g ]
+    | WasMatched k => [ k ]
+    | WasPaid r => [ r ]
+
+:= framed_field (field : string) : string = sm'::obj_to_string (sm'::length field : i32) ++# ":" ++# field
+
+:= encode_event (e : p2p_event) : string =
+    listm::fold (\ acc f => acc ++# framed_field f) (p2p_event_tag e ++# "|") (p2p_event_fields e)
+
+:| event_decision =
+    | Decoded : p2p_event
+    | Rejected : string
+
+:= field_length (digits : string) : i32 =
+    ?= decimal::parse digits ?|
+    | Some d => ? d::scale = 0i32 && d::units >= 0i64 ?> convert::i32 d::units |: 0i32 - 1i32
+    | None => 0i32 - 1i32
+
+:= next_length (text : string) (pos : i32) : i32 * i32 =
+    := rest = sm'::substring pos (sm'::length text - pos) text
+    := colon = sm'::index_of ":" rest
+    ? colon < 1i32 ?> 0i32 - 1i32, pos |: field_length (sm'::substring 0i32 colon rest), pos + colon + 1i32
+
+:= next_field (s : string) (pos : i32) : option (string * i32) =
+    := n, from = next_length s pos
+    ? n < 0i32 || from + n > sm'::length s ?> None |: Some (sm'::substring from n s, from + n)
+
+:~ ^ fields_from (s : string) (pos : i32) (acc : list string) : option (list string) =
+    ? pos = sm'::length s
+    ?> Some (listm::rev acc)
+    |:
+        ?= next_field s pos ?|
+        | Some (field, next) => fields_from s next (field :: acc)
+        | None => None
+
+:= received_decision (field : string) : event_decision =
+    ?= decimal::parse field ?|
+    | Some got => Decoded (WasReceived got)
+    | None => Rejected "the received amount is not a decimal"
+
+:= unknown_family (tag : string) : event_decision = Rejected ("not a p2p event family: " ++# tag)
+
+:= plain_event (tag : string) (field : string) : event_decision =
+    ? tag = "ordered" ?> Decoded (WasOrdered field)
+    |? tag = "matched" ?> Decoded (WasMatched field)
+    |? tag = "paid" ?> Decoded (WasPaid field)
+    |: unknown_family tag
+
+:= single_field_event (tag : string) (field : string) : event_decision =
+    ? tag = "approved" ?> Decoded (WasApproved [ field ])
+    |? tag = "received" ?> received_decision field
+    |: plain_event tag field
+
+:= reserved_decision (item : string) (amount : string) : event_decision =
+    ?= decimal::parse amount ?|
+    | Some value => Decoded (WasReserved (item, value))
+    | None => Rejected "the reserved amount is not a decimal"
+
+:= event_of (tag : string) (fs : list string) : event_decision =
+    ?= fs ?|
+    | i :: a :: [] ?& tag = "reserved" => reserved_decision i a
+    | f :: [] => single_field_event tag f
+    | ns ?& tag = "approved" => Decoded (WasApproved ns)
+    | _ => unknown_family tag
+
+:= decode_body (text : string) (bar : i32) : event_decision =
+    ?= fields_from text (bar + 1i32) [] ?|
+    | Some fields => event_of (sm'::substring 0i32 bar text) fields
+    | None => Rejected "a truncated or malformed frame"
+
+:= decode_event (text : string) : event_decision =
+    := bar = sm'::index_of "|" text
+    ? bar < 1i32 ?> Rejected "no family tag" |: decode_body text bar
+
+:= round_trips (e : p2p_event) : bool =
+    ?= decode_event (encode_event e) ?|
+    | Decoded d => encode_event d = encode_event e
+    | Rejected _ => false
+
+:= rejected (text : string) : bool =
+    ?= decode_event text ?|
+    | Rejected _ => true
+    | Decoded _ => false
+
+:= step_id (order_number : string) (e : p2p_event) : event_log::command_id =
+    event_log::command_id (order_number ++# ":" ++# p2p_event_tag e)
+
+:= step_hash (e : p2p_event) : event_log::payload_hash = event_log::payload_hash (encode_event e)
+
+:= record_step (order : string) (e : p2p_event) (log : event_log::event_log p2p_event)
+    : event_log::append_outcome p2p_event
+    =
+    event_log::append (event_log::head_of log) (step_id order e) (step_hash e) e log
+
+:= logged_log (outcome : event_log::append_outcome p2p_event) (fallback : event_log::event_log p2p_event)
+    : event_log::event_log p2p_event
+    =
+    ?= outcome ?|
+    | event_log::Appended next => next
+    | _ => fallback
+
+:= record_all (order_number : string) (events : list p2p_event) (log : event_log::event_log p2p_event)
+    : event_log::event_log p2p_event
+    =
+    listm::fold (\ acc e => logged_log (record_step order_number e acc) acc) log events
+
+:= reserved_purchase () : purchase reserved =
+    expected "the budget covers the order" (reserve (request "widget" (cents 100i64)) (cents 100000i64))
+
+:= ordering_events () : list p2p_event =
+    := a = approved_purchase 100i64
+    := o = place_order a (po_terms "PO-7")
+    [ reserved_event (reserved_purchase ()); approved_event a; ordered_event o; received_event (receive o (cents 100i64)) ]
+
+:= logged_ordering (order : string) : event_log::event_log p2p_event =
+    record_all order (ordering_events ()) (event_log::empty_log ())
 
 ///> rust
 test a_purchase_flows_from_requisition_to_payment =
@@ -219,7 +477,7 @@ test approving_an_unreserved_requisition_does_not_type fails "Unification failur
 
 ///> rust
 test ordering_an_unapproved_requisition_does_not_type fails "Unification failure" =
-    place_order (request "widget" (cents 100i64)) "PO-7" |> ignore
+    place_order (request "widget" (cents 100i64)) (po_terms "PO-7") |> ignore
 
 ///> rust
 test approving_twice_does_not_type fails "Unification failure" =
@@ -231,7 +489,7 @@ test receiving_before_ordering_does_not_type fails "Unification failure" =
 
 ///> rust
 test matching_before_receipt_does_not_type fails "Unification failure" =
-    match_invoice (place_order (approved_purchase 100i64) "PO-7") (invoice_for 100i64 0i64) (nfe_authorization ())
+    match_invoice (place_order (approved_purchase 100i64) (po_terms "PO-7")) (invoice_for 100i64 0i64) (nfe_authorization ())
     |> ignore
 
 ///> rust
@@ -262,7 +520,7 @@ test receiving_a_paid_purchase_does_not_type fails "Unification failure" =
 ///> rust
 test a_plan_composes_the_stages_in_order =
     ?= planned_receipt 2i32 ?|
-    | Some got => ? matches_hundred got ?> () |: failwith "a planned 100.00 receipt matches a 100.00 invoice"
+    | Some got => ? matches_hundred got ?> () |: failwith "a planned 100.00 receipt matches its invoice"
     | None => failwith "two of two signers and a 200.00 budget reach received"
 
 ///> rust
@@ -273,4 +531,111 @@ test a_plan_stops_where_a_step_refuses =
 
 ///> rust
 test a_plan_out_of_stage_order_does_not_type fails "Unification failure" =
-    then_ (reserving (cents 100i64)) (ordering "PO-9") |> ignore
+    then_ (reserving (cents 100i64)) (ordering (po_terms "PO-9")) |> ignore
+
+///> rust
+test a_payment_settles_through_a_direct_fx_route =
+    ? same (settled_value (pay_in (matched_purchase ()) "PIX-2" money::Brl (brl_to_usd ()))) (cents 18i64) = !-
+    ?> failwith "1.00 BRL at 0.18 settles as 0.18 USD"
+
+///> rust
+test a_payment_settles_through_a_route_with_a_middle_currency =
+    ?
+        same (settled_value (pay_in (matched_purchase ()) "PIX-3" money::Brl (brl_via_usd_to_eur ()))) (cents 17i64)
+        = !-
+    ?> failwith "1.00 BRL via USD is 0.1656, so 0.17 EUR"
+
+///> rust
+test paying_from_the_wrong_currency_does_not_type fails "Unification failure" =
+    pay_in (matched_purchase ()) "PIX-4" money::Eur (brl_to_usd ()) |> ignore
+
+///> rust
+test units_arrive_in_parts_up_to_the_order =
+    := last = expected "4 more of 10 each fit" (receive_units (six_of_ten ()) (units::amount_of 4i32))
+    ? fully_received last ?> () |: failwith "6 + 4 of 10 each is the whole order"
+
+///> rust
+test receiving_beyond_the_order_is_refused =
+    ?= receive_units (six_of_ten ()) (units::amount_of 5i32) ?|
+    | Some _ => failwith "6 + 5 of 10 each overflows the order"
+    | None => ()
+
+///> rust
+test receiving_kilograms_against_an_each_order_does_not_type fails "Unification failure" =
+    := kilos : units::amount kilogram = units::amount_of 3i32
+    start_receipt (ten_each ()) kilos |> ignore
+
+///> rust
+test an_ordering_plan_writes_its_stages_to_the_log_in_order =
+    := log = record_all "PO-9" (ordering_events ()) (event_log::empty_log ())
+    ? event_log::head_of log <> 4i64 ?> failwith "4 stage events make head 4"
+
+///> rust
+test replaying_the_stages_appends_nothing =
+    := once = record_all "PO-9" (ordering_events ()) (event_log::empty_log ())
+    ? event_log::head_of (record_all "PO-9" (ordering_events ()) once) <> 4i64
+    ?> failwith "same ids replay; head stays 4"
+
+///> rust
+test a_p2p_event_in_a_lifecycle_log_does_not_type fails "Unification failure" =
+    := log : event_log::event_log lifecycle::event_code = event_log::empty_log ()
+    record_step "PO-9" (reserved_event (reserved_purchase ())) log |> ignore
+
+///> rust
+test the_ordering_events_round_trip_through_their_frames =
+    ? listm::fold (\ ok e => ok && round_trips e) true (ordering_events ()) = !-
+    ?> failwith "decode then encode reproduces every ordering frame"
+
+///> rust
+test a_matched_event_round_trips =
+    ? round_trips (matched_event (matched_purchase ())) = !- ?> failwith "the matched frame round-trips"
+
+///> rust
+test a_paid_frame_carries_its_reference =
+    := paid = paid_event (pay (matched_purchase ()) "PIX-1")
+    ? encode_event paid <> "paid|5:PIX-1" || round_trips paid = !- ?> failwith "the paid frame round-trips"
+
+///> rust
+test a_truncated_frame_is_rejected =
+    := f = encode_event (reserved_event (reserved_purchase ()))
+    ? rejected (sm'::substring 0i32 (sm'::length f - 1i32) f) = !- ?> failwith "a cut frame is rejected"
+
+///> rust
+test frames_of_other_families_are_rejected =
+    ? rejected "cancelled|6:110111" = !- ?> failwith "a lifecycle frame is not a p2p event"
+    ? rejected ("reserved|" ++# framed_field "PO-7") = !- ?> failwith "a reservation needs item and amount"
+
+///> rust
+test a_changed_payload_for_a_logged_stage_collides =
+    := r = record_step "PO-9" (received_event (received_purchase 100i64 50i64)) (logged_ordering "PO-9")
+    ? r <> event_log::Collided 4i64 ?> failwith "a changed received payload collides at 4"
+
+///> rust
+test an_invoice_in_another_currency_does_not_match =
+    ?= decision_for (invoice_from "Seller Ltda" "USD") ?|
+    | CurrencyDiffers (o, b) => ? o <> "BRL" || b <> "USD" ?> failwith "BRL ordered"
+    | _ => failwith "USD billed on a BRL order"
+
+///> rust
+test an_invoice_from_another_seller_does_not_match =
+    ?= decision_for (invoice_from "Other Ltda" "BRL") ?|
+    | SupplierDiffers (_, billed) => ? billed <> "Other Ltda" ?> failwith "the billing seller is named"
+    | _ => failwith "another seller's invoice"
+
+///> rust
+test a_short_receipt_is_an_amount_mismatch =
+    ?= decide_match (received_purchase 100i64 50i64) (invoice_for 100i64 0i64) (nfe_authorization ()) ?|
+    | AmountsDiffer _ => ()
+    | _ => failwith "ordered 1.00, received 0.50 and billed 1.00 differ"
+
+///> rust
+test an_invoice_for_another_order_does_not_match =
+    ?= order_decision "PO-8" ?|
+    | OrderDiffers (_, named) => ? named <> "PO-8" ?> failwith "the invoice's order is named"
+    | _ => failwith "an invoice for PO-8 does not match PO-7"
+
+///> rust
+test an_invoice_naming_its_order_matches =
+    ?= order_decision "PO-7" ?|
+    | MatchedInvoice _ => ()
+    | _ => failwith "an invoice naming PO-7 matches PO-7"

@@ -153,8 +153,9 @@ deps/corpus/*.xsd ──xml.read_xml──▶ xsd.read_schema ──xsd_resolve�
   defects (three Costa Rica `Canton` values, the Chilean `EnvioDTE` and VeriFactu namespaces) join once fixed.
 - `src/corpus_checks.spi` pins the reader and the regex engine to independent oracles over the whole corpus: element
   and attribute counts against .NET's XML DOM, include resolution against `XmlSchemaSet` (`scripts/resolve-check.ps1`),
-  and every distinct pattern of every corpus schema against .NET regex on generated probes: 336, of which 196 are
-  Brazilian and 140 come from the other families (`scripts/pattern-oracle.ps1` derives the list into `src/patterns.txt`).
+  and every distinct pattern of every corpus schema against .NET regex on generated trial strings: 336, of which 196 are
+  Brazilian and 140 come from the other families
+  (`scripts/pattern-oracle.ps1` derives the list into `src/patterns.txt`).
 
 ## Building
 
