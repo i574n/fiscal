@@ -5,7 +5,7 @@
 :< families
 
 := package_entries (dependencies : list string) : list string =
-    "'|core-'" :: "'spiral-'" :: listm::map (\ unit => "'../" ++# unit ++# "-'") dependencies
+    "'|core-'" :: "'spiral-'" :: "'../../lib-'" :: listm::map (\ unit => "'../" ++# unit ++# "-'") dependencies
 
 := packages_line (entries : list string) : string = "packages = [" ++# join_with ", " entries "" ++# "]"
 
@@ -768,12 +768,76 @@ test generates_the_uf_code_union =
 := write_family_module (family : family_root) : () =
     write_family_parts family (family_schema family) (signatures_of family) (complements_of family)
 
+:= versioned_mdfe () : list string = [ "generated_mdfe_v1_00"; "generated_mdfe_v3_00" ]
+
+:= versioned_member (family : family_root) : bool = has_name (module_text family::module_name) (versioned_mdfe ())
+
+:= written_unless_versioned (family : family_root) : i32 =
+    ? versioned_member family
+    ?> 0i32
+    |:
+        write_family_module family
+        1i32
+
 :~ ^ write_family_modules (roots : list family_root) (count : i32) : i32 =
     ?= roots ?|
-    | family :: rest =>
-        write_family_module family
-        write_family_modules rest (count + 1i32)
+    | family :: rest => write_family_modules rest (count + written_unless_versioned family)
     | [] => count
+
+:= mdfe_roots () : list family_root =
+    listm::fold (\ acc family => ? versioned_member family ?> listm::append acc [ family ] |: acc) [] (family_roots ())
+
+:= member_of_root (family : family_root) = module_text family::module_name, family_schema family
+
+:= unit_names (roots : list family_root) : list string = listm::map (\ (r : family_root) => module_text r::module_name) roots
+
+:= version_checks (family : family_root) : string = unit_checks family (family_schema family) (signatures_of family)
+
+:= write_version_text (core : string) (family : family_root) (text : string) : () =
+    := name = module_text family::module_name
+    write_generated_module_with [ generated_runtime::unit_name (); core ] name (text ++# "\n" ++# version_checks family)
+
+:= write_version_certificates (family : family_root) : () =
+    := _, certificates = generated_units_signed (signatures_of family) (family_any_content []) (family_schema family)
+    write_certificates_unit family certificates
+
+:= write_version (core : string) (family : family_root) (text : string) : () =
+    write_version_text core family text
+    write_version_certificates family
+
+:~ ^ write_versions (core : string) (roots : list family_root) (texts : list string) (n : i32) : i32 =
+    ?= roots, texts ?|
+    | (family :: rest), (text :: more) =>
+        write_version core family text
+        write_versions core rest more (n + 1i32)
+    | _ => n
+
+:= staged_family (roots : list family_root) = generate_versioned_family_staged [ "Signature" ] (listm::map member_of_root roots)
+
+:= write_core_unit (core : string) (shared : string) : () =
+    write_runtime_unit ()
+    write_generated_module_with [ generated_runtime::unit_name () ] core shared
+
+:= write_family_over (family : string) (core : string) (roots : list family_root) (text : string) : () =
+    write_generated_module_with (generated_runtime::unit_name () :: core :: unit_names roots) family text
+
+:= write_versioned_family (family : string) (core : string) (roots : list family_root) : i32 =
+    := shared, texts, text = staged_family roots core
+    write_core_unit core shared
+    write_family_over family core roots text
+    write_versions core roots texts 0i32
+
+:= write_mdfe_family () : i32 = write_versioned_family "generated_mdfe" "generated_mdfe_core" (mdfe_roots ())
+
+:= write_every_family () : i32 = write_family_modules (family_roots ()) 0i32 + write_mdfe_family ()
+
+:= unit_toml (name : string) : string = file_system::read_all_text (fiscal_paths::under ("generated/" ++# name ++# "/spiral.toml"))
+
+:= unit_text (name : string) : string = file_system::read_all_text (fiscal_paths::under ("generated/" ++# name ++# "/" ++# name ++# ".spi"))
+
+:= mdfe_core_listed () : bool = sm'::contains "'../generated_mdfe_core-'" (unit_toml "generated_mdfe")
+
+:= mdfe_v3_opens_core () : bool = sm'::contains "open generated_mdfe_core\n" (unit_text "generated_mdfe_v3_00")
 
 ///> rust
 test writes_the_family_gate_table =
@@ -782,7 +846,13 @@ test writes_the_family_gate_table =
 
 ///> rust
 test generates_every_family_version =
-    ? write_family_modules (family_roots ()) 0i32 <> 12i32 ?> failwith "every family root is written"
+    ? write_every_family () <> 12i32 ?> failwith "every family root is written, MDF-e as one versioned family"
+
+///> rust
+test writes_mdf_e_as_one_versioned_family =
+    ? write_mdfe_family () <> 2i32 ?> failwith "both MDF-e versions are written"
+    ? mdfe_core_listed () = !- ?> failwith "the family unit lists the core"
+    ? mdfe_v3_opens_core () = !- ?> failwith "MDF-e 3.00 reads its shared types from the core"
 
 ///> rust
 test generates_nfe_v4_with_a_staged_signature =
@@ -823,9 +893,61 @@ test generates_cfdi_4_0 =
     ? sm'::contains "modules" package ?> failwith "a unit's modules come from its one file, not a list"
     ? file_system::file_exists (unit ++# "package.spiproj") ?> failwith "a unit keeps one manifest"
 
+:== family_case = string * list family_root * i32
+
+:= ubl_cases () : list family_case =
+    [ ("UBL Invoice 2.1", [ ubl_invoice_2_1 () ], 1i32); ("UBL CreditNote 2.1", [ ubl_creditnote_2_1 () ], 1i32) ]
+
+:= ubl_business_cases () : list family_case =
+    [
+        ("UBL DebitNote, ApplicationResponse, DespatchAdvice and ReceiptAdvice 2.1", ubl_business_documents_2_1 (), 4i32)
+        ("UN/CEFACT CII D16B", [ cii_d16b () ], 1i32)
+    ]
+
+:= italy_greece_cases () : list family_case =
+    [ ("FatturaPA 1.2.3", [ fatturapa_1_2_3 () ], 1i32); ("myDATA 2.0.2", [ mydata_2_0_2 () ], 1i32) ]
+
+:= poland_hungary_cases () : list family_case =
+    [ ("KSeF FA(3)", [ ksef_fa_3 () ], 1i32); ("NAV invoiceData 3.0", [ nav_invoice_data_3_0 () ], 1i32) ]
+
+:= spain_cases () : list family_case =
+    [
+        ("Facturae 3.2.2", [ facturae_3_2_2 () ], 1i32)
+        ("VeriFactu RegFactuSistemaFacturacion", [ verifactu_registro () ], 1i32)
+    ]
+
+:= portugal_india_cases () : list family_case =
+    [ ("SAF-T PT 1.04_01", [ saft_pt_1_04_01 () ], 1i32); ("India GST INV-01 1.1", [ gst_inv01_1_1 () ], 1i32) ]
+
+:= chile_cases () : list family_case =
+    [ ("Chile DTE v10", [ chile_dte_v10 () ], 1i32); ("Chile EnvioDTE v10", [ chile_envio_dte_v10 () ], 1i32) ]
+
+:= costa_rica_cases () : list family_case =
+    [
+        ("Hacienda Factura 4.4", [ hacienda_factura_4_4 () ], 1i32)
+        ("the other eight Hacienda 4.4 documents", hacienda_documents (), 8i32)
+    ]
+
+:= france_ecuador_cases () : list family_case =
+    [
+        ("DGFiP e-reporting 3.2", [ fr_ereporting_3_2 () ], 1i32)
+        ("DGFiP annuaire 3.2", [ fr_annuaire_actualisation_3_2 (); fr_annuaire_consultation_3_2 () ], 2i32)
+        ("SRI factura 1.0.0 to 2.1.0", ec_sri_facturas (), 4i32)
+        ("DGFiP flux 1 BASE and FULL, UBL 2.1 and CII D22B", french_f1_families (), 6i32)
+    ]
+
+:= listed_cases () : list (list family_case) =
+    := west = [ ubl_cases (); ubl_business_cases (); italy_greece_cases (); poland_hungary_cases (); spain_cases () ]
+    listm::append west [ portugal_india_cases (); chile_cases (); costa_rica_cases (); france_ecuador_cases () ]
+
+:= unwritten (missing : list string) (row : family_case) : list string =
+    ?= row ?|
+    | (name, roots, expected) => ? write_family_modules roots 0i32 = expected ?> missing |: name :: missing
+
 ///> rust
-test generates_ubl_invoice_2_1 =
-    ? write_family_modules (ubl_invoice_2_1 () :: []) 0i32 <> 1i32 ?> failwith "UBL Invoice 2.1 is written"
+test generates_every_listed_family =
+    := missing = listm::fold (\ acc rows => listm::fold unwritten acc rows) [] (listed_cases ())
+    ? missing <> [] ?> failwith ("not written: " ++# join_with ", " (listm::rev missing) "")
 
 ///> rust
 test ubl_json_documents_read_through_the_transcoder =
@@ -847,69 +969,6 @@ test a_recorded_document_defect_is_asserted_not_read_back =
     ?> failwith "the LHDN sample must fail with its recorded message"
     ? sm'::contains "inl defect_check" (document_checks (ubl_creditnote_2_1 ()) "")
     ?> failwith "a family without recorded defects emits no defect check"
-
-///> rust
-test generates_ubl_creditnote_2_1 =
-    ? write_family_modules [ ubl_creditnote_2_1 () ] 0i32 <> 1i32 ?> failwith "UBL CreditNote 2.1 is written"
-
-///> rust
-test generates_ubl_business_documents_2_1 =
-    ? write_family_modules (ubl_business_documents_2_1 ()) 0i32 <> 4i32
-    ?> failwith "UBL DebitNote, ApplicationResponse, DespatchAdvice and ReceiptAdvice 2.1 are written"
-
-///> rust
-test generates_fatturapa_1_2_3 =
-    ? write_family_modules (fatturapa_1_2_3 () :: []) 0i32 <> 1i32 ?> failwith "FatturaPA 1.2.3 is written"
-
-///> rust
-test generates_ksef_fa_3 =
-    ? write_family_modules (ksef_fa_3 () :: []) 0i32 <> 1i32 ?> failwith "KSeF FA(3) is written"
-
-///> rust
-test generates_chile_dte_v10 =
-    ? write_family_modules [ chile_dte_v10 () ] 0i32 <> 1i32 ?> failwith "Chile DTE v10 is written"
-
-///> rust
-test generates_chile_envio_dte_v10 =
-    ? write_family_modules [ chile_envio_dte_v10 () ] 0i32 <> 1i32 ?> failwith "Chile EnvioDTE v10 is written"
-
-///> rust
-test generates_facturae_3_2_2 =
-    ? write_family_modules [ facturae_3_2_2 () ] 0i32 <> 1i32 ?> failwith "Facturae 3.2.2 is written"
-
-///> rust
-test generates_verifactu_registro =
-    ? write_family_modules [ verifactu_registro () ] 0i32 <> 1i32
-    ?> failwith "VeriFactu RegFactuSistemaFacturacion is written"
-
-///> rust
-test generates_cii_d16b =
-    ? write_family_modules [ cii_d16b () ] 0i32 <> 1i32 ?> failwith "UN/CEFACT CII D16B is written"
-
-///> rust
-test generates_saft_pt_1_04_01 =
-    ? write_family_modules [ saft_pt_1_04_01 () ] 0i32 <> 1i32 ?> failwith "SAF-T PT 1.04_01 is written"
-
-///> rust
-test generates_mydata_2_0_2 =
-    ? write_family_modules [ mydata_2_0_2 () ] 0i32 <> 1i32 ?> failwith "myDATA 2.0.2 is written"
-
-///> rust
-test generates_hacienda_factura_4_4 =
-    ? write_family_modules [ hacienda_factura_4_4 () ] 0i32 <> 1i32 ?> failwith "Hacienda Factura 4.4 is written"
-
-///> rust
-test generates_hacienda_documents_4_4 =
-    ? write_family_modules (hacienda_documents ()) 0i32 <> 8i32
-    ?> failwith "the other eight Hacienda 4.4 documents are written"
-
-///> rust
-test generates_nav_invoice_data_3_0 =
-    ? write_family_modules [ nav_invoice_data_3_0 () ] 0i32 <> 1i32 ?> failwith "NAV invoiceData 3.0 is written"
-
-///> rust
-test generates_gst_inv01_1_1 =
-    ? write_family_modules [ gst_inv01_1_1 () ] 0i32 <> 1i32 ?> failwith "India GST INV-01 1.1 is written"
 
 ///> rust
 test unqualified_schemas_prefix_the_example_root =
@@ -936,11 +995,11 @@ test the_law_path_uses_the_tags_the_reader_reads =
 test a_long_package_list_wraps_like_taplo =
     ?
         module_package [ "generated_fiscal_runtime" ]
-        <> "packageDir = '../../deps/spiral/lib'\npackages = ['|core-', 'spiral-', '../generated_fiscal_runtime-']\n"
+        <> "packageDir = '../../deps/spiral/lib'\npackages = ['|core-', 'spiral-', '../../lib-', '../generated_fiscal_runtime-']\n"
     ?> failwith "a short package list stays on one line"
     := wrapped = module_package [ "generated_fiscal_runtime"; "generated_cfdi_tfd_1_1"; "generated_cfdi_pagos_2_0" ]
     ?
-        sm'::starts_with "packageDir = '../../deps/spiral/lib'\npackages = [\n    '|core-',\n    'spiral-',\n" wrapped
+        sm'::starts_with "packageDir = '../../deps/spiral/lib'\npackages = [\n    '|core-',\n    'spiral-',\n    '../../lib-',\n" wrapped
         = !-
     ?> failwith "past 120 columns each entry takes its own line"
     ? sm'::ends_with "    '../generated_cfdi_pagos_2_0-',\n]\n" wrapped = !-

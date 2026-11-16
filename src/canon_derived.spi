@@ -63,6 +63,9 @@
 
 := cfdi_due_matches (t : cfdi_totals) : bool = decimal::compare (cfdi_bt115 t) t::total = 0i32
 
+:= stamped_cfdi_text () : string =
+    file_system::read_all_text (fiscal_paths::under "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml")
+
 ///> rust
 test bt_109_is_lines_minus_allowances_plus_charges =
     := cents (n : i64) : decimal::decimal = { units = n; scale = 2i32 }
@@ -91,7 +94,7 @@ test a_cfdi_total_is_the_amount_due_after_withholding =
 
 ///> rust
 test a_stamped_cfdi_reconciles_through_its_derived_terms =
-    := text = file_system::read_all_text (fiscal_paths::under "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml")
+    := text = stamped_cfdi_text ()
     ?= cfdi_totals_of text ?|
     | Some t =>
         := line_net = cfdi_bt109 t

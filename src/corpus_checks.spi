@@ -104,9 +104,11 @@ test models_the_real_tipos_basico_schema =
     | path :: rest => census_corpus rest (files + 1i32) (schema_census counts path)
     | [] => files, counts
 
+:= corpus_census () : i32 * census = census_corpus (corpus::manifest_files ()) 0i32 (no_census ())
+
 ///> rust
 test models_the_corpus_census =
-    := files, counts = census_corpus (corpus::manifest_files ()) 0i32 (no_census ())
+    := files, counts = corpus_census ()
     := element = element_total counts::elements
     := complex_type = complex_total counts::complex_types
     := simple_type = simple_total counts::simple_types
@@ -146,6 +148,11 @@ test models_the_corpus_census =
     | path :: rest => resolve_corpus rest (resolve_file totals path)
     | [] => totals
 
+:= corpus_resolved () : corpus_resolution =
+    resolve_corpus
+        (corpus::manifest_files ())
+        { files = 0i32; with_missing_include = 0i32; with_unresolved = 0i32; unresolved_beside_missing = 0i32 }
+
 ///> rust
 test resolves_the_nfe_tree =
     := tree = load_schema_tree (fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
@@ -156,8 +163,7 @@ test resolves_the_nfe_tree =
 
 ///> rust
 test resolves_the_corpus_like_dotnet =
-    := empty = { files = 0i32; with_missing_include = 0i32; with_unresolved = 0i32; unresolved_beside_missing = 0i32 }
-    := totals = resolve_corpus (corpus::manifest_files ()) empty
+    := totals = corpus_resolved ()
     ? totals::files <> 580i32 ?> failwith "580 files"
     ? totals::with_missing_include <> 5i32 ?> failwith "the 5 files whose include .NET cannot resolve"
     ? totals::with_unresolved <> 0i32 ?> failwith "no dangling type reference where every include is present"
@@ -167,7 +173,7 @@ test every_corpus_pattern_compiles =
     := ok, failed =
         count_compiled (file_system::read_all_text (fiscal_paths::under "src/patterns.txt")) 0i32 (0i32, 0i32)
     ? failed <> 0i32 ?> failwith "a corpus pattern did not parse"
-    ? ok <> 336i32 ?> failwith "336 distinct patterns"
+    ? ok <> 362i32 ?> failwith "362 distinct patterns"
 
 := trial_disagreements (check : string -> string -> list string -> disagreement -> disagreement) : disagreement =
     := lines (name : string) : list string = lines_of (file_system::read_all_text (fiscal_paths::under ("src/" ++# name))) 0i32 []
@@ -211,7 +217,7 @@ test every_corpus_pattern_has_a_finite_dfa =
             largest_pattern = ""
             lines = ""
         }
-    ? census::patterns <> 336i32 ?> failwith "336 distinct patterns"
+    ? census::patterns <> 362i32 ?> failwith "362 distinct patterns"
     ? census::without_dfa <> 0i32 ?> failwith "a pattern has no DFA within the state limit"
 
 ///> rust

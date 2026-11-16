@@ -204,6 +204,26 @@
         listm'::filter (\ (id : canon::term_id) => times_accounted accounted id <> 1i32) required
     )
 
+:= unmarked_row (accounted : list canon::term_id) (r : canon::term_row) : bool =
+    canon::is_group r::id = !- && listm'::contains r::id accounted = !-
+
+:= unmarked_terms (accounted : list canon::term_id) : list canon::term_id =
+    listm::map (\ (r : canon::term_row) => r::id) (listm'::filter (unmarked_row accounted) (canon::en16931_terms ()))
+
+:= census_line (source : string) (ids : list canon::term_id) : string =
+    := count = sm'::obj_to_string (listm::length ids : i32)
+    source ++# " terms without a loss marker (" ++# count ++# "): " ++# sm'::concat_list ", " (listm::map canon::term_id_text ids)
+
+:= census_path (source : string) : string = fiscal_paths::under ("target/ci-metrics/canon-loss-" ++# source ++# ".tsv")
+
+:= record_census (source : string) (name : string) (ids : list canon::term_id) : () =
+    file_system::directory_create_all (fiscal_paths::under "target/ci-metrics") |> ignore
+    file_system::write_all_text (census_path source) (census_line name ids ++# "\n")
+
+:= required_among (ids : list canon::term_id) : list canon::term_id =
+    := required = required_ids (canon::en16931_terms ())
+    listm'::filter (\ (id : canon::term_id) => listm'::contains id required) ids
+
 := absent_required (bindings : list (canon::term_id * string)) (required : list canon::term_id) : list string =
     listm::map canon::term_id_text (listm'::filter (\ (id : canon::term_id) => is_bound bindings id = !-) required)
 

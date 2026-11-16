@@ -1,0 +1,3475 @@
+///- --package . --timeout 2400000
+open xml_codec
+
+prototype to_text t : t -> string
+
+inl text_node forall t {to_text}. (name : string) (v : t) : xml.xml_node =
+    xml.element name [] (xml.text_children (to_text v))
+
+inl optional_text_nodes forall t {to_text}. (name : string) (v : option t) : list xml.xml_node =
+    xml.option_list (optionm.map (text_node name) v)
+
+inl repeated_text_nodes forall t {to_text}. (name : string) (vs : list t) : list xml.xml_node =
+    listm.map (text_node name) vs
+
+nominal lexical t = { value : t; text : string }
+
+instance to_text lexical t = fun x => x.text
+
+inl lexical_of forall t. (text : string) (value : option t) : option (lexical t) =
+    optionm.map (fun v => lexical { value = v; text = text }) value
+
+inl whole_of (text : string) : option i64 =
+    if sm'.index_of "." text >= 0i32
+    then None
+    else optionm.map (fun (d : decimal.decimal) => d.units) (decimal.parse text)
+
+inl whole_at_least (least : i64) (text : string) : option i64 =
+    match whole_of text with
+    | Some n => if n >= least then Some n else None
+    | None => None
+
+inl boolean_of (text : string) : option bool =
+    match xml.collapsed_space text with
+    | "true" => Some true
+    | "1" => Some true
+    | "false" => Some false
+    | "0" => Some false
+    | _ => None
+
+type xsd_integer = lexical i64
+
+inl xsd_integer_of_string (s : string) : option xsd_integer = lexical_of s (whole_of s)
+
+inl xsd_integer_example (_ : i32) : xsd_integer = lexical { value = 1i64; text = "1" }
+
+inl xsd_integer_example_text (_ : i32) : string = "1"
+
+type xsd_boolean = lexical bool
+
+inl xsd_boolean_of_string (s : string) : option xsd_boolean = lexical_of s (boolean_of s)
+
+inl xsd_boolean_example (_ : i32) : xsd_boolean = lexical { value = true; text = "true" }
+
+inl xsd_boolean_example_text (_ : i32) : string = "true"
+
+let rec xsd_pattern_225c0f57_8 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s
+    then state = 4i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_225c0f57_8 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_225c0f57_8 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_225c0f57_8 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_225c0f57_8 4i32 s next
+            else false
+        elif state = 4i32 then
+            false
+        else false
+
+nominal private x_identifiant_matricule_plateforme_type = string
+
+inl x_identifiant_matricule_plateforme_type_is_valid (s : string) : bool = (xsd_pattern_225c0f57_8 0i32 s 0i32)
+
+inl x_identifiant_matricule_plateforme_type_of_string (s : string) : option x_identifiant_matricule_plateforme_type =
+    match xml.collapsed_space s with
+    | s =>
+        if x_identifiant_matricule_plateforme_type_is_valid s
+        then Some (x_identifiant_matricule_plateforme_type s)
+        else None
+
+inl x_identifiant_matricule_plateforme_type_to_string (x : x_identifiant_matricule_plateforme_type) : string =
+    match x with x_identifiant_matricule_plateforme_type s => s
+
+instance to_text x_identifiant_matricule_plateforme_type = fun x => x_identifiant_matricule_plateforme_type_to_string x
+inl x_identifiant_matricule_plateforme_type_example (_ : i32) : x_identifiant_matricule_plateforme_type =
+    x_identifiant_matricule_plateforme_type "0000"
+
+inl x_identifiant_matricule_plateforme_type_example_text (k : i32) : string =
+    x_identifiant_matricule_plateforme_type_to_string (x_identifiant_matricule_plateforme_type_example k)
+
+let rec xsd_pattern_5d939434_9 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s
+    then state = 14i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 9i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 10i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 12i32 s next
+            else false
+        elif state = 12i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 13i32 s next
+            else false
+        elif state = 13i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_5d939434_9 14i32 s next
+            else false
+        elif state = 14i32 then
+            false
+        else false
+
+nominal private x_identifiant_siret_type = string
+
+inl x_identifiant_siret_type_is_valid (s : string) : bool = (xsd_pattern_5d939434_9 0i32 s 0i32)
+
+inl x_identifiant_siret_type_of_string (s : string) : option x_identifiant_siret_type =
+    match xml.collapsed_space s with
+    | s => if x_identifiant_siret_type_is_valid s then Some (x_identifiant_siret_type s) else None
+
+inl x_identifiant_siret_type_to_string (x : x_identifiant_siret_type) : string =
+    match x with x_identifiant_siret_type s => s
+
+instance to_text x_identifiant_siret_type = fun x => x_identifiant_siret_type_to_string x
+inl x_identifiant_siret_type_example (_ : i32) : x_identifiant_siret_type = x_identifiant_siret_type "00000000000000"
+
+inl x_identifiant_siret_type_example_text (k : i32) : string =
+    x_identifiant_siret_type_to_string (x_identifiant_siret_type_example k)
+
+let rec xsd_pattern_267c694e_8 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s
+    then state = 9i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 4i32 s next
+            else false
+        elif state = 4i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 5i32 s next
+            else false
+        elif state = 5i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 6i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 7i32 s next
+            else false
+        elif state = 7i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 8i32 s next
+            else false
+        elif state = 8i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_267c694e_8 9i32 s next
+            else false
+        elif state = 9i32 then
+            false
+        else false
+
+nominal private x_identifiant_siren_type = string
+
+inl x_identifiant_siren_type_is_valid (s : string) : bool = (xsd_pattern_267c694e_8 0i32 s 0i32)
+
+inl x_identifiant_siren_type_of_string (s : string) : option x_identifiant_siren_type =
+    match xml.collapsed_space s with
+    | s => if x_identifiant_siren_type_is_valid s then Some (x_identifiant_siren_type s) else None
+
+inl x_identifiant_siren_type_to_string (x : x_identifiant_siren_type) : string =
+    match x with x_identifiant_siren_type s => s
+
+instance to_text x_identifiant_siren_type = fun x => x_identifiant_siren_type_to_string x
+inl x_identifiant_siren_type_example (_ : i32) : x_identifiant_siren_type = x_identifiant_siren_type "000000000"
+
+inl x_identifiant_siren_type_example_text (k : i32) : string =
+    x_identifiant_siren_type_to_string (x_identifiant_siren_type_example k)
+
+let rec xsd_pattern_3ca4f558_86 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s
+    then state = 18i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 4i32 s next
+            else false
+        elif state = 4i32 then
+            if c = 48u32
+            then xsd_pattern_3ca4f558_86 5i32 s next
+            elif c = 49u32
+            then xsd_pattern_3ca4f558_86 6i32 s next
+            else false
+        elif state = 5i32 then
+            if 49u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 7i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 50u32
+            then xsd_pattern_3ca4f558_86 7i32 s next
+            else false
+        elif state = 7i32 then
+            if c = 48u32
+            then xsd_pattern_3ca4f558_86 8i32 s next
+            elif 49u32 <= c && c <= 50u32
+            then xsd_pattern_3ca4f558_86 9i32 s next
+            elif c = 51u32
+            then xsd_pattern_3ca4f558_86 10i32 s next
+            else false
+        elif state = 8i32 then
+            if 49u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 11i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 11i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 49u32
+            then xsd_pattern_3ca4f558_86 11i32 s next
+            else false
+        elif state = 11i32 then
+            if 48u32 <= c && c <= 49u32
+            then xsd_pattern_3ca4f558_86 12i32 s next
+            elif c = 50u32
+            then xsd_pattern_3ca4f558_86 13i32 s next
+            else false
+        elif state = 12i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 14i32 s next
+            else false
+        elif state = 13i32 then
+            if 48u32 <= c && c <= 51u32
+            then xsd_pattern_3ca4f558_86 14i32 s next
+            else false
+        elif state = 14i32 then
+            if 48u32 <= c && c <= 53u32
+            then xsd_pattern_3ca4f558_86 15i32 s next
+            else false
+        elif state = 15i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 16i32 s next
+            else false
+        elif state = 16i32 then
+            if 48u32 <= c && c <= 53u32
+            then xsd_pattern_3ca4f558_86 17i32 s next
+            else false
+        elif state = 17i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_3ca4f558_86 18i32 s next
+            else false
+        elif state = 18i32 then
+            false
+        else false
+
+nominal private x_horodate_type = string
+
+inl x_horodate_type_is_valid (s : string) : bool = (xsd_pattern_3ca4f558_86 0i32 s 0i32)
+
+inl x_horodate_type_of_string (s : string) : option x_horodate_type =
+    match xml.collapsed_space s with s => if x_horodate_type_is_valid s then Some (x_horodate_type s) else None
+
+inl x_horodate_type_to_string (x : x_horodate_type) : string = match x with x_horodate_type s => s
+
+instance to_text x_horodate_type = fun x => x_horodate_type_to_string x
+inl x_horodate_type_example (_ : i32) : x_horodate_type = x_horodate_type "00000101200000"
+
+inl x_horodate_type_example_text (k : i32) : string = x_horodate_type_to_string (x_horodate_type_example k)
+
+let rec xsd_pattern_6dad1812_44 (state : i32) (s : string) (i : i32) : bool =
+    if i >= sm'.length s
+    then state = 11i32
+    else
+        inl c = xml.code_point_at s i
+        inl next = i + xml.code_point_width s i
+        if state = 0i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_6dad1812_44 1i32 s next
+            else false
+        elif state = 1i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_6dad1812_44 2i32 s next
+            else false
+        elif state = 2i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_6dad1812_44 3i32 s next
+            else false
+        elif state = 3i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_6dad1812_44 4i32 s next
+            else false
+        elif state = 4i32 then
+            if c = 48u32
+            then xsd_pattern_6dad1812_44 5i32 s next
+            elif c = 49u32
+            then xsd_pattern_6dad1812_44 6i32 s next
+            else false
+        elif state = 5i32 then
+            if 49u32 <= c && c <= 57u32
+            then xsd_pattern_6dad1812_44 7i32 s next
+            else false
+        elif state = 6i32 then
+            if 48u32 <= c && c <= 50u32
+            then xsd_pattern_6dad1812_44 7i32 s next
+            else false
+        elif state = 7i32 then
+            if c = 48u32
+            then xsd_pattern_6dad1812_44 8i32 s next
+            elif 49u32 <= c && c <= 50u32
+            then xsd_pattern_6dad1812_44 9i32 s next
+            elif c = 51u32
+            then xsd_pattern_6dad1812_44 10i32 s next
+            else false
+        elif state = 8i32 then
+            if 49u32 <= c && c <= 57u32
+            then xsd_pattern_6dad1812_44 11i32 s next
+            else false
+        elif state = 9i32 then
+            if 48u32 <= c && c <= 57u32
+            then xsd_pattern_6dad1812_44 11i32 s next
+            else false
+        elif state = 10i32 then
+            if 48u32 <= c && c <= 49u32
+            then xsd_pattern_6dad1812_44 11i32 s next
+            else false
+        elif state = 11i32 then
+            false
+        else false
+
+nominal private x_date_type = string
+
+inl x_date_type_is_valid (s : string) : bool = (xsd_pattern_6dad1812_44 0i32 s 0i32)
+
+inl x_date_type_of_string (s : string) : option x_date_type =
+    match xml.collapsed_space s with s => if x_date_type_is_valid s then Some (x_date_type s) else None
+
+inl x_date_type_to_string (x : x_date_type) : string = match x with x_date_type s => s
+
+instance to_text x_date_type = fun x => x_date_type_to_string x
+inl x_date_type_example (_ : i32) : x_date_type = x_date_type "00000101"
+
+inl x_date_type_example_text (k : i32) : string = x_date_type_to_string (x_date_type_example k)
+
+nominal x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet =
+    {
+        date_debut : x_date_type
+        date_fin : option (x_date_type)
+    }
+
+nominal x_etablissements_type_etablissement_donnees_b2_g =
+    {
+        engagement_juridique : xsd_boolean
+        service : xsd_boolean
+        eng_jur_serv : xsd_boolean
+        moa : xsd_boolean
+        mo_aunique : xsd_boolean
+        statut_mise_en_paiement : xsd_boolean
+    }
+
+nominal x_periode_effet_consultation_type =
+    {
+        date_debut : x_date_type
+        date_fin : option (x_date_type)
+        date_fin_effective : option (x_date_type)
+    }
+
+nominal x_id_codes_routage_type =
+    {
+        base : string
+        qualifiant : string
+    }
+
+nominal x_id_siret_type =
+    {
+        base : x_identifiant_siret_type
+        qualifiant : string
+    }
+
+nominal x_id_siren_type =
+    {
+        base : x_identifiant_siren_type
+        qualifiant : string
+    }
+
+nominal x_codes_routage_actualisation_type_code_routage =
+    {
+        statut : string
+        id_siret : x_id_siret_type
+        id_routage : x_id_codes_routage_type
+        nom : string
+        ligne_adresse1 : option (string)
+        ligne_adresse2 : option (string)
+        ligne_adresse3 : option (string)
+        localite : option (string)
+        cp : option (string)
+        subdivision_pays : option (string)
+        code_pays : option (string)
+    }
+
+nominal x_codes_routage_actualisation_type =
+    {
+        code_routage : list (x_codes_routage_actualisation_type_code_routage)
+    }
+
+nominal x_id_plateformes_reception_type_id_plateforme_reception =
+    {
+        id_instance : xsd_integer
+        motif_presence : string
+        statut : string
+        type_plateforme : string
+        matricule : x_identifiant_matricule_plateforme_type
+        id_siren : option (x_id_siren_type)
+        nom : string
+        nom_commercial : option (string)
+        contact : option (string)
+        date_debut_immatriculation : x_date_type
+        date_fin_immatriculation : option (x_date_type)
+    }
+
+nominal x_id_plateformes_reception_type =
+    {
+        id_plateforme_reception : list (x_id_plateformes_reception_type_id_plateforme_reception)
+    }
+
+nominal x_codes_routage_consultation_type_code_routage =
+    {
+        id_instance : xsd_integer
+        motif_presence : string
+        statut : string
+        id_siret : x_id_siret_type
+        id_routage : x_id_codes_routage_type
+        nom : string
+        ligne_adresse1 : option (string)
+        ligne_adresse2 : option (string)
+        ligne_adresse3 : option (string)
+        localite : option (string)
+        cp : option (string)
+        subdivision_pays : option (string)
+        code_pays : option (string)
+        engagement_juridique : option (xsd_boolean)
+    }
+
+nominal x_codes_routage_consultation_type =
+    {
+        code_routage : list (x_codes_routage_consultation_type_code_routage)
+    }
+
+nominal x_etablissements_type_etablissement =
+    {
+        id_instance : xsd_integer
+        motif_presence : string
+        statut : string
+        id_siret : x_id_siret_type
+        type_etablissement : string
+        nom : string
+        ligne_adresse1 : option (string)
+        ligne_adresse2 : option (string)
+        ligne_adresse3 : option (string)
+        localite : option (string)
+        cp : option (string)
+        subdivision_pays : option (string)
+        code_pays : option (string)
+        donnees_b2_g : option (x_etablissements_type_etablissement_donnees_b2_g)
+        diffusible : string
+    }
+
+nominal x_etablissements_type =
+    {
+        etablissement : list (x_etablissements_type_etablissement)
+    }
+
+nominal x_unites_legales_type_unite_legale =
+    {
+        id_instance : xsd_integer
+        motif_presence : string
+        statut : string
+        id_siren : x_id_siren_type
+        nom : string
+        type_entite : string
+        diffusible : string
+    }
+
+nominal x_unites_legales_type =
+    {
+        unite_legale : list (x_unites_legales_type_unite_legale)
+    }
+
+nominal x_info_adressage_actualisation_type_identifiant =
+    {
+        id_lin_siren : x_id_siren_type
+        id_lin_siret : option (x_id_siret_type)
+        id_lin_routage : option (x_id_codes_routage_type)
+        suffixe : option (string)
+    }
+
+nominal x_info_adressage_actualisation_type =
+    {
+        identifiant : x_info_adressage_actualisation_type_identifiant
+    }
+
+nominal x_info_adressage_consultation_type =
+    {
+        identifiant : string
+        id_lin_siren : x_id_siren_type
+        id_lin_siret : option (x_id_siret_type)
+        id_lin_routage : option (x_id_codes_routage_type)
+        suffixe : option (string)
+    }
+
+nominal x_lignes_annuaire_actualisation_type_ligne_annuaire =
+    {
+        nature : string
+        date_effet : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet
+        info_adressage : x_info_adressage_actualisation_type
+        id_plateforme : x_identifiant_matricule_plateforme_type
+    }
+
+nominal x_lignes_annuaire_actualisation_type =
+    {
+        ligne_annuaire : list (x_lignes_annuaire_actualisation_type_ligne_annuaire)
+    }
+
+nominal x_lignes_annuaire_f11_type_ligne_annuaire =
+    {
+        id_instance : xsd_integer
+        motif_presence : string
+        nature : string
+        date_effet : x_periode_effet_consultation_type
+        info_adressage : x_info_adressage_consultation_type
+    }
+
+nominal x_lignes_annuaire_f11_type =
+    {
+        ligne_annuaire : list (x_lignes_annuaire_f11_type_ligne_annuaire)
+    }
+
+nominal x_lignes_annuaire_f14_type_ligne_annuaire =
+    {
+        id_instance : xsd_integer
+        motif_presence : string
+        nature : string
+        date_effet : x_periode_effet_consultation_type
+        info_adressage : x_info_adressage_consultation_type
+        id_plateforme : x_identifiant_matricule_plateforme_type
+    }
+
+nominal x_lignes_annuaire_f14_type =
+    {
+        ligne_annuaire : list (x_lignes_annuaire_f14_type_ligne_annuaire)
+    }
+
+nominal x_annuaire_actualisation_type =
+    {
+        bloc_codes_routage : option (x_codes_routage_actualisation_type)
+        bloc_lignes_annuaire : option (x_lignes_annuaire_actualisation_type)
+    }
+
+union x_annuaire_actualisation_type_field r =
+    | AnnuaireActualisationType_field_BlocCodesRoutage ::
+        x_annuaire_actualisation_type_field (option (x_codes_routage_actualisation_type))
+    | AnnuaireActualisationType_field_BlocLignesAnnuaire ::
+        x_annuaire_actualisation_type_field (option (x_lignes_annuaire_actualisation_type))
+
+inl x_annuaire_actualisation_type_get forall r.
+    (f : x_annuaire_actualisation_type_field r) (x : x_annuaire_actualisation_type)
+    : r
+    =
+    match f with
+    | AnnuaireActualisationType_field_BlocCodesRoutage => x.bloc_codes_routage
+    | AnnuaireActualisationType_field_BlocLignesAnnuaire => x.bloc_lignes_annuaire
+
+inl x_annuaire_actualisation_type_fields () : list (exists r. x_annuaire_actualisation_type_field r) =
+    [
+        exists AnnuaireActualisationType_field_BlocCodesRoutage
+        exists AnnuaireActualisationType_field_BlocLignesAnnuaire
+    ]
+inl x_annuaire_actualisation_type_field_meta forall r.
+    (f : x_annuaire_actualisation_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | AnnuaireActualisationType_field_BlocCodesRoutage => { tag = "BlocCodesRoutage"; min = 0i32; max = Some 1i32 }
+    | AnnuaireActualisationType_field_BlocLignesAnnuaire => { tag = "BlocLignesAnnuaire"; min = 0i32; max = Some 1i32 }
+
+union x_id_siren_type_field r =
+    | IdSirenType_field_base :: x_id_siren_type_field (x_identifiant_siren_type)
+
+inl x_id_siren_type_get forall r. (f : x_id_siren_type_field r) (x : x_id_siren_type) : r =
+    match f with
+    | IdSirenType_field_base => x.base
+
+inl x_id_siren_type_fields () : list (exists r. x_id_siren_type_field r) = [ exists IdSirenType_field_base ]
+inl x_id_siren_type_field_meta forall r. (f : x_id_siren_type_field r) : xml_codec.field_meta =
+    match f with
+    | IdSirenType_field_base => { tag = ""; min = 1i32; max = Some 1i32 }
+
+union x_id_siret_type_field r =
+    | IdSiretType_field_base :: x_id_siret_type_field (x_identifiant_siret_type)
+
+inl x_id_siret_type_get forall r. (f : x_id_siret_type_field r) (x : x_id_siret_type) : r =
+    match f with
+    | IdSiretType_field_base => x.base
+
+inl x_id_siret_type_fields () : list (exists r. x_id_siret_type_field r) = [ exists IdSiretType_field_base ]
+inl x_id_siret_type_field_meta forall r. (f : x_id_siret_type_field r) : xml_codec.field_meta =
+    match f with
+    | IdSiretType_field_base => { tag = ""; min = 1i32; max = Some 1i32 }
+
+union x_id_codes_routage_type_field r =
+    | IdCodesRoutageType_field_base :: x_id_codes_routage_type_field (string)
+
+inl x_id_codes_routage_type_get forall r. (f : x_id_codes_routage_type_field r) (x : x_id_codes_routage_type) : r =
+    match f with
+    | IdCodesRoutageType_field_base => x.base
+
+inl x_id_codes_routage_type_fields () : list (exists r. x_id_codes_routage_type_field r) =
+    [ exists IdCodesRoutageType_field_base ]
+inl x_id_codes_routage_type_field_meta forall r. (f : x_id_codes_routage_type_field r) : xml_codec.field_meta =
+    match f with
+    | IdCodesRoutageType_field_base => { tag = ""; min = 1i32; max = Some 1i32 }
+
+union x_info_adressage_consultation_type_field r =
+    | InfoAdressageConsultationType_field_Identifiant :: x_info_adressage_consultation_type_field (string)
+    | InfoAdressageConsultationType_field_IdLinSIREN :: x_info_adressage_consultation_type_field (x_id_siren_type)
+    | InfoAdressageConsultationType_field_IdLinSIRET ::
+        x_info_adressage_consultation_type_field (option (x_id_siret_type))
+    | InfoAdressageConsultationType_field_IdLinRoutage ::
+        x_info_adressage_consultation_type_field (option (x_id_codes_routage_type))
+    | InfoAdressageConsultationType_field_Suffixe :: x_info_adressage_consultation_type_field (option (string))
+
+inl x_info_adressage_consultation_type_get forall r.
+    (f : x_info_adressage_consultation_type_field r) (x : x_info_adressage_consultation_type)
+    : r
+    =
+    match f with
+    | InfoAdressageConsultationType_field_Identifiant => x.identifiant
+    | InfoAdressageConsultationType_field_IdLinSIREN => x.id_lin_siren
+    | InfoAdressageConsultationType_field_IdLinSIRET => x.id_lin_siret
+    | InfoAdressageConsultationType_field_IdLinRoutage => x.id_lin_routage
+    | InfoAdressageConsultationType_field_Suffixe => x.suffixe
+
+inl x_info_adressage_consultation_type_fields () : list (exists r. x_info_adressage_consultation_type_field r) =
+    [
+        exists InfoAdressageConsultationType_field_Identifiant
+        exists InfoAdressageConsultationType_field_IdLinSIREN
+        exists InfoAdressageConsultationType_field_IdLinSIRET
+        exists InfoAdressageConsultationType_field_IdLinRoutage
+        exists InfoAdressageConsultationType_field_Suffixe
+    ]
+inl x_info_adressage_consultation_type_field_meta forall r.
+    (f : x_info_adressage_consultation_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InfoAdressageConsultationType_field_Identifiant => { tag = "Identifiant"; min = 1i32; max = Some 1i32 }
+    | InfoAdressageConsultationType_field_IdLinSIREN => { tag = "IdLinSIREN"; min = 1i32; max = Some 1i32 }
+    | InfoAdressageConsultationType_field_IdLinSIRET => { tag = "IdLinSIRET"; min = 0i32; max = Some 1i32 }
+    | InfoAdressageConsultationType_field_IdLinRoutage => { tag = "IdLinRoutage"; min = 0i32; max = Some 1i32 }
+    | InfoAdressageConsultationType_field_Suffixe => { tag = "Suffixe"; min = 0i32; max = Some 1i32 }
+
+union x_info_adressage_actualisation_type_field r =
+    | InfoAdressageActualisationType_field_Identifiant ::
+        x_info_adressage_actualisation_type_field (x_info_adressage_actualisation_type_identifiant)
+
+inl x_info_adressage_actualisation_type_get forall r.
+    (f : x_info_adressage_actualisation_type_field r) (x : x_info_adressage_actualisation_type)
+    : r
+    =
+    match f with
+    | InfoAdressageActualisationType_field_Identifiant => x.identifiant
+
+inl x_info_adressage_actualisation_type_fields () : list (exists r. x_info_adressage_actualisation_type_field r) =
+    [ exists InfoAdressageActualisationType_field_Identifiant ]
+inl x_info_adressage_actualisation_type_field_meta forall r.
+    (f : x_info_adressage_actualisation_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InfoAdressageActualisationType_field_Identifiant => { tag = "Identifiant"; min = 1i32; max = Some 1i32 }
+
+union x_info_adressage_actualisation_type_identifiant_field r =
+    | InfoAdressageActualisationType_Identifiant_field_IdLinSIREN ::
+        x_info_adressage_actualisation_type_identifiant_field (x_id_siren_type)
+    | InfoAdressageActualisationType_Identifiant_field_IdLinSIRET ::
+        x_info_adressage_actualisation_type_identifiant_field (option (x_id_siret_type))
+    | InfoAdressageActualisationType_Identifiant_field_IdLinRoutage ::
+        x_info_adressage_actualisation_type_identifiant_field (option (x_id_codes_routage_type))
+    | InfoAdressageActualisationType_Identifiant_field_Suffixe ::
+        x_info_adressage_actualisation_type_identifiant_field (option (string))
+
+inl x_info_adressage_actualisation_type_identifiant_get forall r.
+    (f : x_info_adressage_actualisation_type_identifiant_field r) (x : x_info_adressage_actualisation_type_identifiant)
+    : r
+    =
+    match f with
+    | InfoAdressageActualisationType_Identifiant_field_IdLinSIREN => x.id_lin_siren
+    | InfoAdressageActualisationType_Identifiant_field_IdLinSIRET => x.id_lin_siret
+    | InfoAdressageActualisationType_Identifiant_field_IdLinRoutage => x.id_lin_routage
+    | InfoAdressageActualisationType_Identifiant_field_Suffixe => x.suffixe
+
+inl x_info_adressage_actualisation_type_identifiant_fields
+    ()
+    : list (exists r. x_info_adressage_actualisation_type_identifiant_field r)
+    =
+    [
+        exists InfoAdressageActualisationType_Identifiant_field_IdLinSIREN
+        exists InfoAdressageActualisationType_Identifiant_field_IdLinSIRET
+        exists InfoAdressageActualisationType_Identifiant_field_IdLinRoutage
+        exists InfoAdressageActualisationType_Identifiant_field_Suffixe
+    ]
+inl x_info_adressage_actualisation_type_identifiant_field_meta forall r.
+    (f : x_info_adressage_actualisation_type_identifiant_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | InfoAdressageActualisationType_Identifiant_field_IdLinSIREN => { tag = "IdLinSIREN"; min = 1i32; max = Some 1i32 }
+    | InfoAdressageActualisationType_Identifiant_field_IdLinSIRET => { tag = "IdLinSIRET"; min = 0i32; max = Some 1i32 }
+    | InfoAdressageActualisationType_Identifiant_field_IdLinRoutage =>
+        { tag = "IdLinRoutage"; min = 0i32; max = Some 1i32 }
+    | InfoAdressageActualisationType_Identifiant_field_Suffixe => { tag = "Suffixe"; min = 0i32; max = Some 1i32 }
+
+union x_periode_effet_consultation_type_field r =
+    | PeriodeEffetConsultationType_field_DateDebut :: x_periode_effet_consultation_type_field (x_date_type)
+    | PeriodeEffetConsultationType_field_DateFin :: x_periode_effet_consultation_type_field (option (x_date_type))
+    | PeriodeEffetConsultationType_field_DateFinEffective ::
+        x_periode_effet_consultation_type_field (option (x_date_type))
+
+inl x_periode_effet_consultation_type_get forall r.
+    (f : x_periode_effet_consultation_type_field r) (x : x_periode_effet_consultation_type)
+    : r
+    =
+    match f with
+    | PeriodeEffetConsultationType_field_DateDebut => x.date_debut
+    | PeriodeEffetConsultationType_field_DateFin => x.date_fin
+    | PeriodeEffetConsultationType_field_DateFinEffective => x.date_fin_effective
+
+inl x_periode_effet_consultation_type_fields () : list (exists r. x_periode_effet_consultation_type_field r) =
+    [
+        exists PeriodeEffetConsultationType_field_DateDebut
+        exists PeriodeEffetConsultationType_field_DateFin
+        exists PeriodeEffetConsultationType_field_DateFinEffective
+    ]
+inl x_periode_effet_consultation_type_field_meta forall r.
+    (f : x_periode_effet_consultation_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | PeriodeEffetConsultationType_field_DateDebut => { tag = "DateDebut"; min = 1i32; max = Some 1i32 }
+    | PeriodeEffetConsultationType_field_DateFin => { tag = "DateFin"; min = 0i32; max = Some 1i32 }
+    | PeriodeEffetConsultationType_field_DateFinEffective => { tag = "DateFinEffective"; min = 0i32; max = Some 1i32 }
+
+union x_unites_legales_type_field r =
+    | UnitesLegalesType_field_UniteLegale :: x_unites_legales_type_field (list (x_unites_legales_type_unite_legale))
+
+inl x_unites_legales_type_get forall r. (f : x_unites_legales_type_field r) (x : x_unites_legales_type) : r =
+    match f with
+    | UnitesLegalesType_field_UniteLegale => x.unite_legale
+
+inl x_unites_legales_type_fields () : list (exists r. x_unites_legales_type_field r) =
+    [ exists UnitesLegalesType_field_UniteLegale ]
+inl x_unites_legales_type_field_meta forall r. (f : x_unites_legales_type_field r) : xml_codec.field_meta =
+    match f with
+    | UnitesLegalesType_field_UniteLegale => { tag = "UniteLegale"; min = 1i32; max = None }
+
+union x_unites_legales_type_unite_legale_field r =
+    | UnitesLegalesType_UniteLegale_field_IdInstance :: x_unites_legales_type_unite_legale_field (xsd_integer)
+    | UnitesLegalesType_UniteLegale_field_MotifPresence :: x_unites_legales_type_unite_legale_field (string)
+    | UnitesLegalesType_UniteLegale_field_Statut :: x_unites_legales_type_unite_legale_field (string)
+    | UnitesLegalesType_UniteLegale_field_IdSIREN :: x_unites_legales_type_unite_legale_field (x_id_siren_type)
+    | UnitesLegalesType_UniteLegale_field_Nom :: x_unites_legales_type_unite_legale_field (string)
+    | UnitesLegalesType_UniteLegale_field_TypeEntite :: x_unites_legales_type_unite_legale_field (string)
+    | UnitesLegalesType_UniteLegale_field_Diffusible :: x_unites_legales_type_unite_legale_field (string)
+
+inl x_unites_legales_type_unite_legale_get forall r.
+    (f : x_unites_legales_type_unite_legale_field r) (x : x_unites_legales_type_unite_legale)
+    : r
+    =
+    match f with
+    | UnitesLegalesType_UniteLegale_field_IdInstance => x.id_instance
+    | UnitesLegalesType_UniteLegale_field_MotifPresence => x.motif_presence
+    | UnitesLegalesType_UniteLegale_field_Statut => x.statut
+    | UnitesLegalesType_UniteLegale_field_IdSIREN => x.id_siren
+    | UnitesLegalesType_UniteLegale_field_Nom => x.nom
+    | UnitesLegalesType_UniteLegale_field_TypeEntite => x.type_entite
+    | UnitesLegalesType_UniteLegale_field_Diffusible => x.diffusible
+
+inl x_unites_legales_type_unite_legale_fields () : list (exists r. x_unites_legales_type_unite_legale_field r) =
+    [
+        exists UnitesLegalesType_UniteLegale_field_IdInstance
+        exists UnitesLegalesType_UniteLegale_field_MotifPresence
+        exists UnitesLegalesType_UniteLegale_field_Statut
+        exists UnitesLegalesType_UniteLegale_field_IdSIREN
+        exists UnitesLegalesType_UniteLegale_field_Nom
+        exists UnitesLegalesType_UniteLegale_field_TypeEntite
+        exists UnitesLegalesType_UniteLegale_field_Diffusible
+    ]
+inl x_unites_legales_type_unite_legale_field_meta forall r.
+    (f : x_unites_legales_type_unite_legale_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | UnitesLegalesType_UniteLegale_field_IdInstance => { tag = "IdInstance"; min = 1i32; max = Some 1i32 }
+    | UnitesLegalesType_UniteLegale_field_MotifPresence => { tag = "MotifPresence"; min = 1i32; max = Some 1i32 }
+    | UnitesLegalesType_UniteLegale_field_Statut => { tag = "Statut"; min = 1i32; max = Some 1i32 }
+    | UnitesLegalesType_UniteLegale_field_IdSIREN => { tag = "IdSIREN"; min = 1i32; max = Some 1i32 }
+    | UnitesLegalesType_UniteLegale_field_Nom => { tag = "Nom"; min = 1i32; max = Some 1i32 }
+    | UnitesLegalesType_UniteLegale_field_TypeEntite => { tag = "TypeEntite"; min = 1i32; max = Some 1i32 }
+    | UnitesLegalesType_UniteLegale_field_Diffusible => { tag = "Diffusible"; min = 1i32; max = Some 1i32 }
+
+union x_etablissements_type_field r =
+    | EtablissementsType_field_Etablissement :: x_etablissements_type_field (list (x_etablissements_type_etablissement))
+
+inl x_etablissements_type_get forall r. (f : x_etablissements_type_field r) (x : x_etablissements_type) : r =
+    match f with
+    | EtablissementsType_field_Etablissement => x.etablissement
+
+inl x_etablissements_type_fields () : list (exists r. x_etablissements_type_field r) =
+    [ exists EtablissementsType_field_Etablissement ]
+inl x_etablissements_type_field_meta forall r. (f : x_etablissements_type_field r) : xml_codec.field_meta =
+    match f with
+    | EtablissementsType_field_Etablissement => { tag = "Etablissement"; min = 1i32; max = None }
+
+union x_etablissements_type_etablissement_field r =
+    | EtablissementsType_Etablissement_field_IdInstance :: x_etablissements_type_etablissement_field (xsd_integer)
+    | EtablissementsType_Etablissement_field_MotifPresence :: x_etablissements_type_etablissement_field (string)
+    | EtablissementsType_Etablissement_field_Statut :: x_etablissements_type_etablissement_field (string)
+    | EtablissementsType_Etablissement_field_IdSIRET :: x_etablissements_type_etablissement_field (x_id_siret_type)
+    | EtablissementsType_Etablissement_field_TypeEtablissement :: x_etablissements_type_etablissement_field (string)
+    | EtablissementsType_Etablissement_field_Nom :: x_etablissements_type_etablissement_field (string)
+    | EtablissementsType_Etablissement_field_LigneAdresse1 ::
+        x_etablissements_type_etablissement_field (option (string))
+    | EtablissementsType_Etablissement_field_LigneAdresse2 ::
+        x_etablissements_type_etablissement_field (option (string))
+    | EtablissementsType_Etablissement_field_LigneAdresse3 ::
+        x_etablissements_type_etablissement_field (option (string))
+    | EtablissementsType_Etablissement_field_Localite :: x_etablissements_type_etablissement_field (option (string))
+    | EtablissementsType_Etablissement_field_CP :: x_etablissements_type_etablissement_field (option (string))
+    | EtablissementsType_Etablissement_field_SubdivisionPays ::
+        x_etablissements_type_etablissement_field (option (string))
+    | EtablissementsType_Etablissement_field_CodePays :: x_etablissements_type_etablissement_field (option (string))
+    | EtablissementsType_Etablissement_field_DonneesB2G ::
+        x_etablissements_type_etablissement_field (option (x_etablissements_type_etablissement_donnees_b2_g))
+    | EtablissementsType_Etablissement_field_Diffusible :: x_etablissements_type_etablissement_field (string)
+
+inl x_etablissements_type_etablissement_get forall r.
+    (f : x_etablissements_type_etablissement_field r) (x : x_etablissements_type_etablissement)
+    : r
+    =
+    match f with
+    | EtablissementsType_Etablissement_field_IdInstance => x.id_instance
+    | EtablissementsType_Etablissement_field_MotifPresence => x.motif_presence
+    | EtablissementsType_Etablissement_field_Statut => x.statut
+    | EtablissementsType_Etablissement_field_IdSIRET => x.id_siret
+    | EtablissementsType_Etablissement_field_TypeEtablissement => x.type_etablissement
+    | EtablissementsType_Etablissement_field_Nom => x.nom
+    | EtablissementsType_Etablissement_field_LigneAdresse1 => x.ligne_adresse1
+    | EtablissementsType_Etablissement_field_LigneAdresse2 => x.ligne_adresse2
+    | EtablissementsType_Etablissement_field_LigneAdresse3 => x.ligne_adresse3
+    | EtablissementsType_Etablissement_field_Localite => x.localite
+    | EtablissementsType_Etablissement_field_CP => x.cp
+    | EtablissementsType_Etablissement_field_SubdivisionPays => x.subdivision_pays
+    | EtablissementsType_Etablissement_field_CodePays => x.code_pays
+    | EtablissementsType_Etablissement_field_DonneesB2G => x.donnees_b2_g
+    | EtablissementsType_Etablissement_field_Diffusible => x.diffusible
+
+inl x_etablissements_type_etablissement_fields () : list (exists r. x_etablissements_type_etablissement_field r) =
+    [
+        exists EtablissementsType_Etablissement_field_IdInstance
+        exists EtablissementsType_Etablissement_field_MotifPresence
+        exists EtablissementsType_Etablissement_field_Statut
+        exists EtablissementsType_Etablissement_field_IdSIRET
+        exists EtablissementsType_Etablissement_field_TypeEtablissement
+        exists EtablissementsType_Etablissement_field_Nom
+        exists EtablissementsType_Etablissement_field_LigneAdresse1
+        exists EtablissementsType_Etablissement_field_LigneAdresse2
+        exists EtablissementsType_Etablissement_field_LigneAdresse3
+        exists EtablissementsType_Etablissement_field_Localite
+        exists EtablissementsType_Etablissement_field_CP
+        exists EtablissementsType_Etablissement_field_SubdivisionPays
+        exists EtablissementsType_Etablissement_field_CodePays
+        exists EtablissementsType_Etablissement_field_DonneesB2G
+        exists EtablissementsType_Etablissement_field_Diffusible
+    ]
+inl x_etablissements_type_etablissement_field_meta forall r.
+    (f : x_etablissements_type_etablissement_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | EtablissementsType_Etablissement_field_IdInstance => { tag = "IdInstance"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_MotifPresence => { tag = "MotifPresence"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_Statut => { tag = "Statut"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_IdSIRET => { tag = "IdSIRET"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_TypeEtablissement =>
+        { tag = "TypeEtablissement"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_Nom => { tag = "Nom"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_LigneAdresse1 => { tag = "LigneAdresse1"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_LigneAdresse2 => { tag = "LigneAdresse2"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_LigneAdresse3 => { tag = "LigneAdresse3"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_Localite => { tag = "Localite"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_CP => { tag = "CP"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_SubdivisionPays => { tag = "SubdivisionPays"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_CodePays => { tag = "CodePays"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_DonneesB2G => { tag = "DonneesB2G"; min = 0i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_field_Diffusible => { tag = "Diffusible"; min = 1i32; max = Some 1i32 }
+
+union x_etablissements_type_etablissement_donnees_b2_g_field r =
+    | EtablissementsType_Etablissement_DonneesB2G_field_EngagementJuridique ::
+        x_etablissements_type_etablissement_donnees_b2_g_field (xsd_boolean)
+    | EtablissementsType_Etablissement_DonneesB2G_field_Service ::
+        x_etablissements_type_etablissement_donnees_b2_g_field (xsd_boolean)
+    | EtablissementsType_Etablissement_DonneesB2G_field_EngJurServ ::
+        x_etablissements_type_etablissement_donnees_b2_g_field (xsd_boolean)
+    | EtablissementsType_Etablissement_DonneesB2G_field_MOA ::
+        x_etablissements_type_etablissement_donnees_b2_g_field (xsd_boolean)
+    | EtablissementsType_Etablissement_DonneesB2G_field_MOAunique ::
+        x_etablissements_type_etablissement_donnees_b2_g_field (xsd_boolean)
+    | EtablissementsType_Etablissement_DonneesB2G_field_StatutMiseEnPaiement ::
+        x_etablissements_type_etablissement_donnees_b2_g_field (xsd_boolean)
+
+inl x_etablissements_type_etablissement_donnees_b2_g_get forall r.
+    (f : x_etablissements_type_etablissement_donnees_b2_g_field r)
+    (x : x_etablissements_type_etablissement_donnees_b2_g)
+    : r
+    =
+    match f with
+    | EtablissementsType_Etablissement_DonneesB2G_field_EngagementJuridique => x.engagement_juridique
+    | EtablissementsType_Etablissement_DonneesB2G_field_Service => x.service
+    | EtablissementsType_Etablissement_DonneesB2G_field_EngJurServ => x.eng_jur_serv
+    | EtablissementsType_Etablissement_DonneesB2G_field_MOA => x.moa
+    | EtablissementsType_Etablissement_DonneesB2G_field_MOAunique => x.mo_aunique
+    | EtablissementsType_Etablissement_DonneesB2G_field_StatutMiseEnPaiement => x.statut_mise_en_paiement
+
+inl x_etablissements_type_etablissement_donnees_b2_g_fields
+    ()
+    : list (exists r. x_etablissements_type_etablissement_donnees_b2_g_field r)
+    =
+    [
+        exists EtablissementsType_Etablissement_DonneesB2G_field_EngagementJuridique
+        exists EtablissementsType_Etablissement_DonneesB2G_field_Service
+        exists EtablissementsType_Etablissement_DonneesB2G_field_EngJurServ
+        exists EtablissementsType_Etablissement_DonneesB2G_field_MOA
+        exists EtablissementsType_Etablissement_DonneesB2G_field_MOAunique
+        exists EtablissementsType_Etablissement_DonneesB2G_field_StatutMiseEnPaiement
+    ]
+inl x_etablissements_type_etablissement_donnees_b2_g_field_meta forall r.
+    (f : x_etablissements_type_etablissement_donnees_b2_g_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | EtablissementsType_Etablissement_DonneesB2G_field_EngagementJuridique =>
+        { tag = "EngagementJuridique"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_DonneesB2G_field_Service => { tag = "Service"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_DonneesB2G_field_EngJurServ =>
+        { tag = "EngJurServ"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_DonneesB2G_field_MOA => { tag = "MOA"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_DonneesB2G_field_MOAunique => { tag = "MOAunique"; min = 1i32; max = Some 1i32 }
+    | EtablissementsType_Etablissement_DonneesB2G_field_StatutMiseEnPaiement =>
+        { tag = "StatutMiseEnPaiement"; min = 1i32; max = Some 1i32 }
+
+union x_codes_routage_consultation_type_field r =
+    | CodesRoutageConsultationType_field_CodeRoutage ::
+        x_codes_routage_consultation_type_field (list (x_codes_routage_consultation_type_code_routage))
+
+inl x_codes_routage_consultation_type_get forall r.
+    (f : x_codes_routage_consultation_type_field r) (x : x_codes_routage_consultation_type)
+    : r
+    =
+    match f with
+    | CodesRoutageConsultationType_field_CodeRoutage => x.code_routage
+
+inl x_codes_routage_consultation_type_fields () : list (exists r. x_codes_routage_consultation_type_field r) =
+    [ exists CodesRoutageConsultationType_field_CodeRoutage ]
+inl x_codes_routage_consultation_type_field_meta forall r.
+    (f : x_codes_routage_consultation_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CodesRoutageConsultationType_field_CodeRoutage => { tag = "CodeRoutage"; min = 1i32; max = None }
+
+union x_codes_routage_consultation_type_code_routage_field r =
+    | CodesRoutageConsultationType_CodeRoutage_field_IdInstance ::
+        x_codes_routage_consultation_type_code_routage_field (xsd_integer)
+    | CodesRoutageConsultationType_CodeRoutage_field_MotifPresence ::
+        x_codes_routage_consultation_type_code_routage_field (string)
+    | CodesRoutageConsultationType_CodeRoutage_field_Statut ::
+        x_codes_routage_consultation_type_code_routage_field (string)
+    | CodesRoutageConsultationType_CodeRoutage_field_IdSIRET ::
+        x_codes_routage_consultation_type_code_routage_field (x_id_siret_type)
+    | CodesRoutageConsultationType_CodeRoutage_field_IdRoutage ::
+        x_codes_routage_consultation_type_code_routage_field (x_id_codes_routage_type)
+    | CodesRoutageConsultationType_CodeRoutage_field_Nom ::
+        x_codes_routage_consultation_type_code_routage_field (string)
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse1 ::
+        x_codes_routage_consultation_type_code_routage_field (option (string))
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse2 ::
+        x_codes_routage_consultation_type_code_routage_field (option (string))
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse3 ::
+        x_codes_routage_consultation_type_code_routage_field (option (string))
+    | CodesRoutageConsultationType_CodeRoutage_field_Localite ::
+        x_codes_routage_consultation_type_code_routage_field (option (string))
+    | CodesRoutageConsultationType_CodeRoutage_field_CP ::
+        x_codes_routage_consultation_type_code_routage_field (option (string))
+    | CodesRoutageConsultationType_CodeRoutage_field_SubdivisionPays ::
+        x_codes_routage_consultation_type_code_routage_field (option (string))
+    | CodesRoutageConsultationType_CodeRoutage_field_CodePays ::
+        x_codes_routage_consultation_type_code_routage_field (option (string))
+    | CodesRoutageConsultationType_CodeRoutage_field_EngagementJuridique ::
+        x_codes_routage_consultation_type_code_routage_field (option (xsd_boolean))
+
+inl x_codes_routage_consultation_type_code_routage_get forall r.
+    (f : x_codes_routage_consultation_type_code_routage_field r) (x : x_codes_routage_consultation_type_code_routage)
+    : r
+    =
+    match f with
+    | CodesRoutageConsultationType_CodeRoutage_field_IdInstance => x.id_instance
+    | CodesRoutageConsultationType_CodeRoutage_field_MotifPresence => x.motif_presence
+    | CodesRoutageConsultationType_CodeRoutage_field_Statut => x.statut
+    | CodesRoutageConsultationType_CodeRoutage_field_IdSIRET => x.id_siret
+    | CodesRoutageConsultationType_CodeRoutage_field_IdRoutage => x.id_routage
+    | CodesRoutageConsultationType_CodeRoutage_field_Nom => x.nom
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse1 => x.ligne_adresse1
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse2 => x.ligne_adresse2
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse3 => x.ligne_adresse3
+    | CodesRoutageConsultationType_CodeRoutage_field_Localite => x.localite
+    | CodesRoutageConsultationType_CodeRoutage_field_CP => x.cp
+    | CodesRoutageConsultationType_CodeRoutage_field_SubdivisionPays => x.subdivision_pays
+    | CodesRoutageConsultationType_CodeRoutage_field_CodePays => x.code_pays
+    | CodesRoutageConsultationType_CodeRoutage_field_EngagementJuridique => x.engagement_juridique
+
+inl x_codes_routage_consultation_type_code_routage_fields
+    ()
+    : list (exists r. x_codes_routage_consultation_type_code_routage_field r)
+    =
+    [
+        exists CodesRoutageConsultationType_CodeRoutage_field_IdInstance
+        exists CodesRoutageConsultationType_CodeRoutage_field_MotifPresence
+        exists CodesRoutageConsultationType_CodeRoutage_field_Statut
+        exists CodesRoutageConsultationType_CodeRoutage_field_IdSIRET
+        exists CodesRoutageConsultationType_CodeRoutage_field_IdRoutage
+        exists CodesRoutageConsultationType_CodeRoutage_field_Nom
+        exists CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse1
+        exists CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse2
+        exists CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse3
+        exists CodesRoutageConsultationType_CodeRoutage_field_Localite
+        exists CodesRoutageConsultationType_CodeRoutage_field_CP
+        exists CodesRoutageConsultationType_CodeRoutage_field_SubdivisionPays
+        exists CodesRoutageConsultationType_CodeRoutage_field_CodePays
+        exists CodesRoutageConsultationType_CodeRoutage_field_EngagementJuridique
+    ]
+inl x_codes_routage_consultation_type_code_routage_field_meta forall r.
+    (f : x_codes_routage_consultation_type_code_routage_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CodesRoutageConsultationType_CodeRoutage_field_IdInstance => { tag = "IdInstance"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_MotifPresence =>
+        { tag = "MotifPresence"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_Statut => { tag = "Statut"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_IdSIRET => { tag = "IdSIRET"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_IdRoutage => { tag = "IdRoutage"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_Nom => { tag = "Nom"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse1 =>
+        { tag = "LigneAdresse1"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse2 =>
+        { tag = "LigneAdresse2"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse3 =>
+        { tag = "LigneAdresse3"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_Localite => { tag = "Localite"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_CP => { tag = "CP"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_SubdivisionPays =>
+        { tag = "SubdivisionPays"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_CodePays => { tag = "CodePays"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageConsultationType_CodeRoutage_field_EngagementJuridique =>
+        { tag = "EngagementJuridique"; min = 0i32; max = Some 1i32 }
+
+union x_id_plateformes_reception_type_field r =
+    | IdPlateformesReceptionType_field_IdPlateformeReception ::
+        x_id_plateformes_reception_type_field (list (x_id_plateformes_reception_type_id_plateforme_reception))
+
+inl x_id_plateformes_reception_type_get forall r.
+    (f : x_id_plateformes_reception_type_field r) (x : x_id_plateformes_reception_type)
+    : r
+    =
+    match f with
+    | IdPlateformesReceptionType_field_IdPlateformeReception => x.id_plateforme_reception
+
+inl x_id_plateformes_reception_type_fields () : list (exists r. x_id_plateformes_reception_type_field r) =
+    [ exists IdPlateformesReceptionType_field_IdPlateformeReception ]
+inl x_id_plateformes_reception_type_field_meta forall r.
+    (f : x_id_plateformes_reception_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | IdPlateformesReceptionType_field_IdPlateformeReception =>
+        { tag = "IdPlateformeReception"; min = 1i32; max = None }
+
+union x_id_plateformes_reception_type_id_plateforme_reception_field r =
+    | IdPlateformesReceptionType_IdPlateformeReception_field_IdInstance ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (xsd_integer)
+    | IdPlateformesReceptionType_IdPlateformeReception_field_MotifPresence ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (string)
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Statut ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (string)
+    | IdPlateformesReceptionType_IdPlateformeReception_field_TypePlateforme ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (string)
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Matricule ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (x_identifiant_matricule_plateforme_type)
+    | IdPlateformesReceptionType_IdPlateformeReception_field_IdSIREN ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (option (x_id_siren_type))
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Nom ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (string)
+    | IdPlateformesReceptionType_IdPlateformeReception_field_NomCommercial ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (option (string))
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Contact ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (option (string))
+    | IdPlateformesReceptionType_IdPlateformeReception_field_DateDebutImmatriculation ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (x_date_type)
+    | IdPlateformesReceptionType_IdPlateformeReception_field_DateFinImmatriculation ::
+        x_id_plateformes_reception_type_id_plateforme_reception_field (option (x_date_type))
+
+inl x_id_plateformes_reception_type_id_plateforme_reception_get forall r.
+    (f : x_id_plateformes_reception_type_id_plateforme_reception_field r)
+    (x : x_id_plateformes_reception_type_id_plateforme_reception)
+    : r
+    =
+    match f with
+    | IdPlateformesReceptionType_IdPlateformeReception_field_IdInstance => x.id_instance
+    | IdPlateformesReceptionType_IdPlateformeReception_field_MotifPresence => x.motif_presence
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Statut => x.statut
+    | IdPlateformesReceptionType_IdPlateformeReception_field_TypePlateforme => x.type_plateforme
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Matricule => x.matricule
+    | IdPlateformesReceptionType_IdPlateformeReception_field_IdSIREN => x.id_siren
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Nom => x.nom
+    | IdPlateformesReceptionType_IdPlateformeReception_field_NomCommercial => x.nom_commercial
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Contact => x.contact
+    | IdPlateformesReceptionType_IdPlateformeReception_field_DateDebutImmatriculation => x.date_debut_immatriculation
+    | IdPlateformesReceptionType_IdPlateformeReception_field_DateFinImmatriculation => x.date_fin_immatriculation
+
+inl x_id_plateformes_reception_type_id_plateforme_reception_fields
+    ()
+    : list (exists r. x_id_plateformes_reception_type_id_plateforme_reception_field r)
+    =
+    [
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_IdInstance
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_MotifPresence
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Statut
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_TypePlateforme
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Matricule
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_IdSIREN
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Nom
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_NomCommercial
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Contact
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_DateDebutImmatriculation
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_DateFinImmatriculation
+    ]
+inl x_id_plateformes_reception_type_id_plateforme_reception_field_meta forall r.
+    (f : x_id_plateformes_reception_type_id_plateforme_reception_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | IdPlateformesReceptionType_IdPlateformeReception_field_IdInstance =>
+        { tag = "IdInstance"; min = 1i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_MotifPresence =>
+        { tag = "MotifPresence"; min = 1i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Statut => { tag = "Statut"; min = 1i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_TypePlateforme =>
+        { tag = "TypePlateforme"; min = 1i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Matricule =>
+        { tag = "Matricule"; min = 1i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_IdSIREN => { tag = "IdSIREN"; min = 0i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Nom => { tag = "Nom"; min = 1i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_NomCommercial =>
+        { tag = "NomCommercial"; min = 0i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_Contact => { tag = "Contact"; min = 0i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_DateDebutImmatriculation =>
+        { tag = "DateDebutImmatriculation"; min = 1i32; max = Some 1i32 }
+    | IdPlateformesReceptionType_IdPlateformeReception_field_DateFinImmatriculation =>
+        { tag = "DateFinImmatriculation"; min = 0i32; max = Some 1i32 }
+
+union x_lignes_annuaire_f14_type_field r =
+    | LignesAnnuaireF14Type_field_LigneAnnuaire ::
+        x_lignes_annuaire_f14_type_field (list (x_lignes_annuaire_f14_type_ligne_annuaire))
+
+inl x_lignes_annuaire_f14_type_get forall r.
+    (f : x_lignes_annuaire_f14_type_field r) (x : x_lignes_annuaire_f14_type)
+    : r
+    =
+    match f with
+    | LignesAnnuaireF14Type_field_LigneAnnuaire => x.ligne_annuaire
+
+inl x_lignes_annuaire_f14_type_fields () : list (exists r. x_lignes_annuaire_f14_type_field r) =
+    [ exists LignesAnnuaireF14Type_field_LigneAnnuaire ]
+inl x_lignes_annuaire_f14_type_field_meta forall r. (f : x_lignes_annuaire_f14_type_field r) : xml_codec.field_meta =
+    match f with
+    | LignesAnnuaireF14Type_field_LigneAnnuaire => { tag = "LigneAnnuaire"; min = 1i32; max = None }
+
+union x_lignes_annuaire_f14_type_ligne_annuaire_field r =
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_IdInstance ::
+        x_lignes_annuaire_f14_type_ligne_annuaire_field (xsd_integer)
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_MotifPresence ::
+        x_lignes_annuaire_f14_type_ligne_annuaire_field (string)
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_Nature :: x_lignes_annuaire_f14_type_ligne_annuaire_field (string)
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_DateEffet ::
+        x_lignes_annuaire_f14_type_ligne_annuaire_field (x_periode_effet_consultation_type)
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_InfoAdressage ::
+        x_lignes_annuaire_f14_type_ligne_annuaire_field (x_info_adressage_consultation_type)
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_IdPlateforme ::
+        x_lignes_annuaire_f14_type_ligne_annuaire_field (x_identifiant_matricule_plateforme_type)
+
+inl x_lignes_annuaire_f14_type_ligne_annuaire_get forall r.
+    (f : x_lignes_annuaire_f14_type_ligne_annuaire_field r) (x : x_lignes_annuaire_f14_type_ligne_annuaire)
+    : r
+    =
+    match f with
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_IdInstance => x.id_instance
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_MotifPresence => x.motif_presence
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_Nature => x.nature
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_DateEffet => x.date_effet
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_InfoAdressage => x.info_adressage
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_IdPlateforme => x.id_plateforme
+
+inl x_lignes_annuaire_f14_type_ligne_annuaire_fields
+    ()
+    : list (exists r. x_lignes_annuaire_f14_type_ligne_annuaire_field r)
+    =
+    [
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_IdInstance
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_MotifPresence
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_Nature
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_DateEffet
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_InfoAdressage
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_IdPlateforme
+    ]
+inl x_lignes_annuaire_f14_type_ligne_annuaire_field_meta forall r.
+    (f : x_lignes_annuaire_f14_type_ligne_annuaire_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_IdInstance => { tag = "IdInstance"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_MotifPresence => { tag = "MotifPresence"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_Nature => { tag = "Nature"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_DateEffet => { tag = "DateEffet"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_InfoAdressage => { tag = "InfoAdressage"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF14Type_LigneAnnuaire_field_IdPlateforme => { tag = "IdPlateforme"; min = 1i32; max = Some 1i32 }
+
+union x_lignes_annuaire_f11_type_field r =
+    | LignesAnnuaireF11Type_field_LigneAnnuaire ::
+        x_lignes_annuaire_f11_type_field (list (x_lignes_annuaire_f11_type_ligne_annuaire))
+
+inl x_lignes_annuaire_f11_type_get forall r.
+    (f : x_lignes_annuaire_f11_type_field r) (x : x_lignes_annuaire_f11_type)
+    : r
+    =
+    match f with
+    | LignesAnnuaireF11Type_field_LigneAnnuaire => x.ligne_annuaire
+
+inl x_lignes_annuaire_f11_type_fields () : list (exists r. x_lignes_annuaire_f11_type_field r) =
+    [ exists LignesAnnuaireF11Type_field_LigneAnnuaire ]
+inl x_lignes_annuaire_f11_type_field_meta forall r. (f : x_lignes_annuaire_f11_type_field r) : xml_codec.field_meta =
+    match f with
+    | LignesAnnuaireF11Type_field_LigneAnnuaire => { tag = "LigneAnnuaire"; min = 1i32; max = None }
+
+union x_lignes_annuaire_f11_type_ligne_annuaire_field r =
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_IdInstance ::
+        x_lignes_annuaire_f11_type_ligne_annuaire_field (xsd_integer)
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_MotifPresence ::
+        x_lignes_annuaire_f11_type_ligne_annuaire_field (string)
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_Nature :: x_lignes_annuaire_f11_type_ligne_annuaire_field (string)
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_DateEffet ::
+        x_lignes_annuaire_f11_type_ligne_annuaire_field (x_periode_effet_consultation_type)
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_InfoAdressage ::
+        x_lignes_annuaire_f11_type_ligne_annuaire_field (x_info_adressage_consultation_type)
+
+inl x_lignes_annuaire_f11_type_ligne_annuaire_get forall r.
+    (f : x_lignes_annuaire_f11_type_ligne_annuaire_field r) (x : x_lignes_annuaire_f11_type_ligne_annuaire)
+    : r
+    =
+    match f with
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_IdInstance => x.id_instance
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_MotifPresence => x.motif_presence
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_Nature => x.nature
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_DateEffet => x.date_effet
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_InfoAdressage => x.info_adressage
+
+inl x_lignes_annuaire_f11_type_ligne_annuaire_fields
+    ()
+    : list (exists r. x_lignes_annuaire_f11_type_ligne_annuaire_field r)
+    =
+    [
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_IdInstance
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_MotifPresence
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_Nature
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_DateEffet
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_InfoAdressage
+    ]
+inl x_lignes_annuaire_f11_type_ligne_annuaire_field_meta forall r.
+    (f : x_lignes_annuaire_f11_type_ligne_annuaire_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_IdInstance => { tag = "IdInstance"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_MotifPresence => { tag = "MotifPresence"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_Nature => { tag = "Nature"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_DateEffet => { tag = "DateEffet"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireF11Type_LigneAnnuaire_field_InfoAdressage => { tag = "InfoAdressage"; min = 1i32; max = Some 1i32 }
+
+union x_codes_routage_actualisation_type_field r =
+    | CodesRoutageActualisationType_field_CodeRoutage ::
+        x_codes_routage_actualisation_type_field (list (x_codes_routage_actualisation_type_code_routage))
+
+inl x_codes_routage_actualisation_type_get forall r.
+    (f : x_codes_routage_actualisation_type_field r) (x : x_codes_routage_actualisation_type)
+    : r
+    =
+    match f with
+    | CodesRoutageActualisationType_field_CodeRoutage => x.code_routage
+
+inl x_codes_routage_actualisation_type_fields () : list (exists r. x_codes_routage_actualisation_type_field r) =
+    [ exists CodesRoutageActualisationType_field_CodeRoutage ]
+inl x_codes_routage_actualisation_type_field_meta forall r.
+    (f : x_codes_routage_actualisation_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CodesRoutageActualisationType_field_CodeRoutage => { tag = "CodeRoutage"; min = 1i32; max = None }
+
+union x_codes_routage_actualisation_type_code_routage_field r =
+    | CodesRoutageActualisationType_CodeRoutage_field_Statut ::
+        x_codes_routage_actualisation_type_code_routage_field (string)
+    | CodesRoutageActualisationType_CodeRoutage_field_IdSIRET ::
+        x_codes_routage_actualisation_type_code_routage_field (x_id_siret_type)
+    | CodesRoutageActualisationType_CodeRoutage_field_IdRoutage ::
+        x_codes_routage_actualisation_type_code_routage_field (x_id_codes_routage_type)
+    | CodesRoutageActualisationType_CodeRoutage_field_Nom ::
+        x_codes_routage_actualisation_type_code_routage_field (string)
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse1 ::
+        x_codes_routage_actualisation_type_code_routage_field (option (string))
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse2 ::
+        x_codes_routage_actualisation_type_code_routage_field (option (string))
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse3 ::
+        x_codes_routage_actualisation_type_code_routage_field (option (string))
+    | CodesRoutageActualisationType_CodeRoutage_field_Localite ::
+        x_codes_routage_actualisation_type_code_routage_field (option (string))
+    | CodesRoutageActualisationType_CodeRoutage_field_CP ::
+        x_codes_routage_actualisation_type_code_routage_field (option (string))
+    | CodesRoutageActualisationType_CodeRoutage_field_SubdivisionPays ::
+        x_codes_routage_actualisation_type_code_routage_field (option (string))
+    | CodesRoutageActualisationType_CodeRoutage_field_CodePays ::
+        x_codes_routage_actualisation_type_code_routage_field (option (string))
+
+inl x_codes_routage_actualisation_type_code_routage_get forall r.
+    (f : x_codes_routage_actualisation_type_code_routage_field r) (x : x_codes_routage_actualisation_type_code_routage)
+    : r
+    =
+    match f with
+    | CodesRoutageActualisationType_CodeRoutage_field_Statut => x.statut
+    | CodesRoutageActualisationType_CodeRoutage_field_IdSIRET => x.id_siret
+    | CodesRoutageActualisationType_CodeRoutage_field_IdRoutage => x.id_routage
+    | CodesRoutageActualisationType_CodeRoutage_field_Nom => x.nom
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse1 => x.ligne_adresse1
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse2 => x.ligne_adresse2
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse3 => x.ligne_adresse3
+    | CodesRoutageActualisationType_CodeRoutage_field_Localite => x.localite
+    | CodesRoutageActualisationType_CodeRoutage_field_CP => x.cp
+    | CodesRoutageActualisationType_CodeRoutage_field_SubdivisionPays => x.subdivision_pays
+    | CodesRoutageActualisationType_CodeRoutage_field_CodePays => x.code_pays
+
+inl x_codes_routage_actualisation_type_code_routage_fields
+    ()
+    : list (exists r. x_codes_routage_actualisation_type_code_routage_field r)
+    =
+    [
+        exists CodesRoutageActualisationType_CodeRoutage_field_Statut
+        exists CodesRoutageActualisationType_CodeRoutage_field_IdSIRET
+        exists CodesRoutageActualisationType_CodeRoutage_field_IdRoutage
+        exists CodesRoutageActualisationType_CodeRoutage_field_Nom
+        exists CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse1
+        exists CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse2
+        exists CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse3
+        exists CodesRoutageActualisationType_CodeRoutage_field_Localite
+        exists CodesRoutageActualisationType_CodeRoutage_field_CP
+        exists CodesRoutageActualisationType_CodeRoutage_field_SubdivisionPays
+        exists CodesRoutageActualisationType_CodeRoutage_field_CodePays
+    ]
+inl x_codes_routage_actualisation_type_code_routage_field_meta forall r.
+    (f : x_codes_routage_actualisation_type_code_routage_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | CodesRoutageActualisationType_CodeRoutage_field_Statut => { tag = "Statut"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_IdSIRET => { tag = "IdSIRET"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_IdRoutage => { tag = "IdRoutage"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_Nom => { tag = "Nom"; min = 1i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse1 =>
+        { tag = "LigneAdresse1"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse2 =>
+        { tag = "LigneAdresse2"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse3 =>
+        { tag = "LigneAdresse3"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_Localite => { tag = "Localite"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_CP => { tag = "CP"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_SubdivisionPays =>
+        { tag = "SubdivisionPays"; min = 0i32; max = Some 1i32 }
+    | CodesRoutageActualisationType_CodeRoutage_field_CodePays => { tag = "CodePays"; min = 0i32; max = Some 1i32 }
+
+union x_lignes_annuaire_actualisation_type_field r =
+    | LignesAnnuaireActualisationType_field_LigneAnnuaire ::
+        x_lignes_annuaire_actualisation_type_field (list (x_lignes_annuaire_actualisation_type_ligne_annuaire))
+
+inl x_lignes_annuaire_actualisation_type_get forall r.
+    (f : x_lignes_annuaire_actualisation_type_field r) (x : x_lignes_annuaire_actualisation_type)
+    : r
+    =
+    match f with
+    | LignesAnnuaireActualisationType_field_LigneAnnuaire => x.ligne_annuaire
+
+inl x_lignes_annuaire_actualisation_type_fields () : list (exists r. x_lignes_annuaire_actualisation_type_field r) =
+    [ exists LignesAnnuaireActualisationType_field_LigneAnnuaire ]
+inl x_lignes_annuaire_actualisation_type_field_meta forall r.
+    (f : x_lignes_annuaire_actualisation_type_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | LignesAnnuaireActualisationType_field_LigneAnnuaire => { tag = "LigneAnnuaire"; min = 1i32; max = None }
+
+union x_lignes_annuaire_actualisation_type_ligne_annuaire_field r =
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_Nature ::
+        x_lignes_annuaire_actualisation_type_ligne_annuaire_field (string)
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_DateEffet ::
+        x_lignes_annuaire_actualisation_type_ligne_annuaire_field
+            (x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet)
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_InfoAdressage ::
+        x_lignes_annuaire_actualisation_type_ligne_annuaire_field (x_info_adressage_actualisation_type)
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_IdPlateforme ::
+        x_lignes_annuaire_actualisation_type_ligne_annuaire_field (x_identifiant_matricule_plateforme_type)
+
+inl x_lignes_annuaire_actualisation_type_ligne_annuaire_get forall r.
+    (f : x_lignes_annuaire_actualisation_type_ligne_annuaire_field r)
+    (x : x_lignes_annuaire_actualisation_type_ligne_annuaire)
+    : r
+    =
+    match f with
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_Nature => x.nature
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_DateEffet => x.date_effet
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_InfoAdressage => x.info_adressage
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_IdPlateforme => x.id_plateforme
+
+inl x_lignes_annuaire_actualisation_type_ligne_annuaire_fields
+    ()
+    : list (exists r. x_lignes_annuaire_actualisation_type_ligne_annuaire_field r)
+    =
+    [
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_Nature
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_DateEffet
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_InfoAdressage
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_IdPlateforme
+    ]
+inl x_lignes_annuaire_actualisation_type_ligne_annuaire_field_meta forall r.
+    (f : x_lignes_annuaire_actualisation_type_ligne_annuaire_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_Nature => { tag = "Nature"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_DateEffet =>
+        { tag = "DateEffet"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_InfoAdressage =>
+        { tag = "InfoAdressage"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireActualisationType_LigneAnnuaire_field_IdPlateforme =>
+        { tag = "IdPlateforme"; min = 1i32; max = Some 1i32 }
+
+union x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field r =
+    | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateDebut ::
+        x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field (x_date_type)
+    | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateFin ::
+        x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field (option (x_date_type))
+
+inl x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_get forall r.
+    (f : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field r)
+    (x : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet)
+    : r
+    =
+    match f with
+    | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateDebut => x.date_debut
+    | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateFin => x.date_fin
+
+inl x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_fields
+    ()
+    : list (exists r. x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field r)
+    =
+    [
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateDebut
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateFin
+    ]
+inl x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field_meta forall r.
+    (f : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field r)
+    : xml_codec.field_meta
+    =
+    match f with
+    | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateDebut =>
+        { tag = "DateDebut"; min = 1i32; max = Some 1i32 }
+    | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateFin =>
+        { tag = "DateFin"; min = 0i32; max = Some 1i32 }
+
+let rec x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_date_debut, errors =
+        xml_codec.read_required "DateDebut" (xml_codec.read_value x_date_type_of_string) children errors
+    inl v_date_fin, errors =
+        xml_codec.read_optional "DateFin" (xml_codec.read_value x_date_type_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet {
+            date_debut = xml_codec.present o_date_debut
+            date_fin = v_date_fin
+        }
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_of_xml
+    (c : xml.xml_node)
+    : result (x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet) (list xml_codec.decode_error)
+    =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_of_children
+        (xml.element_attributes c)
+        (xml.element_children c)
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_children
+    (x : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet)
+    : list xml.xml_node
+    =
+    inl nodes forall r.
+        (f : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field r) (v : r)
+        : list xml.xml_node
+        =
+        match f with
+        | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateDebut => [ text_node "DateDebut" v ]
+        | LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateFin => optional_text_nodes "DateFin" v
+    inl rec walk
+        (fields : list (exists r. x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateDebut
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_DateEffet_field_DateFin
+    ]
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_attributes
+    (x : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet)
+    : list (string * string)
+    =
+    []
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_to_xml
+    (name : string) (x : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_attributes x)
+        (x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_children x)
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_example
+    (k : i32)
+    : x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet
+    =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet {
+        date_debut = x_date_type_example k
+        date_fin = None
+    }
+
+
+let rec x_etablissements_type_etablissement_donnees_b2_g_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_etablissements_type_etablissement_donnees_b2_g) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_engagement_juridique, errors =
+        xml_codec.read_required "EngagementJuridique" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl o_service, errors =
+        xml_codec.read_required "Service" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl o_eng_jur_serv, errors =
+        xml_codec.read_required "EngJurServ" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl o_moa, errors = xml_codec.read_required "MOA" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl o_mo_aunique, errors =
+        xml_codec.read_required "MOAunique" (xml_codec.read_value xsd_boolean_of_string) children errors
+    inl o_statut_mise_en_paiement, errors =
+        xml_codec.read_required "StatutMiseEnPaiement" (xml_codec.read_value xsd_boolean_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_etablissements_type_etablissement_donnees_b2_g {
+            engagement_juridique = xml_codec.present o_engagement_juridique
+            service = xml_codec.present o_service
+            eng_jur_serv = xml_codec.present o_eng_jur_serv
+            moa = xml_codec.present o_moa
+            mo_aunique = xml_codec.present o_mo_aunique
+            statut_mise_en_paiement = xml_codec.present o_statut_mise_en_paiement
+        }
+
+and let x_etablissements_type_etablissement_donnees_b2_g_of_xml
+    (c : xml.xml_node)
+    : result (x_etablissements_type_etablissement_donnees_b2_g) (list xml_codec.decode_error)
+    =
+    x_etablissements_type_etablissement_donnees_b2_g_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_etablissements_type_etablissement_donnees_b2_g_children
+    (x : x_etablissements_type_etablissement_donnees_b2_g)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_etablissements_type_etablissement_donnees_b2_g_field r) (v : r) : list xml.xml_node =
+        match f with
+        | EtablissementsType_Etablissement_DonneesB2G_field_EngagementJuridique => [ text_node "EngagementJuridique" v ]
+        | EtablissementsType_Etablissement_DonneesB2G_field_Service => [ text_node "Service" v ]
+        | EtablissementsType_Etablissement_DonneesB2G_field_EngJurServ => [ text_node "EngJurServ" v ]
+        | EtablissementsType_Etablissement_DonneesB2G_field_MOA => [ text_node "MOA" v ]
+        | EtablissementsType_Etablissement_DonneesB2G_field_MOAunique => [ text_node "MOAunique" v ]
+        | EtablissementsType_Etablissement_DonneesB2G_field_StatutMiseEnPaiement =>
+            [ text_node "StatutMiseEnPaiement" v ]
+    inl rec walk
+        (fields : list (exists r. x_etablissements_type_etablissement_donnees_b2_g_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_etablissements_type_etablissement_donnees_b2_g_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists EtablissementsType_Etablissement_DonneesB2G_field_EngagementJuridique
+        exists EtablissementsType_Etablissement_DonneesB2G_field_Service
+        exists EtablissementsType_Etablissement_DonneesB2G_field_EngJurServ
+        exists EtablissementsType_Etablissement_DonneesB2G_field_MOA
+        exists EtablissementsType_Etablissement_DonneesB2G_field_MOAunique
+        exists EtablissementsType_Etablissement_DonneesB2G_field_StatutMiseEnPaiement
+    ]
+
+and let x_etablissements_type_etablissement_donnees_b2_g_attributes
+    (x : x_etablissements_type_etablissement_donnees_b2_g)
+    : list (string * string)
+    =
+    []
+
+and let x_etablissements_type_etablissement_donnees_b2_g_to_xml
+    (name : string) (x : x_etablissements_type_etablissement_donnees_b2_g)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_etablissements_type_etablissement_donnees_b2_g_attributes x)
+        (x_etablissements_type_etablissement_donnees_b2_g_children x)
+
+and let x_etablissements_type_etablissement_donnees_b2_g_example
+    (k : i32)
+    : x_etablissements_type_etablissement_donnees_b2_g
+    =
+    x_etablissements_type_etablissement_donnees_b2_g {
+        engagement_juridique = xsd_boolean_example k
+        service = xsd_boolean_example k
+        eng_jur_serv = xsd_boolean_example k
+        moa = xsd_boolean_example k
+        mo_aunique = xsd_boolean_example k
+        statut_mise_en_paiement = xsd_boolean_example k
+    }
+
+
+let rec x_periode_effet_consultation_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_periode_effet_consultation_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_date_debut, errors =
+        xml_codec.read_required "DateDebut" (xml_codec.read_value x_date_type_of_string) children errors
+    inl v_date_fin, errors =
+        xml_codec.read_optional "DateFin" (xml_codec.read_value x_date_type_of_string) children errors
+    inl v_date_fin_effective, errors =
+        xml_codec.read_optional "DateFinEffective" (xml_codec.read_value x_date_type_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_periode_effet_consultation_type {
+            date_debut = xml_codec.present o_date_debut
+            date_fin = v_date_fin
+            date_fin_effective = v_date_fin_effective
+        }
+
+and let x_periode_effet_consultation_type_of_xml
+    (c : xml.xml_node)
+    : result (x_periode_effet_consultation_type) (list xml_codec.decode_error)
+    =
+    x_periode_effet_consultation_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_periode_effet_consultation_type_children (x : x_periode_effet_consultation_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_periode_effet_consultation_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | PeriodeEffetConsultationType_field_DateDebut => [ text_node "DateDebut" v ]
+        | PeriodeEffetConsultationType_field_DateFin => optional_text_nodes "DateFin" v
+        | PeriodeEffetConsultationType_field_DateFinEffective => optional_text_nodes "DateFinEffective" v
+    inl rec walk (fields : list (exists r. x_periode_effet_consultation_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_periode_effet_consultation_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists PeriodeEffetConsultationType_field_DateDebut
+        exists PeriodeEffetConsultationType_field_DateFin
+        exists PeriodeEffetConsultationType_field_DateFinEffective
+    ]
+
+and let x_periode_effet_consultation_type_attributes (x : x_periode_effet_consultation_type) : list (string * string) =
+    []
+
+and let x_periode_effet_consultation_type_to_xml (name : string) (x : x_periode_effet_consultation_type) : xml.xml_node =
+    xml.element name (x_periode_effet_consultation_type_attributes x) (x_periode_effet_consultation_type_children x)
+
+and let x_periode_effet_consultation_type_example (k : i32) : x_periode_effet_consultation_type =
+    x_periode_effet_consultation_type {
+        date_debut = x_date_type_example k
+        date_fin = None
+        date_fin_effective = None
+    }
+
+
+let rec x_id_codes_routage_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_id_codes_routage_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_base, errors = xml.text_in children, errors
+    inl v_qualifiant, errors = xml_codec.attribute_required "qualifiant" attributes errors
+    xml_codec.decoded_by errors (fun () => x_id_codes_routage_type { base = v_base; qualifiant = v_qualifiant })
+
+and let x_id_codes_routage_type_of_xml (c : xml.xml_node) : result (x_id_codes_routage_type) (list xml_codec.decode_error) =
+    x_id_codes_routage_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_id_codes_routage_type_children (x : x_id_codes_routage_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_id_codes_routage_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | IdCodesRoutageType_field_base => xml.text_children v
+    inl rec walk (fields : list (exists r. x_id_codes_routage_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_id_codes_routage_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists IdCodesRoutageType_field_base ]
+
+and let x_id_codes_routage_type_attributes (x : x_id_codes_routage_type) : list (string * string) =
+    [ ("qualifiant", x.qualifiant) ]
+
+and let x_id_codes_routage_type_to_xml (name : string) (x : x_id_codes_routage_type) : xml.xml_node =
+    xml.element name (x_id_codes_routage_type_attributes x) (x_id_codes_routage_type_children x)
+
+and let x_id_codes_routage_type_example (k : i32) : x_id_codes_routage_type =
+    x_id_codes_routage_type {
+        base = "1"
+        qualifiant = "1"
+    }
+
+
+let rec x_id_siret_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_id_siret_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_base, errors =
+        xml_codec.taken (xml_codec.parsed_text x_identifiant_siret_type_of_string (xml.text_in children)) errors
+    inl v_qualifiant, errors = xml_codec.attribute_required "qualifiant" attributes errors
+    xml_codec.decoded_by errors fun () => x_id_siret_type { base = xml_codec.present o_base; qualifiant = v_qualifiant }
+
+and let x_id_siret_type_of_xml (c : xml.xml_node) : result (x_id_siret_type) (list xml_codec.decode_error) =
+    x_id_siret_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_id_siret_type_children (x : x_id_siret_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_id_siret_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | IdSiretType_field_base => xml.text_children (to_text v)
+    inl rec walk (fields : list (exists r. x_id_siret_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_id_siret_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists IdSiretType_field_base ]
+
+and let x_id_siret_type_attributes (x : x_id_siret_type) : list (string * string) = [ ("qualifiant", x.qualifiant) ]
+
+and let x_id_siret_type_to_xml (name : string) (x : x_id_siret_type) : xml.xml_node =
+    xml.element name (x_id_siret_type_attributes x) (x_id_siret_type_children x)
+
+and let x_id_siret_type_example (k : i32) : x_id_siret_type =
+    x_id_siret_type {
+        base = x_identifiant_siret_type_example k
+        qualifiant = "1"
+    }
+
+
+let rec x_id_siren_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_id_siren_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_base, errors =
+        xml_codec.taken (xml_codec.parsed_text x_identifiant_siren_type_of_string (xml.text_in children)) errors
+    inl v_qualifiant, errors = xml_codec.attribute_required "qualifiant" attributes errors
+    xml_codec.decoded_by errors fun () => x_id_siren_type { base = xml_codec.present o_base; qualifiant = v_qualifiant }
+
+and let x_id_siren_type_of_xml (c : xml.xml_node) : result (x_id_siren_type) (list xml_codec.decode_error) =
+    x_id_siren_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_id_siren_type_children (x : x_id_siren_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_id_siren_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | IdSirenType_field_base => xml.text_children (to_text v)
+    inl rec walk (fields : list (exists r. x_id_siren_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_id_siren_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists IdSirenType_field_base ]
+
+and let x_id_siren_type_attributes (x : x_id_siren_type) : list (string * string) = [ ("qualifiant", x.qualifiant) ]
+
+and let x_id_siren_type_to_xml (name : string) (x : x_id_siren_type) : xml.xml_node =
+    xml.element name (x_id_siren_type_attributes x) (x_id_siren_type_children x)
+
+and let x_id_siren_type_example (k : i32) : x_id_siren_type =
+    x_id_siren_type {
+        base = x_identifiant_siren_type_example k
+        qualifiant = "1"
+    }
+
+
+let rec x_codes_routage_actualisation_type_code_routage_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_codes_routage_actualisation_type_code_routage) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_statut, errors = xml_codec.read_required "Statut" xml_codec.read_text children errors
+    inl o_id_siret, errors = xml_codec.read_required "IdSIRET" x_id_siret_type_of_xml children errors
+    inl o_id_routage, errors = xml_codec.read_required "IdRoutage" x_id_codes_routage_type_of_xml children errors
+    inl o_nom, errors = xml_codec.read_required "Nom" xml_codec.read_text children errors
+    inl v_ligne_adresse1, errors = xml_codec.read_optional "LigneAdresse1" xml_codec.read_text children errors
+    inl v_ligne_adresse2, errors = xml_codec.read_optional "LigneAdresse2" xml_codec.read_text children errors
+    inl v_ligne_adresse3, errors = xml_codec.read_optional "LigneAdresse3" xml_codec.read_text children errors
+    inl v_localite, errors = xml_codec.read_optional "Localite" xml_codec.read_text children errors
+    inl v_cp, errors = xml_codec.read_optional "CP" xml_codec.read_text children errors
+    inl v_subdivision_pays, errors = xml_codec.read_optional "SubdivisionPays" xml_codec.read_text children errors
+    inl v_code_pays, errors = xml_codec.read_optional "CodePays" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_codes_routage_actualisation_type_code_routage {
+            statut = xml_codec.present o_statut
+            id_siret = xml_codec.present o_id_siret
+            id_routage = xml_codec.present o_id_routage
+            nom = xml_codec.present o_nom
+            ligne_adresse1 = v_ligne_adresse1
+            ligne_adresse2 = v_ligne_adresse2
+            ligne_adresse3 = v_ligne_adresse3
+            localite = v_localite
+            cp = v_cp
+            subdivision_pays = v_subdivision_pays
+            code_pays = v_code_pays
+        }
+
+and let x_codes_routage_actualisation_type_code_routage_of_xml
+    (c : xml.xml_node)
+    : result (x_codes_routage_actualisation_type_code_routage) (list xml_codec.decode_error)
+    =
+    x_codes_routage_actualisation_type_code_routage_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_codes_routage_actualisation_type_code_routage_children
+    (x : x_codes_routage_actualisation_type_code_routage)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_codes_routage_actualisation_type_code_routage_field r) (v : r) : list xml.xml_node =
+        match f with
+        | CodesRoutageActualisationType_CodeRoutage_field_Statut => [ xml.element "Statut" [] (xml.text_children v) ]
+        | CodesRoutageActualisationType_CodeRoutage_field_IdSIRET => [ x_id_siret_type_to_xml "IdSIRET" v ]
+        | CodesRoutageActualisationType_CodeRoutage_field_IdRoutage => [ x_id_codes_routage_type_to_xml "IdRoutage" v ]
+        | CodesRoutageActualisationType_CodeRoutage_field_Nom => [ xml.element "Nom" [] (xml.text_children v) ]
+        | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse1 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse1" [] (xml.text_children v)) v)
+        | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse2 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse2" [] (xml.text_children v)) v)
+        | CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse3 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse3" [] (xml.text_children v)) v)
+        | CodesRoutageActualisationType_CodeRoutage_field_Localite =>
+            xml.option_list (optionm.map (fun v => xml.element "Localite" [] (xml.text_children v)) v)
+        | CodesRoutageActualisationType_CodeRoutage_field_CP =>
+            xml.option_list (optionm.map (fun v => xml.element "CP" [] (xml.text_children v)) v)
+        | CodesRoutageActualisationType_CodeRoutage_field_SubdivisionPays =>
+            xml.option_list (optionm.map (fun v => xml.element "SubdivisionPays" [] (xml.text_children v)) v)
+        | CodesRoutageActualisationType_CodeRoutage_field_CodePays =>
+            xml.option_list (optionm.map (fun v => xml.element "CodePays" [] (xml.text_children v)) v)
+    inl rec walk
+        (fields : list (exists r. x_codes_routage_actualisation_type_code_routage_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_codes_routage_actualisation_type_code_routage_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists CodesRoutageActualisationType_CodeRoutage_field_Statut
+        exists CodesRoutageActualisationType_CodeRoutage_field_IdSIRET
+        exists CodesRoutageActualisationType_CodeRoutage_field_IdRoutage
+        exists CodesRoutageActualisationType_CodeRoutage_field_Nom
+        exists CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse1
+        exists CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse2
+        exists CodesRoutageActualisationType_CodeRoutage_field_LigneAdresse3
+        exists CodesRoutageActualisationType_CodeRoutage_field_Localite
+        exists CodesRoutageActualisationType_CodeRoutage_field_CP
+        exists CodesRoutageActualisationType_CodeRoutage_field_SubdivisionPays
+        exists CodesRoutageActualisationType_CodeRoutage_field_CodePays
+    ]
+
+and let x_codes_routage_actualisation_type_code_routage_attributes
+    (x : x_codes_routage_actualisation_type_code_routage)
+    : list (string * string)
+    =
+    []
+
+and let x_codes_routage_actualisation_type_code_routage_to_xml
+    (name : string) (x : x_codes_routage_actualisation_type_code_routage)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_codes_routage_actualisation_type_code_routage_attributes x)
+        (x_codes_routage_actualisation_type_code_routage_children x)
+
+and let x_codes_routage_actualisation_type_code_routage_example
+    (k : i32)
+    : x_codes_routage_actualisation_type_code_routage
+    =
+    x_codes_routage_actualisation_type_code_routage {
+        statut = "1"
+        id_siret = x_id_siret_type_example k
+        id_routage = x_id_codes_routage_type_example k
+        nom = "1"
+        ligne_adresse1 = None
+        ligne_adresse2 = None
+        ligne_adresse3 = None
+        localite = None
+        cp = None
+        subdivision_pays = None
+        code_pays = None
+    }
+
+
+let rec x_codes_routage_actualisation_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_codes_routage_actualisation_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_code_routage, errors =
+        xml_codec.read_repeated "CodeRoutage" x_codes_routage_actualisation_type_code_routage_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_codes_routage_actualisation_type { code_routage = v_code_routage })
+
+and let x_codes_routage_actualisation_type_of_xml
+    (c : xml.xml_node)
+    : result (x_codes_routage_actualisation_type) (list xml_codec.decode_error)
+    =
+    x_codes_routage_actualisation_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_codes_routage_actualisation_type_children (x : x_codes_routage_actualisation_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_codes_routage_actualisation_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | CodesRoutageActualisationType_field_CodeRoutage =>
+            listm.map (fun v => x_codes_routage_actualisation_type_code_routage_to_xml "CodeRoutage" v) v
+    inl rec walk (fields : list (exists r. x_codes_routage_actualisation_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_codes_routage_actualisation_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists CodesRoutageActualisationType_field_CodeRoutage ]
+
+and let x_codes_routage_actualisation_type_attributes (x : x_codes_routage_actualisation_type) : list (string * string) =
+    []
+
+and let x_codes_routage_actualisation_type_to_xml (name : string) (x : x_codes_routage_actualisation_type) : xml.xml_node =
+    xml.element name (x_codes_routage_actualisation_type_attributes x) (x_codes_routage_actualisation_type_children x)
+
+and let x_codes_routage_actualisation_type_example (k : i32) : x_codes_routage_actualisation_type =
+    x_codes_routage_actualisation_type {
+        code_routage = [ x_codes_routage_actualisation_type_code_routage_example (k + 0i32) ]
+    }
+
+
+let rec x_id_plateformes_reception_type_id_plateforme_reception_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_id_plateformes_reception_type_id_plateforme_reception) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_id_instance, errors =
+        xml_codec.read_required "IdInstance" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl o_motif_presence, errors = xml_codec.read_required "MotifPresence" xml_codec.read_text children errors
+    inl o_statut, errors = xml_codec.read_required "Statut" xml_codec.read_text children errors
+    inl o_type_plateforme, errors = xml_codec.read_required "TypePlateforme" xml_codec.read_text children errors
+    inl o_matricule, errors =
+        xml_codec.read_required
+            "Matricule"
+            (xml_codec.read_value x_identifiant_matricule_plateforme_type_of_string)
+            children
+            errors
+    inl v_id_siren, errors = xml_codec.read_optional "IdSIREN" x_id_siren_type_of_xml children errors
+    inl o_nom, errors = xml_codec.read_required "Nom" xml_codec.read_text children errors
+    inl v_nom_commercial, errors = xml_codec.read_optional "NomCommercial" xml_codec.read_text children errors
+    inl v_contact, errors = xml_codec.read_optional "Contact" xml_codec.read_text children errors
+    inl o_date_debut_immatriculation, errors =
+        xml_codec.read_required "DateDebutImmatriculation" (xml_codec.read_value x_date_type_of_string) children errors
+    inl v_date_fin_immatriculation, errors =
+        xml_codec.read_optional "DateFinImmatriculation" (xml_codec.read_value x_date_type_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_id_plateformes_reception_type_id_plateforme_reception {
+            id_instance = xml_codec.present o_id_instance
+            motif_presence = xml_codec.present o_motif_presence
+            statut = xml_codec.present o_statut
+            type_plateforme = xml_codec.present o_type_plateforme
+            matricule = xml_codec.present o_matricule
+            id_siren = v_id_siren
+            nom = xml_codec.present o_nom
+            nom_commercial = v_nom_commercial
+            contact = v_contact
+            date_debut_immatriculation = xml_codec.present o_date_debut_immatriculation
+            date_fin_immatriculation = v_date_fin_immatriculation
+        }
+
+and let x_id_plateformes_reception_type_id_plateforme_reception_of_xml
+    (c : xml.xml_node)
+    : result (x_id_plateformes_reception_type_id_plateforme_reception) (list xml_codec.decode_error)
+    =
+    x_id_plateformes_reception_type_id_plateforme_reception_of_children
+        (xml.element_attributes c)
+        (xml.element_children c)
+
+and let x_id_plateformes_reception_type_id_plateforme_reception_children
+    (x : x_id_plateformes_reception_type_id_plateforme_reception)
+    : list xml.xml_node
+    =
+    inl nodes forall r.
+        (f : x_id_plateformes_reception_type_id_plateforme_reception_field r) (v : r)
+        : list xml.xml_node
+        =
+        match f with
+        | IdPlateformesReceptionType_IdPlateformeReception_field_IdInstance => [ text_node "IdInstance" v ]
+        | IdPlateformesReceptionType_IdPlateformeReception_field_MotifPresence =>
+            [ xml.element "MotifPresence" [] (xml.text_children v) ]
+        | IdPlateformesReceptionType_IdPlateformeReception_field_Statut =>
+            [ xml.element "Statut" [] (xml.text_children v) ]
+        | IdPlateformesReceptionType_IdPlateformeReception_field_TypePlateforme =>
+            [ xml.element "TypePlateforme" [] (xml.text_children v) ]
+        | IdPlateformesReceptionType_IdPlateformeReception_field_Matricule => [ text_node "Matricule" v ]
+        | IdPlateformesReceptionType_IdPlateformeReception_field_IdSIREN =>
+            xml.option_list (optionm.map (fun v => x_id_siren_type_to_xml "IdSIREN" v) v)
+        | IdPlateformesReceptionType_IdPlateformeReception_field_Nom => [ xml.element "Nom" [] (xml.text_children v) ]
+        | IdPlateformesReceptionType_IdPlateformeReception_field_NomCommercial =>
+            xml.option_list (optionm.map (fun v => xml.element "NomCommercial" [] (xml.text_children v)) v)
+        | IdPlateformesReceptionType_IdPlateformeReception_field_Contact =>
+            xml.option_list (optionm.map (fun v => xml.element "Contact" [] (xml.text_children v)) v)
+        | IdPlateformesReceptionType_IdPlateformeReception_field_DateDebutImmatriculation =>
+            [ text_node "DateDebutImmatriculation" v ]
+        | IdPlateformesReceptionType_IdPlateformeReception_field_DateFinImmatriculation =>
+            optional_text_nodes "DateFinImmatriculation" v
+    inl rec walk
+        (fields : list (exists r. x_id_plateformes_reception_type_id_plateforme_reception_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_id_plateformes_reception_type_id_plateforme_reception_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_IdInstance
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_MotifPresence
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Statut
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_TypePlateforme
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Matricule
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_IdSIREN
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Nom
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_NomCommercial
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_Contact
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_DateDebutImmatriculation
+        exists IdPlateformesReceptionType_IdPlateformeReception_field_DateFinImmatriculation
+    ]
+
+and let x_id_plateformes_reception_type_id_plateforme_reception_attributes
+    (x : x_id_plateformes_reception_type_id_plateforme_reception)
+    : list (string * string)
+    =
+    []
+
+and let x_id_plateformes_reception_type_id_plateforme_reception_to_xml
+    (name : string) (x : x_id_plateformes_reception_type_id_plateforme_reception)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_id_plateformes_reception_type_id_plateforme_reception_attributes x)
+        (x_id_plateformes_reception_type_id_plateforme_reception_children x)
+
+and let x_id_plateformes_reception_type_id_plateforme_reception_example
+    (k : i32)
+    : x_id_plateformes_reception_type_id_plateforme_reception
+    =
+    x_id_plateformes_reception_type_id_plateforme_reception {
+        id_instance = xsd_integer_example k
+        motif_presence = "1"
+        statut = "1"
+        type_plateforme = "1"
+        matricule = x_identifiant_matricule_plateforme_type_example k
+        id_siren = None
+        nom = "1"
+        nom_commercial = None
+        contact = None
+        date_debut_immatriculation = x_date_type_example k
+        date_fin_immatriculation = None
+    }
+
+
+let rec x_id_plateformes_reception_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_id_plateformes_reception_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_id_plateforme_reception, errors =
+        xml_codec.read_repeated
+            "IdPlateformeReception"
+            x_id_plateformes_reception_type_id_plateforme_reception_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_id_plateformes_reception_type { id_plateforme_reception = v_id_plateforme_reception }
+
+and let x_id_plateformes_reception_type_of_xml
+    (c : xml.xml_node)
+    : result (x_id_plateformes_reception_type) (list xml_codec.decode_error)
+    =
+    x_id_plateformes_reception_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_id_plateformes_reception_type_children (x : x_id_plateformes_reception_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_id_plateformes_reception_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | IdPlateformesReceptionType_field_IdPlateformeReception =>
+            listm.map
+                fun v => x_id_plateformes_reception_type_id_plateforme_reception_to_xml "IdPlateformeReception" v
+                v
+    inl rec walk (fields : list (exists r. x_id_plateformes_reception_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_id_plateformes_reception_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists IdPlateformesReceptionType_field_IdPlateformeReception ]
+
+and let x_id_plateformes_reception_type_attributes (x : x_id_plateformes_reception_type) : list (string * string) = []
+
+and let x_id_plateformes_reception_type_to_xml (name : string) (x : x_id_plateformes_reception_type) : xml.xml_node =
+    xml.element name (x_id_plateformes_reception_type_attributes x) (x_id_plateformes_reception_type_children x)
+
+and let x_id_plateformes_reception_type_example (k : i32) : x_id_plateformes_reception_type =
+    x_id_plateformes_reception_type {
+        id_plateforme_reception = [ x_id_plateformes_reception_type_id_plateforme_reception_example (k + 0i32) ]
+    }
+
+
+let rec x_codes_routage_consultation_type_code_routage_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_codes_routage_consultation_type_code_routage) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_id_instance, errors =
+        xml_codec.read_required "IdInstance" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl o_motif_presence, errors = xml_codec.read_required "MotifPresence" xml_codec.read_text children errors
+    inl o_statut, errors = xml_codec.read_required "Statut" xml_codec.read_text children errors
+    inl o_id_siret, errors = xml_codec.read_required "IdSIRET" x_id_siret_type_of_xml children errors
+    inl o_id_routage, errors = xml_codec.read_required "IdRoutage" x_id_codes_routage_type_of_xml children errors
+    inl o_nom, errors = xml_codec.read_required "Nom" xml_codec.read_text children errors
+    inl v_ligne_adresse1, errors = xml_codec.read_optional "LigneAdresse1" xml_codec.read_text children errors
+    inl v_ligne_adresse2, errors = xml_codec.read_optional "LigneAdresse2" xml_codec.read_text children errors
+    inl v_ligne_adresse3, errors = xml_codec.read_optional "LigneAdresse3" xml_codec.read_text children errors
+    inl v_localite, errors = xml_codec.read_optional "Localite" xml_codec.read_text children errors
+    inl v_cp, errors = xml_codec.read_optional "CP" xml_codec.read_text children errors
+    inl v_subdivision_pays, errors = xml_codec.read_optional "SubdivisionPays" xml_codec.read_text children errors
+    inl v_code_pays, errors = xml_codec.read_optional "CodePays" xml_codec.read_text children errors
+    inl v_engagement_juridique, errors =
+        xml_codec.read_optional "EngagementJuridique" (xml_codec.read_value xsd_boolean_of_string) children errors
+    xml_codec.decoded_by errors fun () =>
+        x_codes_routage_consultation_type_code_routage {
+            id_instance = xml_codec.present o_id_instance
+            motif_presence = xml_codec.present o_motif_presence
+            statut = xml_codec.present o_statut
+            id_siret = xml_codec.present o_id_siret
+            id_routage = xml_codec.present o_id_routage
+            nom = xml_codec.present o_nom
+            ligne_adresse1 = v_ligne_adresse1
+            ligne_adresse2 = v_ligne_adresse2
+            ligne_adresse3 = v_ligne_adresse3
+            localite = v_localite
+            cp = v_cp
+            subdivision_pays = v_subdivision_pays
+            code_pays = v_code_pays
+            engagement_juridique = v_engagement_juridique
+        }
+
+and let x_codes_routage_consultation_type_code_routage_of_xml
+    (c : xml.xml_node)
+    : result (x_codes_routage_consultation_type_code_routage) (list xml_codec.decode_error)
+    =
+    x_codes_routage_consultation_type_code_routage_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_codes_routage_consultation_type_code_routage_children
+    (x : x_codes_routage_consultation_type_code_routage)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_codes_routage_consultation_type_code_routage_field r) (v : r) : list xml.xml_node =
+        match f with
+        | CodesRoutageConsultationType_CodeRoutage_field_IdInstance => [ text_node "IdInstance" v ]
+        | CodesRoutageConsultationType_CodeRoutage_field_MotifPresence =>
+            [ xml.element "MotifPresence" [] (xml.text_children v) ]
+        | CodesRoutageConsultationType_CodeRoutage_field_Statut => [ xml.element "Statut" [] (xml.text_children v) ]
+        | CodesRoutageConsultationType_CodeRoutage_field_IdSIRET => [ x_id_siret_type_to_xml "IdSIRET" v ]
+        | CodesRoutageConsultationType_CodeRoutage_field_IdRoutage => [ x_id_codes_routage_type_to_xml "IdRoutage" v ]
+        | CodesRoutageConsultationType_CodeRoutage_field_Nom => [ xml.element "Nom" [] (xml.text_children v) ]
+        | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse1 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse1" [] (xml.text_children v)) v)
+        | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse2 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse2" [] (xml.text_children v)) v)
+        | CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse3 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse3" [] (xml.text_children v)) v)
+        | CodesRoutageConsultationType_CodeRoutage_field_Localite =>
+            xml.option_list (optionm.map (fun v => xml.element "Localite" [] (xml.text_children v)) v)
+        | CodesRoutageConsultationType_CodeRoutage_field_CP =>
+            xml.option_list (optionm.map (fun v => xml.element "CP" [] (xml.text_children v)) v)
+        | CodesRoutageConsultationType_CodeRoutage_field_SubdivisionPays =>
+            xml.option_list (optionm.map (fun v => xml.element "SubdivisionPays" [] (xml.text_children v)) v)
+        | CodesRoutageConsultationType_CodeRoutage_field_CodePays =>
+            xml.option_list (optionm.map (fun v => xml.element "CodePays" [] (xml.text_children v)) v)
+        | CodesRoutageConsultationType_CodeRoutage_field_EngagementJuridique =>
+            optional_text_nodes "EngagementJuridique" v
+    inl rec walk
+        (fields : list (exists r. x_codes_routage_consultation_type_code_routage_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_codes_routage_consultation_type_code_routage_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists CodesRoutageConsultationType_CodeRoutage_field_IdInstance
+        exists CodesRoutageConsultationType_CodeRoutage_field_MotifPresence
+        exists CodesRoutageConsultationType_CodeRoutage_field_Statut
+        exists CodesRoutageConsultationType_CodeRoutage_field_IdSIRET
+        exists CodesRoutageConsultationType_CodeRoutage_field_IdRoutage
+        exists CodesRoutageConsultationType_CodeRoutage_field_Nom
+        exists CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse1
+        exists CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse2
+        exists CodesRoutageConsultationType_CodeRoutage_field_LigneAdresse3
+        exists CodesRoutageConsultationType_CodeRoutage_field_Localite
+        exists CodesRoutageConsultationType_CodeRoutage_field_CP
+        exists CodesRoutageConsultationType_CodeRoutage_field_SubdivisionPays
+        exists CodesRoutageConsultationType_CodeRoutage_field_CodePays
+        exists CodesRoutageConsultationType_CodeRoutage_field_EngagementJuridique
+    ]
+
+and let x_codes_routage_consultation_type_code_routage_attributes
+    (x : x_codes_routage_consultation_type_code_routage)
+    : list (string * string)
+    =
+    []
+
+and let x_codes_routage_consultation_type_code_routage_to_xml
+    (name : string) (x : x_codes_routage_consultation_type_code_routage)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_codes_routage_consultation_type_code_routage_attributes x)
+        (x_codes_routage_consultation_type_code_routage_children x)
+
+and let x_codes_routage_consultation_type_code_routage_example (k : i32) : x_codes_routage_consultation_type_code_routage =
+    x_codes_routage_consultation_type_code_routage {
+        id_instance = xsd_integer_example k
+        motif_presence = "1"
+        statut = "1"
+        id_siret = x_id_siret_type_example k
+        id_routage = x_id_codes_routage_type_example k
+        nom = "1"
+        ligne_adresse1 = None
+        ligne_adresse2 = None
+        ligne_adresse3 = None
+        localite = None
+        cp = None
+        subdivision_pays = None
+        code_pays = None
+        engagement_juridique = None
+    }
+
+
+let rec x_codes_routage_consultation_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_codes_routage_consultation_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_code_routage, errors =
+        xml_codec.read_repeated "CodeRoutage" x_codes_routage_consultation_type_code_routage_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_codes_routage_consultation_type { code_routage = v_code_routage })
+
+and let x_codes_routage_consultation_type_of_xml
+    (c : xml.xml_node)
+    : result (x_codes_routage_consultation_type) (list xml_codec.decode_error)
+    =
+    x_codes_routage_consultation_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_codes_routage_consultation_type_children (x : x_codes_routage_consultation_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_codes_routage_consultation_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | CodesRoutageConsultationType_field_CodeRoutage =>
+            listm.map (fun v => x_codes_routage_consultation_type_code_routage_to_xml "CodeRoutage" v) v
+    inl rec walk (fields : list (exists r. x_codes_routage_consultation_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_codes_routage_consultation_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists CodesRoutageConsultationType_field_CodeRoutage ]
+
+and let x_codes_routage_consultation_type_attributes (x : x_codes_routage_consultation_type) : list (string * string) =
+    []
+
+and let x_codes_routage_consultation_type_to_xml (name : string) (x : x_codes_routage_consultation_type) : xml.xml_node =
+    xml.element name (x_codes_routage_consultation_type_attributes x) (x_codes_routage_consultation_type_children x)
+
+and let x_codes_routage_consultation_type_example (k : i32) : x_codes_routage_consultation_type =
+    x_codes_routage_consultation_type {
+        code_routage = [ x_codes_routage_consultation_type_code_routage_example (k + 0i32) ]
+    }
+
+
+let rec x_etablissements_type_etablissement_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_etablissements_type_etablissement) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_id_instance, errors =
+        xml_codec.read_required "IdInstance" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl o_motif_presence, errors = xml_codec.read_required "MotifPresence" xml_codec.read_text children errors
+    inl o_statut, errors = xml_codec.read_required "Statut" xml_codec.read_text children errors
+    inl o_id_siret, errors = xml_codec.read_required "IdSIRET" x_id_siret_type_of_xml children errors
+    inl o_type_etablissement, errors = xml_codec.read_required "TypeEtablissement" xml_codec.read_text children errors
+    inl o_nom, errors = xml_codec.read_required "Nom" xml_codec.read_text children errors
+    inl v_ligne_adresse1, errors = xml_codec.read_optional "LigneAdresse1" xml_codec.read_text children errors
+    inl v_ligne_adresse2, errors = xml_codec.read_optional "LigneAdresse2" xml_codec.read_text children errors
+    inl v_ligne_adresse3, errors = xml_codec.read_optional "LigneAdresse3" xml_codec.read_text children errors
+    inl v_localite, errors = xml_codec.read_optional "Localite" xml_codec.read_text children errors
+    inl v_cp, errors = xml_codec.read_optional "CP" xml_codec.read_text children errors
+    inl v_subdivision_pays, errors = xml_codec.read_optional "SubdivisionPays" xml_codec.read_text children errors
+    inl v_code_pays, errors = xml_codec.read_optional "CodePays" xml_codec.read_text children errors
+    inl v_donnees_b2_g, errors =
+        xml_codec.read_optional "DonneesB2G" x_etablissements_type_etablissement_donnees_b2_g_of_xml children errors
+    inl o_diffusible, errors = xml_codec.read_required "Diffusible" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_etablissements_type_etablissement {
+            id_instance = xml_codec.present o_id_instance
+            motif_presence = xml_codec.present o_motif_presence
+            statut = xml_codec.present o_statut
+            id_siret = xml_codec.present o_id_siret
+            type_etablissement = xml_codec.present o_type_etablissement
+            nom = xml_codec.present o_nom
+            ligne_adresse1 = v_ligne_adresse1
+            ligne_adresse2 = v_ligne_adresse2
+            ligne_adresse3 = v_ligne_adresse3
+            localite = v_localite
+            cp = v_cp
+            subdivision_pays = v_subdivision_pays
+            code_pays = v_code_pays
+            donnees_b2_g = v_donnees_b2_g
+            diffusible = xml_codec.present o_diffusible
+        }
+
+and let x_etablissements_type_etablissement_of_xml
+    (c : xml.xml_node)
+    : result (x_etablissements_type_etablissement) (list xml_codec.decode_error)
+    =
+    x_etablissements_type_etablissement_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_etablissements_type_etablissement_children (x : x_etablissements_type_etablissement) : list xml.xml_node =
+    inl nodes forall r. (f : x_etablissements_type_etablissement_field r) (v : r) : list xml.xml_node =
+        match f with
+        | EtablissementsType_Etablissement_field_IdInstance => [ text_node "IdInstance" v ]
+        | EtablissementsType_Etablissement_field_MotifPresence =>
+            [ xml.element "MotifPresence" [] (xml.text_children v) ]
+        | EtablissementsType_Etablissement_field_Statut => [ xml.element "Statut" [] (xml.text_children v) ]
+        | EtablissementsType_Etablissement_field_IdSIRET => [ x_id_siret_type_to_xml "IdSIRET" v ]
+        | EtablissementsType_Etablissement_field_TypeEtablissement =>
+            [ xml.element "TypeEtablissement" [] (xml.text_children v) ]
+        | EtablissementsType_Etablissement_field_Nom => [ xml.element "Nom" [] (xml.text_children v) ]
+        | EtablissementsType_Etablissement_field_LigneAdresse1 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse1" [] (xml.text_children v)) v)
+        | EtablissementsType_Etablissement_field_LigneAdresse2 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse2" [] (xml.text_children v)) v)
+        | EtablissementsType_Etablissement_field_LigneAdresse3 =>
+            xml.option_list (optionm.map (fun v => xml.element "LigneAdresse3" [] (xml.text_children v)) v)
+        | EtablissementsType_Etablissement_field_Localite =>
+            xml.option_list (optionm.map (fun v => xml.element "Localite" [] (xml.text_children v)) v)
+        | EtablissementsType_Etablissement_field_CP =>
+            xml.option_list (optionm.map (fun v => xml.element "CP" [] (xml.text_children v)) v)
+        | EtablissementsType_Etablissement_field_SubdivisionPays =>
+            xml.option_list (optionm.map (fun v => xml.element "SubdivisionPays" [] (xml.text_children v)) v)
+        | EtablissementsType_Etablissement_field_CodePays =>
+            xml.option_list (optionm.map (fun v => xml.element "CodePays" [] (xml.text_children v)) v)
+        | EtablissementsType_Etablissement_field_DonneesB2G =>
+            xml.option_list (
+                optionm.map (fun v => x_etablissements_type_etablissement_donnees_b2_g_to_xml "DonneesB2G" v) v
+            )
+        | EtablissementsType_Etablissement_field_Diffusible => [ xml.element "Diffusible" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_etablissements_type_etablissement_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_etablissements_type_etablissement_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists EtablissementsType_Etablissement_field_IdInstance
+        exists EtablissementsType_Etablissement_field_MotifPresence
+        exists EtablissementsType_Etablissement_field_Statut
+        exists EtablissementsType_Etablissement_field_IdSIRET
+        exists EtablissementsType_Etablissement_field_TypeEtablissement
+        exists EtablissementsType_Etablissement_field_Nom
+        exists EtablissementsType_Etablissement_field_LigneAdresse1
+        exists EtablissementsType_Etablissement_field_LigneAdresse2
+        exists EtablissementsType_Etablissement_field_LigneAdresse3
+        exists EtablissementsType_Etablissement_field_Localite
+        exists EtablissementsType_Etablissement_field_CP
+        exists EtablissementsType_Etablissement_field_SubdivisionPays
+        exists EtablissementsType_Etablissement_field_CodePays
+        exists EtablissementsType_Etablissement_field_DonneesB2G
+        exists EtablissementsType_Etablissement_field_Diffusible
+    ]
+
+and let x_etablissements_type_etablissement_attributes (x : x_etablissements_type_etablissement) : list (string * string) =
+    []
+
+and let x_etablissements_type_etablissement_to_xml
+    (name : string) (x : x_etablissements_type_etablissement)
+    : xml.xml_node
+    =
+    xml.element name (x_etablissements_type_etablissement_attributes x) (x_etablissements_type_etablissement_children x)
+
+and let x_etablissements_type_etablissement_example (k : i32) : x_etablissements_type_etablissement =
+    x_etablissements_type_etablissement {
+        id_instance = xsd_integer_example k
+        motif_presence = "1"
+        statut = "1"
+        id_siret = x_id_siret_type_example k
+        type_etablissement = "1"
+        nom = "1"
+        ligne_adresse1 = None
+        ligne_adresse2 = None
+        ligne_adresse3 = None
+        localite = None
+        cp = None
+        subdivision_pays = None
+        code_pays = None
+        donnees_b2_g = None
+        diffusible = "1"
+    }
+
+
+let rec x_etablissements_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_etablissements_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_etablissement, errors =
+        xml_codec.read_repeated "Etablissement" x_etablissements_type_etablissement_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_etablissements_type { etablissement = v_etablissement })
+
+and let x_etablissements_type_of_xml (c : xml.xml_node) : result (x_etablissements_type) (list xml_codec.decode_error) =
+    x_etablissements_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_etablissements_type_children (x : x_etablissements_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_etablissements_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | EtablissementsType_field_Etablissement =>
+            listm.map (fun v => x_etablissements_type_etablissement_to_xml "Etablissement" v) v
+    inl rec walk (fields : list (exists r. x_etablissements_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_etablissements_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists EtablissementsType_field_Etablissement ]
+
+and let x_etablissements_type_attributes (x : x_etablissements_type) : list (string * string) = []
+
+and let x_etablissements_type_to_xml (name : string) (x : x_etablissements_type) : xml.xml_node =
+    xml.element name (x_etablissements_type_attributes x) (x_etablissements_type_children x)
+
+and let x_etablissements_type_example (k : i32) : x_etablissements_type =
+    x_etablissements_type {
+        etablissement = [ x_etablissements_type_etablissement_example (k + 0i32) ]
+    }
+
+
+let rec x_unites_legales_type_unite_legale_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_unites_legales_type_unite_legale) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_id_instance, errors =
+        xml_codec.read_required "IdInstance" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl o_motif_presence, errors = xml_codec.read_required "MotifPresence" xml_codec.read_text children errors
+    inl o_statut, errors = xml_codec.read_required "Statut" xml_codec.read_text children errors
+    inl o_id_siren, errors = xml_codec.read_required "IdSIREN" x_id_siren_type_of_xml children errors
+    inl o_nom, errors = xml_codec.read_required "Nom" xml_codec.read_text children errors
+    inl o_type_entite, errors = xml_codec.read_required "TypeEntite" xml_codec.read_text children errors
+    inl o_diffusible, errors = xml_codec.read_required "Diffusible" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_unites_legales_type_unite_legale {
+            id_instance = xml_codec.present o_id_instance
+            motif_presence = xml_codec.present o_motif_presence
+            statut = xml_codec.present o_statut
+            id_siren = xml_codec.present o_id_siren
+            nom = xml_codec.present o_nom
+            type_entite = xml_codec.present o_type_entite
+            diffusible = xml_codec.present o_diffusible
+        }
+
+and let x_unites_legales_type_unite_legale_of_xml
+    (c : xml.xml_node)
+    : result (x_unites_legales_type_unite_legale) (list xml_codec.decode_error)
+    =
+    x_unites_legales_type_unite_legale_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_unites_legales_type_unite_legale_children (x : x_unites_legales_type_unite_legale) : list xml.xml_node =
+    inl nodes forall r. (f : x_unites_legales_type_unite_legale_field r) (v : r) : list xml.xml_node =
+        match f with
+        | UnitesLegalesType_UniteLegale_field_IdInstance => [ text_node "IdInstance" v ]
+        | UnitesLegalesType_UniteLegale_field_MotifPresence => [ xml.element "MotifPresence" [] (xml.text_children v) ]
+        | UnitesLegalesType_UniteLegale_field_Statut => [ xml.element "Statut" [] (xml.text_children v) ]
+        | UnitesLegalesType_UniteLegale_field_IdSIREN => [ x_id_siren_type_to_xml "IdSIREN" v ]
+        | UnitesLegalesType_UniteLegale_field_Nom => [ xml.element "Nom" [] (xml.text_children v) ]
+        | UnitesLegalesType_UniteLegale_field_TypeEntite => [ xml.element "TypeEntite" [] (xml.text_children v) ]
+        | UnitesLegalesType_UniteLegale_field_Diffusible => [ xml.element "Diffusible" [] (xml.text_children v) ]
+    inl rec walk (fields : list (exists r. x_unites_legales_type_unite_legale_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_unites_legales_type_unite_legale_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists UnitesLegalesType_UniteLegale_field_IdInstance
+        exists UnitesLegalesType_UniteLegale_field_MotifPresence
+        exists UnitesLegalesType_UniteLegale_field_Statut
+        exists UnitesLegalesType_UniteLegale_field_IdSIREN
+        exists UnitesLegalesType_UniteLegale_field_Nom
+        exists UnitesLegalesType_UniteLegale_field_TypeEntite
+        exists UnitesLegalesType_UniteLegale_field_Diffusible
+    ]
+
+and let x_unites_legales_type_unite_legale_attributes (x : x_unites_legales_type_unite_legale) : list (string * string) =
+    []
+
+and let x_unites_legales_type_unite_legale_to_xml (name : string) (x : x_unites_legales_type_unite_legale) : xml.xml_node =
+    xml.element name (x_unites_legales_type_unite_legale_attributes x) (x_unites_legales_type_unite_legale_children x)
+
+and let x_unites_legales_type_unite_legale_example (k : i32) : x_unites_legales_type_unite_legale =
+    x_unites_legales_type_unite_legale {
+        id_instance = xsd_integer_example k
+        motif_presence = "1"
+        statut = "1"
+        id_siren = x_id_siren_type_example k
+        nom = "1"
+        type_entite = "1"
+        diffusible = "1"
+    }
+
+
+let rec x_unites_legales_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_unites_legales_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_unite_legale, errors =
+        xml_codec.read_repeated "UniteLegale" x_unites_legales_type_unite_legale_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_unites_legales_type { unite_legale = v_unite_legale })
+
+and let x_unites_legales_type_of_xml (c : xml.xml_node) : result (x_unites_legales_type) (list xml_codec.decode_error) =
+    x_unites_legales_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_unites_legales_type_children (x : x_unites_legales_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_unites_legales_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | UnitesLegalesType_field_UniteLegale =>
+            listm.map (fun v => x_unites_legales_type_unite_legale_to_xml "UniteLegale" v) v
+    inl rec walk (fields : list (exists r. x_unites_legales_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_unites_legales_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists UnitesLegalesType_field_UniteLegale ]
+
+and let x_unites_legales_type_attributes (x : x_unites_legales_type) : list (string * string) = []
+
+and let x_unites_legales_type_to_xml (name : string) (x : x_unites_legales_type) : xml.xml_node =
+    xml.element name (x_unites_legales_type_attributes x) (x_unites_legales_type_children x)
+
+and let x_unites_legales_type_example (k : i32) : x_unites_legales_type =
+    x_unites_legales_type {
+        unite_legale = [ x_unites_legales_type_unite_legale_example (k + 0i32) ]
+    }
+
+
+let rec x_info_adressage_actualisation_type_identifiant_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_info_adressage_actualisation_type_identifiant) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_id_lin_siren, errors = xml_codec.read_required "IdLinSIREN" x_id_siren_type_of_xml children errors
+    inl v_id_lin_siret, errors = xml_codec.read_optional "IdLinSIRET" x_id_siret_type_of_xml children errors
+    inl v_id_lin_routage, errors = xml_codec.read_optional "IdLinRoutage" x_id_codes_routage_type_of_xml children errors
+    inl v_suffixe, errors = xml_codec.read_optional "Suffixe" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_info_adressage_actualisation_type_identifiant {
+            id_lin_siren = xml_codec.present o_id_lin_siren
+            id_lin_siret = v_id_lin_siret
+            id_lin_routage = v_id_lin_routage
+            suffixe = v_suffixe
+        }
+
+and let x_info_adressage_actualisation_type_identifiant_of_xml
+    (c : xml.xml_node)
+    : result (x_info_adressage_actualisation_type_identifiant) (list xml_codec.decode_error)
+    =
+    x_info_adressage_actualisation_type_identifiant_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_info_adressage_actualisation_type_identifiant_children
+    (x : x_info_adressage_actualisation_type_identifiant)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_info_adressage_actualisation_type_identifiant_field r) (v : r) : list xml.xml_node =
+        match f with
+        | InfoAdressageActualisationType_Identifiant_field_IdLinSIREN => [ x_id_siren_type_to_xml "IdLinSIREN" v ]
+        | InfoAdressageActualisationType_Identifiant_field_IdLinSIRET =>
+            xml.option_list (optionm.map (fun v => x_id_siret_type_to_xml "IdLinSIRET" v) v)
+        | InfoAdressageActualisationType_Identifiant_field_IdLinRoutage =>
+            xml.option_list (optionm.map (fun v => x_id_codes_routage_type_to_xml "IdLinRoutage" v) v)
+        | InfoAdressageActualisationType_Identifiant_field_Suffixe =>
+            xml.option_list (optionm.map (fun v => xml.element "Suffixe" [] (xml.text_children v)) v)
+    inl rec walk
+        (fields : list (exists r. x_info_adressage_actualisation_type_identifiant_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_info_adressage_actualisation_type_identifiant_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists InfoAdressageActualisationType_Identifiant_field_IdLinSIREN
+        exists InfoAdressageActualisationType_Identifiant_field_IdLinSIRET
+        exists InfoAdressageActualisationType_Identifiant_field_IdLinRoutage
+        exists InfoAdressageActualisationType_Identifiant_field_Suffixe
+    ]
+
+and let x_info_adressage_actualisation_type_identifiant_attributes
+    (x : x_info_adressage_actualisation_type_identifiant)
+    : list (string * string)
+    =
+    []
+
+and let x_info_adressage_actualisation_type_identifiant_to_xml
+    (name : string) (x : x_info_adressage_actualisation_type_identifiant)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_info_adressage_actualisation_type_identifiant_attributes x)
+        (x_info_adressage_actualisation_type_identifiant_children x)
+
+and let x_info_adressage_actualisation_type_identifiant_example
+    (k : i32)
+    : x_info_adressage_actualisation_type_identifiant
+    =
+    x_info_adressage_actualisation_type_identifiant {
+        id_lin_siren = x_id_siren_type_example k
+        id_lin_siret = None
+        id_lin_routage = None
+        suffixe = None
+    }
+
+
+let rec x_info_adressage_actualisation_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_info_adressage_actualisation_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_identifiant, errors =
+        xml_codec.read_required "Identifiant" x_info_adressage_actualisation_type_identifiant_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_info_adressage_actualisation_type { identifiant = xml_codec.present o_identifiant }
+
+and let x_info_adressage_actualisation_type_of_xml
+    (c : xml.xml_node)
+    : result (x_info_adressage_actualisation_type) (list xml_codec.decode_error)
+    =
+    x_info_adressage_actualisation_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_info_adressage_actualisation_type_children (x : x_info_adressage_actualisation_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_info_adressage_actualisation_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | InfoAdressageActualisationType_field_Identifiant =>
+            [ x_info_adressage_actualisation_type_identifiant_to_xml "Identifiant" v ]
+    inl rec walk (fields : list (exists r. x_info_adressage_actualisation_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_info_adressage_actualisation_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists InfoAdressageActualisationType_field_Identifiant ]
+
+and let x_info_adressage_actualisation_type_attributes (x : x_info_adressage_actualisation_type) : list (string * string) =
+    []
+
+and let x_info_adressage_actualisation_type_to_xml
+    (name : string) (x : x_info_adressage_actualisation_type)
+    : xml.xml_node
+    =
+    xml.element name (x_info_adressage_actualisation_type_attributes x) (x_info_adressage_actualisation_type_children x)
+
+and let x_info_adressage_actualisation_type_example (k : i32) : x_info_adressage_actualisation_type =
+    x_info_adressage_actualisation_type {
+        identifiant = x_info_adressage_actualisation_type_identifiant_example k
+    }
+
+
+let rec x_info_adressage_consultation_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_info_adressage_consultation_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_identifiant, errors = xml_codec.read_required "Identifiant" xml_codec.read_text children errors
+    inl o_id_lin_siren, errors = xml_codec.read_required "IdLinSIREN" x_id_siren_type_of_xml children errors
+    inl v_id_lin_siret, errors = xml_codec.read_optional "IdLinSIRET" x_id_siret_type_of_xml children errors
+    inl v_id_lin_routage, errors = xml_codec.read_optional "IdLinRoutage" x_id_codes_routage_type_of_xml children errors
+    inl v_suffixe, errors = xml_codec.read_optional "Suffixe" xml_codec.read_text children errors
+    xml_codec.decoded_by errors fun () =>
+        x_info_adressage_consultation_type {
+            identifiant = xml_codec.present o_identifiant
+            id_lin_siren = xml_codec.present o_id_lin_siren
+            id_lin_siret = v_id_lin_siret
+            id_lin_routage = v_id_lin_routage
+            suffixe = v_suffixe
+        }
+
+and let x_info_adressage_consultation_type_of_xml
+    (c : xml.xml_node)
+    : result (x_info_adressage_consultation_type) (list xml_codec.decode_error)
+    =
+    x_info_adressage_consultation_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_info_adressage_consultation_type_children (x : x_info_adressage_consultation_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_info_adressage_consultation_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | InfoAdressageConsultationType_field_Identifiant => [ xml.element "Identifiant" [] (xml.text_children v) ]
+        | InfoAdressageConsultationType_field_IdLinSIREN => [ x_id_siren_type_to_xml "IdLinSIREN" v ]
+        | InfoAdressageConsultationType_field_IdLinSIRET =>
+            xml.option_list (optionm.map (fun v => x_id_siret_type_to_xml "IdLinSIRET" v) v)
+        | InfoAdressageConsultationType_field_IdLinRoutage =>
+            xml.option_list (optionm.map (fun v => x_id_codes_routage_type_to_xml "IdLinRoutage" v) v)
+        | InfoAdressageConsultationType_field_Suffixe =>
+            xml.option_list (optionm.map (fun v => xml.element "Suffixe" [] (xml.text_children v)) v)
+    inl rec walk (fields : list (exists r. x_info_adressage_consultation_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_info_adressage_consultation_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists InfoAdressageConsultationType_field_Identifiant
+        exists InfoAdressageConsultationType_field_IdLinSIREN
+        exists InfoAdressageConsultationType_field_IdLinSIRET
+        exists InfoAdressageConsultationType_field_IdLinRoutage
+        exists InfoAdressageConsultationType_field_Suffixe
+    ]
+
+and let x_info_adressage_consultation_type_attributes (x : x_info_adressage_consultation_type) : list (string * string) =
+    []
+
+and let x_info_adressage_consultation_type_to_xml (name : string) (x : x_info_adressage_consultation_type) : xml.xml_node =
+    xml.element name (x_info_adressage_consultation_type_attributes x) (x_info_adressage_consultation_type_children x)
+
+and let x_info_adressage_consultation_type_example (k : i32) : x_info_adressage_consultation_type =
+    x_info_adressage_consultation_type {
+        identifiant = "1"
+        id_lin_siren = x_id_siren_type_example k
+        id_lin_siret = None
+        id_lin_routage = None
+        suffixe = None
+    }
+
+
+let rec x_lignes_annuaire_actualisation_type_ligne_annuaire_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_lignes_annuaire_actualisation_type_ligne_annuaire) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_nature, errors = xml_codec.read_required "Nature" xml_codec.read_text children errors
+    inl o_date_effet, errors =
+        xml_codec.read_required
+            "DateEffet"
+            x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_of_xml
+            children
+            errors
+    inl o_info_adressage, errors =
+        xml_codec.read_required "InfoAdressage" x_info_adressage_actualisation_type_of_xml children errors
+    inl o_id_plateforme, errors =
+        xml_codec.read_required
+            "IdPlateforme"
+            (xml_codec.read_value x_identifiant_matricule_plateforme_type_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_lignes_annuaire_actualisation_type_ligne_annuaire {
+            nature = xml_codec.present o_nature
+            date_effet = xml_codec.present o_date_effet
+            info_adressage = xml_codec.present o_info_adressage
+            id_plateforme = xml_codec.present o_id_plateforme
+        }
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_of_xml
+    (c : xml.xml_node)
+    : result (x_lignes_annuaire_actualisation_type_ligne_annuaire) (list xml_codec.decode_error)
+    =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_children
+    (x : x_lignes_annuaire_actualisation_type_ligne_annuaire)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_lignes_annuaire_actualisation_type_ligne_annuaire_field r) (v : r) : list xml.xml_node =
+        match f with
+        | LignesAnnuaireActualisationType_LigneAnnuaire_field_Nature =>
+            [ xml.element "Nature" [] (xml.text_children v) ]
+        | LignesAnnuaireActualisationType_LigneAnnuaire_field_DateEffet =>
+            [ x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_to_xml "DateEffet" v ]
+        | LignesAnnuaireActualisationType_LigneAnnuaire_field_InfoAdressage =>
+            [ x_info_adressage_actualisation_type_to_xml "InfoAdressage" v ]
+        | LignesAnnuaireActualisationType_LigneAnnuaire_field_IdPlateforme => [ text_node "IdPlateforme" v ]
+    inl rec walk
+        (fields : list (exists r. x_lignes_annuaire_actualisation_type_ligne_annuaire_field r))
+        : list xml.xml_node
+        =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_lignes_annuaire_actualisation_type_ligne_annuaire_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_Nature
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_DateEffet
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_InfoAdressage
+        exists LignesAnnuaireActualisationType_LigneAnnuaire_field_IdPlateforme
+    ]
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_attributes
+    (x : x_lignes_annuaire_actualisation_type_ligne_annuaire)
+    : list (string * string)
+    =
+    []
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_to_xml
+    (name : string) (x : x_lignes_annuaire_actualisation_type_ligne_annuaire)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_lignes_annuaire_actualisation_type_ligne_annuaire_attributes x)
+        (x_lignes_annuaire_actualisation_type_ligne_annuaire_children x)
+
+and let x_lignes_annuaire_actualisation_type_ligne_annuaire_example
+    (k : i32)
+    : x_lignes_annuaire_actualisation_type_ligne_annuaire
+    =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire {
+        nature = "1"
+        date_effet = x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_example k
+        info_adressage = x_info_adressage_actualisation_type_example k
+        id_plateforme = x_identifiant_matricule_plateforme_type_example k
+    }
+
+
+let rec x_lignes_annuaire_actualisation_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_lignes_annuaire_actualisation_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_ligne_annuaire, errors =
+        xml_codec.read_repeated
+            "LigneAnnuaire"
+            x_lignes_annuaire_actualisation_type_ligne_annuaire_of_xml
+            children
+            errors
+    xml_codec.decoded_by errors (fun () => x_lignes_annuaire_actualisation_type { ligne_annuaire = v_ligne_annuaire })
+
+and let x_lignes_annuaire_actualisation_type_of_xml
+    (c : xml.xml_node)
+    : result (x_lignes_annuaire_actualisation_type) (list xml_codec.decode_error)
+    =
+    x_lignes_annuaire_actualisation_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_lignes_annuaire_actualisation_type_children (x : x_lignes_annuaire_actualisation_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_lignes_annuaire_actualisation_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | LignesAnnuaireActualisationType_field_LigneAnnuaire =>
+            listm.map (fun v => x_lignes_annuaire_actualisation_type_ligne_annuaire_to_xml "LigneAnnuaire" v) v
+    inl rec walk (fields : list (exists r. x_lignes_annuaire_actualisation_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_lignes_annuaire_actualisation_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists LignesAnnuaireActualisationType_field_LigneAnnuaire ]
+
+and let x_lignes_annuaire_actualisation_type_attributes
+    (x : x_lignes_annuaire_actualisation_type)
+    : list (string * string)
+    =
+    []
+
+and let x_lignes_annuaire_actualisation_type_to_xml
+    (name : string) (x : x_lignes_annuaire_actualisation_type)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_lignes_annuaire_actualisation_type_attributes x)
+        (x_lignes_annuaire_actualisation_type_children x)
+
+and let x_lignes_annuaire_actualisation_type_example (k : i32) : x_lignes_annuaire_actualisation_type =
+    x_lignes_annuaire_actualisation_type {
+        ligne_annuaire = [ x_lignes_annuaire_actualisation_type_ligne_annuaire_example (k + 0i32) ]
+    }
+
+
+let rec x_lignes_annuaire_f11_type_ligne_annuaire_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_lignes_annuaire_f11_type_ligne_annuaire) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_id_instance, errors =
+        xml_codec.read_required "IdInstance" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl o_motif_presence, errors = xml_codec.read_required "MotifPresence" xml_codec.read_text children errors
+    inl o_nature, errors = xml_codec.read_required "Nature" xml_codec.read_text children errors
+    inl o_date_effet, errors =
+        xml_codec.read_required "DateEffet" x_periode_effet_consultation_type_of_xml children errors
+    inl o_info_adressage, errors =
+        xml_codec.read_required "InfoAdressage" x_info_adressage_consultation_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_lignes_annuaire_f11_type_ligne_annuaire {
+            id_instance = xml_codec.present o_id_instance
+            motif_presence = xml_codec.present o_motif_presence
+            nature = xml_codec.present o_nature
+            date_effet = xml_codec.present o_date_effet
+            info_adressage = xml_codec.present o_info_adressage
+        }
+
+and let x_lignes_annuaire_f11_type_ligne_annuaire_of_xml
+    (c : xml.xml_node)
+    : result (x_lignes_annuaire_f11_type_ligne_annuaire) (list xml_codec.decode_error)
+    =
+    x_lignes_annuaire_f11_type_ligne_annuaire_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_lignes_annuaire_f11_type_ligne_annuaire_children
+    (x : x_lignes_annuaire_f11_type_ligne_annuaire)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_lignes_annuaire_f11_type_ligne_annuaire_field r) (v : r) : list xml.xml_node =
+        match f with
+        | LignesAnnuaireF11Type_LigneAnnuaire_field_IdInstance => [ text_node "IdInstance" v ]
+        | LignesAnnuaireF11Type_LigneAnnuaire_field_MotifPresence =>
+            [ xml.element "MotifPresence" [] (xml.text_children v) ]
+        | LignesAnnuaireF11Type_LigneAnnuaire_field_Nature => [ xml.element "Nature" [] (xml.text_children v) ]
+        | LignesAnnuaireF11Type_LigneAnnuaire_field_DateEffet =>
+            [ x_periode_effet_consultation_type_to_xml "DateEffet" v ]
+        | LignesAnnuaireF11Type_LigneAnnuaire_field_InfoAdressage =>
+            [ x_info_adressage_consultation_type_to_xml "InfoAdressage" v ]
+    inl rec walk (fields : list (exists r. x_lignes_annuaire_f11_type_ligne_annuaire_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_lignes_annuaire_f11_type_ligne_annuaire_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_IdInstance
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_MotifPresence
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_Nature
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_DateEffet
+        exists LignesAnnuaireF11Type_LigneAnnuaire_field_InfoAdressage
+    ]
+
+and let x_lignes_annuaire_f11_type_ligne_annuaire_attributes
+    (x : x_lignes_annuaire_f11_type_ligne_annuaire)
+    : list (string * string)
+    =
+    []
+
+and let x_lignes_annuaire_f11_type_ligne_annuaire_to_xml
+    (name : string) (x : x_lignes_annuaire_f11_type_ligne_annuaire)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_lignes_annuaire_f11_type_ligne_annuaire_attributes x)
+        (x_lignes_annuaire_f11_type_ligne_annuaire_children x)
+
+and let x_lignes_annuaire_f11_type_ligne_annuaire_example (k : i32) : x_lignes_annuaire_f11_type_ligne_annuaire =
+    x_lignes_annuaire_f11_type_ligne_annuaire {
+        id_instance = xsd_integer_example k
+        motif_presence = "1"
+        nature = "1"
+        date_effet = x_periode_effet_consultation_type_example k
+        info_adressage = x_info_adressage_consultation_type_example k
+    }
+
+
+let rec x_lignes_annuaire_f11_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_lignes_annuaire_f11_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_ligne_annuaire, errors =
+        xml_codec.read_repeated "LigneAnnuaire" x_lignes_annuaire_f11_type_ligne_annuaire_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_lignes_annuaire_f11_type { ligne_annuaire = v_ligne_annuaire })
+
+and let x_lignes_annuaire_f11_type_of_xml
+    (c : xml.xml_node)
+    : result (x_lignes_annuaire_f11_type) (list xml_codec.decode_error)
+    =
+    x_lignes_annuaire_f11_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_lignes_annuaire_f11_type_children (x : x_lignes_annuaire_f11_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_lignes_annuaire_f11_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | LignesAnnuaireF11Type_field_LigneAnnuaire =>
+            listm.map (fun v => x_lignes_annuaire_f11_type_ligne_annuaire_to_xml "LigneAnnuaire" v) v
+    inl rec walk (fields : list (exists r. x_lignes_annuaire_f11_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_lignes_annuaire_f11_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists LignesAnnuaireF11Type_field_LigneAnnuaire ]
+
+and let x_lignes_annuaire_f11_type_attributes (x : x_lignes_annuaire_f11_type) : list (string * string) = []
+
+and let x_lignes_annuaire_f11_type_to_xml (name : string) (x : x_lignes_annuaire_f11_type) : xml.xml_node =
+    xml.element name (x_lignes_annuaire_f11_type_attributes x) (x_lignes_annuaire_f11_type_children x)
+
+and let x_lignes_annuaire_f11_type_example (k : i32) : x_lignes_annuaire_f11_type =
+    x_lignes_annuaire_f11_type {
+        ligne_annuaire = [ x_lignes_annuaire_f11_type_ligne_annuaire_example (k + 0i32) ]
+    }
+
+
+let rec x_lignes_annuaire_f14_type_ligne_annuaire_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_lignes_annuaire_f14_type_ligne_annuaire) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl o_id_instance, errors =
+        xml_codec.read_required "IdInstance" (xml_codec.read_value xsd_integer_of_string) children errors
+    inl o_motif_presence, errors = xml_codec.read_required "MotifPresence" xml_codec.read_text children errors
+    inl o_nature, errors = xml_codec.read_required "Nature" xml_codec.read_text children errors
+    inl o_date_effet, errors =
+        xml_codec.read_required "DateEffet" x_periode_effet_consultation_type_of_xml children errors
+    inl o_info_adressage, errors =
+        xml_codec.read_required "InfoAdressage" x_info_adressage_consultation_type_of_xml children errors
+    inl o_id_plateforme, errors =
+        xml_codec.read_required
+            "IdPlateforme"
+            (xml_codec.read_value x_identifiant_matricule_plateforme_type_of_string)
+            children
+            errors
+    xml_codec.decoded_by errors fun () =>
+        x_lignes_annuaire_f14_type_ligne_annuaire {
+            id_instance = xml_codec.present o_id_instance
+            motif_presence = xml_codec.present o_motif_presence
+            nature = xml_codec.present o_nature
+            date_effet = xml_codec.present o_date_effet
+            info_adressage = xml_codec.present o_info_adressage
+            id_plateforme = xml_codec.present o_id_plateforme
+        }
+
+and let x_lignes_annuaire_f14_type_ligne_annuaire_of_xml
+    (c : xml.xml_node)
+    : result (x_lignes_annuaire_f14_type_ligne_annuaire) (list xml_codec.decode_error)
+    =
+    x_lignes_annuaire_f14_type_ligne_annuaire_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_lignes_annuaire_f14_type_ligne_annuaire_children
+    (x : x_lignes_annuaire_f14_type_ligne_annuaire)
+    : list xml.xml_node
+    =
+    inl nodes forall r. (f : x_lignes_annuaire_f14_type_ligne_annuaire_field r) (v : r) : list xml.xml_node =
+        match f with
+        | LignesAnnuaireF14Type_LigneAnnuaire_field_IdInstance => [ text_node "IdInstance" v ]
+        | LignesAnnuaireF14Type_LigneAnnuaire_field_MotifPresence =>
+            [ xml.element "MotifPresence" [] (xml.text_children v) ]
+        | LignesAnnuaireF14Type_LigneAnnuaire_field_Nature => [ xml.element "Nature" [] (xml.text_children v) ]
+        | LignesAnnuaireF14Type_LigneAnnuaire_field_DateEffet =>
+            [ x_periode_effet_consultation_type_to_xml "DateEffet" v ]
+        | LignesAnnuaireF14Type_LigneAnnuaire_field_InfoAdressage =>
+            [ x_info_adressage_consultation_type_to_xml "InfoAdressage" v ]
+        | LignesAnnuaireF14Type_LigneAnnuaire_field_IdPlateforme => [ text_node "IdPlateforme" v ]
+    inl rec walk (fields : list (exists r. x_lignes_annuaire_f14_type_ligne_annuaire_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_lignes_annuaire_f14_type_ligne_annuaire_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_IdInstance
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_MotifPresence
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_Nature
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_DateEffet
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_InfoAdressage
+        exists LignesAnnuaireF14Type_LigneAnnuaire_field_IdPlateforme
+    ]
+
+and let x_lignes_annuaire_f14_type_ligne_annuaire_attributes
+    (x : x_lignes_annuaire_f14_type_ligne_annuaire)
+    : list (string * string)
+    =
+    []
+
+and let x_lignes_annuaire_f14_type_ligne_annuaire_to_xml
+    (name : string) (x : x_lignes_annuaire_f14_type_ligne_annuaire)
+    : xml.xml_node
+    =
+    xml.element name
+        (x_lignes_annuaire_f14_type_ligne_annuaire_attributes x)
+        (x_lignes_annuaire_f14_type_ligne_annuaire_children x)
+
+and let x_lignes_annuaire_f14_type_ligne_annuaire_example (k : i32) : x_lignes_annuaire_f14_type_ligne_annuaire =
+    x_lignes_annuaire_f14_type_ligne_annuaire {
+        id_instance = xsd_integer_example k
+        motif_presence = "1"
+        nature = "1"
+        date_effet = x_periode_effet_consultation_type_example k
+        info_adressage = x_info_adressage_consultation_type_example k
+        id_plateforme = x_identifiant_matricule_plateforme_type_example k
+    }
+
+
+let rec x_lignes_annuaire_f14_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_lignes_annuaire_f14_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_ligne_annuaire, errors =
+        xml_codec.read_repeated "LigneAnnuaire" x_lignes_annuaire_f14_type_ligne_annuaire_of_xml children errors
+    xml_codec.decoded_by errors (fun () => x_lignes_annuaire_f14_type { ligne_annuaire = v_ligne_annuaire })
+
+and let x_lignes_annuaire_f14_type_of_xml
+    (c : xml.xml_node)
+    : result (x_lignes_annuaire_f14_type) (list xml_codec.decode_error)
+    =
+    x_lignes_annuaire_f14_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_lignes_annuaire_f14_type_children (x : x_lignes_annuaire_f14_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_lignes_annuaire_f14_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | LignesAnnuaireF14Type_field_LigneAnnuaire =>
+            listm.map (fun v => x_lignes_annuaire_f14_type_ligne_annuaire_to_xml "LigneAnnuaire" v) v
+    inl rec walk (fields : list (exists r. x_lignes_annuaire_f14_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_lignes_annuaire_f14_type_get f x)) (walk rest)
+        | [] => []
+    walk [ exists LignesAnnuaireF14Type_field_LigneAnnuaire ]
+
+and let x_lignes_annuaire_f14_type_attributes (x : x_lignes_annuaire_f14_type) : list (string * string) = []
+
+and let x_lignes_annuaire_f14_type_to_xml (name : string) (x : x_lignes_annuaire_f14_type) : xml.xml_node =
+    xml.element name (x_lignes_annuaire_f14_type_attributes x) (x_lignes_annuaire_f14_type_children x)
+
+and let x_lignes_annuaire_f14_type_example (k : i32) : x_lignes_annuaire_f14_type =
+    x_lignes_annuaire_f14_type {
+        ligne_annuaire = [ x_lignes_annuaire_f14_type_ligne_annuaire_example (k + 0i32) ]
+    }
+
+
+let rec x_annuaire_actualisation_type_of_children
+    (attributes : list (string * string)) (children : list xml.xml_node)
+    : result (x_annuaire_actualisation_type) (list xml_codec.decode_error)
+    =
+    inl errors = []
+    inl v_bloc_codes_routage, errors =
+        xml_codec.read_optional "BlocCodesRoutage" x_codes_routage_actualisation_type_of_xml children errors
+    inl v_bloc_lignes_annuaire, errors =
+        xml_codec.read_optional "BlocLignesAnnuaire" x_lignes_annuaire_actualisation_type_of_xml children errors
+    xml_codec.decoded_by errors fun () =>
+        x_annuaire_actualisation_type {
+            bloc_codes_routage = v_bloc_codes_routage
+            bloc_lignes_annuaire = v_bloc_lignes_annuaire
+        }
+
+and let x_annuaire_actualisation_type_of_xml
+    (c : xml.xml_node)
+    : result (x_annuaire_actualisation_type) (list xml_codec.decode_error)
+    =
+    x_annuaire_actualisation_type_of_children (xml.element_attributes c) (xml.element_children c)
+
+and let x_annuaire_actualisation_type_children (x : x_annuaire_actualisation_type) : list xml.xml_node =
+    inl nodes forall r. (f : x_annuaire_actualisation_type_field r) (v : r) : list xml.xml_node =
+        match f with
+        | AnnuaireActualisationType_field_BlocCodesRoutage =>
+            xml.option_list (optionm.map (fun v => x_codes_routage_actualisation_type_to_xml "BlocCodesRoutage" v) v)
+        | AnnuaireActualisationType_field_BlocLignesAnnuaire =>
+            xml.option_list (
+                optionm.map (fun v => x_lignes_annuaire_actualisation_type_to_xml "BlocLignesAnnuaire" v) v
+            )
+    inl rec walk (fields : list (exists r. x_annuaire_actualisation_type_field r)) : list xml.xml_node =
+        match fields with
+        | packed :: rest =>
+            inl exists r. f = packed
+            listm.append (nodes f (x_annuaire_actualisation_type_get f x)) (walk rest)
+        | [] => []
+    walk [
+        exists AnnuaireActualisationType_field_BlocCodesRoutage
+        exists AnnuaireActualisationType_field_BlocLignesAnnuaire
+    ]
+
+and let x_annuaire_actualisation_type_attributes (x : x_annuaire_actualisation_type) : list (string * string) = []
+
+and let x_annuaire_actualisation_type_to_xml (name : string) (x : x_annuaire_actualisation_type) : xml.xml_node =
+    xml.element name (x_annuaire_actualisation_type_attributes x) (x_annuaire_actualisation_type_children x)
+
+and let x_annuaire_actualisation_type_example (k : i32) : x_annuaire_actualisation_type =
+    x_annuaire_actualisation_type {
+        bloc_codes_routage = None
+        bloc_lignes_annuaire = None
+    }
+
+
+instance of_xml x_annuaire_actualisation_type = x_annuaire_actualisation_type_of_xml
+instance to_xml x_annuaire_actualisation_type = x_annuaire_actualisation_type_to_xml
+
+instance of_xml x_id_siren_type = x_id_siren_type_of_xml
+instance to_xml x_id_siren_type = x_id_siren_type_to_xml
+
+instance of_xml x_id_siret_type = x_id_siret_type_of_xml
+instance to_xml x_id_siret_type = x_id_siret_type_to_xml
+
+instance of_xml x_id_codes_routage_type = x_id_codes_routage_type_of_xml
+instance to_xml x_id_codes_routage_type = x_id_codes_routage_type_to_xml
+
+instance of_xml x_info_adressage_consultation_type = x_info_adressage_consultation_type_of_xml
+instance to_xml x_info_adressage_consultation_type = x_info_adressage_consultation_type_to_xml
+
+instance of_xml x_info_adressage_actualisation_type = x_info_adressage_actualisation_type_of_xml
+instance to_xml x_info_adressage_actualisation_type = x_info_adressage_actualisation_type_to_xml
+
+instance of_xml x_info_adressage_actualisation_type_identifiant = x_info_adressage_actualisation_type_identifiant_of_xml
+instance to_xml x_info_adressage_actualisation_type_identifiant = x_info_adressage_actualisation_type_identifiant_to_xml
+
+instance of_xml x_periode_effet_consultation_type = x_periode_effet_consultation_type_of_xml
+instance to_xml x_periode_effet_consultation_type = x_periode_effet_consultation_type_to_xml
+
+instance of_xml x_unites_legales_type = x_unites_legales_type_of_xml
+instance to_xml x_unites_legales_type = x_unites_legales_type_to_xml
+
+instance of_xml x_unites_legales_type_unite_legale = x_unites_legales_type_unite_legale_of_xml
+instance to_xml x_unites_legales_type_unite_legale = x_unites_legales_type_unite_legale_to_xml
+
+instance of_xml x_etablissements_type = x_etablissements_type_of_xml
+instance to_xml x_etablissements_type = x_etablissements_type_to_xml
+
+instance of_xml x_etablissements_type_etablissement = x_etablissements_type_etablissement_of_xml
+instance to_xml x_etablissements_type_etablissement = x_etablissements_type_etablissement_to_xml
+
+instance of_xml x_etablissements_type_etablissement_donnees_b2_g =
+    x_etablissements_type_etablissement_donnees_b2_g_of_xml
+instance to_xml x_etablissements_type_etablissement_donnees_b2_g =
+    x_etablissements_type_etablissement_donnees_b2_g_to_xml
+
+instance of_xml x_codes_routage_consultation_type = x_codes_routage_consultation_type_of_xml
+instance to_xml x_codes_routage_consultation_type = x_codes_routage_consultation_type_to_xml
+
+instance of_xml x_codes_routage_consultation_type_code_routage = x_codes_routage_consultation_type_code_routage_of_xml
+instance to_xml x_codes_routage_consultation_type_code_routage = x_codes_routage_consultation_type_code_routage_to_xml
+
+instance of_xml x_id_plateformes_reception_type = x_id_plateformes_reception_type_of_xml
+instance to_xml x_id_plateformes_reception_type = x_id_plateformes_reception_type_to_xml
+
+instance of_xml x_id_plateformes_reception_type_id_plateforme_reception =
+    x_id_plateformes_reception_type_id_plateforme_reception_of_xml
+instance to_xml x_id_plateformes_reception_type_id_plateforme_reception =
+    x_id_plateformes_reception_type_id_plateforme_reception_to_xml
+
+instance of_xml x_lignes_annuaire_f14_type = x_lignes_annuaire_f14_type_of_xml
+instance to_xml x_lignes_annuaire_f14_type = x_lignes_annuaire_f14_type_to_xml
+
+instance of_xml x_lignes_annuaire_f14_type_ligne_annuaire = x_lignes_annuaire_f14_type_ligne_annuaire_of_xml
+instance to_xml x_lignes_annuaire_f14_type_ligne_annuaire = x_lignes_annuaire_f14_type_ligne_annuaire_to_xml
+
+instance of_xml x_lignes_annuaire_f11_type = x_lignes_annuaire_f11_type_of_xml
+instance to_xml x_lignes_annuaire_f11_type = x_lignes_annuaire_f11_type_to_xml
+
+instance of_xml x_lignes_annuaire_f11_type_ligne_annuaire = x_lignes_annuaire_f11_type_ligne_annuaire_of_xml
+instance to_xml x_lignes_annuaire_f11_type_ligne_annuaire = x_lignes_annuaire_f11_type_ligne_annuaire_to_xml
+
+instance of_xml x_codes_routage_actualisation_type = x_codes_routage_actualisation_type_of_xml
+instance to_xml x_codes_routage_actualisation_type = x_codes_routage_actualisation_type_to_xml
+
+instance of_xml x_codes_routage_actualisation_type_code_routage = x_codes_routage_actualisation_type_code_routage_of_xml
+instance to_xml x_codes_routage_actualisation_type_code_routage = x_codes_routage_actualisation_type_code_routage_to_xml
+
+instance of_xml x_lignes_annuaire_actualisation_type = x_lignes_annuaire_actualisation_type_of_xml
+instance to_xml x_lignes_annuaire_actualisation_type = x_lignes_annuaire_actualisation_type_to_xml
+
+instance of_xml x_lignes_annuaire_actualisation_type_ligne_annuaire =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire_of_xml
+instance to_xml x_lignes_annuaire_actualisation_type_ligne_annuaire =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire_to_xml
+
+instance of_xml x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_of_xml
+instance to_xml x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet =
+    x_lignes_annuaire_actualisation_type_ligne_annuaire_date_effet_to_xml
+
+
+///> rust
+test generated_fr_annuaire_actualisation_3_2_writes_its_example =
+    inl example = x_annuaire_actualisation_type_example 0i32
+    inl document =
+        xml.element
+            "p:AnnuaireActualisation"
+            (("xmlns:p", "") :: x_annuaire_actualisation_type_attributes example)
+            (x_annuaire_actualisation_type_children example)
+    file_system.directory_create_all (generated_fiscal_runtime.sample_path "") |> ignore
+    file_system.write_all_text
+        (generated_fiscal_runtime.sample_path "generated_fr_annuaire_actualisation_3_2_example.xml")
+        (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+    inl text =
+        file_system.read_all_text (
+            generated_fiscal_runtime.sample_path "generated_fr_annuaire_actualisation_3_2_example.xml"
+        )
+    let rec runs (left : i32) (parses : list i64) (writes : list i64) (bytes : i64) : list i64 * list i64 * i64 =
+        if left = 0i32
+        then parses, writes, bytes
+        else
+            inl watch = date_time.stopwatch ()
+            date_time.stopwatch_start watch
+            inl start = date_time.stopwatch_elapsed_microseconds watch
+            match xml.read_xml text with
+            | node :: [] =>
+                inl parsed = xml_codec.expect_decoded (x_annuaire_actualisation_type_of_xml node)
+                inl parsed_at = date_time.stopwatch_elapsed_microseconds watch
+                inl written = xml.write_node (x_annuaire_actualisation_type_to_xml "AnnuaireActualisation" parsed)
+                inl written_at = date_time.stopwatch_elapsed_microseconds watch
+                inl parses = generated_fiscal_runtime.insert_run (parsed_at - start) parses
+                inl writes = generated_fiscal_runtime.insert_run (written_at - parsed_at) writes
+                runs (left - 1i32) parses writes (bytes + sm'.length written)
+            | _ => failwith "one AnnuaireActualisation element"
+    inl _ = runs (dyn 5i32) [] [] 0i64
+    inl parses, writes, bytes = runs (dyn 31i32) [] [] 0i64
+    inl row = sm'.(++#) "generated_fr_annuaire_actualisation_3_2 parse_us " (generated_fiscal_runtime.median parses)
+    inl row = sm'.(++#) row (sm'.(++#) " write_us " (generated_fiscal_runtime.median writes))
+    inl row = sm'.(++#) row (sm'.(++#) " runs 31 bytes " (sm'.obj_to_string bytes))
+    console.write_line row
+    match xml.read_xml text with
+    | node :: [] =>
+        inl parsed = xml_codec.expect_decoded (x_annuaire_actualisation_type_of_xml node)
+        inl document =
+            xml.element
+                "p:AnnuaireActualisation"
+                (("xmlns:p", "") :: x_annuaire_actualisation_type_attributes parsed)
+                (x_annuaire_actualisation_type_children parsed)
+        inl folder = generated_fiscal_runtime.sample_path "../target/bench"
+        match file_system.directory_create_all folder with
+        | Ok _ =>
+            file_system.write_all_text
+                (sm'.(++#) folder "/ours-generated_fr_annuaire_actualisation_3_2_example.xml")
+                (xml.write_node (xml.with_namespace "Signature" "http://www.w3.org/2000/09/xmldsig#" document))
+        | Error _ => failwith "cannot create target/bench"
+    | _ => failwith "one AnnuaireActualisation element"
+
+///> rust
+test generated_fr_annuaire_actualisation_3_2_keeps_raw_strings_out fails "Unification failure" =
+    x_date_type_to_string "raw"

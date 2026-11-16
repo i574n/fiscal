@@ -1,0 +1,365 @@
+///- --package . --timeout 2400000
+nominal v1_00 = string
+nominal v3_00 = string
+
+union version_witness v =
+    | V1_00 :: string -> version_witness v1_00
+    | V3_00 :: string -> version_witness v3_00
+
+union x_t_unid_carga v =
+    | T_unid_carga_v1_00 :: generated_mdfe_v1_00.x_t_unid_carga -> x_t_unid_carga v1_00
+    | T_unid_carga_v3_00 :: generated_mdfe_v3_00.x_t_unid_carga -> x_t_unid_carga v3_00
+
+inl x_t_unid_carga_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_t_unid_carga v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ => xml_codec.mapped (fun x => T_unid_carga_v1_00 x) (generated_mdfe_v1_00.x_t_unid_carga_of_xml c)
+    | V3_00 _ => xml_codec.mapped (fun x => T_unid_carga_v3_00 x) (generated_mdfe_v3_00.x_t_unid_carga_of_xml c)
+
+union x_t_unidade_transp v =
+    | T_unidade_transp_v1_00 :: generated_mdfe_v1_00.x_t_unidade_transp -> x_t_unidade_transp v1_00
+    | T_unidade_transp_v3_00 :: generated_mdfe_v3_00.x_t_unidade_transp -> x_t_unidade_transp v3_00
+
+inl x_t_unidade_transp_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_t_unidade_transp v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ => xml_codec.mapped (fun x => T_unidade_transp_v1_00 x) (generated_mdfe_v1_00.x_t_unidade_transp_of_xml c)
+    | V3_00 _ => xml_codec.mapped (fun x => T_unidade_transp_v3_00 x) (generated_mdfe_v3_00.x_t_unidade_transp_of_xml c)
+
+union x_tn_fe_nf_choice_inf_n_fe_inf_n_fe v =
+    | Tn_fe_nf_choice_inf_n_fe_inf_n_fe_v1_00 ::
+        generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_n_fe ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_n_fe v1_00
+    | Tn_fe_nf_choice_inf_n_fe_inf_n_fe_v3_00 ::
+        generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_n_fe ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_n_fe v3_00
+
+inl x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_n_fe v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_n_fe_v1_00 x
+            (generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_n_fe_v3_00 x
+            (generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_n_fe_of_xml c)
+
+union x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi v =
+    | Tn_fe_nf_choice_inf_n_fe_inf_nf_emi_v1_00 ::
+        generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi v1_00
+    | Tn_fe_nf_choice_inf_n_fe_inf_nf_emi_v3_00 ::
+        generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi v3_00
+
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_nf_emi_v1_00 x
+            (generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_nf_emi_v3_00 x
+            (generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_emi_of_xml c)
+
+union x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest v =
+    | Tn_fe_nf_choice_inf_n_fe_inf_nf_dest_v1_00 ::
+        generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest v1_00
+    | Tn_fe_nf_choice_inf_n_fe_inf_nf_dest_v3_00 ::
+        generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest v3_00
+
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_nf_dest_v1_00 x
+            (generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_nf_dest_v3_00 x
+            (generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_dest_of_xml c)
+
+union x_tn_fe_nf_choice_inf_n_fe_inf_nf v =
+    | Tn_fe_nf_choice_inf_n_fe_inf_nf_v1_00 ::
+        generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf v1_00
+    | Tn_fe_nf_choice_inf_n_fe_inf_nf_v3_00 ::
+        generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf ->
+        x_tn_fe_nf_choice_inf_n_fe_inf_nf v3_00
+
+inl x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tn_fe_nf_choice_inf_n_fe_inf_nf v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_nf_v1_00 x
+            (generated_mdfe_v1_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tn_fe_nf_choice_inf_n_fe_inf_nf_v3_00 x
+            (generated_mdfe_v3_00.x_tn_fe_nf_choice_inf_n_fe_inf_nf_of_xml c)
+
+union x_tn_fe_nf v =
+    | Tn_fe_nf_v1_00 :: generated_mdfe_v1_00.x_tn_fe_nf -> x_tn_fe_nf v1_00
+    | Tn_fe_nf_v3_00 :: generated_mdfe_v3_00.x_tn_fe_nf -> x_tn_fe_nf v3_00
+
+inl x_tn_fe_nf_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tn_fe_nf v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ => xml_codec.mapped (fun x => Tn_fe_nf_v1_00 x) (generated_mdfe_v1_00.x_tn_fe_nf_of_xml c)
+    | V3_00 _ => xml_codec.mapped (fun x => Tn_fe_nf_v3_00 x) (generated_mdfe_v3_00.x_tn_fe_nf_of_xml c)
+
+union x_t_end_re_ent v =
+    | T_end_re_ent_v1_00 :: generated_mdfe_v1_00.x_t_end_re_ent -> x_t_end_re_ent v1_00
+    | T_end_re_ent_v3_00 :: generated_mdfe_v3_00.x_t_end_re_ent -> x_t_end_re_ent v3_00
+
+inl x_t_end_re_ent_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_t_end_re_ent v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ => xml_codec.mapped (fun x => T_end_re_ent_v1_00 x) (generated_mdfe_v1_00.x_t_end_re_ent_of_xml c)
+    | V3_00 _ => xml_codec.mapped (fun x => T_end_re_ent_v3_00 x) (generated_mdfe_v3_00.x_t_end_re_ent_of_xml c)
+
+union x_t_ende_emi v =
+    | T_ende_emi_v1_00 :: generated_mdfe_v1_00.x_t_ende_emi -> x_t_ende_emi v1_00
+    | T_ende_emi_v3_00 :: generated_mdfe_v3_00.x_t_ende_emi -> x_t_ende_emi v3_00
+
+inl x_t_ende_emi_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_t_ende_emi v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ => xml_codec.mapped (fun x => T_ende_emi_v1_00 x) (generated_mdfe_v1_00.x_t_ende_emi_of_xml c)
+    | V3_00 _ => xml_codec.mapped (fun x => T_ende_emi_v3_00 x) (generated_mdfe_v3_00.x_t_ende_emi_of_xml c)
+
+union x_t_ret_envi_md_fe v =
+    | T_ret_envi_md_fe_v1_00 :: generated_mdfe_v1_00.x_t_ret_envi_md_fe -> x_t_ret_envi_md_fe v1_00
+    | T_ret_envi_md_fe_v3_00 :: generated_mdfe_v3_00.x_t_ret_envi_md_fe -> x_t_ret_envi_md_fe v3_00
+
+inl x_t_ret_envi_md_fe_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_t_ret_envi_md_fe v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ => xml_codec.mapped (fun x => T_ret_envi_md_fe_v1_00 x) (generated_mdfe_v1_00.x_t_ret_envi_md_fe_of_xml c)
+    | V3_00 _ => xml_codec.mapped (fun x => T_ret_envi_md_fe_v3_00 x) (generated_mdfe_v3_00.x_t_ret_envi_md_fe_of_xml c)
+
+union x_tmd_fe_inf_md_fe_ide v =
+    | Tmd_fe_inf_md_fe_ide_v1_00 :: generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_ide -> x_tmd_fe_inf_md_fe_ide v1_00
+    | Tmd_fe_inf_md_fe_ide_v3_00 :: generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_ide -> x_tmd_fe_inf_md_fe_ide v3_00
+
+inl x_tmd_fe_inf_md_fe_ide_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_ide v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped (fun x => Tmd_fe_inf_md_fe_ide_v1_00 x) (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_ide_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped (fun x => Tmd_fe_inf_md_fe_ide_v3_00 x) (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_ide_of_xml c)
+
+union x_tmd_fe_inf_md_fe_emit v =
+    | Tmd_fe_inf_md_fe_emit_v1_00 :: generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_emit -> x_tmd_fe_inf_md_fe_emit v1_00
+    | Tmd_fe_inf_md_fe_emit_v3_00 :: generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_emit -> x_tmd_fe_inf_md_fe_emit v3_00
+
+inl x_tmd_fe_inf_md_fe_emit_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_emit v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_emit_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_emit_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_emit_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_emit_of_xml c)
+
+union x_tmd_fe_inf_md_fe_inf_modal v =
+    | Tmd_fe_inf_md_fe_inf_modal_v1_00 ::
+        generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_modal ->
+        x_tmd_fe_inf_md_fe_inf_modal v1_00
+    | Tmd_fe_inf_md_fe_inf_modal_v3_00 ::
+        generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_modal ->
+        x_tmd_fe_inf_md_fe_inf_modal v3_00
+
+inl x_tmd_fe_inf_md_fe_inf_modal_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_modal v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_modal_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_modal_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_modal_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_modal_of_xml c)
+
+union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te v =
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_v1_00 ::
+        generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te v1_00
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_v3_00 ::
+        generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te v3_00
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_c_te_of_xml c)
+
+union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe v =
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_v1_00 ::
+        generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe v1_00
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_v3_00 ::
+        generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe v3_00
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_n_fe_of_xml c)
+
+union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp v =
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_v1_00 ::
+        generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp v1_00
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_v3_00 ::
+        generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp v3_00
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_inf_md_fe_transp_of_xml c)
+
+union x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga v =
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_v1_00 ::
+        generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga v1_00
+    | Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_v3_00 ::
+        generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga ->
+        x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga v3_00
+
+inl x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_inf_mun_descarga_of_xml c)
+
+union x_tmd_fe_inf_md_fe_inf_doc v =
+    | Tmd_fe_inf_md_fe_inf_doc_v1_00 ::
+        generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc ->
+        x_tmd_fe_inf_md_fe_inf_doc v1_00
+    | Tmd_fe_inf_md_fe_inf_doc_v3_00 ::
+        generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc ->
+        x_tmd_fe_inf_md_fe_inf_doc v3_00
+
+inl x_tmd_fe_inf_md_fe_inf_doc_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_inf_doc v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_inf_doc_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_inf_doc_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_inf_doc_of_xml c)
+
+union x_tmd_fe_inf_md_fe_aut_xml v =
+    | Tmd_fe_inf_md_fe_aut_xml_v1_00 ::
+        generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_aut_xml ->
+        x_tmd_fe_inf_md_fe_aut_xml v1_00
+    | Tmd_fe_inf_md_fe_aut_xml_v3_00 ::
+        generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_aut_xml ->
+        x_tmd_fe_inf_md_fe_aut_xml v3_00
+
+inl x_tmd_fe_inf_md_fe_aut_xml_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe_aut_xml v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_aut_xml_v1_00 x
+            (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_aut_xml_of_xml c)
+    | V3_00 _ =>
+        xml_codec.mapped
+            fun x => Tmd_fe_inf_md_fe_aut_xml_v3_00 x
+            (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_aut_xml_of_xml c)
+
+union x_tmd_fe_inf_md_fe v =
+    | Tmd_fe_inf_md_fe_v1_00 :: generated_mdfe_v1_00.x_tmd_fe_inf_md_fe -> x_tmd_fe_inf_md_fe v1_00
+    | Tmd_fe_inf_md_fe_v3_00 :: generated_mdfe_v3_00.x_tmd_fe_inf_md_fe -> x_tmd_fe_inf_md_fe v3_00
+
+inl x_tmd_fe_inf_md_fe_of_xml forall v.
+    (witness : version_witness v) (c : xml.xml_node)
+    : result (x_tmd_fe_inf_md_fe v) (list xml_codec.decode_error)
+    =
+    match witness with
+    | V1_00 _ => xml_codec.mapped (fun x => Tmd_fe_inf_md_fe_v1_00 x) (generated_mdfe_v1_00.x_tmd_fe_inf_md_fe_of_xml c)
+    | V3_00 _ => xml_codec.mapped (fun x => Tmd_fe_inf_md_fe_v3_00 x) (generated_mdfe_v3_00.x_tmd_fe_inf_md_fe_of_xml c)

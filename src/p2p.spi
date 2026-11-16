@@ -124,8 +124,6 @@
     ?= p ?|
     | Paid (_, _, key, _) => key
 
-:= cents (units : i64) : decimal::decimal = { units = units; scale = 2i32 }
-
 := expected \* a. (what : string) (o : option a) : a =
     ?= o ?|
     | Some x => x

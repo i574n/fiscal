@@ -282,7 +282,7 @@ test a_cancellation_reaches_the_outbox_once =
     := key = "35260112345678000195550010000000011000000019"
     := authorized = authorize (issue (nfe "4.00") (access_key key)) (protocol_id "135260000000001")
     := event = cancellation_event_of (cancel authorized (protocol_id "135260000000002"))
-    := path = durable_file::probe_path "fiscal-lifecycle-outbox.txt"
+    := path = durable_file::trial_path "fiscal-lifecycle-outbox.txt"
     file_system::file_delete path
     := send (log : event_log::event_log event_code) : event_log::append_outcome event_code =
         := id, hash = event_log::command_id key, event_log::payload_hash "cancel-1"

@@ -51,7 +51,7 @@ $problems = [Collections.Generic.List[string]]::new()
 $tested = [Collections.Generic.List[string]]::new()
 
 function Select-TestFiles([scriptblock] $Where) {
-    $units = @(Get-ChildItem (Join-Path $root 'src') -File -Filter '*.spi')
+    $units = @(Get-ChildItem (Join-Path $root 'src'), $ownLibDir -File -Filter '*.spi')
     $generated = Join-Path $root 'generated'
     if (Test-Path $generated) {
         $units += @(Get-ChildItem $generated -Directory | ForEach-Object { Get-ChildItem $_.FullName -File -Filter '*.spi' })
@@ -83,9 +83,14 @@ function Get-ShardOwners([IO.FileInfo[]] $Sources) {
 }
 
 $libDir = Join-Path $root 'deps/spiral/lib/spiral'
+$ownLibDir = Join-Path $root 'lib'
 $libHashes = @{}
 $libRefs = @{}
 $libPrelude = [Collections.Generic.List[string]]::new()
+$srcHashes = @{}
+$srcRefs = @{}
+$corpusDigest = ''
+$dataDigest = ''
 
 function Get-ModuleRefs([string] $Path) {
     $text = [IO.File]::ReadAllText($Path)
@@ -97,7 +102,7 @@ function Get-ModuleRefs([string] $Path) {
 
 function Read-LibModules {
     if ($script:libHashes.Count) { return }
-    foreach ($file in Get-ChildItem $libDir -File -Filter '*.spi') {
+    foreach ($file in Get-ChildItem $libDir, $ownLibDir -File -Filter '*.spi') {
         $script:libHashes[$file.BaseName] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
         $script:libRefs[$file.BaseName] = Get-ModuleRefs $file.FullName
     }
@@ -126,6 +131,53 @@ function Get-UnitReach([IO.FileInfo] $Source) {
         foreach ($next in $libRefs[$name]) { if ($libHashes.ContainsKey($next) -and -not $seen.Contains($next)) { $queue.Enqueue($next) } }
     }
     [pscustomobject]@{ Lib = @($seen); Siblings = @($siblings) }
+}
+
+function Read-SrcModules {
+    if ($script:srcHashes.Count) { return }
+    foreach ($file in Get-ChildItem (Join-Path $root 'src') -File -Filter '*.spi') {
+        $script:srcHashes[$file.BaseName] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+        $script:srcRefs[$file.BaseName] = Get-ModuleRefs $file.FullName
+    }
+}
+
+function Get-CorpusDigest {
+    if ($script:corpusDigest) { return $script:corpusDigest }
+    $corpus = Join-Path $root 'deps/corpus'
+    $rows = if (Test-Path -LiteralPath $corpus) {
+        $prefix = (Resolve-Path -LiteralPath $corpus).Path.Length + 1
+        @(Get-ChildItem -LiteralPath $corpus -Recurse -File -Force | ForEach-Object { "$($_.FullName.Substring($prefix).Replace('\', '/')):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" } | Sort-Object -CaseSensitive)
+    } else { @('none') }
+    $script:corpusDigest = Get-Fingerprint $rows
+    $script:corpusDigest
+}
+
+function Get-DataDigest {
+    if ($script:dataDigest) { return $script:dataDigest }
+    $files = @(foreach ($tree in 'generated') { $path = Join-Path $root $tree; if (Test-Path -LiteralPath $path) { Get-ChildItem -LiteralPath $path -Recurse -File -Force } }) +
+        @(Get-ChildItem -LiteralPath (Join-Path $root 'src') -File | Where-Object Extension -ne '.spi')
+    $script:dataDigest = Get-Fingerprint @($files | ForEach-Object { "$($_.FullName.Substring($root.Length + 1).Replace('\', '/')):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" } | Sort-Object -CaseSensitive)
+    $script:dataDigest
+}
+
+function Get-SourceReach([IO.FileInfo] $Source) {
+    Read-SrcModules
+    $src = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+    $queue = [Collections.Generic.Queue[string]]::new()
+    foreach ($name in Get-ModuleRefs $Source.FullName) { if ($srcHashes.ContainsKey($name) -and $name -ne $Source.BaseName) { $queue.Enqueue($name) } }
+    while ($queue.Count) {
+        $name = $queue.Dequeue()
+        if (-not $src.Add($name)) { continue }
+        foreach ($next in $srcRefs[$name]) { if ($srcHashes.ContainsKey($next) -and $next -ne $Source.BaseName -and -not $src.Contains($next)) { $queue.Enqueue($next) } }
+    }
+    $lib = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+    $siblings = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($file in @($Source) + @($src | ForEach-Object { [IO.FileInfo] (Join-Path $root "src/$_.spi") })) {
+        $reach = Get-UnitReach $file
+        foreach ($module in $reach.Lib) { [void]$lib.Add($module) }
+        foreach ($sibling in $reach.Siblings) { [void]$siblings.Add($sibling) }
+    }
+    [pscustomobject]@{ Lib = @($lib); Siblings = @($siblings); Src = @($src) }
 }
 
 if ($ListOnly) {
@@ -203,13 +255,25 @@ $gateContext = ''
 
 function Get-Fingerprint([string[]] $Rows) { [BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Rows -join "`n"))) -replace '-', '' }
 
+function Test-VerdictRow([string] $Row) {
+    $Row -cmatch '^[a-z][a-z0-9_]*\t[0-9A-F]{64}\treach:[0-9A-F]{64}\t[0-9A-F]{64}\t([0-9A-F]{64}|none)\tcore-package:([0-9A-F]{1,16}|none)$'
+}
+
 function Get-GateKey([IO.FileInfo] $Source) {
-    if ($NoGateCache -or !$script:gateContext -or $Source.BaseName -notmatch '^generated_') { return '' }
-    $reach = Get-UnitReach $Source
+    if ($NoGateCache -or !$script:gateContext) { return '' }
+    $generated = $Source.BaseName -match '^generated_'
+    $reach = if ($generated) { Get-UnitReach $Source } else { Get-SourceReach $Source }
     $rows = @($reach.Lib | ForEach-Object { "$_`:$($libHashes[$_])" }) + @($reach.Siblings | ForEach-Object { "$_`:$((Get-FileHash -LiteralPath (Join-Path $root "generated/$_/$_.spi") -Algorithm SHA256).Hash)" })
+    if (!$generated) {
+        $readsRunOutput = @(@($Source.FullName) + @($reach.Src | ForEach-Object { Join-Path $root "src/$_.spi" }) | Where-Object { [IO.File]::ReadAllText($_).Contains('"target/') }).Count
+        if ($readsRunOutput) { return '' }
+        $rows += @($reach.Src | ForEach-Object { "src/$_`:$($srcHashes[$_])" }) + @("corpus:$(Get-CorpusDigest)", "data:$(Get-DataDigest)")
+    }
     $unitToml = Join-Path $Source.DirectoryName 'spiral.toml'
     if (Test-Path -LiteralPath $unitToml) { $rows += "unit-spiral.toml:$((Get-FileHash -LiteralPath $unitToml -Algorithm SHA256).Hash)" }
-    "$($Source.BaseName)`t$((Get-FileHash -LiteralPath $Source.FullName -Algorithm SHA256).Hash)`treach:$(Get-Fingerprint $rows)`t$script:gateContext"
+    $key = "$($Source.BaseName)`t$((Get-FileHash -LiteralPath $Source.FullName -Algorithm SHA256).Hash)`treach:$(Get-Fingerprint $rows)`t$script:gateContext"
+    if (!(Test-VerdictRow $key)) { throw "build.ps1 / $($Source.BaseName) / gate key is not digest-only, so gh-pages would publish it: $($key -replace "`t", ' | ')" }
+    $key
 }
 
 function Set-GateContext {
@@ -227,7 +291,7 @@ function Set-GateContext {
         try {
             $content = (Invoke-WebRequest -Uri "$pages/target/unit-gate-cache/green.tsv" -TimeoutSec 20 -ErrorAction Stop).Content
             if ($content -is [byte[]]) { $content = [Text.Encoding]::UTF8.GetString($content) }
-            $published = @($content -split "`r?`n" | Where-Object { $columns = $_ -split "`t"; $columns.Count -eq 6 -and $columns[3] -eq $core })
+            $published = @($content -split "`r?`n" | Where-Object { $columns = $_ -split "`t"; $columns.Count -eq 6 -and $columns[3] -eq $core -and (Test-VerdictRow $_) })
             $seeded = @($published | Where-Object { $script:gateKeys.Add($_) })
             if ($seeded.Count) { New-Item -ItemType Directory -Force (Split-Path $gateCache) | Out-Null; Add-Content -LiteralPath $gateCache -Value $seeded }
             Write-Output "build.ps1 / gate cache / $($seeded.Count) green rows seeded from $pages ($($published.Count) published on core $($core.Substring(0, 12)))"

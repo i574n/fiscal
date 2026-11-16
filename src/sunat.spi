@@ -268,7 +268,7 @@
 
 :! category_check = i32 * list string
 
-:= tallied (finding : option string) (category_check (checked, findings)) : category_check =
+:= counted (finding : option string) (category_check (checked, findings)) : category_check =
     ?= finding ?|
     | Some f => category_check (checked + 1i32, f :: findings)
     | None => category_check (checked + 1i32, findings)
@@ -279,7 +279,7 @@
     |:
         ?= child_text "TaxExemptionReasonCode" node ?|
         | None => acc
-        | Some reason => tallied (scheme_finding reason node) acc
+        | Some reason => counted (scheme_finding reason node) acc
 
 :~ ^ category_findings (node : xml::xml_node) (acc : category_check) : category_check =
     findings_within (xml::element_children node) (category_here node acc)
@@ -327,7 +327,7 @@
     listm'::contains local [ "InvoiceLine"; "CreditNoteLine"; "DebitNoteLine" ]
 
 :~ ^ line_findings (node : xml::xml_node) (acc : category_check) : category_check =
-    ? is_line node ?> tallied (price_finding node) acc |: lines_within (xml::element_children node) acc
+    ? is_line node ?> counted (price_finding node) acc |: lines_within (xml::element_children node) acc
 
 :& :~ lines_within (nodes : list xml::xml_node) (acc : category_check) : category_check =
     ?= nodes ?|

@@ -1,4 +1,4 @@
-///- --package . --timeout 1200000
+///- --package . --timeout 3600000
 :< sm'_operators
 
 :! minimum = ()
@@ -51,11 +51,44 @@
     | MyInvoisV10
     | MyInvoisV11
 
+:| ubltr_version =
+    | Tr10
+    | Tr12
+    | Tr121
+
+:| ubltr_kind =
+    | TrInvoice
+    | TrEArchive
+    | TrDespatch
+    | TrSystemResponse
+
+:| xrechnung_variant =
+    | XrechnungBase
+    | XrechnungExtension
+    | XrechnungCvd
+
 :| ubl_profile =
     | UblEn16931
+    | Xrechnung : xrechnung_variant
     | PeppolBis3
     | SunatUbl20
     | MyInvois : myinvois_version
+    | DianUbl21 : string
+    | ZatcaUbl21 : string
+    | UblTr : ubltr_version * string
+    | CiusRo
+    | PeppolPint : string
+
+:| zatca_kind =
+    | ZatcaStandard
+    | ZatcaSimplified
+
+:| zatca_flag =
+    | ThirdParty
+    | Nominal
+    | Export
+    | Summary
+    | SelfBilled
 
 := myinvois_version_text (v : myinvois_version) : string =
     ?= v ?|
@@ -67,12 +100,30 @@
 
 := peppol_bis3_urn () : string = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0"
 
+:= cius_ro_urn () : string = "urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.0"
+
+:= pint_billing_prefix () : string = "urn:peppol:pint:billing-1@"
+
+:= pint_jurisdiction (urn : string) : string = pint_terms::after (pint_billing_prefix ()) urn
+
+:= xrechnung_urn () : string = "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"
+
+:= xrechnung_extension_urn () : string =
+    xrechnung_urn () ++# "#conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0"
+
+:= xrechnung_cvd_urn () : string = xrechnung_urn () ++# "#compliant#urn:xeinkauf.de:kosit:xrechnung:cvd_0.9"
+
 := customization_codes () : list (string * ubl_profile) =
-    [ ("urn:cen.eu:en16931:2017", UblEn16931); (peppol_bis3_urn (), PeppolBis3); ("2.0", SunatUbl20) ]
+    [
+        ("urn:cen.eu:en16931:2017", UblEn16931); (peppol_bis3_urn (), PeppolBis3); ("2.0", SunatUbl20)
+        (cius_ro_urn (), CiusRo); (xrechnung_urn (), Xrechnung XrechnungBase)
+        (xrechnung_extension_urn (), Xrechnung XrechnungExtension); (xrechnung_cvd_urn (), Xrechnung XrechnungCvd)
+    ]
 
 := customization_profile (urn : string) : option ubl_profile =
     ?= listm'::try_find_ (\ (code, _) => code = urn) (customization_codes ()) ?|
     | Some (_, profile) => Some profile
+    | None ?& sm'::starts_with (pint_billing_prefix ()) urn => Some (PeppolPint (pint_jurisdiction urn))
     | None => None
 
 := list_version_profile (list_version : option string) : option ubl_profile =
@@ -84,6 +135,79 @@
     ?= customization ?|
     | Some urn => customization_profile urn
     | None => list_version_profile list_version
+
+:= dian_profile (profile_id : option string) (customization : option string) : option ubl_profile =
+    ?= (profile_id, customization) ?|
+    | (Some id, Some operation) ?& sm'::starts_with "DIAN 2.1" id => Some (DianUbl21 operation)
+    | _ => None
+
+:= zatca_profile (profile_id : option string) (transaction : option string) : option ubl_profile =
+    ?= (profile_id, transaction) ?|
+    | (Some id, Some code) ?& id = "reporting:1.0" => Some (ZatcaUbl21 code)
+    | _ => None
+
+:= zatca_flag_positions () : list (i32 * zatca_flag) =
+    [ (2i32, ThirdParty); (3i32, Nominal); (4i32, Export); (5i32, Summary); (6i32, SelfBilled) ]
+
+:= zatca_kind_of (prefix : string) : option zatca_kind =
+    ? prefix = "01" ?> Some ZatcaStandard |: (? prefix = "02" ?> Some ZatcaSimplified |: None)
+
+:= zatca_flags (code : string) : option (list zatca_flag) =
+    := digit (at : i32) : string = sm'::substring at 1i32 code
+    := odd = listm'::filter (\ (at, _) => digit at <> "0" && digit at <> "1") (zatca_flag_positions ())
+    := set = listm'::filter (\ (at, _) => digit at = "1") (zatca_flag_positions ())
+    ? odd <> [] ?> None |: Some (listm::map (\ (_, flag) => flag) set)
+
+:= zatca_transaction (code : string) : option (zatca_kind * list zatca_flag) =
+    ? (sm'::length code : i32) <> 7i32 ?> None
+    |: (
+        ?= (zatca_kind_of (sm'::substring 0i32 2i32 code), zatca_flags code) ?|
+        | (Some kind, Some flags) => Some (kind, flags)
+        | _ => None
+    )
+
+:= ubltr_version_of (customization : string) : option ubltr_version =
+    ? customization = "TR1.0" ?> Some Tr10
+    |: (? customization = "TR1.2" ?> Some Tr12 |: (? customization = "TR1.2.1" ?> Some Tr121 |: None))
+
+:= ubltr_invoice_scenarios () : list string =
+    [
+        "TICARIFATURA"; "TEMELFATURA"; "YOLCUBERABERFATURA"; "IHRACAT"; "OZELFATURA"; "KAMU"; "HKS"; "ENERJI"
+        "ILAC_TIBBICIHAZ"; "YATIRIMTESVIK"; "IDIS"
+    ]
+
+:= ubltr_despatch_scenarios () : list string = [ "TEMELIRSALIYE"; "HKSIRSALIYE"; "IDISIRSALIYE" ]
+
+:= ubltr_kind_of (scenario : string) : option ubltr_kind =
+    ? listm'::contains scenario (ubltr_invoice_scenarios ()) ?> Some TrInvoice
+    |: (
+        ? scenario = "EARSIVFATURA" ?> Some TrEArchive
+        |: (
+            ? listm'::contains scenario (ubltr_despatch_scenarios ()) ?> Some TrDespatch
+            |: (? scenario = "UBL-TR-PROFILE-1" ?> Some TrSystemResponse |: None)
+        )
+    )
+
+:= ubltr_profile (profile_id : option string) (customization : option string) : option ubl_profile =
+    ?= (profile_id, customization) ?|
+    | (Some scenario, Some code) =>
+        ?= (ubltr_version_of code, ubltr_kind_of scenario) ?|
+        | (Some version, Some _) => Some (UblTr (version, scenario))
+        | _ => None
+    | _ => None
+
+:= ubl_document_profile
+    (profile_id : option string)
+    (customization : option string)
+    (list_version : option string)
+    (transaction : option string)
+    : option ubl_profile =
+    := national = (dian_profile profile_id customization, zatca_profile profile_id transaction)
+    ?= (national, ubltr_profile profile_id customization) ?|
+    | ((Some dian, _), _) => Some dian
+    | ((None, Some zatca), _) => Some zatca
+    | ((None, None), Some tr) => Some tr
+    | ((None, None), None) => ubl_profile_of customization list_version
 
 ///> rust
 test a_basic_invoice_widens_to_en16931_and_extended =
@@ -108,6 +232,171 @@ test ubl_documents_are_classified_by_their_customization_or_list_version =
     ?> failwith "an unknown mark is no profile"
 
 ///> rust
+test dian_documents_are_classified_by_their_profile_id_with_the_operation_code =
+    := sale = "DIAN 2.1: Factura Electrónica de Venta"
+    ? ubl_document_profile (Some sale) (Some "10") None None <> Some (DianUbl21 "10") ?> failwith "a DIAN sale, operation 10"
+    ? ubl_document_profile (Some "DIAN 2.1") (Some "01") None None <> Some (DianUbl21 "01") ?> failwith "a bare DIAN 2.1 profile"
+    ? ubl_document_profile None (Some "05") None None <> None ?> failwith "a DIAN operation code alone is no profile"
+    ? ubl_document_profile (Some sale) None None None <> None ?> failwith "a DIAN document always carries its operation code"
+    ? ubl_document_profile (Some "urn:example:other") (Some "2.0") None None <> Some SunatUbl20
+    ?> failwith "without a DIAN profile id the customization rules still apply"
+
+:= dian_folder () : string =
+    "deps/corpus/co/dian/Caja de herramientas FE_V19_(v2026)/Ejemplificaciones/XMLs de ejemplo/"
+
+:= dian_examples () : list string =
+    listm::map (\ (file : string) => dian_folder () ++# file) [
+        "Combustible.xml"
+        "Compra o Venta de Divisas.xml"
+        "Consumidor Final.xml"
+        "CreditNote impuestos salidables.xml"
+        "CreditNote.xml"
+        "DebitNote impuestos salidables.xml"
+        "DebitNote.xml"
+        "Ejemplicacion Impuestos Saludables.xml"
+        "Ejemplificacion Licores-ICL-1.xml"
+        "Ejemplificacion Licores-ICL-2.xml"
+        "Ejemplificacion Licores-ICL.xml"
+        "Ejemplificacion Licores.xml"
+        "Ejemplificacion Muestras Gratis.xml"
+        "Ejemplificacion Propina.xml"
+        "Ejemplificacion cambio otra Moneda.xml"
+        "Ejemplificacion nota credito sin referencia a factura.xml"
+        "Ejemplificacion nota debito sin referencia a factura.xml"
+        "Ejemplificacion otra Moneda  UBLExtension-CustomTagGneral-InvoiceLine.xml"
+        "Ejemplificación Impuesto especial para la estabilidad fiscal.xml"
+        "EmisorAutoretenedor.xml"
+        "Eventos RADIAN/030 - Acuse_ReciboFEV.xml"
+        "Eventos RADIAN/031 - Reclamo de la factura Electronica de Venta.xml"
+        "Eventos RADIAN/032 - Recibo_B&S.xml"
+        "Eventos RADIAN/033 - Aceptacion Expresa.xml"
+        "Eventos RADIAN/034 - Aceptacion_Tacita_FEV.xml"
+        "Excluido de IVA.xml"
+        "ExcluidosExentos.xml"
+        "Exento de IVA.xml"
+        "Exportacion.xml"
+        "Factura otra Moneda.xml"
+        "Generica ingresos terceros.xml"
+        "Generica.xml"
+        "GenericaPagoAnticipado.xml"
+        "Mandatos.xml"
+        "Multiples Adquirientes.xml"
+        "Servicios.xml"
+        "Transporte de Carga.xml"
+        "ejemplificacionIBUA-1.xml"
+        "ejemplificacionIBUA-2.xml"
+        "ejemplificacionIBUA-3.xml"
+        "ejemplificacionIBUA.xml"
+        "ejemplificacionICUI-1.xml"
+        "ejemplificacionICUI.xml"
+        "ejemplificacionINPP.xml"
+    ]
+
+:= ubl_mark (tag : string) (text : string) : option string =
+    := rest = pint_terms::after ("<cbc:" ++# tag) text
+    ? rest = "" ?> None |: Some (pint_terms::before "<" (pint_terms::after ">" rest))
+
+:= ubl_type_name (text : string) : option string =
+    := rest = pint_terms::after "<cbc:InvoiceTypeCode name=\"" text
+    ? rest = "" ?> None |: Some (pint_terms::before "\"" rest)
+
+:= cii_guideline (text : string) : option string =
+    := rest = pint_terms::after "GuidelineSpecifiedDocumentContextParameter>" text
+    := id = pint_terms::after "<ram:ID>" rest
+    ? rest = "" || id = "" ?> None |: Some (pint_terms::before "<" id)
+
+:= cii_document_profile (text : string) : option ubl_profile =
+    ?= cii_guideline text ?|
+    | Some urn => customization_profile urn
+    | None => None
+
+:= document_profile (text : string) : option ubl_profile =
+    := profile_id = ubl_mark "ProfileID" text
+    := customization = ubl_mark "CustomizationID" text
+    := list_version = ubl_mark "UBLListVersionID" text
+    ?= ubl_document_profile profile_id customization list_version (ubl_type_name text) ?|
+    | Some profile => Some profile
+    | None => cii_document_profile text
+
+:= corpus_text (path : string) : string = xml::read_text_replacing_invalid_utf8 (fiscal_paths::under path)
+
+:= dian_misread (path : string) : list string =
+    := text = corpus_text path
+    ?= (document_profile text, ubl_mark "CustomizationID" text) ?|
+    | (Some (DianUbl21 code), Some expected) ?& code = expected => []
+    | _ => [ path ]
+
+///> rust
+test every_dian_example_classifies_as_dian_ubl_2_1_with_its_operation_code =
+    := examples = dian_examples ()
+    := missing = listm'::filter (\ (path : string) => xml::is_file (fiscal_paths::under path) = !-) examples
+    ? missing <> [] ?> failwith ("every listed DIAN example is in the corpus: " ++# sm'::concat_list ", " missing)
+    := misread = listm::concat (listm::map dian_misread examples)
+    ? misread <> [] ?>
+        failwith (
+            "each DIAN example reads as DIAN UBL 2.1 with its own operation code: " ++# sm'::concat_list ", " misread
+        )
+    ? (listm::length examples : i32) <> 44i32 ?> failwith "the v19 toolbox ships 44 example documents"
+
+///> rust
+test zatca_transaction_codes_carry_the_kind_and_the_flags_their_samples_name =
+    ? zatca_transaction "0100000" <> Some (ZatcaStandard, []) ?> failwith "a standard tax invoice"
+    ? zatca_transaction "0200000" <> Some (ZatcaSimplified, []) ?> failwith "a simplified tax invoice"
+    ? zatca_transaction "0110000" <> Some (ZatcaStandard, [ ThirdParty ]) ?> failwith "third party billing"
+    ? zatca_transaction "0201000" <> Some (ZatcaSimplified, [ Nominal ]) ?> failwith "a nominal supply"
+    ? zatca_transaction "0100100" <> Some (ZatcaStandard, [ Export ]) ?> failwith "an export invoice"
+    ? zatca_transaction "0100010" <> Some (ZatcaStandard, [ Summary ]) ?> failwith "a summary invoice"
+    ? zatca_transaction "0100001" <> Some (ZatcaStandard, [ SelfBilled ]) ?> failwith "a self-billed invoice"
+    ? zatca_transaction "0300000" <> None || zatca_transaction "010000" <> None || zatca_transaction "0100200" <> None
+    ?> failwith "an unknown kind, a short code or a non-binary flag is no transaction"
+    ? ubl_document_profile (Some "reporting:1.0") None None (Some "0100000") <> Some (ZatcaUbl21 "0100000")
+    ?> failwith "ZATCA is recognized by its profile id and transaction code"
+
+:= zatca_folder () : string = "deps/corpus/sa/zatca/Samples/"
+
+:= zatca_samples () : list string =
+    listm::map (\ (file : string) => zatca_folder () ++# file) [
+        "Simplified/Credit/Simplified_Credit_Note.xml"
+        "Simplified/Debit/Simplified_Debit_Note.xml"
+        "Simplified/Invoice/Nominal supply invoice.xml"
+        "Simplified/Invoice/Simplified Tax Invoice with Zero Rated Item.xml"
+        "Simplified/Invoice/Simplified_Invoice.xml"
+        "Standard/Credit/Standard_Credit_Note.xml"
+        "Standard/Debit/Standard_Debit_Note.xml"
+        "Standard/Invoice/Advance Payment adjustments with foreign currency invoice.xml"
+        "Standard/Invoice/Advance Payment adjustments with rate change scenarios.xml"
+        "Standard/Invoice/Advance Payment adjustments.xml"
+        "Standard/Invoice/Exempt Tax Invoice.xml"
+        "Standard/Invoice/Export invoice.xml"
+        "Standard/Invoice/Out of Scope Standard Tax Invoice.xml"
+        "Standard/Invoice/Self-billing invoice.xml"
+        "Standard/Invoice/Standard Invoice with Document Level Charge.xml"
+        "Standard/Invoice/Standard Invoice with Payable Rounding Adjustment.xml"
+        "Standard/Invoice/Standard_Invoice.xml"
+        "Standard/Invoice/Summary Invoice.xml"
+        "Standard/Invoice/Third party billing.xml"
+    ]
+
+:= zatca_misread (path : string) : list string =
+    := expected = ? sm'::contains "/Standard/" path ?> ZatcaStandard |: ZatcaSimplified
+    ?= document_profile (corpus_text path) ?|
+    | Some (ZatcaUbl21 code) =>
+        ?= zatca_transaction code ?|
+        | Some (kind, _) ?& kind = expected => []
+        | _ => [ path ]
+    | _ => [ path ]
+
+///> rust
+test every_zatca_sample_classifies_with_the_kind_its_folder_names =
+    := samples = zatca_samples ()
+    := missing = listm'::filter (\ (path : string) => xml::is_file (fiscal_paths::under path) = !-) samples
+    ? missing <> [] ?> failwith ("every listed ZATCA sample is in the corpus: " ++# sm'::concat_list ", " missing)
+    := misread = listm::concat (listm::map zatca_misread samples)
+    ? misread <> [] ?>
+        failwith ("each ZATCA sample reads as ZATCA UBL 2.1 of its folder's kind: " ++# sm'::concat_list ", " misread)
+    ? (listm::length samples : i32) <> 19i32 ?> failwith "the ZATCA sample set ships 19 documents"
+
+///> rust
 test a_path_never_narrows fails "Unification failure" =
     := narrowing : path en16931 basic = Then (\? (BasicToEn16931, Here))
     narrowing |> ignore
@@ -116,3 +405,228 @@ test a_path_never_narrows fails "Unification failure" =
 test a_widened_invoice_has_its_target_profile fails "Unification failure" =
     := invoice = profiled_as Basic "<rsm:CrossIndustryInvoice/>"
     (widen Here Basic invoice : profiled extended) |> ignore
+
+///> rust
+test ubltr_documents_are_classified_by_version_and_official_scenario =
+    ? ubl_document_profile (Some "TICARIFATURA") (Some "TR1.2") None None <> Some (UblTr (Tr12, "TICARIFATURA"))
+    ?> failwith "a commercial invoice on UBL-TR 1.2"
+    ? ubl_document_profile (Some "TEMELIRSALIYE") (Some "TR1.2.1") None None <> Some (UblTr (Tr121, "TEMELIRSALIYE"))
+    ?> failwith "a basic despatch on UBL-TR 1.2.1"
+    ? ubl_document_profile (Some "UBL-TR-PROFILE-1") (Some "TR1.0") None None <> Some (UblTr (Tr10, "UBL-TR-PROFILE-1"))
+    ?> failwith "a GIB system response"
+    ? ubl_document_profile (Some "TicariFatura") (Some "TR1.2") None None <> None ?> failwith "GIB scenarios are case-sensitive"
+    ? ubl_document_profile (Some "TICARIFATURA") (Some "TR2.0") None None <> None ?> failwith "an unknown UBL-TR version"
+    ? ubltr_kind_of "EARSIVFATURA" <> Some TrEArchive || ubltr_kind_of "HKSIRSALIYE" <> Some TrDespatch
+    ?> failwith "the e-archive and despatch scenario sets"
+
+:= ubltr_folder () : string = "deps/corpus/tr/ubltr/"
+
+:= ubltr_documents () : list string =
+    listm::map (\ (file : string) => ubltr_folder () ++# file) [
+        "UBLTR_1.2.1_Paketi/xml/HASTANE.xml"
+        "UBLTR_1.2.1_Paketi/xml/HKS-Ornek1.xml"
+        "UBLTR_1.2.1_Paketi/xml/HKS-Ornek2.xml"
+        "UBLTR_1.2.1_Paketi/xml/IDIS_Fatura.xml"
+        "UBLTR_1.2.1_Paketi/xml/IDIS_Irsaliye.xml"
+        "UBLTR_1.2.1_Paketi/xml/IHRACAT.xml"
+        "UBLTR_1.2.1_Paketi/xml/IHRACAT_GTB_UygulamaYaniti_KABUL.xml"
+        "UBLTR_1.2.1_Paketi/xml/IHRACAT_GTB_UygulamaYaniti_RED.xml"
+        "UBLTR_1.2.1_Paketi/xml/ISTISNA-1.xml"
+        "UBLTR_1.2.1_Paketi/xml/ISTISNA-2.xml"
+        "UBLTR_1.2.1_Paketi/xml/IadeFaturasiOrnegi.xml"
+        "UBLTR_1.2.1_Paketi/xml/IadeUygulamaYanitiOrnegi.xml"
+        "UBLTR_1.2.1_Paketi/xml/Irsaliye-Matbudan.xml"
+        "UBLTR_1.2.1_Paketi/xml/Irsaliye-Ornek1.xml"
+        "UBLTR_1.2.1_Paketi/xml/Irsaliye-Ornek2.xml"
+        "UBLTR_1.2.1_Paketi/xml/Irsaliye-Ornek3.xml"
+        "UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek1.xml"
+        "UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek2.xml"
+        "UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek3.xml"
+        "UBLTR_1.2.1_Paketi/xml/IrsaliyeYaniti-Ornek4.xml"
+        "UBLTR_1.2.1_Paketi/xml/KabulUygulamaYanitiOrnegi.xml"
+        "UBLTR_1.2.1_Paketi/xml/OTV.xml"
+        "UBLTR_1.2.1_Paketi/xml/OZELMATRAH.xml"
+        "UBLTR_1.2.1_Paketi/xml/RedUygulamaYanitiOrnegi.xml"
+        "UBLTR_1.2.1_Paketi/xml/SARJ.xml"
+        "UBLTR_1.2.1_Paketi/xml/SARJANLIK.xml"
+        "UBLTR_1.2.1_Paketi/xml/TEVKIFAT.xml"
+        "UBLTR_1.2.1_Paketi/xml/TemelFaturaOrnegi.xml"
+        "UBLTR_1.2.1_Paketi/xml/TicariFaturaOrnegi.xml"
+        "UBLTR_1.2.1_Paketi/xml/YOLCUBERABER.xml"
+        "UBLTR_1.2.1_Paketi/xml/YOLCUBERABER_UygulamaYaniti.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Iade_EArsıv.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Iade_Efatura.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Iade_Istısna_EArsıv.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Iade_Istısna_Efatura.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Istisna_EArsıv.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Istisna_Efatura.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Satıs_EArşiv.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Satıs_Efatura.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_TevkıfatIade_EArşiv.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_TevkıfatIade_Efatura.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Tevkıfat_EArşiv.xml"
+        "UBLTR_1.2.1_Paketi/xml/YTB_Tevkıfat_Efatura.xml"
+        "efatura/e-FaturaPaketi/xml/1_SISTEM_YANITI_GTB_POSTA_KUTUSU.xml"
+        "efatura/e-FaturaPaketi/xml/1_SISTEM_YANITI_MERKEZ.xml"
+        "efatura/e-FaturaPaketi/xml/1_SISTEM_YANITI_POSTA_KUTUSU.xml"
+        "efatura/e-FaturaPaketi/xml/1_TEMEL_FATURA.xml"
+        "efatura/e-FaturaPaketi/xml/1_TEMEL_FATURA_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/2_TICARI_FATURA.xml"
+        "efatura/e-FaturaPaketi/xml/2_TICARI_FATURA_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/2_UYGULAMA_YANITI_KABUL.xml"
+        "efatura/e-FaturaPaketi/xml/2_UYGULAMA_YANITI_KABUL_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/3_TICARI_FATURA.xml"
+        "efatura/e-FaturaPaketi/xml/3_TICARI_FATURA_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/3_UYGULAMA_YANITI_RED.xml"
+        "efatura/e-FaturaPaketi/xml/3_UYGULAMA_YANITI_RED_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/6_TEMEL_FATURA_KDV_SIFIR.xml"
+        "efatura/e-FaturaPaketi/xml/6_TEMEL_FATURA_KDV_SIFIR_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/7_TEMEL_FATURA_IADE.xml"
+        "efatura/e-FaturaPaketi/xml/7_TEMEL_FATURA_IADE_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/7_TICARI_FATURA.xml"
+        "efatura/e-FaturaPaketi/xml/7_TICARI_FATURA_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/7_UYGULAMA_YANITI_IADE.xml"
+        "efatura/e-FaturaPaketi/xml/7_UYGULAMA_YANITI_IADE_ZARF.xml"
+        "efatura/e-FaturaPaketi/xml/TEKNOLOJI_DESTEK.xml"
+    ]
+
+:= ubltr_gib_rule_violations () : list string =
+    listm::map (\ (file : string) => ubltr_folder () ++# "UBLTR_1.2.1_Paketi/xml/" ++# file) [
+        "IadeUygulamaYanitiOrnegi.xml"
+        "KabulUygulamaYanitiOrnegi.xml"
+        "RedUygulamaYanitiOrnegi.xml"
+    ]
+
+:= ubltr_misread (path : string) : list string =
+    ?= document_profile (corpus_text path) ?|
+    | Some (UblTr _) => []
+    | _ => [ path ]
+
+///> rust
+test every_ubltr_document_classifies_except_the_three_samples_that_break_the_gib_rule =
+    := documents = ubltr_documents ()
+    := missing = listm'::filter (\ (path : string) => xml::is_file (fiscal_paths::under path) = !-) documents
+    ? missing <> [] ?> failwith ("every listed UBL-TR document is in the corpus: " ++# sm'::concat_list ", " missing)
+    := misread = listm::concat (listm::map ubltr_misread documents)
+    ? misread <> ubltr_gib_rule_violations () ?>
+        failwith (
+            "only the 3 mixed-case 'TicariFatura' application responses (GIB requires TICARIFATURA or IHRACAT) "
+            ^^ "fail to classify; got: " ++# sm'::concat_list ", " misread
+        )
+    ? (listm::length documents : i32) <> 65i32 ?> failwith "the UBL-TR packages ship 65 profiled documents"
+
+///> rust
+test cius_ro_and_peppol_pint_are_classified_by_their_customization =
+    ? ubl_profile_of (Some (cius_ro_urn ())) None <> Some CiusRo ?> failwith "a Romanian CIUS-RO 1.0.0 e-Factura"
+    ? ubl_profile_of (Some "urn:peppol:pint:billing-1@sg-1") None <> Some (PeppolPint "sg-1") ?> failwith "PINT SG"
+    ? ubl_profile_of (Some "urn:peppol:pint:billing-1@jp-1") None <> Some (PeppolPint "jp-1")
+    ?> failwith "any PINT jurisdiction classifies with its own code"
+    ? ubl_profile_of (Some (peppol_bis3_urn ())) None <> Some PeppolBis3 ?> failwith "BIS 3 is not a PINT"
+    ? ubl_profile_of (Some "urn:peppol:pint:selfbilling-1@sg-1") None <> None ?> failwith "only the billing PINT"
+
+///> rust
+test xrechnung_classifies_in_ubl_and_cii_by_its_customization =
+    ? customization_profile (xrechnung_urn ()) <> Some (Xrechnung XrechnungBase) ?> failwith "XRechnung 3.0"
+    ? customization_profile (xrechnung_extension_urn ()) <> Some (Xrechnung XrechnungExtension)
+    ?> failwith "the XRechnung 3.0 extension"
+    ? customization_profile (xrechnung_cvd_urn ()) <> Some (Xrechnung XrechnungCvd) ?> failwith "the XRechnung CVD"
+    := cii =
+        "<rsm:ExchangedDocumentContext><ram:GuidelineSpecifiedDocumentContextParameter>\n<ram:ID>" ++# xrechnung_urn ()
+        ++# "</ram:ID>"
+    ? document_profile cii <> Some (Xrechnung XrechnungBase) ?> failwith "a CII document reads its guideline id"
+    ? document_profile "<rsm:CrossIndustryInvoice/>" <> None ?> failwith "a CII document without a guideline id"
+
+:= xrechnung_folder () : string = "deps/corpus/de/xrechnung-testsuite/instances/"
+
+:= xml_files_in (folder : string) : list string =
+    file_system::read_directory_names (fiscal_paths::under folder)
+    |> resultm::unwrap'
+    |> am'::vec_fold' (\ names name => sm'::from_std_string name :: names) []
+    |> listm'::filter (\ (name : string) => sm'::ends_with ".xml" name)
+    |> listm::map (\ (name : string) => folder ++# name)
+
+:= xrechnung_instances () : list string =
+    [ "standard/"; "extension/"; "technical-cases/cius/"; "technical-cases/cvd/" ]
+    |> listm::map (\ (sub : string) => xml_files_in (xrechnung_folder () ++# sub))
+    |> listm::concat
+
+:= xrechnung_variant_text (variant : xrechnung_variant) : string =
+    ?= variant ?|
+    | XrechnungBase => "base"
+    | XrechnungExtension => "extension"
+    | XrechnungCvd => "cvd"
+
+:= xrechnung_variant_word (path : string) : string =
+    ?= document_profile (corpus_text path) ?|
+    | Some (Xrechnung variant) => xrechnung_variant_text variant
+    | _ => "miss " ++# path
+
+:= words_equal (word : string) (words : list string) : i32 =
+    (listm::length (listm'::filter (\ (w : string) => w = word) words) : i32)
+
+///> rust
+test every_kosit_testsuite_instance_classifies_as_its_xrechnung_variant =
+    := instances = xrechnung_instances ()
+    := found = (listm::length instances : i32)
+    ? found <> 86i32 ?> failwith ("the KoSIT testsuite 2026-08-31 ships 86 instances, found " ++# sm'::show found)
+    := words = listm::map xrechnung_variant_word instances
+    := misses = listm'::filter (\ (w : string) => sm'::starts_with "miss " w) words
+    ? misses <> [] ?> failwith ("every XRechnung instance classifies: " ++# sm'::concat_list ", " misses)
+    ? words_equal "base" words <> 78i32 || words_equal "extension" words <> 6i32 || words_equal "cvd" words <> 2i32
+    ?> failwith "78 base, 6 extension and 2 CVD instances (census 11-13)"
+
+:= peppol_bis3_folder () : string = "deps/corpus/be/peppol-bis3/rules/"
+
+:= peppol_bis3_documents () : list string =
+    [ "examples/"; "national-examples/GR/"; "national-examples/NO/"; "snippets/" ]
+    |> listm::map (\ (sub : string) => xml_files_in (peppol_bis3_folder () ++# sub))
+    |> listm::concat
+
+:= peppol_misread (path : string) : list string =
+    ? document_profile (corpus_text path) = Some PeppolBis3 ?> [] |: [ path ]
+
+///> rust
+test every_openpeppol_bis3_example_and_snippet_classifies_as_peppol_bis3 =
+    := documents = peppol_bis3_documents ()
+    := found = (listm::length documents : i32)
+    ? found <> 29i32
+    ?> failwith ("BIS Billing 3.0.22 ships 10 examples, 3 national examples, 16 snippets; found " ++# sm'::show found)
+    := misread = listm::concat (listm::map peppol_misread documents)
+    ? misread <> [] ?> failwith ("every BIS 3 example reads as PEPPOL BIS 3: " ++# sm'::concat_list ", " misread)
+
+:= ro_sg_documents () : list (string * ubl_profile) =
+    := ro = "deps/corpus/ro/cius/examples/exemple_Invoice_CreditNote/"
+    := sg = "deps/corpus/sg/pint-sg/trn-invoice/example/PINT-SG "
+    := pint_sg (file : string) : string * ubl_profile = (sg ++# file, PeppolPint "sg-1")
+    [
+        (ro ++# "creditNote_ex.xml", CiusRo)
+        (ro ++# "eInvoice_ex.xml", CiusRo)
+        pint_sg "CN example 01 - Credit Note.xml"
+        pint_sg "INV example 02 - full valid invoice 1.xml"
+        pint_sg "INV example 03 - Allowances and Charges.xml"
+        pint_sg "INV example 04 - none GST registered.xml"
+        pint_sg "INV example 05 - AGD compliant with II and PO reference.xml"
+        pint_sg "INV example 06 - Foreign currency.xml"
+        pint_sg "INV example 07 - Foreign buyer.xml"
+        pint_sg "INV example 08 - Factored invoice.xml"
+        pint_sg "INV example 09 - Zero rated GST.xml"
+        pint_sg "INV example 10 - Prepayment.xml"
+        pint_sg "INV example 11 - Decimals.xml"
+        pint_sg "INV example 12 - SG bank transfer.xml"
+        pint_sg "INV example 13 - SG GIRO.xml"
+        pint_sg "INV example 14 - PayNow.xml"
+        pint_sg "INV example 15 - Credit card.xml"
+        pint_sg "INV example 16 - GST in SGD.xml"
+    ]
+
+:= ro_sg_misread ((path, expected) : string * ubl_profile) : list string =
+    ? document_profile (corpus_text path) = Some expected ?> [] |: [ path ]
+
+///> rust
+test every_ro_and_sg_example_classifies_as_its_national_profile =
+    := documents = ro_sg_documents ()
+    := missing = listm'::filter (\ (path, _) => xml::is_file (fiscal_paths::under path) = !-) documents
+    ? missing <> [] ?> failwith "every listed RO and SG example is in the corpus"
+    := misread = listm::concat (listm::map ro_sg_misread documents)
+    ? misread <> [] ?> failwith ("each RO / SG example reads as its profile: " ++# sm'::concat_list ", " misread)
+    ? (listm::length documents : i32) <> 18i32 ?> failwith "2 CIUS-RO and 16 PINT SG examples"

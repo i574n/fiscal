@@ -1,0 +1,10 @@
+packageDir = '../../deps/spiral/lib'
+packages = [
+    '|core-',
+    'spiral-',
+    '../../lib-',
+    '../generated_fiscal_runtime-',
+    '../generated_mdfe_core-',
+    '../generated_mdfe_v1_00-',
+    '../generated_mdfe_v3_00-',
+]

@@ -6,13 +6,16 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $deps = Join-Path $root 'deps'
 New-Item -ItemType Directory -Force $deps | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $root 'samples') | Out-Null
-$spiral = Join-Path $deps 'spiral'
-if (-not (Test-Path $spiral)) {
-    $filling = $spiral
-    $sibling = [IO.Path]::GetFullPath((Join-Path $root '../spiral'))
-    if (Test-Path (Join-Path $sibling '.git')) { New-Item -ItemType Junction -Path $spiral -Target $sibling | Out-Null; "deps/spiral -> $sibling" }
-    else { git clone --recurse-submodules https://github.com/i574n/spiral.git $spiral; if ($LASTEXITCODE) { throw 'init.ps1 / git clone spiral failed' } }
+foreach ($repo in 'spiral', 'regex') {
+    $dep = Join-Path $deps $repo
+    if (Test-Path $dep) { continue }
+    $filling = $dep
+    $sibling = [IO.Path]::GetFullPath((Join-Path $root "../$repo"))
+    if (Test-Path (Join-Path $sibling '.git')) { New-Item -ItemType Junction -Path $dep -Target $sibling | Out-Null; "deps/$repo -> $sibling" }
+    else { git clone --recurse-submodules "https://github.com/i574n/$repo.git" $dep; if ($LASTEXITCODE) { throw "init.ps1 / git clone $repo failed" } }
 }
+$filling = $null
+$spiral = Join-Path $deps 'spiral'
 if (-not (Test-Path (Join-Path $spiral 'deps/The-Spiral-Language/.git'))) {
     pwsh -NoProfile -File (Join-Path $spiral 'scripts/init-app-build.ps1') -fast 1
     if ($LASTEXITCODE) { throw "init.ps1 / spiral init-app-build failed (exit code $LASTEXITCODE)" }
@@ -504,6 +507,20 @@ if (-not (Test-Path $cnEinv)) {
     Expand-Pinned 'http://kjs.mof.gov.cn/zt/kuaijixinxihuajianshe/dzpzkjsjbzshsd/sjbz/202505/P020250617561583232009.zip' 'EB75E173C1315742' $cnEinv
     "deps/corpus/cn/einv: MOF e-voucher accounting data standard, fully digitalized e-invoice (XBRL taxonomy einv-20231231, element list, 2 instances)"
 }
+$cnXbrl = Join-Path $deps 'corpus/cn/xbrl'
+if (-not (Test-Path $cnXbrl)) {
+    $filling = $cnXbrl
+    New-Item -ItemType Directory -Force $cnXbrl | Out-Null
+    $xbrlOrg = 'https://www.xbrl.org/'
+    Save-Pinned "${xbrlOrg}2003/xbrl-instance-2003-12-31.xsd" (Join-Path $cnXbrl 'xbrl-instance-2003-12-31.xsd') '5DBAD94CECF42918'
+    Save-Pinned "${xbrlOrg}2003/xbrl-linkbase-2003-12-31.xsd" (Join-Path $cnXbrl 'xbrl-linkbase-2003-12-31.xsd') 'F906CD30BC47A81B'
+    Save-Pinned "${xbrlOrg}2003/xl-2003-12-31.xsd" (Join-Path $cnXbrl 'xl-2003-12-31.xsd') 'E28B0965D34F4879'
+    Save-Pinned "${xbrlOrg}2003/xlink-2003-12-31.xsd" (Join-Path $cnXbrl 'xlink-2003-12-31.xsd') '5FFA8CB747CCD11E'
+    Save-Pinned "${xbrlOrg}dtr/type/nonNumeric-2009-12-16.xsd" (Join-Path $cnXbrl 'nonNumeric-2009-12-16.xsd') '8D932E134A34B692'
+    Save-Pinned "${xbrlOrg}dtr/type/numeric-2009-12-16.xsd" (Join-Path $cnXbrl 'numeric-2009-12-16.xsd') '5D5A951356396CA5'
+    Save-Pinned "${xbrlOrg}2005/xbrldt-2005.xsd" (Join-Path $cnXbrl 'xbrldt-2005.xsd') 'CAF850F08D74C087'
+    "deps/corpus/cn/xbrl: XBRL 2.1 instance, linkbase, xl, xlink, DTR types and XBRL Dimensions schemas the einv taxonomy imports by URL"
+}
 $myInvois = Join-Path $deps 'corpus/my/myinvois'
 if (-not (Test-Path $myInvois)) {
     $filling = $myInvois
@@ -704,6 +721,72 @@ if (-not (Test-Path $facturX)) {
     } else {
         "deps/corpus/eu/factur-x: skipped (the ZUGFeRD 2.5.2 package sits behind FeRD's email form; set FISCAL_FACTURX_ZIP or put ZUGFeRD_2.5.2_EN.zip in Downloads)"
     }
+}
+$xrechnungTestsuite = Join-Path $deps 'corpus/de/xrechnung-testsuite'
+if (-not (Test-Path $xrechnungTestsuite)) {
+    $filling = $xrechnungTestsuite
+    New-Item -ItemType Directory -Force $xrechnungTestsuite | Out-Null
+    Expand-Pinned 'https://github.com/itplr-kosit/xrechnung-testsuite/releases/download/v2026-08-31/xrechnung-3.0.2-testsuite-2026-08-31.zip' '1E81EF7563E0FA04' $xrechnungTestsuite
+    $filling = $null
+    "deps/corpus/de/xrechnung-testsuite: KoSIT XRechnung 3.0.2 testsuite 2026-08-31 (Apache-2.0), UBL and CII instances"
+}
+$xrechnungSchematron = Join-Path $deps 'corpus/de/xrechnung-schematron'
+if (-not (Test-Path $xrechnungSchematron)) {
+    $filling = $xrechnungSchematron
+    New-Item -ItemType Directory -Force $xrechnungSchematron | Out-Null
+    Expand-Pinned 'https://github.com/itplr-kosit/xrechnung-schematron/releases/download/v2.6.0/xrechnung-3.0.2-schematron-2.6.0.zip' 'CA5E07AFD04E72CD' $xrechnungSchematron
+    $filling = $null
+    "deps/corpus/de/xrechnung-schematron: KoSIT XRechnung 3.0.2 schematron 2.6.0 (Apache-2.0) for UBL and CII"
+}
+$peppolBis3 = Join-Path $deps 'corpus/be/peppol-bis3'
+if (-not (Test-Path $peppolBis3)) {
+    $filling = $peppolBis3
+    New-Item -ItemType Directory -Force $peppolBis3 | Out-Null
+    $tarball = Join-Path $peppolBis3 'download.tar.gz'
+    Save-Pinned 'https://github.com/OpenPeppol/peppol-bis-invoice-3/archive/refs/tags/3.0.22.tar.gz' $tarball '0BEC0D84C444FD5A'
+    tar -xzf $tarball -C $peppolBis3 --strip-components 1 --exclude '*/guide/*' '*/rules/*' '*/structure/*'
+    if ($LASTEXITCODE) { throw "init.ps1 / tar could not unpack $tarball (exit $LASTEXITCODE)" }
+    Remove-Item -LiteralPath $tarball
+    $filling = $null
+    "deps/corpus/be/peppol-bis3: OpenPeppol BIS Billing 3.0.22 rules (schematron, examples, national examples) and syntax bindings"
+}
+$dgfip = Join-Path $deps 'corpus/fr/dgfip-v3.2'
+if (-not (Test-Path $dgfip)) {
+    $filling = $dgfip
+    New-Item -ItemType Directory -Force $dgfip | Out-Null
+    Expand-Pinned 'https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/specification_externes_b2b/specifications-externes-v3.2.zip' 'CD8F6E817E37F329' $dgfip
+    $filling = $null
+    "deps/corpus/fr/dgfip-v3.2: DGFiP e-invoicing external specifications v3.2 (CTC 2026): XSDs, annexes, examples"
+}
+$sriFactura = Join-Path $deps 'corpus/ec/sri-factura'
+if (-not (Test-Path $sriFactura)) {
+    $filling = $sriFactura
+    $unpacked = Join-Path ([IO.Path]::GetTempPath()) "fiscal-sri-factura-$PID"
+    New-Item -ItemType Directory -Force $unpacked | Out-Null
+    Expand-Pinned 'https://www.sri.gob.ec/o/sri-portlet-biblioteca-alfresco-internet/descargar/05546998-6f29-4870-be3b-62650f312a6c/XML%20y%20XSD%20Factura.zip' 'BA1FF0C4E329FE75' $unpacked
+    New-Item -ItemType Directory -Force $sriFactura | Out-Null
+    Get-ChildItem -LiteralPath (Join-Path $unpacked 'XML y XSD Factura') | Move-Item -Destination $sriFactura
+    Remove-Item -LiteralPath $unpacked -Recurse -Force
+    $filling = $null
+    "deps/corpus/ec/sri-factura: SRI Ecuador factura XSDs and XML examples"
+}
+$annexB = Join-Path $deps 'corpus/fr/xp-z12-012-annexb'
+if (-not (Test-Path $annexB)) {
+    $filling = $annexB
+    $unpacked = Join-Path ([IO.Path]::GetTempPath()) "fiscal-annexb-$PID"
+    New-Item -ItemType Directory -Force $unpacked | Out-Null
+    $rfe = 'https://raw.githubusercontent.com/fnfempe/France_RFE/97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d/FNFE_RFE_INVOICE/'
+    Expand-Pinned "${rfe}Z.example/XP_Z12-012_Annexe_B_EXEMPLES_V1.4.zip" '836C07B2F588E4B6' $unpacked
+    $source = Join-Path $unpacked 'XP_Z12-012_Annexe_B_EXEMPLES_V1.4'
+    foreach ($file in Get-ChildItem -LiteralPath $source -Recurse -File -Filter '*.xml') {
+        $relative = $file.FullName.Substring($source.Length + 1).Normalize([Text.NormalizationForm]::FormC)
+        $target = Join-Path $annexB $relative
+        New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
+        Copy-Item -LiteralPath $file.FullName -Destination $target
+    }
+    Remove-Item -LiteralPath $unpacked -Recurse -Force
+    $filling = $null
+    "deps/corpus/fr/xp-z12-012-annexb: FNFE-MPE XP Z12-012 Annex B example invoices and CDAR messages (Apache-2.0)"
 }
 $iso4217 = Join-Path $deps 'corpus/iso4217'
 if (-not (Test-Path $iso4217)) {

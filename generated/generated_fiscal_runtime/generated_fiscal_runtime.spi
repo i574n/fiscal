@@ -2,7 +2,8 @@
 inl sample_path (name : string) : string =
     inl from_env = env.get_environment_variable "FISCAL_ROOT"
     inl root =
-        if from_env <> "" then from_env
+        if from_env <> ""
+        then from_env
         else
             inl here = file_system.get_current_directory ()
             match here |> file_system.find_parent file_system.File "src/generator.spi" with

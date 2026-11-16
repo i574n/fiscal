@@ -16,7 +16,7 @@
     ]
 
 := cfdi_place_bindings () : list (canon::term_id * string) =
-    [ (bt 53i32, "Comprobante/Receptor/@DomicilioFiscalReceptor") ]
+    [ (bt 53i32, "Comprobante/Receptor/@DomicilioFiscalReceptor"); (bt 38i32, "Comprobante/@LugarExpedicion") ]
 
 := cfdi_total_bindings () : list (canon::term_id * string) =
     [ (bt 110i32, "Comprobante/Impuestos/@TotalImpuestosTrasladados"); (bt 115i32, "Comprobante/@Total") ]
@@ -40,13 +40,39 @@
     ]
 := cfdi_parties () : list (canon::term_id * string) = listm::append (cfdi_party_bindings ()) (cfdi_place_bindings ())
 
+:= cfdi_payment_bindings () : list (canon::term_id * string) = [ (bt 20i32, "Comprobante/@CondicionesDePago") ]
+
+:= cfdi_breakdown_bindings () : list (canon::term_id * string) =
+    [
+        (bt 116i32, "Comprobante/Impuestos/Traslados/Traslado/@Base")
+        (bt 117i32, "Comprobante/Impuestos/Traslados/Traslado/@Importe")
+    ]
+
+:= cfdi_rate_bindings () : list (canon::term_id * string) =
+    [
+        (bt 119i32, "Comprobante/Impuestos/Traslados/Traslado/@TasaOCuota")
+        (bt 152i32, "Comprobante/Conceptos/Concepto/Impuestos/Traslados/Traslado/@TasaOCuota")
+    ]
+
+:= cfdi_allowance_bindings () : list (canon::term_id * string) =
+    [ (bt 136i32, "Comprobante/Conceptos/Concepto/@Descuento") ]
+
 := cfdi_lines () : list (canon::term_id * string) =
-    listm::concat [ cfdi_line_bindings (); cfdi_price_bindings (); cfdi_item_bindings () ]
+    listm::concat [ cfdi_line_bindings (); cfdi_price_bindings (); cfdi_item_bindings (); cfdi_allowance_bindings () ]
 
 := cfdi_stamp_bindings () : list (canon::term_id * string) = [ (bt 1i32, "TimbreFiscalDigital/@UUID") ]
 
+:= cfdi_tax_bindings () : list (canon::term_id * string) =
+    listm::concat [ cfdi_total_bindings (); cfdi_breakdown_bindings (); cfdi_rate_bindings () ]
+
 := cfdi_document_bindings () : list (canon::term_id * string) =
-    listm::concat [ cfdi_header_bindings (); cfdi_parties (); cfdi_total_bindings (); cfdi_lines () ]
+    listm::concat [
+        cfdi_header_bindings ()
+        cfdi_payment_bindings ()
+        cfdi_parties ()
+        cfdi_tax_bindings ()
+        cfdi_lines ()
+    ]
 
 := cfdi_bindings () : list (canon::term_id * string) =
     listm::append (cfdi_document_bindings ()) (cfdi_stamp_bindings ())
@@ -56,13 +82,15 @@
 := cfdi_code_gaps () : list (canon::term_id * canon_coverage::gap) =
     [
         (bt 3i32, canon_coverage::NationalCode "TipoDeComprobante"); (bt 55i32, canon_coverage::NationalCode "c_Pais")
-        (bt 151i32, canon_coverage::NationalCode "ObjetoImp")
+        (bt 151i32, canon_coverage::NationalCode "ObjetoImp"); (bt 118i32, canon_coverage::NationalCode "TipoFactor")
+        (bt 33i32, canon_coverage::NationalCode "RegimenFiscal")
     ]
 
 := cfdi_absent_gaps () : list (canon::term_id * canon_coverage::gap) =
     [
         (bt 23i32, canon_coverage::NotCarried); (bt 24i32, canon_coverage::NotCarried)
         (bt 34i32, canon_coverage::NotCarried); (bt 49i32, canon_coverage::NotCarried)
+        (bt 120i32, canon_coverage::NotCarried); (bt 121i32, canon_coverage::NotCarried)
     ]
 
 := cfdi_derived_gaps () : list (canon::term_id * canon_coverage::gap) =
@@ -72,8 +100,60 @@
         (bt 112i32, canon_coverage::Derived); (bt 131i32, canon_coverage::Derived)
     ]
 
+:= cfdi_payment_code_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [ (bt 81i32, canon_coverage::NationalCode "FormaPago") ]
+
+:= not_carried (ns : list i32) : list (canon::term_id * canon_coverage::gap) =
+    listm::map (\ (n : i32) => (bt n, canon_coverage::NotCarried)) ns
+
+:= cfdi_representative_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 62i32; 63i32; 64i32; 65i32; 66i32; 67i32; 68i32; 69i32; 164i32 ]
+
+:= cfdi_unmodeled_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 11i32; 59i32; 60i32; 61i32; 124i32; 125i32; 134i32; 135i32 ]
+
+:= cfdi_document_allowance_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 92i32; 93i32; 94i32; 95i32; 96i32; 97i32; 98i32; 107i32 ]
+
+:= cfdi_document_charge_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 99i32; 100i32; 101i32; 102i32; 103i32; 104i32; 105i32; 108i32 ]
+
+:= cfdi_address_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 35i32; 36i32; 37i32; 39i32; 162i32; 50i32; 51i32; 52i32; 54i32; 163i32 ]
+
+:= cfdi_delivery_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 70i32; 71i32; 72i32; 75i32; 76i32; 77i32; 78i32; 79i32; 80i32; 165i32 ]
+
+:= cfdi_payment_account_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 82i32; 83i32; 84i32; 85i32; 86i32; 87i32; 88i32; 89i32; 90i32; 91i32 ]
+
+:= cfdi_reference_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 10i32; 12i32; 13i32; 14i32; 15i32; 16i32; 17i32; 18i32; 19i32; 22i32; 26i32; 29i32 ]
+
+:= cfdi_item_detail_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 147i32; 148i32; 149i32; 156i32; 157i32; 159i32; 160i32; 161i32 ]
+
+:= cfdi_line_allowance_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 137i32; 138i32; 139i32; 140i32; 141i32; 142i32; 143i32; 144i32; 145i32 ]
+
 := cfdi_gaps () : list (canon::term_id * canon_coverage::gap) =
-    listm::concat [ cfdi_code_gaps (); cfdi_absent_gaps (); cfdi_derived_gaps () ]
+    listm::concat [
+        cfdi_code_gaps ()
+        cfdi_payment_code_gaps ()
+        cfdi_absent_gaps ()
+        cfdi_representative_gaps ()
+        cfdi_unmodeled_gaps ()
+        cfdi_document_allowance_gaps ()
+        cfdi_document_charge_gaps ()
+        cfdi_address_gaps ()
+        cfdi_delivery_gaps ()
+        cfdi_payment_account_gaps ()
+        cfdi_reference_gaps ()
+        cfdi_item_detail_gaps ()
+        cfdi_line_allowance_gaps ()
+        cfdi_derived_gaps ()
+    ]
+
 := cfdi_model () : canon_coverage::schema_model =
     canon_coverage::schema_model_of (fiscal_paths::under "deps/corpus/mx/cfdi/cfdv40.xsd")
 
@@ -84,6 +164,12 @@
     listm::append
         (canon_coverage::unreached_terms (cfdi_model ()) (cfdi_document_bindings ()))
         (canon_coverage::unreached_terms (cfdi_stamp_model ()) (cfdi_stamp_bindings ()))
+
+:= cfdi_accounted () : list canon::term_id =
+    := bound = canon_coverage::ids_of (listm::append (cfdi_bindings ()) (cfdi_implied ()))
+    listm::append bound (canon_coverage::gap_ids (cfdi_gaps ()))
+
+:= cfdi_unmarked () : list canon::term_id = canon_coverage::unmarked_terms (cfdi_accounted ())
 
 ///> rust
 test every_cfdi_binding_reaches_a_declared_field =
@@ -125,3 +211,13 @@ test every_required_term_is_bound_implied_or_a_typed_gap_in_cfdi =
     := wrong = canon_coverage::unaccounted required accounted
     ? wrong <> []
     ?> failwith ("each required term is accounted exactly once for CFDI: " ++# sm'::concat_list ", " wrong)
+
+///> rust
+test cfdi_lists_its_terms_without_a_loss_marker =
+    := unmarked = cfdi_unmarked ()
+    canon_coverage::record_census "cfdi" "CFDI 4.0" unmarked
+    ? canon_coverage::required_among unmarked <> [] ?> failwith "only optional terms lack a marker"
+
+///> rust
+test cfdi_unmarked_terms_only_shrink =
+    ? (listm::length (cfdi_unmarked ()) : i32) > 28i32 ?> failwith "CFDI unmarked count only shrinks (28 on 11-11)"

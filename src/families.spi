@@ -669,6 +669,98 @@
         hacienda_factura_4_4 ()
     ]
 
+:= fr_dgfip_xsd () : string = "deps/corpus/fr/dgfip-v3.2/3- XSD_v3.2/"
+
+:= fr_ereporting_3_2 () : family_root =
+    bare_family
+        (module_id "generated_fr_ereporting_3_2")
+        (repo_path (fr_dgfip_xsd () ++# "1 - E-reporting/ereporting.xsd"))
+        (tag_name "Report")
+        (definition_name "ReportType")
+        (namespace_uri "")
+
+:= fr_annuaire (root : string) (file : string) (suffix : string) : family_root =
+    bare_family
+        (module_id ("generated_fr_annuaire_" ++# suffix ++# "_3_2"))
+        (repo_path (fr_dgfip_xsd () ++# "0 - Annuaire/" ++# file))
+        (tag_name root)
+        (definition_name (root ++# "Type"))
+        (namespace_uri "")
+
+:= fr_annuaire_actualisation_3_2 () : family_root =
+    fr_annuaire "AnnuaireActualisation" "actualisation/Annuaire_Actualisation_F12-F13.xsd" "actualisation"
+
+:= fr_annuaire_consultation_3_2 () : family_root =
+    fr_annuaire "AnnuaireConsultationF14" "consultation/Annuaire_Consultation_F14.xsd" "consultation"
+
+:= french_families () : list family_root =
+    [ fr_ereporting_3_2 (); fr_annuaire_actualisation_3_2 (); fr_annuaire_consultation_3_2 () ]
+
+:= fr_einvoicing_xsd () : string = fr_dgfip_xsd () ++# "2 - E-invoicing/"
+
+:= fr_f1_gate (folder : string) : list family_extra =
+    [ GateResolve; GatePreload (repo_path (fr_einvoicing_xsd () ++# folder ++# "/common/UBL-xmldsig-core-schema-2.1.xsd")) ]
+
+:= fr_f1_ubl (profile : string) (file : string) (kind : string) (lower : string) : family_root =
+    := folder = "F1_" ++# sm'::to_upper profile ++# "_UBL_2.1"
+    := base =
+        bare_family
+            (module_id ("generated_fr_f1_" ++# profile ++# "_ubl_" ++# lower ++# "_3_2"))
+            (repo_path (fr_einvoicing_xsd () ++# folder ++# "/" ++# file))
+            (tag_name kind)
+            (definition_name (kind ++# "Type"))
+            (ubl_namespace kind)
+    { base with extras = fr_f1_gate folder }
+
+:= fr_f1_cii (profile : string) : family_root =
+    := upper = sm'::to_upper profile
+    := base =
+        bare_family
+            (module_id ("generated_fr_f1_" ++# profile ++# "_cii_3_2"))
+            (repo_path (
+                fr_einvoicing_xsd () ++# "F1_" ++# upper ++# "_CII_D22B/uncefact/data/standard/F1" ++# upper
+                ++# "_CrossIndustryInvoice_100pD22B.xsd"
+            ))
+            (tag_name "CrossIndustryInvoice")
+            (definition_name "CrossIndustryInvoiceType")
+            (namespace_uri "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100")
+    { base with extras = [ GateResolve ] }
+
+:= french_f1_families () : list family_root =
+    [
+        fr_f1_ubl "base" "F1BASE_UBL-invoice-2.1.xsd" "Invoice" "invoice"
+        fr_f1_ubl "base" "F1BASE_UBL-CreditNote-2.1.xsd" "CreditNote" "creditnote"
+        fr_f1_ubl "full" "F1FULL_UBL_invoice-2.1.xsd" "Invoice" "invoice"
+        fr_f1_ubl "full" "F1FULL_UBL_CreditNote-2.1.xsd" "CreditNote" "creditnote"
+        fr_f1_cii "base"; fr_f1_cii "full"
+    ]
+
+:= ec_sri_folder () : string = "deps/corpus/ec/sri-factura/"
+
+:= ec_sri_xmldsig_import () : string * repo_path =
+    "xmldsig-core-schema.xsd", repo_path "deps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd"
+
+:= ec_sri_example (version : string) : string = ec_sri_folder () ++# "factura_V" ++# version ++# ".xml"
+
+:= ec_sri_factura (version : string) (suffix : string) (extras : list family_extra) : family_root =
+    := base =
+        bare_family
+            (module_id ("generated_ec_sri_factura_" ++# suffix))
+            (repo_path (ec_sri_folder () ++# "factura_V" ++# version ++# ".xsd"))
+            (tag_name "factura")
+            (definition_name "factura")
+            (namespace_uri "")
+    { base with source = Xsd [ ec_sri_xmldsig_import () ]; documents = Listed [ ec_sri_example version ]; extras = extras }
+
+:= ec_sri_empty_incoterm () : family_extra =
+    DocumentDefect (ec_sri_example "2.0.0", "invalid infoFactura/incoTermFactura")
+
+:= ec_sri_facturas () : list family_root =
+    [
+        ec_sri_factura "1.0.0" "1_0_0" []; ec_sri_factura "1.1.0" "1_1_0" []
+        ec_sri_factura "2.0.0" "2_0_0" [ ec_sri_empty_incoterm () ]; ec_sri_factura "2.1.0" "2_1_0" []
+    ]
+
 := single_families_elsewhere () : list family_root =
     [
         ubl_invoice_2_1 (); ubl_creditnote_2_1 (); fatturapa_1_2_3 (); ksef_fa_3 (); facturae_3_2_2 ()
@@ -679,7 +771,8 @@
 := all_families () : list family_root =
     listm::concat [
         family_roots (); nfe_events (); ubl_business_documents_2_1 (); hacienda_documents ()
-        single_families_americas (); single_families_elsewhere ()
+        single_families_americas (); single_families_elsewhere (); french_families (); ec_sri_facturas ()
+        french_f1_families ()
     ]
 
 := gate_example (family : family_root) : string =
@@ -796,12 +889,18 @@
 test every_family_has_its_own_module_name =
     := names = listm::map (\ (f : family_root) => module_text f::module_name) (all_families ())
     ? has_duplicate names ?> failwith "two families would write the same generated unit"
-    ? (listm::length names : i32) <> 45i32 ?> failwith "45 families: 42 gated examples plus CII, SAF-T and NAV"
+    ? (listm::length names : i32) <> 58i32 ?> failwith "58 families: 55 gated plus CII, SAF-T and NAV"
+
+///> rust
+test only_the_sri_2_0_0_sample_breaks_its_own_schema =
+    := defects = listm::concat (listm::map (\ (f : family_root) => document_defects f::extras) (ec_sri_facturas ()))
+    ? defects <> [ ec_sri_example "2.0.0", "invalid infoFactura/incoTermFactura" ]
+    ?> failwith "factura_V2.0.0.xml leaves incoTermFactura empty against minLength 1; the other three samples read back"
 
 ///> rust
 test the_gate_table_has_one_row_per_gated_family =
     := table = gate_table ()
-    ? (listm::length (sm'::split_list "\n" table) : i32) <> 43i32 ?> failwith "a header and 42 gated families"
+    ? (listm::length (sm'::split_list "\n" table) : i32) <> 56i32 ?> failwith "a header and 55 gated families"
     := nfe = "generated_nfe_v4_example.xml\tdeps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd\t\t0\txsd"
     ? sm'::contains nfe table = !- ?> failwith "a DFe family validates against its own schema alone"
     := dsig = "\tdeps/corpus/eu/ubl21/common/UBL-xmldsig-core-schema-2.1.xsd\t1\txsd"

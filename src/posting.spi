@@ -31,8 +31,6 @@
     =
     ledger::balanced (invoice_lines (tax_account regime) currency (canon_of doc))
 
-:= cents (units : i64) : decimal::decimal = { units = units; scale = 2i32 }
-
 ///> rust
 test a_reconciling_invoice_books_a_balanced_journal_of_its_bt_112 =
     := doc = manual_invoice ("A-1", "2026-11-03", "BRL", "Seller Ltda", "Buyer SA", cents 10000i64, cents 1800i64)

@@ -1,2 +1,2 @@
 packageDir = '../../deps/spiral/lib'
-packages = ['|core-', 'spiral-']
+packages = ['|core-', 'spiral-', '../../lib-']

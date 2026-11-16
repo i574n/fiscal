@@ -42,6 +42,7 @@
 := nfe_line_bindings () : list (canon::term_id * string) =
     [
         (bt 126i32, "NFe/infNFe/det/@nItem"); (bt 129i32, "NFe/infNFe/det/prod/qCom")
+        (bt 127i32, "NFe/infNFe/det/infAdProd")
     ]
 
 := nfe_item_bindings () : list (canon::term_id * string) =
@@ -50,20 +51,87 @@
         (bt 157i32, "NFe/infNFe/det/prod/cEAN"); (bt 158i32, "NFe/infNFe/det/prod/NCM")
     ]
 
-:= nfe_sellers () : list (canon::term_id * string) =
-    listm::append (nfe_seller_bindings ()) (nfe_seller_place_bindings ())
+:= nfe_seller_detail_bindings () : list (canon::term_id * string) =
+    [ (bt 36i32, "NFe/infNFe/emit/enderEmit/xCpl"); (bt 42i32, "NFe/infNFe/emit/enderEmit/fone") ]
 
-:= nfe_buyers () : list (canon::term_id * string) = listm::append (nfe_buyer_bindings ()) (nfe_buyer_place_bindings ())
+:= nfe_buyer_detail_bindings () : list (canon::term_id * string) =
+    [ (bt 51i32, "NFe/infNFe/dest/enderDest/xCpl"); (bt 57i32, "NFe/infNFe/dest/enderDest/fone") ]
+
+:= nfe_reference_bindings () : list (canon::term_id * string) =
+    [
+        (bt 12i32, "NFe/infNFe/compra/xCont"); (bt 13i32, "NFe/infNFe/compra/xPed")
+        (bt 25i32, "NFe/infNFe/ide/NFref/refNFe")
+    ]
+
+:= nfe_delivery_bindings () : list (canon::term_id * string) =
+    [
+        (bt 70i32, "NFe/infNFe/entrega/xNome"); (bt 72i32, "NFe/infNFe/ide/dhSaiEnt")
+        (bt 75i32, "NFe/infNFe/entrega/xLgr"); (bt 76i32, "NFe/infNFe/entrega/xCpl")
+    ]
+
+:= nfe_delivery_place_bindings () : list (canon::term_id * string) =
+    [
+        (bt 77i32, "NFe/infNFe/entrega/xMun"); (bt 78i32, "NFe/infNFe/entrega/CEP")
+        (bt 79i32, "NFe/infNFe/entrega/UF")
+    ]
+
+:= nfe_payment_bindings () : list (canon::term_id * string) =
+    [
+        (bt 113i32, "NFe/infNFe/pag/detPag/vPag"); (bt 86i32, "NFe/infNFe/pag/detPag/card/CNPJ")
+        (bt 61i32, "NFe/infNFe/pag/detPag/card/CNPJReceb"); (bt 82i32, "NFe/infNFe/pag/detPag/xPag")
+    ]
+
+:= nfe_line_reference_bindings () : list (canon::term_id * string) =
+    [ (bt 132i32, "NFe/infNFe/det/prod/nItemPed"); (bt 155i32, "NFe/infNFe/det/prod/cProd") ]
+
+:= nfe_sellers () : list (canon::term_id * string) =
+    listm::concat [ nfe_seller_bindings (); nfe_seller_place_bindings (); nfe_seller_detail_bindings () ]
+
+:= nfe_buyers () : list (canon::term_id * string) =
+    listm::concat [ nfe_buyer_bindings (); nfe_buyer_place_bindings (); nfe_buyer_detail_bindings () ]
 
 := nfe_party_bindings () : list (canon::term_id * string) = listm::append (nfe_sellers ()) (nfe_buyers ())
 
-:= nfe_bindings () : list (canon::term_id * string) =
+:= nfe_procurement_bindings () : list (canon::term_id * string) =
+    [ (bt 17i32, "NFe/infNFe/compra/xNEmp"); (bt 29i32, "NFe/infNFe/emit/IM") ]
+
+:= nfe_document_bindings () : list (canon::term_id * string) =
     listm::concat [
         nfe_header_bindings ()
+        nfe_reference_bindings ()
+        nfe_delivery_bindings ()
+        nfe_delivery_place_bindings ()
+        nfe_procurement_bindings ()
+    ]
+
+:= nfe_line_allowance_bindings () : list (canon::term_id * string) = [ (bt 136i32, "NFe/infNFe/det/prod/vDesc") ]
+
+:= nfe_line_all_bindings () : list (canon::term_id * string) =
+    listm::concat [
+        nfe_line_bindings ()
+        nfe_line_reference_bindings ()
+        nfe_item_bindings ()
+        nfe_line_allowance_bindings ()
+    ]
+
+:= nfe_address_line3_bindings () : list (canon::term_id * string) =
+    [
+        (bt 162i32, "NFe/infNFe/emit/enderEmit/xBairro"); (bt 163i32, "NFe/infNFe/dest/enderDest/xBairro")
+        (bt 165i32, "NFe/infNFe/entrega/xBairro")
+    ]
+
+:= nfe_detail_text_bindings () : list (canon::term_id * string) =
+    [ (bt 58i32, "NFe/infNFe/dest/email"); (bt 154i32, "NFe/infNFe/det/infAdProd") ]
+
+:= nfe_bindings () : list (canon::term_id * string) =
+    listm::concat [
+        nfe_document_bindings ()
         nfe_party_bindings ()
         nfe_total_bindings ()
-        nfe_line_bindings ()
-        nfe_item_bindings ()
+        nfe_payment_bindings ()
+        nfe_line_all_bindings ()
+        nfe_address_line3_bindings ()
+        nfe_detail_text_bindings ()
     ]
 
 := nfe_implied () : list (canon::term_id * string) = [ (bt 5i32, "BRL"); (bt 40i32, "BR") ]
@@ -72,6 +140,7 @@
     [
         (bt 3i32, canon_coverage::NationalCode "finNFe"); (bt 55i32, canon_coverage::NationalCode "cPais (BACEN)")
         (bt 151i32, canon_coverage::NationalCode "CST"); (bt 130i32, canon_coverage::NationalCode "uCom (free text)")
+        (bt 33i32, canon_coverage::NationalCode "CRT")
     ]
 
 := nfe_absent_gaps () : list (canon::term_id * canon_coverage::gap) =
@@ -86,10 +155,94 @@
         (bt 131i32, canon_coverage::Derived)
     ]
 
+:= nfe_breakdown_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 116i32, canon_coverage::Derived); (bt 117i32, canon_coverage::Derived); (bt 119i32, canon_coverage::Derived)
+        (bt 118i32, canon_coverage::NationalCode "CST"); (bt 121i32, canon_coverage::NationalCode "motDesICMS")
+        (bt 120i32, canon_coverage::NotCarried)
+    ]
+
+:= nfe_breakdown_entry (tax : string) (group : string) : list (canon::term_id * string) =
+    := line (leaf : string) : string = "NFe/infNFe/det/imposto/" ++# tax ++# "/" ++# group ++# "/" ++# leaf
+    [
+        (bt 118i32, line "CST"); (bt 116i32, line "vBC"); (bt 119i32, line ("p" ++# tax))
+        (bt 117i32, line ("v" ++# tax)); (bt 110i32, "NFe/infNFe/total/ICMSTot/v" ++# tax)
+    ]
+
+:= nfe_breakdown_sources () : list (string * list (canon::term_id * string)) =
+    [
+        ("ICMS", nfe_breakdown_entry "ICMS" "ICMS00"); ("IPI", nfe_breakdown_entry "IPI" "IPITrib")
+        ("PIS", nfe_breakdown_entry "PIS" "PISAliq"); ("COFINS", nfe_breakdown_entry "COFINS" "COFINSAliq")
+    ]
+
+:= unreached_breakdown
+    (model : canon_coverage::schema_model)
+    ((tax, entry) : string * list (canon::term_id * string))
+    : list string =
+    listm::map (\ (term : string) => tax ++# " " ++# term) (canon_coverage::unreached_terms model entry)
+
+:= nfe_settlement_code_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [ (bt 80i32, canon_coverage::NationalCode "cPais (BACEN)"); (bt 81i32, canon_coverage::NationalCode "tPag") ]
+
+:= not_carried (ns : list i32) : list (canon::term_id * canon_coverage::gap) =
+    listm::map (\ (n : i32) => (bt n, canon_coverage::NotCarried)) ns
+
+:= nfe_representative_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 62i32; 63i32; 64i32; 65i32; 66i32; 67i32; 68i32; 69i32; 164i32 ]
+
+:= nfe_unmodeled_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 11i32; 59i32; 73i32; 74i32; 125i32; 134i32; 135i32 ]
+
+:= nfe_document_allowance_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 92i32; 93i32; 94i32; 95i32; 96i32; 97i32; 98i32; 107i32 ]
+
+:= nfe_document_charge_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 99i32; 100i32; 101i32; 102i32; 103i32; 104i32; 105i32; 108i32 ]
+
+:= nfe_payment_account_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 83i32; 84i32; 85i32; 87i32; 88i32; 89i32; 90i32; 91i32 ]
+
+:= nfe_reference_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 10i32; 14i32; 15i32; 16i32; 18i32; 19i32; 26i32 ]
+
+:= nfe_item_detail_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 147i32; 148i32; 149i32; 156i32; 159i32; 160i32; 161i32 ]
+
+:= nfe_line_charge_gaps () : list (canon::term_id * canon_coverage::gap) =
+    [
+        (bt 141i32, canon_coverage::Derived); (bt 144i32, canon_coverage::NationalCode "vFrete / vSeg / vOutro")
+        (bt 145i32, canon_coverage::NationalCode "vFrete / vSeg / vOutro")
+    ]
+
+:= nfe_line_allowance_gaps () : list (canon::term_id * canon_coverage::gap) =
+    not_carried [ 137i32; 138i32; 139i32; 140i32; 142i32; 143i32 ]
+
 := nfe_gaps () : list (canon::term_id * canon_coverage::gap) =
-    listm::concat [ nfe_code_gaps (); nfe_absent_gaps (); nfe_derived_gaps () ]
+    listm::concat [
+        nfe_code_gaps ()
+        nfe_settlement_code_gaps ()
+        nfe_absent_gaps ()
+        nfe_breakdown_gaps ()
+        nfe_document_allowance_gaps ()
+        nfe_document_charge_gaps ()
+        nfe_payment_account_gaps ()
+        nfe_reference_gaps ()
+        nfe_item_detail_gaps ()
+        nfe_line_charge_gaps ()
+        nfe_line_allowance_gaps ()
+        nfe_representative_gaps ()
+        nfe_unmodeled_gaps ()
+        nfe_derived_gaps ()
+    ]
+
 := nfe_model () : canon_coverage::schema_model =
     canon_coverage::schema_model_of (fiscal_paths::under "deps/corpus/DFe.NET/NFe.AppTeste/Schemas/nfe_v4.00.xsd")
+
+:= nfe_accounted () : list canon::term_id =
+    := bound = canon_coverage::ids_of (listm::append (nfe_bindings ()) (nfe_implied ()))
+    listm::append bound (canon_coverage::gap_ids (nfe_gaps ()))
+
+:= nfe_unmarked () : list canon::term_id = canon_coverage::unmarked_terms (nfe_accounted ())
 
 ///> rust
 test every_nfe_binding_reaches_a_declared_field =
@@ -99,6 +252,19 @@ test every_nfe_binding_reaches_a_declared_field =
     ?> failwith ("every NF-e binding names a field the 4.00 schema declares: " ++# sm'::concat_list ", " missed)
     ? canon_coverage::is_reached (canon_coverage::path_reach model "NFe/infNFe/ide/noSuchField")
     ?> failwith "a field the schema does not declare is not reached"
+
+///> rust
+test every_nfe_tax_group_fills_a_breakdown_entry_the_schema_declares =
+    := model = nfe_model ()
+    := missed = listm::concat (listm::map (unreached_breakdown model) (nfe_breakdown_sources ()))
+    ? missed <> []
+    ?> failwith (
+        "each NF-e tax group carries a BG-23 CST, base, rate and amount the 4.00 schema declares: "
+        ++# sm'::concat_list ", " missed
+    )
+    ? (listm::length (nfe_breakdown_sources ()) : i32) <> 4i32 ?> failwith "ICMS, IPI, PIS and COFINS each fill a BG-23 entry"
+    ? canon_coverage::unreached_terms model (nfe_breakdown_entry "IPI" "IPINT") = []
+    ?> failwith "the non-taxed IPI group carries no rate, so it is not a breakdown entry"
 
 ///> rust
 test nfe_supplies_11_of_the_24_required_terms =
@@ -130,3 +296,13 @@ test every_required_term_is_bound_implied_or_a_typed_gap_in_nfe =
     := wrong = canon_coverage::unaccounted required accounted
     ? wrong <> []
     ?> failwith ("each required term is accounted exactly once for NF-e: " ++# sm'::concat_list ", " wrong)
+
+///> rust
+test nfe_lists_its_terms_without_a_loss_marker =
+    := unmarked = nfe_unmarked ()
+    canon_coverage::record_census "nfe" "NF-e 4.00" unmarked
+    ? canon_coverage::required_among unmarked <> [] ?> failwith "only optional terms lack a marker"
+
+///> rust
+test nfe_unmarked_terms_only_shrink =
+    ? (listm::length (nfe_unmarked ()) : i32) > 20i32 ?> failwith "NF-e unmarked count only shrinks (20 on 11-11)"
