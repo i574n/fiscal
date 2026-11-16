@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Optimize>true</Optimize>
+    <TieredPGO>true</TieredPGO>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DfeNetRoot Condition="'$(DfeNetRoot)' == ''">..\..\deps\bench\DFe.NET</DfeNetRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(DfeNetRoot)\NFe.Utils\NFe.Utils.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="$(DfeNetRoot)\NFe.Classes\NFe.Classes.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="$(DfeNetRoot)\DFe.Utils\DFe.Utils.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="$(DfeNetRoot)\CTe.Utils\CTe.Utils.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="$(DfeNetRoot)\CTe.Classes\CTe.Classes.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="$(DfeNetRoot)\MDFe.Utils\MDFe.Utils.csproj" SetTargetFramework="TargetFramework=net6.0" />
+    <ProjectReference Include="$(DfeNetRoot)\MDFe.Classes\MDFe.Classes.csproj" SetTargetFramework="TargetFramework=net6.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,223 @@
+///- --package . --timeout 1200000
+:< sm'_operators
+
+:| minor_unit =
+    | Places : i32
+    | NoMinorUnit
+    | Withdrawn : string
+    | NotIso
+
+:= places_of \* c. (cur : money::currency c) : i32 =
+    ?= cur ?|
+    | money::Brl => 2i32
+    | money::Eur => 2i32
+    | money::Usd => 2i32
+    | money::Mxn => 2i32
+
+:= iso_code_of \* c. (cur : money::currency c) : string =
+    ?= cur ?|
+    | money::Brl => "BRL"
+    | money::Eur => "EUR"
+    | money::Usd => "USD"
+    | money::Mxn => "MXN"
+
+:= iso_root (file : string) : list xml::xml_node =
+    := text = file_system::read_all_text (fiscal_paths::under ("deps/corpus/iso4217/" ++# file))
+    ?= sunat::child_named "ISO_4217" (xml::read_xml text) ?|
+    | Some root => xml::element_children root
+    | None => []
+
+:= iso_table (file : string) (table : string) : list xml::xml_node =
+    ?= sunat::child_named table (iso_root file) ?|
+    | Some t => xml::element_children t
+    | None => []
+
+:= entry_for (code : string) (entries : list xml::xml_node) : option xml::xml_node =
+    listm'::try_find_ (\ e => sunat::child_text "Ccy" e = Some code) entries
+
+:= unit_in (e : xml::xml_node) : minor_unit =
+    ?= optionm::bind decimal::parse (sunat::child_text "CcyMnrUnts" e) ?|
+    | Some d ?& d::scale = 0i32 => Places (convert::i32 d::units)
+    | _ => NoMinorUnit
+
+:= digits_at (text : string) (from : i32) (n : i32) : i64 =
+    ? (sm'::length text : i32) < from + n ?> 0i64
+    |:
+        ?= decimal::parse (sm'::substring from n text) ?|
+        | Some d ?& d::scale = 0i32 => d::units
+        | _ => 0i64
+
+:= withdrawal_key (date : string) : i64 = digits_at date 0i32 4i32 * 100i64 + digits_at date 5i32 2i32
+
+:= later (best : option string) (date : string) : option string =
+    ?= best ?|
+    | Some b ?& withdrawal_key b >= withdrawal_key date => best
+    | _ => Some date
+
+:= withdrawals_of (code : string) : list string =
+    := listed = listm'::filter (\ e => sunat::child_text "Ccy" e = Some code) (iso_table "list-three.xml" "HstrcCcyTbl")
+    listm::map (\ e => optionm'::default_value "" (sunat::child_text "WthdrwlDt" e)) listed
+
+:= historic_unit (code : string) : minor_unit =
+    ?= listm::fold later None (withdrawals_of code) ?|
+    | Some date => Withdrawn date
+    | None => NotIso
+
+:= minor_unit_of (code : string) : minor_unit =
+    ?= entry_for code (iso_table "list-one.xml" "CcyTbl") ?|
+    | Some e => unit_in e
+    | None => historic_unit code
+
+:= typed_unit_agrees \* c. (cur : money::currency c) : bool = minor_unit_of (iso_code_of cur) = Places (places_of cur)
+
+///> rust
+test the_real_and_peso_take_their_places_from_iso_4217 =
+    ? typed_unit_agrees money::Brl = !- || typed_unit_agrees money::Mxn = !- ?> failwith "BRL and MXN have 2"
+
+///> rust
+test the_euro_and_dollar_take_their_places_from_iso_4217 =
+    ? typed_unit_agrees money::Eur = !- || typed_unit_agrees money::Usd = !- ?> failwith "EUR and USD have 2"
+
+///> rust
+test iso_list_one_gives_zero_and_three_places =
+    ? minor_unit_of "JPY" <> Places 0i32 || minor_unit_of "CLP" <> Places 0i32 ?> failwith "yen and Chilean peso: 0"
+    ? minor_unit_of "BHD" <> Places 3i32 ?> failwith "Bahraini dinar: 3"
+
+///> rust
+test metals_and_funds_have_no_minor_unit =
+    ? minor_unit_of "XAU" <> NoMinorUnit || minor_unit_of "XDR" <> NoMinorUnit ?> failwith "gold and SDR: N.A."
+
+///> rust
+test sat_codes_iso_withdrew_carry_their_withdrawal =
+    ? minor_unit_of "BYR" <> Withdrawn "2017-01" || minor_unit_of "HRK" <> Withdrawn "2023-01"
+    ?> failwith "BYR left in 2017-01; HRK is listed twice (2015-06, 2023-01) and left in 2023-01"
+
+///> rust
+test offshore_yuan_is_not_an_iso_code =
+    ? minor_unit_of "CNH" <> NotIso ?> failwith "CNH is SAT's, not ISO's"
+
+:= peso_window (q : i64) (v : i64) = families::window_bounds (families::cfdi_line (places_of money::Mxn)) (money::cents q) (money::cents v)
+
+///> rust
+test a_peso_cfdi_line_takes_its_places_from_iso_4217 =
+    ? peso_window 300i64 1000i64 <> (money::cents 2993i64, money::cents 3007i64) ?> failwith "MXN: 29.93 to 30.07"
+
+:| moneda_window =
+    | WindowFor : families::amount_window families::mexico
+    | NoWindow : minor_unit
+
+:= cfdi_window_for (moneda : string) (cantidad : i32) (valor : i32) : moneda_window =
+    ?= minor_unit_of moneda ?|
+    | Places n => WindowFor (families::CfdiLine { importe = n; cantidad = cantidad; valor = valor })
+    | other => NoWindow other
+
+:== amount_pair = decimal::decimal * decimal::decimal
+
+:= moneda_bounds (moneda : string) (cantidad : i32) (valor : i32) (q : decimal::decimal) (v : decimal::decimal) : option amount_pair =
+    ?= cfdi_window_for moneda cantidad valor ?|
+    | WindowFor w => Some (families::window_bounds w q v)
+    | NoWindow _ => None
+
+///> rust
+test a_peso_line_window_comes_from_its_moneda =
+    ? moneda_bounds "MXN" 2i32 2i32 (money::cents 300i64) (money::cents 1000i64) <> Some (money::cents 2993i64, money::cents 3007i64)
+    ?> failwith "MXN 3.00 x 10.00: 29.93 to 30.07"
+
+///> rust
+test a_yen_line_window_is_in_whole_yen =
+    := yen (n : i64) : decimal::decimal = { units = n; scale = 0i32 }
+    ? moneda_bounds "JPY" 0i32 0i32 (yen 3i64) (yen 1000i64) <> Some (yen 2498i64, yen 3502i64) ?> failwith "JPY 3 x 1000: 2498 to 3502"
+
+///> rust
+test a_metal_code_gets_no_window =
+    ? cfdi_window_for "XAU" 2i32 2i32 <> NoWindow NoMinorUnit ?> failwith "gold has no minor unit"
+
+///> rust
+test a_withdrawn_code_gets_no_window =
+    ? cfdi_window_for "HRK" 2i32 2i32 <> NoWindow (Withdrawn "2023-01") ?> failwith "the kuna left in 2023-01"
+
+///> rust
+test a_code_outside_iso_gets_no_window =
+    ? cfdi_window_for "CNH" 2i32 2i32 <> NoWindow NotIso ?> failwith "CNH is not ISO"
+
+:= written_decimals (text : string) : i32 =
+    := dot = sm'::index_of "." text
+    ? dot < 0i32 ?> 0i32 |: (sm'::length text : i32) - dot - 1i32
+
+:= attribute_text (key : string) (node : xml::xml_node) : string =
+    ?= listm'::try_find_ (\ (k, _) => k = key) (xml::element_attributes node) ?|
+    | Some (_, value) => value
+    | None => ""
+
+:= attribute_amount (key : string) (node : xml::xml_node) : decimal::decimal =
+    optionm'::default_value (money::cents 0i64) (decimal::parse (attribute_text key node))
+
+:= child_of (name : string) (node : option xml::xml_node) : option xml::xml_node =
+    optionm::bind (\ n => sunat::child_named name (xml::element_children n)) node
+
+:= stamped_root () : option xml::xml_node =
+    := text = file_system::read_all_text (fiscal_paths::under "deps/corpus/mx/stamped/cfdiutils-cfdi40-valid.xml")
+    sunat::child_named "Comprobante" (xml::read_xml text)
+
+:= concept_window (moneda : string) (c : xml::xml_node) : moneda_window =
+    cfdi_window_for moneda (written_decimals (attribute_text "Cantidad" c)) (written_decimals (attribute_text "ValorUnitario" c))
+
+:== peso_window = families::amount_window families::mexico
+
+:= billed_within (w : peso_window) (c : xml::xml_node) : bool =
+    := a (key : string) = attribute_amount key c
+    ?= families::window_check w (a "Cantidad") (a "ValorUnitario") (a "Importe") ?|
+    | families::Within _ => true
+    | families::Outside _ => false
+
+:= concept_within (moneda : string) (c : xml::xml_node) : bool =
+    ?= concept_window moneda c ?|
+    | WindowFor w => billed_within w c
+    | NoWindow _ => false
+
+:= stamped_moneda () : string = optionm'::default_value "" (optionm::map (attribute_text "Moneda") (stamped_root ()))
+
+:= strict_line_amount () : decimal::decimal =
+    money::rounded money::HalfUp 2i32 (decimal::multiply (money::cents 400i64) (money::cents 95604i64))
+
+:= stamped_concept () : option xml::xml_node = child_of "Concepto" (child_of "Conceptos" (stamped_root ()))
+
+///> rust
+test written_decimals_come_from_the_text =
+    ? written_decimals "4" <> 0i32 || written_decimals "956.04" <> 2i32 || written_decimals "1.500000" <> 6i32
+    ?> failwith "0, 2 and 6 written decimals"
+
+///> rust
+test the_stamped_concept_falls_in_its_anexo_20_window =
+    ?= stamped_concept () ?|
+    | Some c => ? concept_within (stamped_moneda ()) c = !- ?> failwith "3824.15 is inside the MXN window"
+    | None => failwith "the stamped CFDI has a Concepto"
+
+///> rust
+test strict_rounding_would_reject_the_stamped_concept =
+    ? money::same (strict_line_amount ()) (money::cents 382415i64) ?> failwith "round2(4 x 956.04) is 3824.16, not the billed 3824.15"
+
+:= nfe_root (file : string) : option xml::xml_node =
+    := text = file_system::read_all_text (fiscal_paths::under ("deps/corpus/br/sped-nfe-fixtures/" ++# file))
+    sunat::child_named "nfeProc" (xml::read_xml text)
+
+:= nfe_product (file : string) : option xml::xml_node =
+    child_of "prod" (child_of "det" (child_of "infNFe" (child_of "NFe" (nfe_root file))))
+
+:= element_amount (name : string) (node : xml::xml_node) : decimal::decimal =
+    optionm'::default_value (money::cents 0i64) (optionm::bind decimal::parse (sunat::child_text name node))
+
+:= nfe_item_within (prod : xml::xml_node) : bool =
+    := a (name : string) = element_amount name prod
+    ?= families::window_check families::NfeItem (a "qCom") (a "vUnCom") (a "vProd") ?|
+    | families::Within _ => true
+    | families::Outside _ => false
+
+///> rust
+test an_authorized_2017_nfe_item_falls_in_its_window =
+    ? optionm::map nfe_item_within (nfe_product "2017protocoled.xml") <> Some true
+    ?> failwith "389.95 x 49.92 = 19466.304, billed 19466.30"
+
+///> rust
+test an_authorized_4_00_nfe_item_falls_in_its_window =
+    ? optionm::map nfe_item_within (nfe_product "nfe_layout4_com_prot.xml") <> Some true ?> failwith "10 x 50 = 500.00"

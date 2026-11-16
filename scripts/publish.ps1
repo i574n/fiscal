@@ -1,0 +1,3 @@
+$ErrorActionPreference = 'Stop'
+$root = Split-Path $PSScriptRoot
+& (Join-Path $root 'deps/spiral/scripts/publish-tree.ps1') -Root $root -Exclude 'deps' -Include '*.xml', '*.txt', '*.tsv', '*.json', 'reports.md', 'modeling-ceiling.spi', '*.spi.html', '*.spi.ipynb', '*.spi.livemd'

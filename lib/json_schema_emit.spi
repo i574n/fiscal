@@ -1,0 +1,25 @@
+///- --package . --timeout 900000
+:< sm'_operators
+:< xsd
+:< xsd_resolve
+:< xsd_emit
+:< json_schema
+
+///> rust
+:# json_schemas_map_onto_the_xsd_model_and_generate =
+    := schema =
+        "{ \"$id\": \"urn:gst:einvoice\", \"type\": \"object\", \"required\": [\"Version\", \"DocDtls\", "
+        ^^ "\"ItemList\"], \"properties\": { \"Version\": { \"type\": \"string\", \"maxLength\": 6 }, \"DocDtls\": { "
+        ^^ "\"$ref\": \"#/definitions/doc\" }, \"ItemList\": { \"type\": \"array\", \"minItems\": 1, \"maxItems\": "
+        ^^ "1000, \"items\": { \"$ref\": \"#/definitions/item\" } } }, \"definitions\": { \"doc\": { \"type\": "
+        ^^ "\"object\", \"required\": [\"Typ\", \"No\"], \"properties\": { \"Typ\": { \"type\": \"string\", \"enum\": "
+        ^^ "[\"INV\", \"CRN\", \"DBN\"] }, \"No\": { \"type\": \"string\", \"pattern\": "
+        ^^ "\"^[a-zA-Z1-9][a-zA-Z0-9/-]{0,15}$\" } } }, \"item\": { \"type\": \"object\", \"required\": [\"SlNo\"], "
+        ^^ "\"properties\": { \"SlNo\": { \"type\": \"string\" }, \"Qty\": { \"type\": \"number\" } } } } }"
+    := model = schema_of_json_schema "Invoice" schema
+    ? namespace_text model::target_namespace <> "urn:gst:einvoice" ?> failwith "$id is the namespace"
+    ? listm::length model::complex_types <> 3i32 ?> failwith "doc, item and the root are complex types"
+    := text = xsd_emit::generate_module (xsd_resolve::finalize_names (xsd_resolve::qualify_schema [] model))
+    ? sm'::contains "nominal x_invoice =" text = !- ?> failwith "the root type is emitted as a nominal record"
+    ? sm'::contains "x_doc" text = !- || sm'::contains "x_item" text = !- ?> failwith "definitions are emitted"
+    ? sm'::contains "INV" text = !- ?> failwith "an enum becomes a coded type"
